@@ -1,0 +1,179 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using Cloo;
+using Cloo.Bindings;
+
+namespace IFSEngine
+{
+    public class Renderer
+    {
+
+        [DllImport("opengl32.dll")]
+        extern static IntPtr wglGetCurrentDC();
+
+        ComputePlatform platf;
+        static ComputeDevice device1;
+        ComputeContext ctx;
+        ComputeCommandQueue cq;
+        static ComputeProgram prog1;
+        ComputeKernel computekernel;
+        ComputeKernel displaykernel;
+        ComputeBuffer<float>/*<double4>*/ calcbuf;
+        ComputeImage2D/*<double4>*/ dispimg;
+        ComputeBuffer<float> dispbuf;
+        ComputeBuffer<float>/*<float>*/ randbuf;
+        ComputeBuffer<float>/*<double>*/ dispsettingsbuf;
+        
+        ComputeErrorCode e;
+        ComputeProgramBuildNotifier buildnotif = new ComputeProgramBuildNotifier(builddebug);
+        static void builddebug(CLProgramHandle h, IntPtr p)
+        {
+            Debug.WriteLine("BUILD LOG: " + prog1.GetBuildLog(device1));
+        }
+
+        ComputeContextNotifier contextnotif = new ComputeContextNotifier((str, a, b, c) => {
+            Debug.WriteLine("CTX ERROR INFO: " + str);
+        });
+
+        int threadcnt = 300;
+        int width;
+        int height;
+        int max_iters;
+        int texturetarget;
+        Random rgen = new Random();
+        private int rendersteps;
+
+        public Renderer(int width, int height, int max_iters, IntPtr glctxh, int texturetarget)
+        {
+            this.width = width;
+            this.height = height;
+            this.max_iters = max_iters;
+            this.texturetarget = texturetarget;
+            
+            //e.OnAnyError(ec => throw new Exception(ec.ToString()));
+
+            string kernelSource = "#define width (" + width + ")\r\n";
+            kernelSource += "#define height (" + height + ")\r\n";
+            kernelSource += "#define max_iters (" + max_iters + ")\r\n";
+            var assembly = typeof(Renderer).GetTypeInfo().Assembly;
+            Stream resource = assembly.GetManifestResourceStream("IFSEngine.ifs_kernel.cl");
+            kernelSource += new StreamReader(resource).ReadToEnd();
+
+            Debug.WriteLine("init opencl..");
+            platf = ComputePlatform.Platforms[0];
+            device1 = platf.Devices[0];
+
+            if (glctxh.ToInt32() > 0)
+            {
+                IntPtr raw_context_handle = glctxh;
+                ComputeContextProperty p1 = new ComputeContextProperty(ComputeContextPropertyName.CL_GL_CONTEXT_KHR, raw_context_handle);
+                ComputeContextProperty p2 = new ComputeContextProperty(ComputeContextPropertyName.CL_WGL_HDC_KHR, wglGetCurrentDC());
+                ComputeContextProperty p3 = new ComputeContextProperty(ComputeContextPropertyName.Platform, platf.Handle.Value);
+                List<ComputeContextProperty> props = new List<ComputeContextProperty>() { p1, p2, p3 };
+                ComputeContextPropertyList Properties = new ComputeContextPropertyList(props);
+                ctx = new ComputeContext(ComputeDeviceTypes.Gpu, Properties, contextnotif, IntPtr.Zero);
+            }
+            else
+                ctx = new Cloo.ComputeContext(new ComputeDevice[] { device1 }, new ComputeContextPropertyList(platf), contextnotif, IntPtr.Zero);
+            cq = new Cloo.ComputeCommandQueue(ctx, /*glcq?*/device1, ComputeCommandQueueFlags.Profiling/*None*/);
+            prog1 = new Cloo.ComputeProgram(ctx, kernelSource);
+            try
+            {
+                prog1.Build(new ComputeDevice[] { device1 }, "", buildnotif, IntPtr.Zero);
+            }
+            catch (Cloo.BuildProgramFailureComputeException)
+            {
+                Debug.WriteLine("BUILD ERROR: " + prog1.GetBuildLog(device1));
+                return;
+            }
+            computekernel = prog1.CreateKernel("Main");
+            displaykernel = prog1.CreateKernel("Display");
+
+            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, threadcnt * (max_iters + 2));
+            calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, width * height * 4);//rgba
+            dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, width * height * 4);//rgba
+            if (glctxh.ToInt32() > 0)
+            {
+                dispimg = Cloo.ComputeImage2D.CreateFromGLTexture2D(ctx, ComputeMemoryFlags.WriteOnly, 3553/*gl texture2d*/, 0, texturetarget);
+                //dispimg = Cloo.ComputeImage2D.CreateFromGLRenderbuffer(ctx, ComputeMemoryFlags.WriteOnly, texturetarget/*buffertarget*/);
+            }
+            else
+                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat( ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
+            dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
+
+            computekernel.SetMemoryArgument(0, calcbuf);
+            computekernel.SetMemoryArgument(1, randbuf);
+            
+            displaykernel.SetMemoryArgument(0, calcbuf);
+            displaykernel.SetMemoryArgument(1, dispbuf);
+            displaykernel.SetMemoryArgument(2, dispimg);
+            displaykernel.SetMemoryArgument(3, dispsettingsbuf);
+        }
+
+        public void Reset()
+        {
+            rendersteps = 0;
+            //TODO: clear calcbuf
+        }
+
+        public void Render()
+        {
+            float[] rnd = new float[threadcnt * (max_iters + 2)];
+            for (int i = 0; i < rnd.Length; i++)
+                rnd[i] = (float)rgen.NextDouble();
+
+            cq.WriteToBuffer<float>(rnd, randbuf, true, null);
+            //e = Cl.EnqueueMarker(cq, out Event start);
+            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
+            cq.Finish();
+            rendersteps++;
+            //e = Cl.EnqueueMarker(cq, out Event end);
+            //e = Cl.Finish(cq);
+
+            //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
+            //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
+            //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
+        }
+
+        public double[,][] Img(float brightness, float gamma)
+        {
+            float[] d = new float[width * height * 4];//rgba
+            cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps, brightness, gamma }, dispsettingsbuf, true, null);
+            if (texturetarget > -1)//van gl
+                cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
+            cq.ReadFromBuffer<float>(dispbuf, ref d, true, null);
+            cq.Finish();
+            if (texturetarget > -1)//van gl
+                cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+
+            double[,][] o = new double[width, height][];
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                {
+                    o[x, y] = new double[3];
+                    o[x, y][0] = d[x*4 + y*4 * width+0];//?
+                    o[x, y][1] = d[x*4 + y*4 * width+1];
+                    o[x, y][2] = d[x*4 + y*4 * width+2];
+                    //s3 opacity
+                }
+            return o;
+        }
+
+        public void Dispose()
+        {
+            calcbuf.Dispose();
+            randbuf.Dispose();
+            dispbuf.Dispose();
+
+            prog1.Dispose();
+            computekernel.Dispose();
+            cq.Dispose();
+            ctx.Dispose();
+        }
+    }
+}
