@@ -46,19 +46,19 @@ __constant Iterator its[it_num] = {
 */
 __constant Iterator its[it_num] = {
 {
-	{{0.0,-0.5} , {-0.8,0.33} , {0.33,-0.8}},
+	{{0.0,-0.5} , {-0.4,0.33} , {0.33,-0.8}},
 	0,
-	0.33,
+	0.25,
 	0.5
 },{
-	{{0.2,1.0} , {0.8,0.0} , {0.1,0.8}},
+	{{0.2,-1.0} , {0.8,0.5} , {0.1,0.8}},
 	0,
-	0.33,
+	0.5,
 	0.5
 },{
 	{{0.6,0.133975} , {0.56,0.0} , {0.0,0.4}},
 	0,
-	0.33,
+	0.25,
 	0.5
 }
 
@@ -123,19 +123,20 @@ __kernel void Main(__global float* output, __global float* rnd)
 		int x_index = (int)(round(finalp.x*width));
 		int y_index = (int)(round(finalp.y*width));
 
-		float4 color = (float4)(1.0f,0.3f,0.3f,1.0f);
+		float4 color = (float4)(1.0f,1.0f,1.0f,1.0f);//TODO: calc by Palette(p.z)
 
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
 		{//point lands on picture
-			output[x_index*4 + y_index*4 * width+0] += color.x;//r
-			output[x_index*4 + y_index*4 * width+1] += color.y;//g
-			output[x_index*4 + y_index*4 * width+2] += color.z;//b
-			output[x_index*4 + y_index*4 * width+3] += 1.0f;//a
+			int ipx = x_index*4 + y_index*4 * width;//pixel index
+			output[ipx+0] += color.x;//r
+			output[ipx+1] += color.y;//g
+			output[ipx+2] += color.z;//b
+			output[ipx+3] += 1.0f;//a
 			//accepted_iters++;
 		}
 		else
 			continue;
-		/*
+		
 		//aa
 		float dx = finalp.x*width - floor(finalp.x*width);//finalp.x*width % 1;
 		float dy = finalp.y*height - floor(finalp.y*height);//finalp.y*height % 1;
@@ -146,7 +147,12 @@ __kernel void Main(__global float* output, __global float* rnd)
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = 2.0 - dx-dy;
-			output[x_index + y_index*width] += color * dd * avg;
+			int ipx = x_index*4 + y_index*4 * width;//pixel index
+			output[ipx+0] += color.x * dd * avg;
+			output[ipx+1] += color.y * dd * avg;
+			output[ipx+2] += color.z * dd * avg;
+			output[ipx+3] += 1.0;
+
 		};
       
 		x_index=ceil(finalp.x*width);
@@ -154,7 +160,11 @@ __kernel void Main(__global float* output, __global float* rnd)
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = dx+dy;
-			output[x_index + y_index*width] += color * dd * avg;
+			int ipx = x_index*4 + y_index*4 * width;//pixel index
+			output[ipx+0] += color.x * dd * avg;
+			output[ipx+1] += color.y * dd * avg;
+			output[ipx+2] += color.z * dd * avg;
+			output[ipx+3] += 1.0;
 		};
       
 		x_index=floor(finalp.x*width);
@@ -162,7 +172,11 @@ __kernel void Main(__global float* output, __global float* rnd)
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = (1.0-dx)+dy;
-			output[x_index + y_index*width] += color * dd * avg;
+			int ipx = x_index*4 + y_index*4 * width;//pixel index
+			output[ipx+0] += color.x * dd * avg;
+			output[ipx+1] += color.y * dd * avg;
+			output[ipx+2] += color.z * dd * avg;
+			output[ipx+3] += 1.0;
 		};
       
 		x_index=ceil(finalp.x*width);
@@ -170,9 +184,13 @@ __kernel void Main(__global float* output, __global float* rnd)
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = dx+(1.0-dy);
-			output[x_index + y_index*width] += color * dd * avg;
+			int ipx = x_index*4 + y_index*4 * width;//pixel index
+			output[ipx+0] += color.x * dd * avg;
+			output[ipx+1] += color.y * dd * avg;
+			output[ipx+2] += color.z * dd * avg;
+			output[ipx+3] += 1.0;
 		};
-		*/
+		
 
 
 	}
@@ -189,11 +207,15 @@ __kernel void Display(__global float* calc, __global float* disp, __write_only i
 
 	float4 acc = (float4)(calc[gid*4+0], calc[gid*4+1], calc[gid*4+2], calc[gid*4+3]);
 
-	float4 logscaled = settings[1]*exp(log(acc/settings[0])/settings[2]);
+	float4 linear = acc/settings[0];
+	float4 logscaled = settings[1]*exp(log(linear)/settings[2]);
 	logscaled.w = 1.0f;//debug
 
 	int2 coords = (int2)(gid%width, gid / width);
-	write_imagef(img, coords, logscaled);//int2, float4
+
+	//format: //image2d_t, int2, float4
+	write_imagef(img, coords, logscaled);
+	//write_imagef(img, coords, linear);//ez nem jo mert nem fer bele a gl 0-1 rangejebe
 
 	disp[gid*4+0] = logscaled.x;
 	disp[gid*4+1] = logscaled.y;

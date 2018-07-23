@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Cloo;
 using Cloo.Bindings;
 
@@ -47,13 +48,15 @@ namespace IFSEngine
         Random rgen = new Random();
         private int rendersteps;
 
+        float[] rnd;
+
         public Renderer(int width, int height, int max_iters, IntPtr glctxh, int texturetarget)
         {
             this.width = width;
             this.height = height;
             this.max_iters = max_iters;
             this.texturetarget = texturetarget;
-            
+
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
             string kernelSource = "#define width (" + width + ")\r\n";
@@ -120,48 +123,83 @@ namespace IFSEngine
             //TODO: clear calcbuf
         }
 
+        int rndcarousel = 0;
+
         public void Render()
         {
-            float[] rnd = new float[threadcnt * (max_iters + 2)];
-            for (int i = 0; i < rnd.Length; i++)
-                rnd[i] = (float)rgen.NextDouble();
+            //Task.Run(() =>
+            //{
+                if (rndcarousel <= 0)
+                {
+                    rndcarousel = 4;
+                    rnd = new float[threadcnt * (max_iters + 2)];
+                    for (int i = 0; i < rnd.Length; i++)
+                        rnd[i] = (float)rgen.NextDouble();
+                }
+                else
+                {
+                    rndcarousel--;
+                    for (int i = 0; i < rnd.Length; i++)
+                        rnd[i] = (rnd[i]+0.25f) % 1.0f;
+                }
 
-            cq.WriteToBuffer<float>(rnd, randbuf, true, null);
-            //e = Cl.EnqueueMarker(cq, out Event start);
-            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
-            cq.Finish();
-            rendersteps++;
-            //e = Cl.EnqueueMarker(cq, out Event end);
-            //e = Cl.Finish(cq);
+                cq.WriteToBuffer<float>(rnd, randbuf, true, null);
+                //e = Cl.EnqueueMarker(cq, out Event start);
+                cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
+                cq.Finish();
+                rendersteps++;
+                //e = Cl.EnqueueMarker(cq, out Event end);
+                //e = Cl.Finish(cq);
 
-            //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
-            //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
-            //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
+                //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
+                //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
+                //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
+            //});
+        }
+
+        public void UpdateDisplay(float brightness, float gamma)
+        {
+            //Task.Run(() =>
+            //{
+                
+                //cq.Finish();//
+                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/2, brightness, gamma }, dispsettingsbuf, true, null);
+                if (texturetarget > -1)//van gl
+                    cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
+                cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
+
+                if (texturetarget > -1)//van gl
+                    cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+                cq.Finish();
+            //});
         }
 
         public double[,][] Img(float brightness, float gamma)
         {
-            float[] d = new float[width * height * 4];//rgba
-            cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps, brightness, gamma }, dispsettingsbuf, true, null);
-            if (texturetarget > -1)//van gl
-                cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
-            cq.ReadFromBuffer<float>(dispbuf, ref d, true, null);
-            cq.Finish();
-            if (texturetarget > -1)//van gl
-                cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+                float[] d = new float[width * height * 4];//rgba
 
-            double[,][] o = new double[width, height][];
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y++)
-                {
-                    o[x, y] = new double[3];
-                    o[x, y][0] = d[x*4 + y*4 * width+0];//?
-                    o[x, y][1] = d[x*4 + y*4 * width+1];
-                    o[x, y][2] = d[x*4 + y*4 * width+2];
-                    //s3 opacity
-                }
-            return o;
+                //UpdateDisplay()
+                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/2, brightness, gamma }, dispsettingsbuf, true, null);
+                if (texturetarget > -1)//van gl
+                    cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
+                cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
+
+                cq.ReadFromBuffer<float>(dispbuf, ref d, true, null);
+                cq.Finish();
+                if (texturetarget > -1)//van gl
+                    cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+
+                double[,][] o = new double[width, height][];
+                for (int x = 0; x < width; x++)
+                    for (int y = 0; y < height; y++)
+                    {
+                        o[x, y] = new double[3];
+                        o[x, y][0] = d[x * 4 + y * 4 * width + 0];//?
+                        o[x, y][1] = d[x * 4 + y * 4 * width + 1];
+                        o[x, y][2] = d[x * 4 + y * 4 * width + 2];
+                        //s3 opacity
+                    }
+                return o;
         }
 
         public void Dispose()
