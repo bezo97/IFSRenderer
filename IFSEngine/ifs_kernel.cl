@@ -1,6 +1,4 @@
-﻿#define it_num (3)
-
-//max_iters
+﻿//max_iters
 //width
 //height
 
@@ -11,9 +9,45 @@
 
 typedef struct
 {
-	float2 o;
-	float2 x;
-	float2 y;
+    float ox;//pos
+    float oy;
+    float oz;
+
+	//dir
+    float theta;//0-pi
+    float phi;//0-2pi
+
+    float focallength;//for perspective
+
+	float focusdistance;//for dof
+	float dof_effect;
+} Camera;
+
+typedef struct
+{
+	int itnum;//length of its - 1 (last one is finalit)
+	Camera camera;
+} Settings;
+
+typedef struct
+{
+	//Origin
+	float ox;
+	float oy;
+	float oz;
+	//X axis
+	float xx;
+	float xy;
+	float xz;
+	//Y axis
+	float yx;
+	float yy;
+	float yz;
+	//Z axis
+	float zx;
+	float zy;
+	float zz;
+
 } Affine;
 
 typedef struct
@@ -23,67 +57,79 @@ typedef struct
 	float w;
 	float cs;
 } Iterator;
-/*
-__constant Iterator its[it_num] = {
+
+float2 Project(Camera c, float3 p, float ra, float rl)
 {
-	{{0.0,1.0} , {0.5,0.0} , {0.0,0.5}},
-	0,
-	0.33,
-	0.5
-},{
-	{{1.0,1.0} , {0.5,0.0} , {0.0,0.5}},
-	0,
-	0.33,
-	0.5
-},{
-	{{0.5,0.133975} , {0.5,0.0} , {0.0,0.5}},
-	0,
-	0.33,
-	0.5
+	int r1 = 0.0f;
+	int r2 = 0.0f;
+	int r3 = 0.0f;
+
+	float3 r;//ray from camera to point
+	r.x = (p.x-c.ox);
+	r.y = (p.y-c.oy);
+	r.z = (p.z-c.oz);
+
+	float hack=c.phi;//miert vetitunk a kamera jobb oldala iranyaba???
+	c.phi-=3.1415926f/2.0f;
+
+	float subject_distance = - r.x*sin(c.phi)*sin(c.theta) + r.y*cos(c.phi)*sin(c.theta) - r.z*cos(c.theta) + r3 -/*ez miert nem +*/ c.focallength;
+	if(subject_distance<0.0f)//discard if behind camera
+		return (float2)(-2,-2);
+
+	float model_x = r.x*cos(c.phi) + r.y*sin(c.phi) + r1;
+	float model_y = - r.x*sin(c.phi)*cos(c.theta) + r.y*cos(c.phi)*cos(c.theta) + r.z*sin(c.theta) - r2;
+
+	c.phi=hack;
+
+	//dof pr
+	float3 co = (float3)(c.ox, c.oy, c.oz);
+	float3 cd;
+	cd.x = sin(c.theta)*cos(c.phi);
+	cd.y = sin(c.theta)*sin(c.phi);
+	cd.z = cos(c.theta);
+	cd = normalize(cd);
+	float3 rd = normalize(p-co);
+	float3 focuspoint = co + (rd * c.focusdistance);// / dot(rd, cd));
+	float3 fpn = -cd;//focal plane normal
+	float D = dot(fpn,focuspoint);
+	float dd = fabs(dot(fpn,p)+D);
+	float dof = c.dof_effect*dd;
+	model_x+=pow(rl,0.5f)*dof*cos(ra*6.28318530718f);
+	model_y+=pow(rl,0.5f)*dof*sin(ra*6.28318530718f);
+
+	float2 o;
+	o.x = model_x * c.focallength / subject_distance;//project
+	o.y = model_y * c.focallength / subject_distance;
+	return o;
+
 }
 
-};
-*/
-__constant Iterator its[it_num] = {
-{
-	{{0.0,-0.5} , {-0.4,0.33} , {0.33,-0.8}},
-	0,
-	0.25,
-	0.5
-},{
-	{{0.2,-1.0} , {0.8,0.5} , {0.1,0.8}},
-	0,
-	0.5,
-	0.5
-},{
-	{{0.6,0.133975} , {0.56,0.0} , {0.0,0.4}},
-	0,
-	0.25,
-	0.5
+float3 affine(Affine aff, float3 input){
+ float px = aff.xx * input.x + aff.xy * input.y + aff.xz * input.z + aff.ox;
+ float py = aff.yx * input.x + aff.yy * input.y + aff.yz * input.z + aff.oy;
+ float pz = aff.zx * input.x + aff.zy * input.y + aff.zz * input.z + aff.oz;
+ return (float3)(px, py, pz);
 }
 
-};
-
-__constant Iterator finalit = {
-	{{0.0,0.0} , {0.5,0.0} , {0.0,0.5}},
-	0,
-	1.0,
-	0.5
-};
-
-float2 affine(Affine aff, float2 input){
- float px = aff.x.x * input.x + aff.x.y * input.y + aff.o.x;
- float py = aff.y.x * input.y + aff.y.y * input.y + aff.o.y;
- return (float2)(px, py);
-}
-
-float4 Apply(Iterator it, float4 input)
+//TODO: color es opacity megint
+float3 Apply(Iterator it, float3 input/*, float2 shader (color,opacity)*/)
 {
-	float2 p = affine(it.aff, input.xy);
+	float3 p = affine(it.aff, input.xyz);
 	//transform here: TODO
-	float c = (input.z + it.cs) / 2.0f;//color
-	float o = input.w;//opacity
-	return (float4)(p, c, o);
+	if(it.tfID==0)
+	{
+		//linear
+	}
+	else if(it.tfID==1)
+	{//spherical
+		float r = length(p);
+		p = p/(r*r);
+	}
+
+	//float c = (input.z + it.cs) / 2.0f;//color//ez hibas a paperben
+	//float c = it.cs * /*it.color_index*/0.5 + (1.0f - it.cs) * shader.x;//TODO: add color_index to Iterators
+	//float o = shader.y;//opacity
+	return p;//(float4)(p, c, o);
 }
 
 float4 getPaletteColor(float lerp)
@@ -91,21 +137,28 @@ float4 getPaletteColor(float lerp)
 	return (float4)(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-__kernel void Main(__global float* output, __global float* rnd)
+__kernel void Main(
+	__global float* output,
+	__global float* rnd,
+	__global Iterator* its,
+	__global Settings* settings
+)
 {
 	int gid = get_global_id(0);
-	int next = gid*(max_iters+2);//for rnd
+	int next = gid*(max_iters+3);//for rnd
 
 	float startx = rnd[next++]*2.0f-1.0f;
 	float starty = rnd[next++]*2.0f-1.0f;
-	float4 p = (float4)(startx, starty, 0.1f,1.0f);//x,y,c,o
+	float startz = rnd[next++]*2.0f-1.0f;
+	float3 p = (float3)(startx, starty, startz);//x,y,c,o
+	//TODO: p_shader (color01, opacity01)
 
 	for (int i = 0; i < max_iters; i++)
 	{//pick a random weighted Transform index
 		int r_index = 0;
 		float r = rnd[next++];
 		float w_acc = 0.0f;
-		for (int j = 0; j < it_num; j++)
+		for (int j = 0; j < settings[0].itnum; j++)
 			if (w_acc < r) {
 				w_acc += its[j].w;
 				r_index = j;
@@ -114,17 +167,26 @@ __kernel void Main(__global float* output, __global float* rnd)
 				break;
 
 		p = Apply(its[r_index], p);//transform here
+		//TODO: p_shader=
 
-		float4 finalp = Apply(finalit, p);
-
-		finalp.xy = (float2)(0.5f,0.5f) + finalp.xy * (0.5f);//to window center
+		float3 finalp = Apply(/*finalit*/its[settings[0].itnum], p);
+		//TODO: finalp_shader=
 
 		//printf("f2 = %2.2v2hlf\n", index);
-		int x_index = (int)(round(finalp.x*width));
-		int y_index = (int)(round(finalp.y*width));
+		
+		//perspective project
+		float2 proj = Project(settings[0].camera, finalp, rnd[i%max_iters],rnd[(i+422)%max_iters]);
+		//window center
+		proj.x = width/2.0f + proj.x * width/2.0f;
+		proj.y = width/2.0f + proj.y * width/2.0f;
+		
+		int x_index = round(proj.x);
+		int y_index = round(proj.y);
 
-		float4 color = (float4)(1.0f,1.0f,1.0f,1.0f);//TODO: calc by Palette(p.z)
 
+		float4 color = (float4)(1.0f,1.0f,1.0f,1.0f);//TODO: calc by Palette(p_shader.color)
+		
+		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
 		{//point lands on picture
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
@@ -138,12 +200,12 @@ __kernel void Main(__global float* output, __global float* rnd)
 			continue;
 		
 		//aa
-		float dx = finalp.x*width - floor(finalp.x*width);//finalp.x*width % 1;
-		float dy = finalp.y*height - floor(finalp.y*height);//finalp.y*height % 1;
+		float dx = proj.x - floor(proj.x);//proj.x % 1;
+		float dy = proj.y - floor(proj.y);//proj.y % 1;
 		float avg = 1.0/8.0;
 		
-		x_index=floor(finalp.x*width);
-		y_index=floor(finalp.y*height);
+		x_index=floor(proj.x);
+		y_index=floor(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = 2.0 - dx-dy;
@@ -155,8 +217,8 @@ __kernel void Main(__global float* output, __global float* rnd)
 
 		};
       
-		x_index=ceil(finalp.x*width);
-		y_index=ceil(finalp.y*height);
+		x_index=ceil(proj.x);
+		y_index=ceil(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = dx+dy;
@@ -167,8 +229,8 @@ __kernel void Main(__global float* output, __global float* rnd)
 			output[ipx+3] += 1.0;
 		};
       
-		x_index=floor(finalp.x*width);
-		y_index=ceil(finalp.y*height);
+		x_index=floor(proj.x);
+		y_index=ceil(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = (1.0-dx)+dy;
@@ -179,8 +241,8 @@ __kernel void Main(__global float* output, __global float* rnd)
 			output[ipx+3] += 1.0;
 		};
       
-		x_index=ceil(finalp.x*width);
-		y_index=floor(finalp.y*height);
+		x_index=ceil(proj.x);
+		y_index=floor(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
 			double dd = dx+(1.0-dy);

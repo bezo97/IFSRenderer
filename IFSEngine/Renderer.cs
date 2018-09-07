@@ -7,9 +7,70 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Cloo;
 using Cloo.Bindings;
+using System.Linq;
 
 namespace IFSEngine
 {
+    internal struct Settings
+    {
+        internal int itnum;//length of its - 1 (last one is finalit)
+        internal CameraSettings camera;
+    }
+
+    public struct Affine
+    {
+        public float ox;
+        public float oy;
+        public float oz;
+         
+        public float xx;
+        public float xy;
+        public float xz;
+         
+        public float yx;
+        public float yy;
+        public float yz;
+
+        public float zx;
+        public float zy;
+        public float zz;
+
+        public Affine(float ox, float oy, float oz, float xx, float xy, float xz, float yx, float yy, float yz, float zx, float zy, float zz)
+        {
+            this.ox = ox;
+            this.oy = oy;
+            this.oz = oz;
+
+            this.xx = xx;
+            this.xy = xy;
+            this.xz = xz;
+
+            this.yx = yx;
+            this.yy = yy;
+            this.yz = yz;
+
+            this.zx = zx;
+            this.zy = zy;
+            this.zz = zz;
+        }
+    }
+
+    public struct Iterator
+    {
+        public Affine aff;
+        public int tfID;
+        public float w;
+        public float cs;
+
+        public Iterator(Affine aff, int tfID, float w, float cs)
+        {
+            this.aff = aff;
+            this.tfID = tfID;
+            this.w = w;
+            this.cs = cs;
+        }
+    }
+
     public class Renderer
     {
 
@@ -28,7 +89,9 @@ namespace IFSEngine
         ComputeBuffer<float> dispbuf;
         ComputeBuffer<float>/*<float>*/ randbuf;
         ComputeBuffer<float>/*<double>*/ dispsettingsbuf;
-        
+        ComputeBuffer<Iterator>/*<double>*/ iteratorsbuf;
+        ComputeBuffer<Settings>/*<double>*/ settingsbuf;
+
         ComputeErrorCode e;
         ComputeProgramBuildNotifier buildnotif = new ComputeProgramBuildNotifier(builddebug);
         static void builddebug(CLProgramHandle h, IntPtr p)
@@ -47,6 +110,9 @@ namespace IFSEngine
         int texturetarget;
         Random rgen = new Random();
         private int rendersteps;
+        List<Iterator> its = new List<Iterator>();
+        Iterator finalit;
+        Settings settings;
 
         float[] rnd;
 
@@ -56,6 +122,12 @@ namespace IFSEngine
             this.height = height;
             this.max_iters = max_iters;
             this.texturetarget = texturetarget;
+
+            this.settings = new Settings
+            {
+                itnum = 0,
+                camera = new CameraSettings()
+            };
 
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
@@ -107,20 +179,42 @@ namespace IFSEngine
             else
                 dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat( ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
+            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count+1/*+final*/);//ezt load nal
+            settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
 
             computekernel.SetMemoryArgument(0, calcbuf);
             computekernel.SetMemoryArgument(1, randbuf);
-            
+            //computekernel.SetMemoryArgument(2, iteratorsbuf);//ezt loadnal
+            computekernel.SetMemoryArgument(3, settingsbuf);
+
             displaykernel.SetMemoryArgument(0, calcbuf);
             displaykernel.SetMemoryArgument(1, dispbuf);
             displaykernel.SetMemoryArgument(2, dispimg);
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
+
+            //Reset(its, finalit);
         }
 
-        public void Reset()
+        public void ResetParams(List<Iterator> its, Iterator finalit, Camera c)
         {
+            if (its.Count != this.its.Count)
+            {
+                if(iteratorsbuf!=null)
+                    iteratorsbuf.Dispose();
+                iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
+                computekernel.SetMemoryArgument(2, iteratorsbuf);
+            }
+            this.its = its;
+            this.settings.itnum = its.Count;
+            this.settings.camera = c.Settings;
             rendersteps = 0;
-            //TODO: clear calcbuf
+            this.finalit = finalit;
+            List<Iterator> its_and_final = new List<Iterator>(its);
+            its_and_final.Add(finalit);
+            cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, true, null);
+            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);
+            cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, true, null);
+            //Render();
         }
 
         int rndcarousel = 0;
@@ -142,11 +236,11 @@ namespace IFSEngine
                     for (int i = 0; i < rnd.Length; i++)
                         rnd[i] = (rnd[i]+0.25f) % 1.0f;
                 }
-
+                cq.Finish();
                 cq.WriteToBuffer<float>(rnd, randbuf, true, null);
                 //e = Cl.EnqueueMarker(cq, out Event start);
                 cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
-                cq.Finish();
+                //cq.Finish();
                 rendersteps++;
                 //e = Cl.EnqueueMarker(cq, out Event end);
                 //e = Cl.Finish(cq);
@@ -163,27 +257,26 @@ namespace IFSEngine
             //{
                 
                 //cq.Finish();//
-                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/2, brightness, gamma }, dispsettingsbuf, true, null);
+                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/*/2*/, brightness, gamma }, dispsettingsbuf, true, null);
                 if (texturetarget > -1)//van gl
                     cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
                 cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
-
                 if (texturetarget > -1)//van gl
                     cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
                 cq.Finish();
             //});
         }
 
-        public double[,][] Img(float brightness, float gamma)
+        //TODO: rendberak kepbe iras
+        /*public double[,][] Img(float brightness, float gamma)
         {
                 float[] d = new float[width * height * 4];//rgba
 
                 //UpdateDisplay()
-                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/2, brightness, gamma }, dispsettingsbuf, true, null);
+                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps /2(?), brightness, gamma }, dispsettingsbuf, true, null);
                 if (texturetarget > -1)//van gl
                     cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
                 cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
-
                 cq.ReadFromBuffer<float>(dispbuf, ref d, true, null);
                 cq.Finish();
                 if (texturetarget > -1)//van gl
@@ -200,13 +293,14 @@ namespace IFSEngine
                         //s3 opacity
                     }
                 return o;
-        }
+        }*/
 
         public void Dispose()
         {
             calcbuf.Dispose();
             randbuf.Dispose();
             dispbuf.Dispose();
+            iteratorsbuf.Dispose();
 
             prog1.Dispose();
             computekernel.Dispose();
