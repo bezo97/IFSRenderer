@@ -9,11 +9,22 @@ namespace IFSEngine
         internal float ox;//pos
         internal float oy;
         internal float oz;
-        
+
+        internal float dx;//dir
+        internal float dy;
+        internal float dz;
+
         //dir
         internal float theta;//0-pi
         internal float phi;//0-2pi
-        
+        //helpers
+        internal float sin_theta;
+        internal float cos_theta;
+        internal float sin_phi;
+        internal float cos_phi;
+        internal float sin_phi_hack;
+        internal float cos_phi_hack;
+
         internal float focallength;//for perspective
         
         internal float focusdistance;//for dof
@@ -24,8 +35,26 @@ namespace IFSEngine
     {
         internal CameraSettings Settings = new CameraSettings(){ ox = 0.0f, oy = -5.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 0.1f, dof_effect = 0.01f };
 
-        public float Theta { get => Settings.theta; set => Settings.theta = value % 3.141592f; }
-        public float Phi { get => Settings.phi; set => Settings.phi = value % (2.0f * 3.141592f); }
+        public float Theta {
+            get => Settings.theta;
+            set {
+                Settings.theta = value % 3.141592f;
+                Settings.sin_theta = (float)Math.Sin(Settings.theta);
+                Settings.cos_theta = (float)Math.Cos(Settings.theta);
+                getDir(Settings.theta, Settings.phi, out Settings.dx, out Settings.dy, out Settings.dz);
+            }
+        }
+        public float Phi {
+            get => Settings.phi;
+            set {
+                Settings.phi = value % (2.0f * 3.141592f);
+                Settings.sin_phi = (float)Math.Sin(Settings.phi);
+                Settings.cos_phi = (float)Math.Cos(Settings.phi);
+                Settings.sin_phi_hack = (float)Math.Sin(Settings.phi - 3.1415926f / 2.0f);
+                Settings.cos_phi_hack = (float)Math.Cos(Settings.phi - 3.1415926f / 2.0f);
+                getDir(Settings.theta, Settings.phi, out Settings.dx, out Settings.dy, out Settings.dz);
+            }
+        }
         public (float x,float y,float z) Pos { get => (Settings.ox, Settings.oy, Settings.oz); set  { Settings.ox = value.x; Settings.oy = value.y; Settings.oz = value.z; } }
 
         public float FocalLength { get => Settings.focallength; set => Settings.focallength = value; }
@@ -46,6 +75,7 @@ namespace IFSEngine
             dx = (float)(Math.Sin(t) * Math.Cos(p));
             dy = (float)(Math.Sin(t) * Math.Sin(p));
             dz = (float) Math.Cos(t);
+            Normalize(ref dx, ref dy, ref dz);
         }
 
         private void Normalize(ref float x, ref float y, ref float z)
@@ -59,13 +89,13 @@ namespace IFSEngine
         private void getRight(out float rx, out float ry, out float rz)
         {
             getDir(3.1415926f / 2.0f, Settings.phi - 3.1415926f / 2.0f, out rx, out ry, out rz);//???
-            Normalize(ref rx, ref ry, ref rz);
+            //Normalize(ref rx, ref ry, ref rz);
         }
 
         private void getUp(out float dx, out float dy, out float dz)
         {
             getDir(Settings.theta - 3.1415926f / 2.0f, Settings.phi, out dx, out dy, out dz);
-            Normalize(ref dx, ref dy, ref dz);
+            //Normalize(ref dx, ref dy, ref dz);
             /*dx *= -1;
             dy *= -1;
             dz *= -1;*/

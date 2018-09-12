@@ -14,6 +14,7 @@ namespace IFSEngine
     internal struct Settings
     {
         internal int itnum;//length of its - 1 (last one is finalit)
+        internal int max_iters;
         internal CameraSettings camera;
     }
 
@@ -106,26 +107,25 @@ namespace IFSEngine
         int threadcnt = 300;
         int width;
         int height;
-        int max_iters;
         int texturetarget;
         Random rgen = new Random();
-        private int rendersteps;
+        public int rendersteps=0;
         List<Iterator> its = new List<Iterator>();
         Iterator finalit;
         Settings settings;
 
         float[] rnd;
 
-        public Renderer(int width, int height, int max_iters, IntPtr glctxh, int texturetarget)
+        public Renderer(int width, int height, IntPtr glctxh, int texturetarget)
         {
             this.width = width;
             this.height = height;
-            this.max_iters = max_iters;
             this.texturetarget = texturetarget;
 
             this.settings = new Settings
             {
                 itnum = 0,
+                max_iters = 100,
                 camera = new CameraSettings()
             };
 
@@ -133,13 +133,14 @@ namespace IFSEngine
 
             string kernelSource = "#define width (" + width + ")\r\n";
             kernelSource += "#define height (" + height + ")\r\n";
-            kernelSource += "#define max_iters (" + max_iters + ")\r\n";
+            //kernelSource += "#define max_iters (" + max_iters + ")\r\n";
             var assembly = typeof(Renderer).GetTypeInfo().Assembly;
             Stream resource = assembly.GetManifestResourceStream("IFSEngine.ifs_kernel.cl");
             kernelSource += new StreamReader(resource).ReadToEnd();
 
             Debug.WriteLine("init opencl..");
-            platf = ComputePlatform.Platforms[0];
+            //platf = ComputePlatform.Platforms[0];
+            platf = ComputePlatform.Platforms.Where(pl => pl.Name == "NVIDIA CUDA").First();
             device1 = platf.Devices[0];
 
             if (glctxh.ToInt32() > 0)
@@ -168,7 +169,7 @@ namespace IFSEngine
             computekernel = prog1.CreateKernel("Main");
             displaykernel = prog1.CreateKernel("Display");
 
-            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, threadcnt * (max_iters + 2));
+            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, threadcnt * (/*max_iters*/10000 + 2));
             calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, width * height * 4);//rgba
             dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, width * height * 4);//rgba
             if (glctxh.ToInt32() > 0)
@@ -206,13 +207,14 @@ namespace IFSEngine
             }
             this.its = its;
             this.settings.itnum = its.Count;
+            this.settings.max_iters = 100;
             this.settings.camera = c.Settings;
             rendersteps = 0;
             this.finalit = finalit;
             List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, true, null);
-            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);
+            //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);
             cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, true, null);
             //Render();
         }
@@ -226,22 +228,31 @@ namespace IFSEngine
                 if (rndcarousel <= 0)
                 {
                     rndcarousel = 4;
-                    rnd = new float[threadcnt * (max_iters + 2)];
-                    for (int i = 0; i < rnd.Length; i++)
+                    rnd = new float[threadcnt * (/*this.settings.max_iters*/10000 + 2)];
+                    for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
                         rnd[i] = (float)rgen.NextDouble();
                 }
                 else
                 {
                     rndcarousel--;
-                    for (int i = 0; i < rnd.Length; i++)
+                    for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters + 2)*/; i++)
                         rnd[i] = (rnd[i]+0.25f) % 1.0f;
                 }
                 cq.Finish();
                 cq.WriteToBuffer<float>(rnd, randbuf, true, null);
+                cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es max_iters miatt
                 //e = Cl.EnqueueMarker(cq, out Event start);
                 cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
                 //cq.Finish();
                 rendersteps++;
+                if (rendersteps > 10)
+                {
+                    this.settings.max_iters = Math.Min(10000, (int)(this.settings.max_iters += 3000));
+                }
+
+                //motionblur pr
+                //this.settings.camera.ox = (float)Math.Pow(new Random().NextDouble()-0.5,0.25);
+
                 //e = Cl.EnqueueMarker(cq, out Event end);
                 //e = Cl.Finish(cq);
 

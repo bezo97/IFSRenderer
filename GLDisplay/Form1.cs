@@ -91,7 +91,7 @@ namespace GLDisplay
             initGL();
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             IntPtr raw_context_handle = ctx.Context.Handle;
-            r = new IFSEngine.Renderer(w, h, 10000, raw_context_handle, texID);
+            r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
         }
 
         int lastX;
@@ -212,7 +212,7 @@ namespace GLDisplay
             Task.Run(() =>
             {
                 int timer = 1;
-                timermax = 1;
+                timermax = r.rendersteps;
                 rendering = true;
                 while (rendering)
                 {

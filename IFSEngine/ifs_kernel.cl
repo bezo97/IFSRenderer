@@ -1,5 +1,4 @@
-﻿//max_iters
-//width
+﻿//width
 //height
 
 //#pragma OPENCL EXTENSION cl_khr_fp64 : enable
@@ -13,9 +12,20 @@ typedef struct
     float oy;
     float oz;
 
+    float dx;//dir
+    float dy;
+    float dz;
+
 	//dir
     float theta;//0-pi
     float phi;//0-2pi
+	//helpers
+	float sin_theta;
+	float cos_theta;
+	float sin_phi;
+	float cos_phi;
+    float sin_phi_hack;
+    float cos_phi_hack;
 
     float focallength;//for perspective
 
@@ -26,6 +36,7 @@ typedef struct
 typedef struct
 {
 	int itnum;//length of its - 1 (last one is finalit)
+	int max_iters;//do this many iterations
 	Camera camera;
 } Settings;
 
@@ -69,25 +80,21 @@ float2 Project(Camera c, float3 p, float ra, float rl)
 	r.y = (p.y-c.oy);
 	r.z = (p.z-c.oz);
 
-	float hack=c.phi;//miert vetitunk a kamera jobb oldala iranyaba???
-	c.phi-=3.1415926f/2.0f;
+	//float hack=c.phi;//miert vetitunk a kamera jobb oldala iranyaba???
+	//c.phi-=3.1415926f/2.0f;
 
-	float subject_distance = - r.x*sin(c.phi)*sin(c.theta) + r.y*cos(c.phi)*sin(c.theta) - r.z*cos(c.theta) + r3 -/*ez miert nem +*/ c.focallength;
+	float subject_distance = - r.x*c.sin_phi_hack*c.sin_theta + r.y*c.cos_phi_hack*c.sin_theta - r.z*c.cos_theta + r3 -/*ez miert nem +*/ c.focallength;
 	if(subject_distance<0.0f)//discard if behind camera
 		return (float2)(-2,-2);
 
-	float model_x = r.x*cos(c.phi) + r.y*sin(c.phi) + r1;
-	float model_y = - r.x*sin(c.phi)*cos(c.theta) + r.y*cos(c.phi)*cos(c.theta) + r.z*sin(c.theta) - r2;
+	float model_x = r.x*c.cos_phi_hack + r.y*c.sin_phi_hack + r1;
+	float model_y = - r.x*c.sin_phi_hack*c.cos_theta + r.y*c.cos_phi_hack*c.cos_theta + r.z*c.sin_theta - r2;
 
-	c.phi=hack;
+	//c.phi=hack;
 
 	//dof pr
 	float3 co = (float3)(c.ox, c.oy, c.oz);
-	float3 cd;
-	cd.x = sin(c.theta)*cos(c.phi);
-	cd.y = sin(c.theta)*sin(c.phi);
-	cd.z = cos(c.theta);
-	cd = normalize(cd);
+	float3 cd = (float3)(c.dx, c.dy, c.dz);
 	float3 rd = normalize(p-co);
 	float3 focuspoint = co + (rd * c.focusdistance);// / dot(rd, cd));
 	float3 fpn = -cd;//focal plane normal
@@ -145,6 +152,9 @@ __kernel void Main(
 )
 {
 	int gid = get_global_id(0);
+
+	const int max_iters = settings[0].max_iters;
+
 	int next = gid*(max_iters+3);//for rnd
 
 	float startx = rnd[next++]*2.0f-1.0f;
@@ -185,6 +195,13 @@ __kernel void Main(
 
 
 		float4 color = (float4)(1.0f,1.0f,1.0f,1.0f);//TODO: calc by Palette(p_shader.color)
+
+		//depth fog pr
+		//if(x_index<width/2)
+			color.w /= 1.0f + pow(max(0.0f,length(finalp-(float3)(settings[0].camera.ox,settings[0].camera.oy,settings[0].camera.oz))-settings[0].camera.focusdistance-settings[0].camera.focallength),8)*0.5f;
+
+		//opacityvel szoroz
+		color.xyz*=color.w;
 		
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
@@ -193,7 +210,7 @@ __kernel void Main(
 			output[ipx+0] += color.x;//r
 			output[ipx+1] += color.y;//g
 			output[ipx+2] += color.z;//b
-			output[ipx+3] += 1.0f;//a
+			output[ipx+3] += color.w;//a
 			//accepted_iters++;
 		}
 		else
@@ -208,12 +225,12 @@ __kernel void Main(
 		y_index=floor(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
-			double dd = 2.0 - dx-dy;
+			float dd = 2.0f - dx-dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0;
+			output[ipx+3] += color.w * dd * avg;
 
 		};
       
@@ -221,36 +238,36 @@ __kernel void Main(
 		y_index=ceil(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
-			double dd = dx+dy;
+			float dd = dx+dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0;
+			output[ipx+3] += color.w * dd * avg;
 		};
       
 		x_index=floor(proj.x);
 		y_index=ceil(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
-			double dd = (1.0-dx)+dy;
+			float dd = (1.0f-dx)+dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0;
+			output[ipx+3] += color.w * dd * avg;
 		};
       
 		x_index=ceil(proj.x);
 		y_index=floor(proj.y);
 		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
 		{//point lands on picture
-			double dd = dx+(1.0-dy);
+			float dd = dx+(1.0f-dy);
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0;
+			output[ipx+3] += color.w * dd * avg;
 		};
 		
 
@@ -263,9 +280,9 @@ __kernel void Display(__global float* calc, __global float* disp, __write_only i
 {
 	int gid = get_global_id(0);
 
-	//double steps = settings[0];//int
-	//double brightness = settings[1];
-	//double gamma = settings[2];
+	//float steps = settings[0];//int
+	//float brightness = settings[1];
+	//float gamma = settings[2];
 
 	float4 acc = (float4)(calc[gid*4+0], calc[gid*4+1], calc[gid*4+2], calc[gid*4+3]);
 
