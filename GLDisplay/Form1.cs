@@ -33,19 +33,25 @@ namespace GLDisplay
                 new Affine(0.0f,-0.5f,0.0f , -0.4f,0.33f,0.0f , 0.33f,-0.8f,0.0f , 0.0f,0.0f,1.0f),
                 0,
                 0.25f,
-                0.5f)
+                0.1f,
+                0.0f,
+                1.0f)
             ,
             new Iterator(
                 new Affine(0.2f,-1.0f,0.0f , 0.8f,0.5f,0.0f , 0.1f,0.8f,0.0f , 0.0f,0.0f,1.0f),
                 1,
                 0.5f,
-                0.5f
+                0.8f,
+                0.5f,
+                1.0f
             ),
             new Iterator(
                 new Affine(0.6f,0.133975f,0.0f , 0.56f,0.0f,0.0f , 0.0f,0.4f,0.0f , 0.0f,0.0f,1.0f),
                 2,
                 0.25f,
-                0.5f
+                0.9f,
+                1.0f,
+                1.0f
             )
         };
 
@@ -53,6 +59,8 @@ namespace GLDisplay
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
             0,//linear
             0.0f,
+            0.0f,
+            1.0f,
             1.0f
         );
 
@@ -280,7 +288,9 @@ namespace GLDisplay
                 nit.aff.zy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
                 nit.aff.zz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
                 nit.w = (float)rand.NextDouble();
-                nit.cs = (float)rand.NextDouble();
+                nit.cs = (float)(rand.NextDouble()*2.0f-1.0f)*0.1f;
+                nit.ci = (float)rand.NextDouble();
+                nit.op = (float)rand.NextDouble();
                 nit.tfID = rand.Next()%2;//spherical
                 its.Add(nit);
             }

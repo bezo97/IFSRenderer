@@ -62,13 +62,17 @@ namespace IFSEngine
         public int tfID;
         public float w;
         public float cs;
+        public float ci;//color index, 0 - 1
+        public float op;
 
-        public Iterator(Affine aff, int tfID, float w, float cs)
+        public Iterator(Affine aff, int tfID, float w, float cs, float ci, float op)
         {
             this.aff = aff;
             this.tfID = tfID;
             this.w = w;
             this.cs = cs;
+            this.ci = ci;
+            this.op = op;
         }
     }
 
@@ -125,7 +129,7 @@ namespace IFSEngine
             this.settings = new Settings
             {
                 itnum = 0,
-                max_iters = 100,
+                max_iters = 10000,
                 camera = new CameraSettings()
             };
 
@@ -207,7 +211,7 @@ namespace IFSEngine
             }
             this.its = its;
             this.settings.itnum = its.Count;
-            this.settings.max_iters = 100;
+            this.settings.max_iters = 10000;
             this.settings.camera = c.Settings;
             rendersteps = 0;
             this.finalit = finalit;
@@ -245,10 +249,11 @@ namespace IFSEngine
                 cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
                 //cq.Finish();
                 rendersteps++;
-                if (rendersteps > 10)
+                /*if (rendersteps == 10)
                 {
-                    this.settings.max_iters = Math.Min(10000, (int)(this.settings.max_iters += 3000));
-                }
+                    rendersteps = 100;
+                    this.settings.max_iters = 10000;//Math.Min(10000, (int)(this.settings.max_iters += 3000));
+                }*/
 
                 //motionblur pr
                 //this.settings.camera.ox = (float)Math.Pow(new Random().NextDouble()-0.5,0.25);
@@ -268,7 +273,7 @@ namespace IFSEngine
             //{
                 
                 //cq.Finish();//
-                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps/*/2*/, brightness, gamma }, dispsettingsbuf, true, null);
+                cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , brightness, gamma }, dispsettingsbuf, true, null);
                 if (texturetarget > -1)//van gl
                     cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
                 cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);

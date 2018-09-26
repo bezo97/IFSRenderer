@@ -65,8 +65,10 @@ typedef struct
 {
 	Affine aff;
 	int tfID;
-	float w;
-	float cs;
+	float w;//weight
+	float cs;//color speed, -1 - 1
+	float ci;//color index, 0 - 1
+	float op;//opacity
 } Iterator;
 
 float2 Project(Camera c, float3 p, float ra, float rl)
@@ -118,8 +120,7 @@ float3 affine(Affine aff, float3 input){
  return (float3)(px, py, pz);
 }
 
-//TODO: color es opacity megint
-float3 Apply(Iterator it, float3 input/*, float2 shader (color,opacity)*/)
+float3 Apply(Iterator it, float3 input)
 {
 	float3 p = affine(it.aff, input.xyz);
 	//transform here: TODO
@@ -133,15 +134,26 @@ float3 Apply(Iterator it, float3 input/*, float2 shader (color,opacity)*/)
 		p = p/(r*r);
 	}
 
-	//float c = (input.z + it.cs) / 2.0f;//color//ez hibas a paperben
-	//float c = it.cs * /*it.color_index*/0.5 + (1.0f - it.cs) * shader.x;//TODO: add color_index to Iterators
-	//float o = shader.y;//opacity
-	return p;//(float4)(p, c, o);
+	return p;
 }
 
-float4 getPaletteColor(float lerp)
+float2 ApplyShader(Iterator it, float2 input/*(color,opacity)*/)
 {
-	return (float4)(1.0f, 1.0f, 1.0f, 1.0f);
+	//float c = (input.x + it.ci) / it.cs;//color//ez hibas a paperben
+	float c = it.cs * it.ci + (1.0f - it.cs) * input.x;
+	float o = it.op;//opacity
+	return (float2)(c-floor(c),o);//(color,opacity)
+}
+
+float3 getPaletteColor(float pos)
+{
+  //define two constant colors, like red and blue
+  float3 red = (float3)(1.0f,0.0f,0.0f);
+  float3 blue = (float3)(0.0f,0.0f,1.0f);
+  //interpolate linearly between the two, according to pos
+  float3 result = (1.0f-pos) * red + pos * blue;//mix(red, blue, pos);
+  //return that color
+  return result;
 }
 
 __kernel void Main(
@@ -160,8 +172,8 @@ __kernel void Main(
 	float startx = rnd[next++]*2.0f-1.0f;
 	float starty = rnd[next++]*2.0f-1.0f;
 	float startz = rnd[next++]*2.0f-1.0f;
-	float3 p = (float3)(startx, starty, startz);//x,y,c,o
-	//TODO: p_shader (color01, opacity01)
+	float3 p = (float3)(startx, starty, startz);//x,y,z
+	float2 p_shader = (float2)(0.0f, 1.0f);//c,o
 
 	for (int i = 0; i < max_iters; i++)
 	{//pick a random weighted Transform index
@@ -176,11 +188,24 @@ __kernel void Main(
 			else
 				break;
 
+		//?? ha elso iter, akkor allitsuk be a shadert az elsore??
+		if(i==0)
+			p_shader.x = its[r_index].ci;
+
+		//ha elozo iteracioban tul messze ment, akkor reset
+		/*if(p.x==INFINITY||p.y==INFINITY||p.z==INFINITY||p.x==-INFINITY||p.y==-INFINITY||p.z==-INFINITY || p.x==0||p.y==0||p.z==0)
+		{
+			p.x = rnd[(53*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
+			p.y = rnd[(67*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
+			p.z = rnd[(71*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
+		}*/
+
 		p = Apply(its[r_index], p);//transform here
-		//TODO: p_shader=
+		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
 
 		float3 finalp = Apply(/*finalit*/its[settings[0].itnum], p);
-		//TODO: finalp_shader=
+		float2 finalp_shader = ApplyShader(/*finalit*/its[settings[0].itnum], p_shader);/*color,opacity*/
+		finalp_shader.y=p_shader.y;//opacity=1 a finalon
 
 		//printf("f2 = %2.2v2hlf\n", index);
 		
@@ -194,14 +219,16 @@ __kernel void Main(
 		int y_index = round(proj.y);
 
 
-		float4 color = (float4)(1.0f,1.0f,1.0f,1.0f);//TODO: calc by Palette(p_shader.color)
+		float4 color = (float4)(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
 
 		//depth fog pr
+		float depthfog = 1.0f;
 		//if(x_index<width/2)
-			color.w /= 1.0f + pow(max(0.0f,length(finalp-(float3)(settings[0].camera.ox,settings[0].camera.oy,settings[0].camera.oz))-settings[0].camera.focusdistance-settings[0].camera.focallength),8)*0.5f;
+			depthfog = 1.0f / (1.0f + pow(max(0.0f,length(finalp-(float3)(settings[0].camera.ox,settings[0].camera.oy,settings[0].camera.oz))-settings[0].camera.focusdistance-settings[0].camera.focallength),2));
 
 		//opacityvel szoroz
-		color.xyz*=color.w;
+		color.xyz*=color.w*depthfog;
+		
 		
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
@@ -210,11 +237,13 @@ __kernel void Main(
 			output[ipx+0] += color.x;//r
 			output[ipx+1] += color.y;//g
 			output[ipx+2] += color.z;//b
-			output[ipx+3] += color.w;//a
+			output[ipx+3] += 1.0f;//hany db, histogramhoz
 			//accepted_iters++;
 		}
 		else
 			continue;
+
+		//continue;//no aa
 		
 		//aa
 		float dx = proj.x - floor(proj.x);//proj.x % 1;
@@ -230,7 +259,7 @@ __kernel void Main(
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += color.w * dd * avg;
+			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
 
 		};
       
@@ -243,7 +272,7 @@ __kernel void Main(
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += color.w * dd * avg;
+			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
 		};
       
 		x_index=floor(proj.x);
@@ -255,7 +284,7 @@ __kernel void Main(
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += color.w * dd * avg;
+			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
 		};
       
 		x_index=ceil(proj.x);
@@ -267,7 +296,7 @@ __kernel void Main(
 			output[ipx+0] += color.x * dd * avg;
 			output[ipx+1] += color.y * dd * avg;
 			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += color.w * dd * avg;
+			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
 		};
 		
 
@@ -276,28 +305,189 @@ __kernel void Main(
 
 }
 
+float3 RgbToHsv(float3 rgb)
+{
+	float r = rgb.x;
+	float g = rgb.y;
+	float b = rgb.z;
+	float h,s,v;
+
+	float cmax, cmin, del, rc, gc, bc;
+	cmax = max(max(r, g), b);//Compute maximum of r, g, b.
+	cmin = min(min(r, g), b);//Compute minimum of r, g, b.
+	del = cmax - cmin;
+	v = cmax;
+	s = (cmax != 0.0f) ? (del / cmax) : 0.0f;
+	h = 0.0f;
+
+	if (s != 0.0f)
+	{
+		rc = (cmax - r) / del;
+		gc = (cmax - g) / del;
+		bc = (cmax - b) / del;
+
+		if (r == cmax)
+			h = bc - gc;
+		else if (g == cmax)
+			h = 2.0f + rc - bc;
+		else if (b == cmax)
+			h = 4.0f + gc - rc;
+
+		if (h < 0.0f)
+			h += 6.0f;
+	}
+
+	return (float3)(h,s,v);
+}
+
+float3 HsvToRgb(float3 hsv)
+{
+	float h = hsv.x;
+	float s = hsv.y;
+	float v = hsv.z;
+	float r,g,b;
+
+	int j;
+	float f, p, q, t;
+
+	while (h >= 6.0f)
+		h -= 6.0f;
+
+	while (h <  0.0f)
+		h += 6.0f;
+
+	j = floor(h);
+	f = h - j;
+	p = v * (1.0f - s);
+	q = v * (1.0f - (s * f));
+	t = v * (1.0f - (s * (1.0f - f)));
+
+	switch (j)
+	{
+		case 0:  r = v;  g = t;  b = p;  break;
+
+		case 1:  r = q;  g = v;  b = p;  break;
+
+		case 2:  r = p;  g = v;  b = t;  break;
+
+		case 3:  r = p;  g = q;  b = v;  break;
+
+		case 4:  r = t;  g = p;  b = v;  break;
+
+		case 5:  r = v;  g = p;  b = q;  break;
+
+		default: r = v;  g = t;  b = p;  break;
+	}
+
+	return (float3)(r,g,b);
+}
+
+//linrange: gammathresholdhoz
+float alpha_magic_gamma(float density, float gamma, float linrange)
+{
+		float frac, alpha;
+		float funcval = pow(linrange, gamma);
+
+		if (density > 0.0f)
+		{
+			if (density < linrange)
+			{
+				frac = density / linrange;
+				alpha = (1.0f - frac) * density * (funcval / linrange) + frac * pow(density, gamma);
+			}
+			else
+				alpha = pow(density, gamma);
+		}
+		else
+			alpha = 0.0f;
+
+		return alpha;
+}
+
+float3 CalcNewRgb(float3 cBuf, float ls, float highPow)
+{
+	float3 newRgb;
+
+	int rgbi;
+	float lsratio;
+	float3 newhsv;
+	float maxa, maxc, newls;
+	float adjustedHighlight;
+
+	if (ls == 0 || (cBuf.x == 0 && cBuf.y == 0 && cBuf.z == 0))
+	{
+		newRgb.x = 0;
+		newRgb.y = 0;
+		newRgb.z = 0;
+		return newRgb;
+	}
+
+	//Identify the most saturated channel.
+	maxc = max(max(cBuf.x, cBuf.y), cBuf.z);
+	maxa = ls * maxc;
+	newls = 1.0f / maxc;
+
+	//If a channel is saturated and highlight power is non-negative
+	//modify the color to prevent hue shift.
+	if (maxa > 1.0f && highPow >= 0.0f)
+	{
+		lsratio = pow(newls / ls, highPow);
+
+		//Calculate the max-value color (ranged 0 - 1).
+		newRgb = newls * cBuf;
+
+		//Reduce saturation by the lsratio.
+		newhsv = RgbToHsv(newRgb);
+		newhsv.y *= lsratio;/*reduce saturation*/
+		newRgb = HsvToRgb(newhsv);
+	}
+	else
+	{
+		adjustedHighlight = -highPow;
+
+		if (adjustedHighlight > 1.0f)
+			adjustedHighlight = 1.0f;
+
+		if (maxa <= 1.0f)
+			adjustedHighlight = 1.0f;
+
+		//Calculate the max-value color (ranged 0 - 1) interpolated with the old behavior.
+		newRgb = ((1.0f - adjustedHighlight) * newls + adjustedHighlight * ls) * cBuf;
+	}
+
+	return newRgb;
+}
+
 __kernel void Display(__global float* calc, __global float* disp, __write_only image2d_t img, __global float* settings)
 {
 	int gid = get_global_id(0);
 
-	//float steps = settings[0];//int
+	//float  = settings[0];//int //quality
 	//float brightness = settings[1];
 	//float gamma = settings[2];
 
-	float4 acc = (float4)(calc[gid*4+0], calc[gid*4+1], calc[gid*4+2], calc[gid*4+3]);
+	float3 acc_color = (float3)(calc[gid*4+0], calc[gid*4+1], calc[gid*4+2]);//accumulated color
 
-	float4 linear = acc/settings[0];
-	float4 logscaled = settings[1]*exp(log(linear)/settings[2]);
-	logscaled.w = 1.0f;//debug
+	float acc_histogram = calc[gid*4+3];//how many times this pixel was hit
+
+	float logscale = (settings[1] * log(1.0f + acc_histogram / (settings[0]/settings[2]))) / acc_histogram;
+	//float logscale = settings[1] * exp(log(acc_histogram/settings[0]) / settings[2]); //ez vmi mas
+
+	float3 logscaled_color = logscale * acc_color;
+	//float3 linearscaled_color = acc_color / settings[0];
+
+	float ls = /*vibrancy*/1.0f * alpha_magic_gamma(acc_histogram / settings[0], 1.0f/settings[2], 0.0f/*g_thresh*/) / (acc_histogram / settings[0]);
+	ls = clamp(ls, 0.0f, 1.0f);
+	logscaled_color = CalcNewRgb(logscaled_color, ls, /*high pow*/2.0f);
+	logscaled_color = clamp(logscaled_color, 0.0f, 1.0f);
 
 	int2 coords = (int2)(gid%width, gid / width);
-
 	//format: //image2d_t, int2, float4
-	write_imagef(img, coords, logscaled);
+	write_imagef(img, coords, (float4)(logscaled_color,1.0f));
 	//write_imagef(img, coords, linear);//ez nem jo mert nem fer bele a gl 0-1 rangejebe
 
-	disp[gid*4+0] = logscaled.x;
-	disp[gid*4+1] = logscaled.y;
-	disp[gid*4+2] = logscaled.z;
-	disp[gid*4+3] = 1.0;
+	disp[gid*4+0] = logscaled_color.x;
+	disp[gid*4+1] = logscaled_color.y;
+	disp[gid*4+2] = logscaled_color.z;
+	disp[gid*4+3] = 1.0f;
 }
