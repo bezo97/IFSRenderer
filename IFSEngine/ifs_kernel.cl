@@ -472,11 +472,10 @@ __kernel void Display(__global float* calc, __global float* disp, __write_only i
 
 	float logscale = (settings[1] * log(1.0f + acc_histogram / (settings[0]/settings[2]))) / acc_histogram;
 	//float logscale = settings[1] * exp(log(acc_histogram/settings[0]) / settings[2]); //ez vmi mas
-
 	float3 logscaled_color = logscale * acc_color;
 	//float3 linearscaled_color = acc_color / settings[0];
 
-	float ls = /*vibrancy*/1.0f * alpha_magic_gamma(acc_histogram / settings[0], 1.0f/settings[2], 0.0f/*g_thresh*/) / (acc_histogram / settings[0]);
+	float ls = /*vibrancy*/1.0f * alpha_magic_gamma(acc_histogram / settings[0], 1.0f/settings[2], 0.0f/*g_thresh*/);// / (acc_histogram / settings[0]);
 	ls = clamp(ls, 0.0f, 1.0f);
 	logscaled_color = CalcNewRgb(logscaled_color, ls, /*high pow*/2.0f);
 	logscaled_color = clamp(logscaled_color, 0.0f, 1.0f);

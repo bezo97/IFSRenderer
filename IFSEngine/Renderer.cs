@@ -108,7 +108,7 @@ namespace IFSEngine
             Debug.WriteLine("CTX ERROR INFO: " + str);
         });
 
-        int threadcnt = 300;
+        int threadcnt = 100;//gtx970: 1664, 610m: 48
         int width;
         int height;
         int texturetarget;
