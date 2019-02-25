@@ -36,7 +36,7 @@ typedef struct
 typedef struct
 {
 	int itnum;//length of its - 1 (last one is finalit)
-	int max_iters;//do this many iterations
+	int pass_iters;//do this many iterations
 	Camera camera;
 } Settings;
 
@@ -160,22 +160,32 @@ __kernel void Main(
 	__global float* output,
 	__global float* rnd,
 	__global Iterator* its,
-	__global Settings* settings
+	__global Settings* settings,
+	__global float* pointsstate
 )
 {
 	int gid = get_global_id(0);
 
-	const int max_iters = settings[0].max_iters;
+	const int pass_iters = settings[0].pass_iters;
 
-	int next = gid*(max_iters+3);//for rnd
+	int next = gid*(pass_iters+3);//for rnd
 
-	float startx = rnd[next++]*2.0f-1.0f;
+	/*float startx = rnd[next++]*2.0f-1.0f;
 	float starty = rnd[next++]*2.0f-1.0f;
 	float startz = rnd[next++]*2.0f-1.0f;
 	float3 p = (float3)(startx, starty, startz);//x,y,z
-	float2 p_shader = (float2)(0.0f, 1.0f);//c,o
+	float2 p_shader = (float2)(0.0f, 1.0f);//c,o*/
+	float3 p = (float3)(
+		pointsstate[gid*4+0],
+		pointsstate[gid*4+1],
+		pointsstate[gid*4+2]
+	);
+	float2 p_shader = (float2)(
+		pointsstate[gid*4+3],
+		1.0f
+	);
 
-	for (int i = 0; i < max_iters; i++)
+	for (int i = 0; i < pass_iters; i++)
 	{//pick a random weighted Transform index
 		int r_index = 0;
 		float r = rnd[next++];
@@ -195,9 +205,9 @@ __kernel void Main(
 		//ha elozo iteracioban tul messze ment, akkor reset
 		/*if(p.x==INFINITY||p.y==INFINITY||p.z==INFINITY||p.x==-INFINITY||p.y==-INFINITY||p.z==-INFINITY || p.x==0||p.y==0||p.z==0)
 		{
-			p.x = rnd[(53*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
-			p.y = rnd[(67*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
-			p.z = rnd[(71*next++)%(gid*(max_iters+3))]*2.0f-1.0f;
+			p.x = rnd[(53*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
+			p.y = rnd[(67*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
+			p.z = rnd[(71*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
 		}*/
 
 		p = Apply(its[r_index], p);//transform here
@@ -210,7 +220,7 @@ __kernel void Main(
 		//printf("f2 = %2.2v2hlf\n", index);
 		
 		//perspective project
-		float2 proj = Project(settings[0].camera, finalp, rnd[i%max_iters],rnd[(i+422)%max_iters]);
+		float2 proj = Project(settings[0].camera, finalp, rnd[i%pass_iters],rnd[(i+422)%pass_iters]);
 		//window center
 		proj.x = width/2.0f + proj.x * width/2.0f;
 		proj.y = width/2.0f + proj.y * width/2.0f;
@@ -299,9 +309,14 @@ __kernel void Main(
 			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
 		};
 		
-
-
 	}
+
+	//save point state for next pass
+	pointsstate[gid*4+0] = p.x;
+	pointsstate[gid*4+1] = p.y;
+	pointsstate[gid*4+2] = p.z;
+	pointsstate[gid*4+3] = p_shader.x;//color
+
 
 }
 

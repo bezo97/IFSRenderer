@@ -110,7 +110,7 @@ namespace GLDisplay
             {
                 camera.Theta += (lastY-e.Y) / 100.0f;
                 camera.Phi += (lastX-e.X) / 100.0f;
-                r.ResetParams(its, finalit, camera);
+                r.UpdateParams(its, finalit, camera);
             }
             lastX = e.X;
             lastY = e.Y;
@@ -217,10 +217,10 @@ namespace GLDisplay
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Task.Run(() =>
+            /*Task.Run(() =>
             {
                 int timer = 1;
-                timermax = r.rendersteps;
+                timermax = 100;// r.rendersteps;
                 rendering = true;
                 while (rendering)
                 {
@@ -232,6 +232,15 @@ namespace GLDisplay
                         timer = timermax;
                     }
                     timer--;
+                }
+            });*/
+            Task.Run(() =>
+            {
+                rendering = true;
+                while (rendering)
+                {
+                    r.Render();
+                    UpdateImage();
                 }
             });
         }
@@ -260,7 +269,7 @@ namespace GLDisplay
                 //finalit.aff.zz = (float)Convert.ToDouble(tmpnud.Value);
                 camera.FocusDistance = (float)Convert.ToDouble(tmpnud.Value);
                 timermax = 1;
-                r.ResetParams(its, finalit, camera);
+                r.UpdateParams(its, finalit, camera);
                 //UpdateImage();
                 hack = 3;
             }
@@ -308,13 +317,13 @@ namespace GLDisplay
             }
 
             timermax = 1;
-            r.ResetParams(its, finalit, camera);
+            r.UpdateParams(its, finalit, camera);
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)
         {
             camera.Translate(0.1f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)), 0.1f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)), 0.1f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) ? 1 : 0)));
-            r.ResetParams(its, finalit, camera);
+            r.UpdateParams(its, finalit, camera);
         }
     }
 }

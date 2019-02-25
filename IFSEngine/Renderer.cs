@@ -13,8 +13,8 @@ namespace IFSEngine
 {
     internal struct Settings
     {
-        internal int itnum;//length of its - 1 (last one is finalit)
-        internal int max_iters;
+        internal int itnum;//length of iterators - 1 (last one is finalit)
+        internal int pass_iters;//iterations per pass
         internal CameraSettings camera;
     }
 
@@ -96,6 +96,7 @@ namespace IFSEngine
         ComputeBuffer<float>/*<double>*/ dispsettingsbuf;
         ComputeBuffer<Iterator>/*<double>*/ iteratorsbuf;
         ComputeBuffer<Settings>/*<double>*/ settingsbuf;
+        ComputeBuffer<float> pointsstatebuf;
 
         ComputeErrorCode e;
         ComputeProgramBuildNotifier buildnotif = new ComputeProgramBuildNotifier(builddebug);
@@ -113,7 +114,7 @@ namespace IFSEngine
         int height;
         int texturetarget;
         Random rgen = new Random();
-        public int rendersteps=0;
+        public int rendersteps = 0;
         List<Iterator> its = new List<Iterator>();
         Iterator finalit;
         Settings settings;
@@ -125,13 +126,6 @@ namespace IFSEngine
             this.width = width;
             this.height = height;
             this.texturetarget = texturetarget;
-
-            this.settings = new Settings
-            {
-                itnum = 0,
-                max_iters = 10000,
-                camera = new CameraSettings()
-            };
 
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
@@ -182,44 +176,53 @@ namespace IFSEngine
                 //dispimg = Cloo.ComputeImage2D.CreateFromGLRenderbuffer(ctx, ComputeMemoryFlags.WriteOnly, texturetarget/*buffertarget*/);
             }
             else
-                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat( ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
+                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat(ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
             //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count+1/*+final*/);//ezt load nal
             settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
+            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
 
             computekernel.SetMemoryArgument(0, calcbuf);
             computekernel.SetMemoryArgument(1, randbuf);
-            //computekernel.SetMemoryArgument(2, iteratorsbuf);//ezt loadnal
+            //computekernel.SetMemoryArgument(2, iteratorsbuf);//ezt initben
             computekernel.SetMemoryArgument(3, settingsbuf);
+            computekernel.SetMemoryArgument(4, pointsstatebuf);
 
             displaykernel.SetMemoryArgument(0, calcbuf);
             displaykernel.SetMemoryArgument(1, dispbuf);
             displaykernel.SetMemoryArgument(2, dispimg);
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
 
+            cq.WriteToBuffer<float>(genStartingDistribution(threadcnt), pointsstatebuf, true, null);
             //Reset(its, finalit);
         }
 
-        public void ResetParams(List<Iterator> its, Iterator finalit, Camera c)
+        //TODO: kulon valaszt params es camera update
+        public void UpdateParams(List<Iterator> its, Iterator finalit, Camera c)
         {
             if (its.Count != this.its.Count)
             {
-                if(iteratorsbuf!=null)
+                if (iteratorsbuf != null)
                     iteratorsbuf.Dispose();
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
+                cq.WriteToBuffer<float>(genStartingDistribution(threadcnt), pointsstatebuf, true, null);
                 computekernel.SetMemoryArgument(2, iteratorsbuf);
             }
             this.its = its;
-            this.settings.itnum = its.Count;
-            this.settings.max_iters = 10000;
-            this.settings.camera = c.Settings;
-            rendersteps = 0;
             this.finalit = finalit;
+            this.settings = new Settings
+            {
+                itnum = its.Count,
+                pass_iters = 256,//minden renderrel duplazodik
+                camera = c.Settings
+            };
+            rendersteps = 0;
             List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, true, null);
-            //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);
+            //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//ezt a renderben kell ugyis
             cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, true, null);
+
             //Render();
         }
 
@@ -227,43 +230,46 @@ namespace IFSEngine
 
         public void Render()
         {
+            //if volt init()
+
             //Task.Run(() =>
             //{
-                if (rndcarousel <= 0)
-                {
-                    rndcarousel = 4;
-                    rnd = new float[threadcnt * (/*this.settings.max_iters*/10000 + 2)];
-                    for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
-                        rnd[i] = (float)rgen.NextDouble();
-                }
-                else
-                {
-                    rndcarousel--;
-                    for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters + 2)*/; i++)
-                        rnd[i] = (rnd[i]+0.25f) % 1.0f;
-                }
-                cq.Finish();
-                cq.WriteToBuffer<float>(rnd, randbuf, true, null);
-                cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es max_iters miatt
-                //e = Cl.EnqueueMarker(cq, out Event start);
-                cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
-                //cq.Finish();
-                rendersteps++;
-                /*if (rendersteps == 10)
-                {
-                    rendersteps = 100;
-                    this.settings.max_iters = 10000;//Math.Min(10000, (int)(this.settings.max_iters += 3000));
-                }*/
+            if (rndcarousel <= 0)
+            {
+                rndcarousel = 4;
+                rnd = new float[threadcnt * (/*this.settings.max_iters*/10000 + 2)];
+                for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
+                    rnd[i] = (float)rgen.NextDouble();
+            }
+            else
+            {
+                rndcarousel--;
+                for (int i = 0; i < rnd.Length/*threadcnt * (this.settings.max_iters + 2)*/; i++)
+                    rnd[i] = (rnd[i] + 0.25f) % 1.0f;
+            }
+            cq.Finish();
+            cq.WriteToBuffer<float>(rnd, randbuf, true, null);
+            settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
+            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
+                                                                                             //e = Cl.EnqueueMarker(cq, out Event start);
+            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, new long[] { 1 }, null);
+            //cq.Finish();
+            rendersteps++;
+            /*if (rendersteps == 10)
+            {
+                rendersteps = 100;
+                this.settings.max_iters = 10000;//Math.Min(10000, (int)(this.settings.max_iters += 3000));
+            }*/
 
-                //motionblur pr
-                //this.settings.camera.ox = (float)Math.Pow(new Random().NextDouble()-0.5,0.25);
+            //motionblur pr
+            //this.settings.camera.ox = (float)Math.Pow(new Random().NextDouble()-0.5,0.25);
 
-                //e = Cl.EnqueueMarker(cq, out Event end);
-                //e = Cl.Finish(cq);
+            //e = Cl.EnqueueMarker(cq, out Event end);
+            //e = Cl.Finish(cq);
 
-                //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
-                //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
-                //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
+            //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
+            //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
+            //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
             //});
         }
 
@@ -271,15 +277,15 @@ namespace IFSEngine
         {
             //Task.Run(() =>
             //{
-                
-                //cq.Finish();//
-                cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , brightness, gamma }, dispsettingsbuf, true, null);
-                if (texturetarget > -1)//van gl
-                    cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-                cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
-                if (texturetarget > -1)//van gl
-                    cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
-                cq.Finish();
+
+            cq.Finish();//
+            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , brightness, gamma }, dispsettingsbuf, true, null);
+            if (texturetarget > -1)//van gl
+                cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
+            if (texturetarget > -1)//van gl
+                cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+            //cq.Finish();
             //});
         }
 
@@ -317,11 +323,27 @@ namespace IFSEngine
             randbuf.Dispose();
             dispbuf.Dispose();
             iteratorsbuf.Dispose();
+            pointsstatebuf.Dispose();
 
             prog1.Dispose();
             computekernel.Dispose();
             cq.Dispose();
             ctx.Dispose();
         }
+
+        private float[] genStartingDistribution(int p_num)
+        {
+            float[] distr = new float[p_num * 4];
+            Random r = new Random();
+            for (int i = 0; i < p_num; i++)
+            {
+                distr[i + 0] = (float)r.NextDouble() * 1.0f-1.0f;
+                distr[i + 1] = (float)r.NextDouble() * 1.0f - 1.0f;
+                distr[i + 2] = (float)r.NextDouble() * 1.0f - 1.0f;
+                distr[i + 3] = 0.0f;//?
+            }
+            return distr;
+        }
+
     }
 }
