@@ -161,7 +161,7 @@
             this.tmpnud.Size = new System.Drawing.Size(120, 20);
             this.tmpnud.TabIndex = 5;
             this.tmpnud.Value = new decimal(new int[] {
-            5,
+            20,
             0,
             0,
             65536});

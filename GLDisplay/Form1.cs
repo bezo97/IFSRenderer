@@ -217,23 +217,6 @@ namespace GLDisplay
 
         private void button1_Click(object sender, EventArgs e)
         {
-            /*Task.Run(() =>
-            {
-                int timer = 1;
-                timermax = 100;// r.rendersteps;
-                rendering = true;
-                while (rendering)
-                {
-                    r.Render();
-                    if(timer<=0)
-                    {
-                        UpdateImage();
-                        //timermax *= 2;
-                        timer = timermax;
-                    }
-                    timer--;
-                }
-            });*/
             Task.Run(() =>
             {
                 rendering = true;
@@ -316,13 +299,18 @@ namespace GLDisplay
                 its[s] = tmpit;
             }
 
+            camera = new Camera();
+
             timermax = 1;
             r.UpdateParams(its, finalit, camera);
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)
         {
-            camera.Translate(0.1f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)), 0.1f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)), 0.1f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) ? 1 : 0)));
+            camera.Translate(
+                0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
             r.UpdateParams(its, finalit, camera);
         }
     }

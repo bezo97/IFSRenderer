@@ -33,7 +33,7 @@ namespace IFSEngine
 
     public class Camera
     {
-        internal CameraSettings Settings = new CameraSettings(){ ox = 0.0f, oy = -5.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 0.1f, dof_effect = 0.01f };
+        internal CameraSettings Settings = new CameraSettings(){ ox = 0.0f, oy = -2.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 2.0f, dof_effect = 0.01f };
 
         public float Theta {
             get => Settings.theta;
@@ -61,7 +61,11 @@ namespace IFSEngine
         public float FocusDistance { get => Settings.focusdistance; set => Settings.focusdistance = value; }
         public float DepthOfField { get => Settings.dof_effect; set => Settings.dof_effect = value; }
 
-        public Camera() { }
+        public Camera()
+        {
+            Phi = Settings.phi;
+            Theta = Settings.theta;
+        }
         public Camera((float x, float y, float z) position, (float x, float y, float z) direction)
         {
             Normalize(ref direction.x, ref direction.y, ref direction.z);
