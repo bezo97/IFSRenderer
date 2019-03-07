@@ -32,8 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cloo.clSharp, Version=0.9.2.7, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cloo.clSharp.0.9.2.7\lib\net20\Cloo.clSharp.dll</HintPath>
+    <Reference Include="Cloo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cloo.clSharp.1.0.0\lib\netstandard2.0\Cloo.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
