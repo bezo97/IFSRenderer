@@ -109,7 +109,7 @@ namespace IFSEngine
             Debug.WriteLine("CTX ERROR INFO: " + str);
         });
 
-        int threadcnt = 500;//gtx970: 1664, 610m: 48
+        int threadcnt = 1500;//gtx970: 1664, 610m: 48
         int width;
         int height;
         int texturetarget;
@@ -194,7 +194,7 @@ namespace IFSEngine
             displaykernel.SetMemoryArgument(2, dispimg);
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
 
-            cq.WriteToBuffer<float>(genStartingDistribution(threadcnt), pointsstatebuf, true, null);
+            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, true, null);
 
             pre_rnd = new float[threadcnt * (/*this.settings.max_iters*/10000 + 2)];
             for (int i = 0; i < pre_rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
@@ -211,7 +211,7 @@ namespace IFSEngine
                 if (iteratorsbuf != null)
                     iteratorsbuf.Dispose();
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
-                cq.WriteToBuffer<float>(genStartingDistribution(threadcnt), pointsstatebuf, false, null);
+                cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
                 computekernel.SetMemoryArgument(2, iteratorsbuf);
             }
             this.its = its;
@@ -339,20 +339,6 @@ namespace IFSEngine
             computekernel.Dispose();
             cq.Dispose();
             ctx.Dispose();
-        }
-
-        private float[] genStartingDistribution(int p_num)
-        {
-            float[] distr = new float[p_num * 4];
-            Random r = new Random();
-            for (int i = 0; i < p_num; i++)
-            {
-                distr[i + 0] = (float)r.NextDouble() * 1.0f-1.0f;
-                distr[i + 1] = (float)r.NextDouble() * 1.0f - 1.0f;
-                distr[i + 2] = (float)r.NextDouble() * 1.0f - 1.0f;
-                distr[i + 3] = 0.0f;//?
-            }
-            return distr;
         }
 
     }
