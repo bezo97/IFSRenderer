@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using IFSEngine;
@@ -64,13 +65,11 @@ namespace GLDisplay
             1.0f
         );
 
-        Camera camera = new Camera();
-
-
-
         IFSEngine.Renderer r;
 
         OpenTK.GLControl display1;
+
+        Leap leap;
 
         private int texID;
 
@@ -100,6 +99,9 @@ namespace GLDisplay
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             IntPtr raw_context_handle = ctx.Context.Handle;
             r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
+
+            //leap init
+            leap = new Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
         }
 
         int lastX;
@@ -108,9 +110,9 @@ namespace GLDisplay
         {
             if(e.Button == MouseButtons.Left)
             {
-                camera.Theta += (lastY-e.Y) / 100.0f;
-                camera.Phi += (lastX-e.X) / 100.0f;
-                r.UpdateParams(its, finalit, camera);
+                r.Camera.Theta += (lastY-e.Y) / 100.0f;
+                r.Camera.Phi += (lastX-e.X) / 100.0f;
+                r.ResetAccumulation();
             }
             lastX = e.X;
             lastY = e.Y;
@@ -245,15 +247,9 @@ namespace GLDisplay
         {
             if (hack <= 0)
             {
-                /*Iterator tmpit = its[1];
-                tmpit.aff.zz = (float)Convert.ToDouble(tmpnud.Value);
-                its[1] = tmpit;*/
-                //finalit.aff.oz = (float)Convert.ToDouble(tmpnud.Value);
-                //finalit.aff.zz = (float)Convert.ToDouble(tmpnud.Value);
-                camera.FocusDistance = (float)Convert.ToDouble(tmpnud.Value);
+                r.Camera.FocusDistance = (float)Convert.ToDouble(tmpnud.Value);
+                r.ResetAccumulation();
                 timermax = 1;
-                r.UpdateParams(its, finalit, camera);
-                //UpdateImage();
                 hack = 3;
             }
             hack--;
@@ -299,19 +295,19 @@ namespace GLDisplay
                 its[s] = tmpit;
             }
 
-            camera = new Camera();
+            r.Camera = new Camera();
 
             timermax = 1;
-            r.UpdateParams(its, finalit, camera);
+            r.UpdateParams(its, finalit);
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)
         {
-            camera.Translate(
+            r.Camera.Translate(
                 0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
                 0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
                 0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-            r.UpdateParams(its, finalit, camera);
+            //r.UpdateParams(its, finalit);
         }
     }
 }

@@ -61,6 +61,12 @@ namespace IFSEngine
         public float FocusDistance { get => Settings.focusdistance; set => Settings.focusdistance = value; }
         public float DepthOfField { get => Settings.dof_effect; set => Settings.dof_effect = value; }
 
+        public void SetDirection(float x, float y, float z)
+        {
+            Phi = (float)Math.Atan(y / x);
+            Theta = (float)Math.Acos(z);
+        }
+
         public Camera()
         {
             Phi = Settings.phi;

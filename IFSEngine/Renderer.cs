@@ -202,8 +202,15 @@ namespace IFSEngine
 
         }
 
+        public Camera Camera { get; set; }
+
+        public void ResetAccumulation()
+        {
+            cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+        }
+
         //TODO: kulon valaszt params es camera update
-        public void UpdateParams(List<Iterator> its, Iterator finalit, Camera c)
+        public void UpdateParams(List<Iterator> its, Iterator finalit)
         {
             
             if (its.Count != this.its.Count)
@@ -220,7 +227,7 @@ namespace IFSEngine
             {
                 itnum = its.Count,
                 pass_iters = 256,//minden renderrel duplazodik
-                camera = c.Settings
+                camera = Camera.Settings
             };
             rendersteps = 0;
             rndcarousel = 0;
@@ -228,7 +235,7 @@ namespace IFSEngine
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
             //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//ezt a renderben kell ugyis
-            cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+            ResetAccumulation();
 
             //Render();
         }
@@ -259,6 +266,7 @@ namespace IFSEngine
             cq.WriteToBuffer<float>(rnd, randbuf, false, null);
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
+            settings.camera = Camera.Settings;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
 
             //e = Cl.EnqueueMarker(cq, out Event start);
