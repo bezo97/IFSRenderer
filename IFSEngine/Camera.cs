@@ -38,7 +38,7 @@ namespace IFSEngine
         public float Theta {
             get => Settings.theta;
             set {
-                Settings.theta = value % 3.141592f;
+                Settings.theta = value % (3.141592f);
                 Settings.sin_theta = (float)Math.Sin(Settings.theta);
                 Settings.cos_theta = (float)Math.Cos(Settings.theta);
                 getDir(Settings.theta, Settings.phi, out Settings.dx, out Settings.dy, out Settings.dz);
@@ -86,6 +86,12 @@ namespace IFSEngine
             dy = (float)(Math.Sin(t) * Math.Sin(p));
             dz = (float) Math.Cos(t);
             Normalize(ref dx, ref dy, ref dz);
+        }
+
+        public (float dx, float dy, float dz) GetDirection()
+        {
+            getDir(Theta, Phi, out float dx, out float dy, out float dz);
+            return (dx,dy,dz);
         }
 
         private void Normalize(ref float x, ref float y, ref float z)

@@ -37,6 +37,7 @@ typedef struct
 {
 	int itnum;//length of its - 1 (last one is finalit)
 	int pass_iters;//do this many iterations
+	int rendersteps;
 	Camera camera;
 } Settings;
 
@@ -167,8 +168,10 @@ __kernel void Main(
 	int gid = get_global_id(0);
 
 	const int pass_iters = settings[0].pass_iters;
+	const int rendersteps = settings[0].rendersteps;
 
-	int next = gid*(pass_iters+3);//for rnd
+	//rnd index:
+	int next = (gid*(pass_iters+3) + /*hash()*/rendersteps) % /*randbuf meret*/(1500*(10000+2));
 
 	/*float startx = rnd[next++]*2.0f-1.0f;
 	float starty = rnd[next++]*2.0f-1.0f;

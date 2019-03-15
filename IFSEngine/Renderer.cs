@@ -15,6 +15,7 @@ namespace IFSEngine
     {
         internal int itnum;//length of iterators - 1 (last one is finalit)
         internal int pass_iters;//iterations per pass
+        internal int rendersteps;
         internal CameraSettings camera;
     }
 
@@ -109,7 +110,7 @@ namespace IFSEngine
             Debug.WriteLine("CTX ERROR INFO: " + str);
         });
 
-        int threadcnt = 1500;//gtx970: 1664, 610m: 48
+        int maxthreadcnt = 1500;//gtx970: 1664, 610m: 48
         int width;
         int height;
         int texturetarget;
@@ -140,7 +141,7 @@ namespace IFSEngine
             Debug.WriteLine("init opencl..");
             //platf = ComputePlatform.Platforms[0];
             platf = ComputePlatform.Platforms.Where(pl => pl.Name == "NVIDIA CUDA").First();
-            device1 = platf.Devices[0];
+            device1 = platf.Devices[0];//TODO: minden platform
 
             if (glctxh.ToInt32() > 0)
             {
@@ -168,7 +169,7 @@ namespace IFSEngine
             computekernel = prog1.CreateKernel("Main");
             displaykernel = prog1.CreateKernel("Display");
 
-            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, threadcnt * (/*max_iters*/10000 + 2));
+            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, maxthreadcnt * (/*max_iters*/10000 + 2));
             calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, width * height * 4);//rgba
             dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, width * height * 4);//rgba
             if (glctxh.ToInt32() > 0)
@@ -181,7 +182,7 @@ namespace IFSEngine
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
             //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count+1/*+final*/);//ezt load nal
             settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
-            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
+            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, maxthreadcnt * 4);//minden szal pontjat mentjuk a kovi passba
 
             computekernel.SetMemoryArgument(0, calcbuf);
             computekernel.SetMemoryArgument(1, randbuf);
@@ -194,11 +195,13 @@ namespace IFSEngine
             displaykernel.SetMemoryArgument(2, dispimg);
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
 
-            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, true, null);
+            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(maxthreadcnt), pointsstatebuf, true, null);
 
-            pre_rnd = new float[threadcnt * (/*this.settings.max_iters*/10000 + 2)];
+            pre_rnd = new float[maxthreadcnt * (/*this.settings.max_iters*/10000 + 2)];
             for (int i = 0; i < pre_rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
                 pre_rnd[i] = (float)rgen.NextDouble();
+
+            cq.WriteToBuffer<float>(pre_rnd, randbuf, false, null);
 
         }
 
@@ -218,7 +221,7 @@ namespace IFSEngine
                 if (iteratorsbuf != null)
                     iteratorsbuf.Dispose();
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
-                cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
+                cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(maxthreadcnt), pointsstatebuf, false, null);
                 computekernel.SetMemoryArgument(2, iteratorsbuf);
             }
             this.its = its;
@@ -241,35 +244,41 @@ namespace IFSEngine
         }
 
         int rndcarousel = 0;
-        int carouselLength = 0;
+        int carouselLength = 4;
 
         public void Render()
         {
             //if volt init()
-            
+
             //settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, false, null);//camera motion blur es pass_iters miatt
 
-            if (rndcarousel <= 0)
+            int threadcnt = maxthreadcnt;
+            if (rendersteps < 10)
+                threadcnt = 64;
+
+            /*if (rndcarousel <= 0)
             {
                 rndcarousel = carouselLength;
-                rnd = new float[threadcnt * (10000 + 2)];
-                for (int i = 0; i < /*rnd.Length*/threadcnt * (this.settings.pass_iters + 2); i++)
+                rnd = new float[maxthreadcnt * (10000 + 2)];
+                for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
                     rnd[i] = pre_rnd[(int)((rendersteps+1)*7.3451f+(i+1)*3.7693f) % pre_rnd.Length];
             }
             else
             {
                 rndcarousel--;
-                for (int i = 0; i < /*rnd.Length*/threadcnt * (this.settings.pass_iters + 2); i++)
+                for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
                     rnd[i] = (rnd[i] + (1.0f/carouselLength)) % 1.0f;
             }
-            cq.WriteToBuffer<float>(rnd, randbuf, false, null);
+            cq.WriteToBuffer<float>(rnd, randbuf, false, null);*/
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             settings.camera = Camera.Settings;
+            settings.rendersteps = rendersteps;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
 
             //e = Cl.EnqueueMarker(cq, out Event start);
+
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, null);
             //cq.Finish();
             rendersteps++;
