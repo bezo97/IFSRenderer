@@ -221,7 +221,7 @@ namespace IFSEngine
                 if (iteratorsbuf != null)
                     iteratorsbuf.Dispose();
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
-                cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(maxthreadcnt), pointsstatebuf, false, null);
+                cq.WriteToBuffer<float>(StartingDistributions./*UniformUnitCube*/Diamond(maxthreadcnt), pointsstatebuf, false, null);
                 computekernel.SetMemoryArgument(2, iteratorsbuf);
             }
             this.its = its;
@@ -244,7 +244,7 @@ namespace IFSEngine
         }
 
         int rndcarousel = 0;
-        int carouselLength = 4;
+        int carouselLength = 0;
 
         public void Render()
         {
@@ -253,24 +253,30 @@ namespace IFSEngine
             //settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, false, null);//camera motion blur es pass_iters miatt
 
+            //StartingDistributions teszt:
+            //cq.WriteToBuffer<float>(StartingDistributions.Diamond(maxthreadcnt), pointsstatebuf, false, null);
+
             int threadcnt = maxthreadcnt;
             if (rendersteps < 10)
                 threadcnt = 64;
-
-            /*if (rndcarousel <= 0)
-            {
-                rndcarousel = carouselLength;
-                rnd = new float[maxthreadcnt * (10000 + 2)];
-                for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
-                    rnd[i] = pre_rnd[(int)((rendersteps+1)*7.3451f+(i+1)*3.7693f) % pre_rnd.Length];
-            }
             else
             {
-                rndcarousel--;
-                for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
-                    rnd[i] = (rnd[i] + (1.0f/carouselLength)) % 1.0f;
+                if (rndcarousel <= 0)
+                {
+                    rndcarousel = carouselLength;
+                    rnd = new float[maxthreadcnt * (10000 + 2)];
+                    for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
+                        rnd[i] = pre_rnd[(int)((rendersteps + 1) * 7.3451f + (i + 1) * 3.7693f) % pre_rnd.Length];
+                }
+                else
+                {
+                    rndcarousel--;
+                    for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
+                        rnd[i] = (rnd[i] + (1.0f / carouselLength)) % 1.0f;
+                }
+                //cq.WriteToBuffer<float>(rnd, randbuf, false, null);
+
             }
-            cq.WriteToBuffer<float>(rnd, randbuf, false, null);*/
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             settings.camera = Camera.Settings;
