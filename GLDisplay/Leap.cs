@@ -21,6 +21,7 @@ namespace GLDisplay
             leap.FrameReady += Leap_FrameReady;
             leap.ImageReady += Leap_ImageReady;
             leap.ImageRequestFailed += Leap_ImageRequestFailed;
+            
             this.r = r;
         }
 
@@ -75,7 +76,7 @@ namespace GLDisplay
                     grabTheta = camera.Theta;
                     grabQuaternion = right.Rotation.Inverse();
                 }
-
+                
                 (float roll, float pitch, float yaw)  = right.Rotation.Multiply(grabQuaternion).GetRotations();
 
                 if (Math.Abs(pitch) < maxRotate && Math.Abs(roll) < maxRotate)
@@ -157,17 +158,63 @@ namespace GLDisplay
             {
                 hack = 2;
             }
-
+      
             if (r.Camera is Camera camera) {
-                if (e.frame.Hands.Where(h => h.IsRight).FirstOrDefault() is Hand right) 
+                if (e.frame.Hands.Where(h => h.IsRight).FirstOrDefault() is Hand right)
                 {
                     RightHand(right, camera);
+
+                    if (!swipingRightStarted)
+                        DetectSwipeRightStart(right);
+
+                    if (swipingRightStarted)
+                    {
+                        DetectSwipeRight(right);
+                        if(DetectSwipeRightStop(right))
+                        {
+                            //lapoz..
+                        }
+                    }
+
                 }
+                else
+                    swipingRightStarted = false;
                 if (e.frame.Hands.Where(h => h.IsLeft).FirstOrDefault() is Hand left)
                 {
                     LeftHand(left, camera);
                 }
             }         
         }
+
+        bool swipingRightStarted;
+        void DetectSwipeRightStart(Hand right)
+        {
+            if(right.Fingers.All(f=>f.IsExtended) && right.PalmNormal.Dot(new Vector(-1,0,0)) > 0.5 && right.PalmVelocity.Magnitude > 500 && right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5)
+            {
+                Debug.WriteLine("SWIPE RIGHT START");
+                swipingRightStarted = true;
+            }
+        }
+
+        void DetectSwipeRight(Hand right)
+        {
+            if (right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5 && right.PalmVelocity.Magnitude>500)
+            {
+                Debug.WriteLine("SWIPING RIGHT");
+                swipingRightStarted = true;
+            }
+        }
+
+        bool DetectSwipeRightStop(Hand right)
+        {
+            if (right.PalmVelocity.Normalized.Dot(new Vector(1, 0, 0)) > 0.0)//ez igazabol cancel..
+            {
+                Debug.WriteLine("SWIPE RIGHT STOP");
+                swipingRightStarted = false;
+                return true;
+            }
+            return false;
+        }
+
     }
 }
