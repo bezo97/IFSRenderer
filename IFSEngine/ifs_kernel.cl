@@ -6,6 +6,18 @@
 #pragma OPENCL EXTENSION CL_APPLE_gl_sharing : enable
 #pragma OPENCL EXTENSION CL_KHR_gl_sharing : enable
 
+#include "mwc64x.cl"
+
+//0-1
+float randhash(mwc64x_state_t *state)
+{
+	//lol hack:
+	uint maxint = 0;
+	maxint--;
+	uint r = MWC64X_NextUint(state);
+	return ((float) r) / ((float)maxint);
+}
+
 typedef struct
 {
     float ox;//pos
@@ -159,10 +171,10 @@ float3 getPaletteColor(float pos)
 
 __kernel void Main(
 	__global float* output,
-	__global float* rnd,
 	__global Iterator* its,
 	__global Settings* settings,
-	__global float* pointsstate
+	__global float* pointsstate,
+	__global mwc64x_state_t* rng_state
 )
 {
 	int gid = get_global_id(0);
@@ -170,8 +182,17 @@ __kernel void Main(
 	const int pass_iters = settings[0].pass_iters;
 	const int rendersteps = settings[0].rendersteps;
 
-	//rnd index:
-	int next = (gid*(pass_iters+3) + /*hash()*/rendersteps) % /*randbuf meret*/(1500*(10000+2));
+	//rnd index: cpu rol jott randomok
+	//int next = (gid*(pass_iters+3) + /*hash()*/rendersteps) % /*randbuf meret*/(1500*(10000+2));
+
+	//init mwc64x random hash
+	mwc64x_state_t rng = rng_state[gid];
+	if(rendersteps==0)
+	{
+		ulong perStream=3*10000*100;//ez miert tobb?
+		MWC64X_SeedStreams(&rng, gid, perStream); 
+	}
+	
 
 	/*float startx = rnd[next++]*2.0f-1.0f;
 	float starty = rnd[next++]*2.0f-1.0f;
@@ -191,7 +212,7 @@ __kernel void Main(
 	for (int i = 0; i < pass_iters; i++)
 	{//pick a random weighted Transform index
 		int r_index = 0;
-		float r = rnd[next++];
+		float r = randhash(&rng);//rnd[next++];
 		float w_acc = 0.0f;
 		for (int j = 0; j < settings[0].itnum; j++)
 			if (w_acc < r) {
@@ -223,7 +244,9 @@ __kernel void Main(
 		//printf("f2 = %2.2v2hlf\n", index);
 		
 		//perspective project
-		float2 proj = Project(settings[0].camera, finalp, rnd[i%pass_iters],rnd[(i+422)%pass_iters]);
+		float ra1 = randhash(&rng);
+		float ra2 = randhash(&rng);
+		float2 proj = Project(settings[0].camera, finalp, /*rnd[i%pass_iters]*/ra1,/*rnd[(i+422)%pass_iters]*/ra2);
 		//window center
 		proj.x = width/2.0f + proj.x * width/2.0f;
 		proj.y = width/2.0f + proj.y * width/2.0f;
@@ -320,6 +343,7 @@ __kernel void Main(
 	pointsstate[gid*4+2] = p.z;
 	pointsstate[gid*4+3] = p_shader.x;//color
 
+	rng_state[gid] = rng;
 
 }
 

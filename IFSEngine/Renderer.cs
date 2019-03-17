@@ -11,6 +11,13 @@ using System.Linq;
 
 namespace IFSEngine
 {
+
+    internal struct mwc64x_state_t
+    {
+        uint x;
+        uint c;
+    }
+
     internal struct Settings
     {
         internal int itnum;//length of iterators - 1 (last one is finalit)
@@ -93,11 +100,11 @@ namespace IFSEngine
         ComputeBuffer<float>/*<double4>*/ calcbuf;
         ComputeImage2D/*<double4>*/ dispimg;
         ComputeBuffer<float> dispbuf;
-        ComputeBuffer<float>/*<float>*/ randbuf;
         ComputeBuffer<float>/*<double>*/ dispsettingsbuf;
         ComputeBuffer<Iterator>/*<double>*/ iteratorsbuf;
         ComputeBuffer<Settings>/*<double>*/ settingsbuf;
         ComputeBuffer<float> pointsstatebuf;
+        ComputeBuffer<mwc64x_state_t> rng_states;
 
         ComputeErrorCode e;
         ComputeProgramBuildNotifier buildnotif = new ComputeProgramBuildNotifier(builddebug);
@@ -110,7 +117,7 @@ namespace IFSEngine
             Debug.WriteLine("CTX ERROR INFO: " + str);
         });
 
-        int maxthreadcnt = 1500;//gtx970: 1664, 610m: 48
+        int threadcnt = 1500;//gtx970: 1664, 610m: 48
         int width;
         int height;
         int texturetarget;
@@ -118,10 +125,10 @@ namespace IFSEngine
         public int rendersteps = 0;
         List<Iterator> its = new List<Iterator>();
         Iterator finalit;
-        Settings settings;
+        Settings settings = new Settings();//todo init
 
-        float[] pre_rnd;
-        float[] rnd;
+        //float[] pre_rnd;
+        //float[] rnd;
 
         public Renderer(int width, int height, IntPtr glctxh, int texturetarget)
         {
@@ -169,7 +176,7 @@ namespace IFSEngine
             computekernel = prog1.CreateKernel("Main");
             displaykernel = prog1.CreateKernel("Display");
 
-            randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, maxthreadcnt * (/*max_iters*/10000 + 2));
+            //randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, maxthreadcnt * (/*max_iters*/10000 + 2));
             calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, width * height * 4);//rgba
             dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, width * height * 4);//rgba
             if (glctxh.ToInt32() > 0)
@@ -182,30 +189,23 @@ namespace IFSEngine
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
             //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count+1/*+final*/);//ezt load nal
             settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
-            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, maxthreadcnt * 4);//minden szal pontjat mentjuk a kovi passba
+            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
+            rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);
 
             computekernel.SetMemoryArgument(0, calcbuf);
-            computekernel.SetMemoryArgument(1, randbuf);
-            //computekernel.SetMemoryArgument(2, iteratorsbuf);//ezt initben
-            computekernel.SetMemoryArgument(3, settingsbuf);
-            computekernel.SetMemoryArgument(4, pointsstatebuf);
+            //computekernel.SetMemoryArgument(1, randbuf);
+            //computekernel.SetMemoryArgument(1, iteratorsbuf);//ezt initben
+            computekernel.SetMemoryArgument(2, settingsbuf);
+            computekernel.SetMemoryArgument(3, pointsstatebuf);
+            computekernel.SetMemoryArgument(4, rng_states);
 
             displaykernel.SetMemoryArgument(0, calcbuf);
             displaykernel.SetMemoryArgument(1, dispbuf);
             displaykernel.SetMemoryArgument(2, dispimg);
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
-
-            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(maxthreadcnt), pointsstatebuf, true, null);
-
-            pre_rnd = new float[maxthreadcnt * (/*this.settings.max_iters*/10000 + 2)];
-            for (int i = 0; i < pre_rnd.Length/*threadcnt * (this.settings.max_iters+2)*/; i++)
-                pre_rnd[i] = (float)rgen.NextDouble();
-
-            cq.WriteToBuffer<float>(pre_rnd, randbuf, false, null);
-
         }
 
-        public Camera Camera { get; set; }
+        public Camera Camera { get; set; } = new Camera();
 
         public void ResetAccumulation()
         {
@@ -215,24 +215,22 @@ namespace IFSEngine
         //TODO: kulon valaszt params es camera update
         public void UpdateParams(List<Iterator> its, Iterator finalit)
         {
-            
+            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
             if (its.Count != this.its.Count)
             {
-                if (iteratorsbuf != null)
-                    iteratorsbuf.Dispose();
+                var bufferHandle = iteratorsbuf?.Handle;
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
-                cq.WriteToBuffer<float>(StartingDistributions./*UniformUnitCube*/Diamond(maxthreadcnt), pointsstatebuf, false, null);
-                computekernel.SetMemoryArgument(2, iteratorsbuf);
+                bufferHandle?.Invalidate();//nem tudjuk csak siman Dispose() olni, mert lehet hogy epp szukseg van ra. Invalidate: A kovetkezo framek mar az ujt hasznaljak
+                //TODO: de most leak??
+                computekernel.SetMemoryArgument(1, iteratorsbuf);
             }
             this.its = its;
             this.finalit = finalit;
-            this.settings = new Settings
-            {
-                itnum = its.Count,
-                pass_iters = 256,//minden renderrel duplazodik
-                camera = Camera.Settings
-            };
             rendersteps = 0;
+            this.settings.itnum = its.Count;
+            this.settings.pass_iters = 64;//minden renderrel duplazodik
+            this.settings.rendersteps = rendersteps;//0
+            //this.settings.camera = Camera.Settings;
             rndcarousel = 0;
             List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
@@ -250,33 +248,8 @@ namespace IFSEngine
         {
             //if volt init()
 
-            //settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
-            //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, false, null);//camera motion blur es pass_iters miatt
-
             //StartingDistributions teszt:
-            //cq.WriteToBuffer<float>(StartingDistributions.Diamond(maxthreadcnt), pointsstatebuf, false, null);
-
-            int threadcnt = maxthreadcnt;
-            if (rendersteps < 10)
-                threadcnt = 64;
-            else
-            {
-                if (rndcarousel <= 0)
-                {
-                    rndcarousel = carouselLength;
-                    rnd = new float[maxthreadcnt * (10000 + 2)];
-                    for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
-                        rnd[i] = pre_rnd[(int)((rendersteps + 1) * 7.3451f + (i + 1) * 3.7693f) % pre_rnd.Length];
-                }
-                else
-                {
-                    rndcarousel--;
-                    for (int i = 0; i < threadcnt * (this.settings.pass_iters + 2); i++)
-                        rnd[i] = (rnd[i] + (1.0f / carouselLength)) % 1.0f;
-                }
-                //cq.WriteToBuffer<float>(rnd, randbuf, false, null);
-
-            }
+            //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             settings.camera = Camera.Settings;
@@ -353,7 +326,7 @@ namespace IFSEngine
         public void Dispose()
         {
             calcbuf.Dispose();
-            randbuf.Dispose();
+            //randbuf.Dispose();
             dispbuf.Dispose();
             iteratorsbuf.Dispose();
             pointsstatebuf.Dispose();

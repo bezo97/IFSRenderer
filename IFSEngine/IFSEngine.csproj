@@ -6,10 +6,22 @@
 
   <ItemGroup>
     <None Remove="ifs_kernel.cl" />
+    <None Remove="mwc64x.cl" />
+    <None Remove="mwc64x\mwc64x_rng.cl" />
+    <None Remove="mwc64x\skip_mwc.cl" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ifs_kernel.cl" />
+    <EmbeddedResource Include="mwc64x.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="mwc64x\mwc64x_rng.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="mwc64x\skip_mwc.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
