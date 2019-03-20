@@ -207,9 +207,17 @@ namespace IFSEngine
 
         public Camera Camera { get; set; } = new Camera();
 
-        public void ResetAccumulation()
+        private bool invalid = false;
+        public void InvalidateAccumulation()
         {
-            cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+            //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
+            if (!invalid)
+            {
+                //ez elv redundans, de megis reszponzivabb??
+                cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+            }
+            invalid = true;
+            
         }
 
         //TODO: kulon valaszt params es camera update
@@ -236,7 +244,7 @@ namespace IFSEngine
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
             //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//ezt a renderben kell ugyis
-            ResetAccumulation();
+            InvalidateAccumulation();
 
             //Render();
         }
@@ -250,6 +258,12 @@ namespace IFSEngine
 
             //StartingDistributions teszt:
             //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
+
+            if(invalid)
+            {
+                cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+                invalid = false;
+            }
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             settings.camera = Camera.Settings;

@@ -125,7 +125,7 @@ namespace GLDisplay
             {
                 r.Camera.Theta += (lastY-e.Y) / 100.0f;
                 r.Camera.Phi += (lastX-e.X) / 100.0f;
-                r.ResetAccumulation();
+                r.InvalidateAccumulation();
             }
             lastX = e.X;
             lastY = e.Y;
@@ -262,7 +262,7 @@ namespace GLDisplay
             if (hack <= 0)
             {
                 r.Camera.FocusDistance = (float)Convert.ToDouble(tmpnud.Value);
-                r.ResetAccumulation();
+                r.InvalidateAccumulation();
                 timermax = 1;
                 hack = 3;
             }
@@ -322,7 +322,7 @@ namespace GLDisplay
                 0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
                 0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
                 0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-            r.ResetAccumulation();
+            r.InvalidateAccumulation();
         }
     }
 }
