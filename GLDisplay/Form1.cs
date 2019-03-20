@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GLDisplay.Leap;
 using IFSEngine;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -69,7 +70,7 @@ namespace GLDisplay
 
         OpenTK.GLControl display1;
 
-        Leap leap;
+        Leap.Leap leap;
 
         private int texID;
 
@@ -77,6 +78,15 @@ namespace GLDisplay
         const int h = 720;
         float brightness = 1.0f;
         float gamma = 4.0f;
+
+        int editState = 0;
+        public int EditState { get => editState;
+            set
+            {
+                editState = (value + its.Count) % its.Count;
+                IteratorSelectLabel.Text = $"< ({editState+1}) / {its.Count} >";
+            }
+        }
 
 
         public Form1()
@@ -101,7 +111,10 @@ namespace GLDisplay
             r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
 
             //leap init
-            leap = new Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
+            leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
+
+            Swipe.RightSwiped += (s, e) => EditState++;
+            Swipe.LeftSwiped += (s, e) => EditState--;
         }
 
         int lastX;
@@ -243,6 +256,7 @@ namespace GLDisplay
         }
 
         int hack = 0;
+
         private void tmpnud_ValueChanged(object sender, EventArgs e)
         {
             if (hack <= 0)
@@ -299,6 +313,7 @@ namespace GLDisplay
 
             timermax = 1;
             r.UpdateParams(its, finalit);
+            EditState = 0;
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)

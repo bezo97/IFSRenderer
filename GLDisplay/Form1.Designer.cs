@@ -37,6 +37,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.tmpnud = new System.Windows.Forms.NumericUpDown();
             this.randomizebut = new System.Windows.Forms.Button();
+            this.IteratorSelectLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tmpnud)).BeginInit();
@@ -177,12 +178,25 @@
             this.randomizebut.UseVisualStyleBackColor = true;
             this.randomizebut.Click += new System.EventHandler(this.randomizebut_Click);
             // 
+            // IteratorSelectLabel
+            // 
+            this.IteratorSelectLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.IteratorSelectLabel.AutoSize = true;
+            this.IteratorSelectLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.IteratorSelectLabel.Location = new System.Drawing.Point(577, 7);
+            this.IteratorSelectLabel.Name = "IteratorSelectLabel";
+            this.IteratorSelectLabel.Size = new System.Drawing.Size(211, 42);
+            this.IteratorSelectLabel.TabIndex = 7;
+            this.IteratorSelectLabel.Text = "< ( 1 ) / 5 >";
+            this.IteratorSelectLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.IteratorSelectLabel);
             this.Controls.Add(this.randomizebut);
             this.Controls.Add(this.tmpnud);
             this.Controls.Add(this.button3);
@@ -213,6 +227,7 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.NumericUpDown tmpnud;
         private System.Windows.Forms.Button randomizebut;
+        private System.Windows.Forms.Label IteratorSelectLabel;
     }
 }
 

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GLDisplay
+namespace GLDisplay.Leap
 {
 
     public class Leap
@@ -158,63 +158,19 @@ namespace GLDisplay
             {
                 hack = 2;
             }
-      
+
+            
+            Swipe.Detect(e.frame.Hands);
+
+            //navigation+focus
             if (r.Camera is Camera camera) {
                 if (e.frame.Hands.Where(h => h.IsRight).FirstOrDefault() is Hand right)
-                {
                     RightHand(right, camera);
-
-                    if (!swipingRightStarted)
-                        DetectSwipeRightStart(right);
-
-                    if (swipingRightStarted)
-                    {
-                        DetectSwipeRight(right);
-                        if(DetectSwipeRightStop(right))
-                        {
-                            //lapoz..
-                        }
-                    }
-
-                }
-                else
-                    swipingRightStarted = false;
                 if (e.frame.Hands.Where(h => h.IsLeft).FirstOrDefault() is Hand left)
-                {
                     LeftHand(left, camera);
-                }
             }         
         }
-
-        bool swipingRightStarted;
-        void DetectSwipeRightStart(Hand right)
-        {
-            if(right.Fingers.All(f=>f.IsExtended) && right.PalmNormal.Dot(new Vector(-1,0,0)) > 0.5 && right.PalmVelocity.Magnitude > 500 && right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5)
-            {
-                Debug.WriteLine("SWIPE RIGHT START");
-                swipingRightStarted = true;
-            }
-        }
-
-        void DetectSwipeRight(Hand right)
-        {
-            if (right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5 && right.PalmVelocity.Magnitude>500)
-            {
-                Debug.WriteLine("SWIPING RIGHT");
-                swipingRightStarted = true;
-            }
-        }
-
-        bool DetectSwipeRightStop(Hand right)
-        {
-            if (right.PalmVelocity.Normalized.Dot(new Vector(1, 0, 0)) > 0.0)//ez igazabol cancel..
-            {
-                Debug.WriteLine("SWIPE RIGHT STOP");
-                swipingRightStarted = false;
-                return true;
-            }
-            return false;
-        }
+        
 
     }
 }
