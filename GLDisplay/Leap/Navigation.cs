@@ -61,6 +61,10 @@ namespace GLDisplay.Leap
                         }
                     }
 
+                    // Vector v = (right.PalmPosition - grabHandPos) / 100.0f;
+                    // v.x = -v.x;
+                    // v.y = -v.y;
+
                     float z = (right.PalmPosition.z - grabHandPos.z) / 100.0f;
                     float x = -(right.PalmPosition.x - grabHandPos.x) / 100.0f;
                     float y = -(right.PalmPosition.y - grabHandPos.y) / 100.0f;

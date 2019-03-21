@@ -19,12 +19,12 @@ namespace GLDisplay.Leap
             if (Hands.Where(h => h.IsRight).FirstOrDefault() is Hand right)
             {
                 if (!swipingRightStarted)
-                    DetectSwipeRightStart(right);
+                    DetectSwipeStart(right, RightSwipe);
 
                 if (swipingRightStarted)
                 {
-                    DetectSwipeRight(right);
-                    if (DetectSwipeRightStop(right))
+                    DetectSwipe(right, RightSwipe);
+                    if (DetectSwipeStop(right, RightSwipe))
                     {
                         RightSwiped?.Invoke(null, null);
                     }
@@ -36,12 +36,12 @@ namespace GLDisplay.Leap
             if (Hands.Where(h => h.IsLeft).FirstOrDefault() is Hand left)
             {
                 if (!swipingLeftStarted)
-                    DetectSwipeLeftStart(left);
+                    DetectSwipeStart(left, LeftSwipe);
 
                 if (swipingLeftStarted)
                 {
-                    DetectSwipeLeft(left);
-                    if (DetectSwipeLeftStop(left))
+                    DetectSwipe(left, LeftSwipe);
+                    if (DetectSwipeStop(left, LeftSwipe))
                     {
                         LeftSwiped?.Invoke(null, null);
                     }
@@ -57,55 +57,30 @@ namespace GLDisplay.Leap
             swipingLeftStarted = false;
         }
 
-        private static void DetectSwipeRightStart(Hand right)
+        private static void DetectSwipeStart(Hand hand, HandSwiped swipe)
         {
-            if (right.Fingers.All(f => f.IsExtended) && right.PalmNormal.Dot(new Vector(-1, 0, 0)) > 0.5 && right.PalmVelocity.Magnitude > 500 && right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5)
-            {
-                swipingRightStarted = true;
-                swipingLeftStarted = false;
-            }
-        }
-
-        private static void DetectSwipeRight(Hand right)
-        {
-            if (right.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.5 && right.PalmVelocity.Magnitude > 500)
-            {
-                swipingRightStarted = true;
-                swipingLeftStarted = false;
-            }
-        }
-
-        private static bool DetectSwipeRightStop(Hand right)
-        {
-            if (right.PalmVelocity.Normalized.Dot(new Vector(1, 0, 0)) > 0.0)//ez igazabol cancel..
-            {
-                swipingRightStarted = false;
-                return true;
-            }
-            return false;
-        }
-
-        private static void DetectSwipeLeftStart(Hand left)
-        {
-            if (left.Fingers.All(f => f.IsExtended) && left.PalmNormal.Dot(new Vector(1, 0, 0)) > 0.5 && left.PalmVelocity.Magnitude > 500 && left.PalmVelocity.Normalized.Dot(new Vector(1, 0, 0)) > 0.5)
+            if (hand.Fingers.All(f => f.IsExtended) && 
+                hand.PalmNormal.Dot(swipe.Normal) > 0.5 && 
+                hand.PalmVelocity.Magnitude > 500 &&
+                hand.PalmVelocity.Normalized.Dot(swipe.Normal) > 0.5)
             {
                 swipingLeftStarted = true;
                 swipingRightStarted = false;
             }
         }
 
-        private static void DetectSwipeLeft(Hand left)
+        private static void DetectSwipe(Hand hand, HandSwiped swipe)
         {
-            if (left.PalmVelocity.Normalized.Dot(new Vector(1, 0, 0)) > 0.5 && left.PalmVelocity.Magnitude > 500)
+            if (hand.PalmVelocity.Normalized.Dot(swipe.Normal) > 0.5 && hand.PalmVelocity.Magnitude > 500)
             {
                 swipingLeftStarted = true;
                 swipingRightStarted = false;
             }
         }
 
-        private static bool DetectSwipeLeftStop(Hand left)
+        private static bool DetectSwipeStop(Hand hand, HandSwiped swipe)
         {
-            if (left.PalmVelocity.Normalized.Dot(new Vector(-1, 0, 0)) > 0.0)//ez igazabol cancel..
+            if (hand.PalmVelocity.Normalized.Dot(swipe.Anti) > 0.0)//ez igazabol cancel..
             {
                 swipingLeftStarted = false;
                 return true;
@@ -113,5 +88,19 @@ namespace GLDisplay.Leap
             return false;
         }
 
+        private class HandSwiped
+        {
+            public readonly Vector Normal;
+            public readonly Vector Anti;
+
+            public HandSwiped(Vector n, Vector a)
+            {
+                Normal = n;
+                Anti = a;
+            }
+        }
+
+        private static readonly HandSwiped LeftSwipe = new HandSwiped(new Vector(1, 0, 0), new Vector(-1, 0, 0));
+        private static readonly HandSwiped RightSwipe = new HandSwiped(new Vector(-1, 0, 0), new Vector(1, 0, 0));
     }
 }

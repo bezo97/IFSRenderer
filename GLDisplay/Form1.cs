@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,41 +31,41 @@ namespace GLDisplay
 
 
 
-        List<Iterator> its = new List<Iterator>() {
-            new Iterator(
-                new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-                0,
-                1.0f,
-                0.1f,
-                0.0f,
-                1.0f)
-            ,
-            new Iterator(
-                new Affine(0.2f,-1.0f,0.0f , 0.8f,0.5f,0.0f , 0.1f,0.8f,0.0f , 0.0f,0.0f,1.0f),
-                1,
-                0.5f,
-                0.8f,
-                0.5f,
-                1.0f
-            ),
-            new Iterator(
-                new Affine(0.6f,0.133975f,0.0f , 0.56f,0.0f,0.0f , 0.0f,0.4f,0.0f , 0.0f,0.0f,1.0f),
-                2,
-                0.25f,
-                0.9f,
-                1.0f,
-                1.0f
-            )
-        };
-
-        Iterator finalit = new Iterator(
-            new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-            0,//linear
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f
-        );
+        // List<Iterator> its = new List<Iterator>() {
+        //     new Iterator(
+        //         new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+        //         0,
+        //         1.0f,
+        //         0.1f,
+        //         0.0f,
+        //         1.0f)
+        //     ,
+        //     new Iterator(
+        //         new Affine(0.2f,-1.0f,0.0f , 0.8f,0.5f,0.0f , 0.1f,0.8f,0.0f , 0.0f,0.0f,1.0f),
+        //         1,
+        //         0.5f,
+        //         0.8f,
+        //         0.5f,
+        //         1.0f
+        //     ),
+        //     new Iterator(
+        //         new Affine(0.6f,0.133975f,0.0f , 0.56f,0.0f,0.0f , 0.0f,0.4f,0.0f , 0.0f,0.0f,1.0f),
+        //         2,
+        //         0.25f,
+        //         0.9f,
+        //         1.0f,
+        //         1.0f
+        //     )
+        // };
+        // 
+        // Iterator finalit = new Iterator(
+        //     new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+        //     0,//linear
+        //     0.0f,
+        //     0.0f,
+        //     1.0f,
+        //     1.0f
+        // );
 
         IFSEngine.Renderer r;
 
@@ -79,13 +80,9 @@ namespace GLDisplay
         float brightness = 1.0f;
         float gamma = 4.0f;
 
-        int editState = 0;
-        public int EditState { get => editState;
-            set
-            {
-                editState = (value + its.Count) % its.Count;
-                IteratorSelectLabel.Text = $"< ({editState+1}) / {its.Count} >";
-            }
+        void UpdateIteratorSelectedText()
+        {
+            IteratorSelectLabel.Text = $"< ({IteratorManipulator.EditState + 1}) / {IteratorManipulator.IteratorCount} >";
         }
 
 
@@ -109,12 +106,12 @@ namespace GLDisplay
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             IntPtr raw_context_handle = ctx.Context.Handle;
             r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
-
+            
             //leap init
             leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
 
-            Swipe.RightSwiped += (s, e) => EditState++;
-            Swipe.LeftSwiped += (s, e) => EditState--;
+            Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
+            Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
         }
 
         int lastX;
@@ -271,49 +268,52 @@ namespace GLDisplay
 
         private void randomizebut_Click(object sender, EventArgs e)
         {
-            Random rand = new Random();
-            int itnum = (int)rand.Next(5) + 2;
-            its = new List<Iterator>();
-            for (int ii = 0; ii < itnum; ii++)
-            {
-                Iterator nit = new Iterator();
-                nit.aff.ox = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.oy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.oz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.xx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.xy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.xz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.yx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.yy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.yz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.zx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.zy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.aff.zz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-                nit.w = (float)rand.NextDouble();
-                nit.cs = (float)(rand.NextDouble()*2.0f-1.0f)*0.1f;
-                nit.ci = (float)rand.NextDouble();
-                nit.op = (float)rand.NextDouble();
-                nit.tfID = rand.Next()%2;//spherical
-                its.Add(nit);
-            }
-
-            //normalize weights
-            float sumweights = 0.0f;
-            for (int s = 0; s < itnum; s++)
-                sumweights = sumweights + its[s].w;
-            //its.ForEach(it => it.w /= sumweights);
-            for (int s = 0; s < itnum; s++)
-            {
-                Iterator tmpit = its[s];
-                tmpit.w /= sumweights;
-                its[s] = tmpit;
-            }
-
-            r.Camera = new Camera();
-
+            // Random rand = new Random();
+            // int itnum = 16+ rand.Next(5);
+            // float f = 0;
+            // its = new List<Iterator>();
+            // for (int ii = 0; ii < itnum; ii++)
+            // {
+            //     Iterator nit = new Iterator();
+            //     nit.aff.ox = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.oy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.oz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.xx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.xy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.xz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.yx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.yy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.yz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.zx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.zy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.aff.zz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
+            //     nit.w = (float)rand.NextDouble();
+            //     nit.cs = (float)(rand.NextDouble()*2.0f-1.0f)*0.1f;
+            //     nit.ci = (float)rand.NextDouble();
+            //     nit.op = (float)rand.NextDouble();
+            //     nit.tfID = rand.Next()%2;//spherical
+            //     its.Add(nit);
+            //     f += 0.3f;
+            // }
+            // 
+            // //normalize weights
+            // float sumweights = 0.0f;
+            // for (int s = 0; s < itnum; s++)
+            //     sumweights = sumweights + its[s].w;
+            // //its.ForEach(it => it.w /= sumweights);
+            // for (int s = 0; s < itnum; s++)
+            // {
+            //     Iterator tmpit = its[s];
+            //     tmpit.w /= sumweights;
+            //     its[s] = tmpit;
+            // }
+            // 
+            // r.Camera = new Camera();
+            IteratorManipulator.Randomize(r);
             timermax = 1;
-            r.UpdateParams(its, finalit);
-            EditState = 0;
+            UpdateIteratorSelectedText();
+            //r.UpdateParams(its, finalit);
+            //EditState = 0;
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)

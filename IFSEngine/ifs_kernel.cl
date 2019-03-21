@@ -161,10 +161,21 @@ float2 ApplyShader(Iterator it, float2 input/*(color,opacity)*/)
 float3 getPaletteColor(float pos)
 {
   //define two constant colors, like red and blue
-  float3 red = (float3)(1.0f,0.0f,0.0f);
-  float3 blue = (float3)(0.0f,0.0f,1.0f);
+  float3 red   = (float3)(1.0f, 0.0f, 0.0f);
+  float3 green = (float3)(0.0f, 1.0f, 0.0f);
+  float3 blue  = (float3)(0.0f, 0.0f, 1.0f);
   //interpolate linearly between the two, according to pos
-  float3 result = (1.0f-pos) * red + pos * blue;//mix(red, blue, pos);
+  float3 result; //= (1.0f-pos) * red + pos * blue;//mix(red, blue, pos);
+
+  if (pos <= 0.5f)
+  {
+	  result = (green * pos * 2.0f) + red * (0.5f - pos) * 2.0f;
+  }
+  else
+  {
+	  result = blue * (pos - 0.5f) * 2.0f + green * (1.0f - pos) * 2.0f;
+  }
+
   //return that color
   return result;
 }

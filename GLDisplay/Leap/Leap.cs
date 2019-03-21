@@ -89,6 +89,11 @@ namespace GLDisplay.Leap
                 FocusDistance.UpdateFocusDistance(right, r);
             }
 
+            if (e.frame.Hands.Where(h => h.IsLeft).FirstOrDefault() is Hand left)
+            {
+                IteratorManipulator.UpdateIterator(left, r);
+            }
+
             //if (e.frame.Hands.Where(h => h.IsLeft).FirstOrDefault() is Hand left)
             //TODO: edit iterators
         }
