@@ -37,8 +37,8 @@ namespace GLDisplay
 
         private int texID;
 
-        const int w = 3840;
-        const int h = 2160;
+        const int w = 1920;
+        const int h = 1080;
         float brightness = 1.0f;
         float gamma = 4.0f;
 
@@ -74,6 +74,9 @@ namespace GLDisplay
 
             Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
             Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
+
+            IteratorManipulator.Randomize(r);
+            UpdateIteratorSelectedText();
         }
 
         int lastX;

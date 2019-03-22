@@ -260,7 +260,7 @@ __kernel void Main(
 		float2 proj = Project(settings[0].camera, finalp, /*rnd[i%pass_iters]*/ra1,/*rnd[(i+422)%pass_iters]*/ra2);
 		//window center
 		proj.x = width/2.0f + proj.x * width/2.0f;
-		proj.y = width/2.0f + proj.y * width/2.0f;
+		proj.y = height/2.0f + proj.y * height/2.0f;
 		
 		int x_index = round(proj.x);
 		int y_index = round(proj.y);
