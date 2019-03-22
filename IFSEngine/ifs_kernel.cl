@@ -290,7 +290,7 @@ __kernel void Main(
 		else
 			continue;
 
-		//continue;//no aa
+		continue;//no aa
 		
 		//aa
 		float dx = proj.x - floor(proj.x);//proj.x % 1;

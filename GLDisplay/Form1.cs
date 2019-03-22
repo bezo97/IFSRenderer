@@ -37,8 +37,8 @@ namespace GLDisplay
 
         private int texID;
 
-        const int w = 720;
-        const int h = 720;
+        const int w = 3840;
+        const int h = 2160;
         float brightness = 1.0f;
         float gamma = 4.0f;
 
@@ -51,14 +51,14 @@ namespace GLDisplay
         public Form1()
         {
             InitializeComponent();
-            this.Width = 1280;
-            this.Height = 720;
+            this.Width = w;
+            this.Height = h;
             OpenTK.Toolkit.Init();//
             display1 = new OpenTK.GLControl();
             display1.Width = w;
             display1.Height = h;
-            display1.Left = (this.ClientSize.Width - w) / 2;
-            display1.Top = (this.ClientSize.Height - h) / 2;
+            display1.Left = 0;//(this.ClientSize.Width - w) / 2;
+            display1.Top = 0; //(this.ClientSize.Height - h) / 2;
             display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
             display1.Paint += Display1_Paint;
@@ -241,29 +241,35 @@ namespace GLDisplay
             {
   
                 SetControlVisibility(!ControlsVisible);
-            } else if (e.KeyCode == Keys.F11)
+            }
+            else if (e.KeyCode == Keys.F11 || (FullScreen && e.KeyCode == Keys.Escape))
             {
                 if (!FullScreen)
                 {
-                    this.restore.location = this.Location;
-                    this.restore.width = this.Width;
-                    this.restore.height = this.Height;
+                    restore.location = Location;
+                    restore.width = Width;
+                    restore.height = Height;
                     Activate();
-                    this.Location = new Point(0, 0);
-                    this.FormBorderStyle = FormBorderStyle.None;
-                    this.Width = Screen.PrimaryScreen.Bounds.Width;
-                    this.Height = Screen.PrimaryScreen.Bounds.Height;
+                    Location = new Point(0, 0);
+                    FormBorderStyle = FormBorderStyle.None;
+                    Width = Screen.PrimaryScreen.Bounds.Width;
+                    Height = Screen.PrimaryScreen.Bounds.Height;
+                    FullScreen = true;
                 }
                 else
-                {
-                    MessageBox.Show("hmm");
-                    this.TopMost = false;
-                    this.Location = this.restore.location;
-                    this.Width = this.restore.width;
-                    this.Height = this.restore.height;
-                    this.WindowState = FormWindowState.Normal;
-                    this.FormBorderStyle = FormBorderStyle.Sizable;
+                {                   
+                   TopMost = false;
+                   WindowState = FormWindowState.Normal;
+                   FormBorderStyle = FormBorderStyle.Sizable;
+                   Width = restore.width;
+                   Height = restore.height;
+                   Location = restore.location;
+                    FullScreen = false;
                 }
+            }
+            else if (IsKeyDown(Keys.R))
+            {
+                ButtonRandomize_Click(this, e);
             }
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
@@ -283,7 +289,7 @@ namespace GLDisplay
         };
         // this should be in the scope your class
         clientRect restore;
-        bool fullscreen = false;
+
         private bool FullScreen { get; set; } = false;
         private bool ControlsVisible { get; set; } = true;
         private void SetControlVisibility(bool visible)
@@ -298,6 +304,8 @@ namespace GLDisplay
             buttonStop.Visible = visible;
             buttonStep.Visible = visible;
             buttonRandomize.Visible = visible;
+
+            IteratorSelectLabel.Visible = visible;
         }
     }
 }
