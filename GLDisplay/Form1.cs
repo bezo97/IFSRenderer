@@ -21,51 +21,13 @@ namespace GLDisplay
 {
     public partial class Form1 : Form
     {
-        public static bool IsKeyDown(Keys key)
+        public static bool IsKeyDown(params Keys[] keys)
         {
-            return (GetKeyState(Convert.ToInt16(key)) & 0X80) == 0X80;
+            return keys.Any(key => (GetKeyState(Convert.ToInt16(key)) & 0x80) == 0x80);
         }
+
         [DllImport("user32.dll")]
         public extern static Int16 GetKeyState(Int16 nVirtKey);
-
-
-
-
-        // List<Iterator> its = new List<Iterator>() {
-        //     new Iterator(
-        //         new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        //         0,
-        //         1.0f,
-        //         0.1f,
-        //         0.0f,
-        //         1.0f)
-        //     ,
-        //     new Iterator(
-        //         new Affine(0.2f,-1.0f,0.0f , 0.8f,0.5f,0.0f , 0.1f,0.8f,0.0f , 0.0f,0.0f,1.0f),
-        //         1,
-        //         0.5f,
-        //         0.8f,
-        //         0.5f,
-        //         1.0f
-        //     ),
-        //     new Iterator(
-        //         new Affine(0.6f,0.133975f,0.0f , 0.56f,0.0f,0.0f , 0.0f,0.4f,0.0f , 0.0f,0.0f,1.0f),
-        //         2,
-        //         0.25f,
-        //         0.9f,
-        //         1.0f,
-        //         1.0f
-        //     )
-        // };
-        // 
-        // Iterator finalit = new Iterator(
-        //     new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        //     0,//linear
-        //     0.0f,
-        //     0.0f,
-        //     1.0f,
-        //     1.0f
-        // );
 
         IFSEngine.Renderer r;
 
@@ -212,12 +174,12 @@ namespace GLDisplay
             
         }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
             if (hack <= 0)
             {
-                brightness = (float)Convert.ToDouble(numericUpDown1.Value);
-                gamma = (float)Convert.ToDouble(numericUpDown2.Value);
+                brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+                gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
                 //UpdateImage();
                 hack = 3;
             }
@@ -227,7 +189,7 @@ namespace GLDisplay
         bool rendering = false;
         int timermax = 1;
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ButtonRender_Click(object sender, EventArgs e)
         {
             Task.Run(() =>
             {
@@ -240,12 +202,12 @@ namespace GLDisplay
             });
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void ButtonStop_Click(object sender, EventArgs e)
         {
             rendering = false;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void ButtonStep_Click(object sender, EventArgs e)
         {
             r.Render();
             rendering = false;
@@ -254,11 +216,11 @@ namespace GLDisplay
 
         int hack = 0;
 
-        private void tmpnud_ValueChanged(object sender, EventArgs e)
+        private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
             if (hack <= 0)
             {
-                r.Camera.FocusDistance = (float)Convert.ToDouble(tmpnud.Value);
+                r.Camera.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
                 r.InvalidateAccumulation();
                 timermax = 1;
                 hack = 3;
@@ -266,63 +228,76 @@ namespace GLDisplay
             hack--;
         }
 
-        private void randomizebut_Click(object sender, EventArgs e)
+        private void ButtonRandomize_Click(object sender, EventArgs e)
         {
-            // Random rand = new Random();
-            // int itnum = 16+ rand.Next(5);
-            // float f = 0;
-            // its = new List<Iterator>();
-            // for (int ii = 0; ii < itnum; ii++)
-            // {
-            //     Iterator nit = new Iterator();
-            //     nit.aff.ox = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.oy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.oz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.xx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.xy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.xz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.yx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.yy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.yz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.zx = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.zy = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.aff.zz = ((float)rand.NextDouble() * 2 - 1)*1.5f;
-            //     nit.w = (float)rand.NextDouble();
-            //     nit.cs = (float)(rand.NextDouble()*2.0f-1.0f)*0.1f;
-            //     nit.ci = (float)rand.NextDouble();
-            //     nit.op = (float)rand.NextDouble();
-            //     nit.tfID = rand.Next()%2;//spherical
-            //     its.Add(nit);
-            //     f += 0.3f;
-            // }
-            // 
-            // //normalize weights
-            // float sumweights = 0.0f;
-            // for (int s = 0; s < itnum; s++)
-            //     sumweights = sumweights + its[s].w;
-            // //its.ForEach(it => it.w /= sumweights);
-            // for (int s = 0; s < itnum; s++)
-            // {
-            //     Iterator tmpit = its[s];
-            //     tmpit.w /= sumweights;
-            //     its[s] = tmpit;
-            // }
-            // 
-            // r.Camera = new Camera();
             IteratorManipulator.Randomize(r);
             timermax = 1;
             UpdateIteratorSelectedText();
-            //r.UpdateParams(its, finalit);
-            //EditState = 0;
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)
         {
-            r.Camera.Translate(
-                0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
-                0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
-                0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-            r.InvalidateAccumulation();
+            if (e.KeyCode == Keys.F10)
+            {
+  
+                SetControlVisibility(!ControlsVisible);
+            } else if (e.KeyCode == Keys.F11)
+            {
+                if (!FullScreen)
+                {
+                    this.restore.location = this.Location;
+                    this.restore.width = this.Width;
+                    this.restore.height = this.Height;
+                    Activate();
+                    this.Location = new Point(0, 0);
+                    this.FormBorderStyle = FormBorderStyle.None;
+                    this.Width = Screen.PrimaryScreen.Bounds.Width;
+                    this.Height = Screen.PrimaryScreen.Bounds.Height;
+                }
+                else
+                {
+                    MessageBox.Show("hmm");
+                    this.TopMost = false;
+                    this.Location = this.restore.location;
+                    this.Width = this.restore.width;
+                    this.Height = this.restore.height;
+                    this.WindowState = FormWindowState.Normal;
+                    this.FormBorderStyle = FormBorderStyle.Sizable;
+                }
+            }
+            else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
+            {
+                r.Camera.Translate(
+                    0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                r.InvalidateAccumulation();
+            }
+        }
+
+        struct clientRect
+        {
+            public Point location;
+            public int width;
+            public int height;
+        };
+        // this should be in the scope your class
+        clientRect restore;
+        bool fullscreen = false;
+        private bool FullScreen { get; set; } = false;
+        private bool ControlsVisible { get; set; } = true;
+        private void SetControlVisibility(bool visible)
+        {
+            ControlsVisible = visible;
+            labelBrightness.Visible = visible;
+            labelGamma.Visible = visible;
+            numericUpDownBrightness.Visible = visible;
+            numericUpDownGamma.Visible = visible;
+            numericUpDownFocus.Visible = visible;
+            buttonRender.Visible = visible;
+            buttonStop.Visible = visible;
+            buttonStep.Visible = visible;
+            buttonRandomize.Visible = visible;
         }
     }
 }

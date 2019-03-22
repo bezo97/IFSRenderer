@@ -28,155 +28,155 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.tmpnud = new System.Windows.Forms.NumericUpDown();
-            this.randomizebut = new System.Windows.Forms.Button();
+            this.numericUpDownBrightness = new System.Windows.Forms.NumericUpDown();
+            this.labelBrightness = new System.Windows.Forms.Label();
+            this.labelGamma = new System.Windows.Forms.Label();
+            this.numericUpDownGamma = new System.Windows.Forms.NumericUpDown();
+            this.buttonRender = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonStep = new System.Windows.Forms.Button();
+            this.numericUpDownFocus = new System.Windows.Forms.NumericUpDown();
+            this.buttonRandomize = new System.Windows.Forms.Button();
             this.IteratorSelectLabel = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tmpnud)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrightness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).BeginInit();
             this.SuspendLayout();
             // 
-            // numericUpDown1
+            // numericUpDownBrightness
             // 
-            this.numericUpDown1.DecimalPlaces = 3;
-            this.numericUpDown1.Increment = new decimal(new int[] {
+            this.numericUpDownBrightness.DecimalPlaces = 3;
+            this.numericUpDownBrightness.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown1.Location = new System.Drawing.Point(74, 7);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.numericUpDownBrightness.Location = new System.Drawing.Point(74, 7);
+            this.numericUpDownBrightness.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(89, 20);
-            this.numericUpDown1.TabIndex = 0;
-            this.numericUpDown1.Value = new decimal(new int[] {
+            this.numericUpDownBrightness.Name = "numericUpDownBrightness";
+            this.numericUpDownBrightness.Size = new System.Drawing.Size(89, 20);
+            this.numericUpDownBrightness.TabIndex = 0;
+            this.numericUpDownBrightness.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.numericUpDownBrightness.ValueChanged += new System.EventHandler(this.BrightnessOrGamma_ValueChanged);
             // 
-            // label1
+            // labelBrightness
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 14);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(56, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Brightness";
+            this.labelBrightness.AutoSize = true;
+            this.labelBrightness.Location = new System.Drawing.Point(12, 14);
+            this.labelBrightness.Name = "labelBrightness";
+            this.labelBrightness.Size = new System.Drawing.Size(56, 13);
+            this.labelBrightness.TabIndex = 1;
+            this.labelBrightness.Text = "Brightness";
             // 
-            // label2
+            // labelGamma
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(25, 41);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(43, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Gamma";
+            this.labelGamma.AutoSize = true;
+            this.labelGamma.Location = new System.Drawing.Point(25, 41);
+            this.labelGamma.Name = "labelGamma";
+            this.labelGamma.Size = new System.Drawing.Size(43, 13);
+            this.labelGamma.TabIndex = 1;
+            this.labelGamma.Text = "Gamma";
             // 
-            // numericUpDown2
+            // numericUpDownGamma
             // 
-            this.numericUpDown2.DecimalPlaces = 3;
-            this.numericUpDown2.Increment = new decimal(new int[] {
+            this.numericUpDownGamma.DecimalPlaces = 3;
+            this.numericUpDownGamma.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown2.Location = new System.Drawing.Point(74, 39);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
+            this.numericUpDownGamma.Location = new System.Drawing.Point(74, 39);
+            this.numericUpDownGamma.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(89, 20);
-            this.numericUpDown2.TabIndex = 0;
-            this.numericUpDown2.Value = new decimal(new int[] {
+            this.numericUpDownGamma.Name = "numericUpDownGamma";
+            this.numericUpDownGamma.Size = new System.Drawing.Size(89, 20);
+            this.numericUpDownGamma.TabIndex = 0;
+            this.numericUpDownGamma.Value = new decimal(new int[] {
             4,
             0,
             0,
             0});
-            this.numericUpDown2.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.numericUpDownGamma.ValueChanged += new System.EventHandler(this.BrightnessOrGamma_ValueChanged);
             // 
-            // button1
+            // buttonRender
             // 
-            this.button1.Location = new System.Drawing.Point(12, 65);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Render";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonRender.Location = new System.Drawing.Point(12, 65);
+            this.buttonRender.Name = "buttonRender";
+            this.buttonRender.Size = new System.Drawing.Size(75, 23);
+            this.buttonRender.TabIndex = 2;
+            this.buttonRender.Text = "Render";
+            this.buttonRender.UseVisualStyleBackColor = true;
+            this.buttonRender.Click += new System.EventHandler(this.ButtonRender_Click);
             // 
-            // button2
+            // buttonStop
             // 
-            this.button2.Location = new System.Drawing.Point(93, 65);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Stop";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonStop.Location = new System.Drawing.Point(93, 65);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(75, 23);
+            this.buttonStop.TabIndex = 3;
+            this.buttonStop.Text = "Stop";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.ButtonStop_Click);
             // 
-            // button3
+            // buttonStep
             // 
-            this.button3.Location = new System.Drawing.Point(12, 94);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Step";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.buttonStep.Location = new System.Drawing.Point(12, 94);
+            this.buttonStep.Name = "buttonStep";
+            this.buttonStep.Size = new System.Drawing.Size(75, 23);
+            this.buttonStep.TabIndex = 4;
+            this.buttonStep.Text = "Step";
+            this.buttonStep.UseVisualStyleBackColor = true;
+            this.buttonStep.Click += new System.EventHandler(this.ButtonStep_Click);
             // 
-            // tmpnud
+            // numericUpDownFocus
             // 
-            this.tmpnud.DecimalPlaces = 3;
-            this.tmpnud.Increment = new decimal(new int[] {
+            this.numericUpDownFocus.DecimalPlaces = 3;
+            this.numericUpDownFocus.Increment = new decimal(new int[] {
             1,
             0,
             0,
             131072});
-            this.tmpnud.Location = new System.Drawing.Point(12, 158);
-            this.tmpnud.Maximum = new decimal(new int[] {
+            this.numericUpDownFocus.Location = new System.Drawing.Point(12, 158);
+            this.numericUpDownFocus.Maximum = new decimal(new int[] {
             10,
             0,
             0,
             0});
-            this.tmpnud.Minimum = new decimal(new int[] {
+            this.numericUpDownFocus.Minimum = new decimal(new int[] {
             10,
             0,
             0,
             -2147483648});
-            this.tmpnud.Name = "tmpnud";
-            this.tmpnud.Size = new System.Drawing.Size(120, 20);
-            this.tmpnud.TabIndex = 5;
-            this.tmpnud.Value = new decimal(new int[] {
+            this.numericUpDownFocus.Name = "numericUpDownFocus";
+            this.numericUpDownFocus.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownFocus.TabIndex = 5;
+            this.numericUpDownFocus.Value = new decimal(new int[] {
             20,
             0,
             0,
             65536});
-            this.tmpnud.ValueChanged += new System.EventHandler(this.tmpnud_ValueChanged);
+            this.numericUpDownFocus.ValueChanged += new System.EventHandler(this.NumericUpDownFocus_ValueChanged);
             // 
-            // randomizebut
+            // buttonRandomize
             // 
-            this.randomizebut.Location = new System.Drawing.Point(12, 184);
-            this.randomizebut.Name = "randomizebut";
-            this.randomizebut.Size = new System.Drawing.Size(75, 23);
-            this.randomizebut.TabIndex = 6;
-            this.randomizebut.Text = "Randomize";
-            this.randomizebut.UseVisualStyleBackColor = true;
-            this.randomizebut.Click += new System.EventHandler(this.randomizebut_Click);
+            this.buttonRandomize.Location = new System.Drawing.Point(12, 184);
+            this.buttonRandomize.Name = "buttonRandomize";
+            this.buttonRandomize.Size = new System.Drawing.Size(75, 23);
+            this.buttonRandomize.TabIndex = 6;
+            this.buttonRandomize.Text = "Randomize";
+            this.buttonRandomize.UseVisualStyleBackColor = true;
+            this.buttonRandomize.Click += new System.EventHandler(this.ButtonRandomize_Click);
             // 
             // IteratorSelectLabel
             // 
@@ -197,36 +197,36 @@
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.IteratorSelectLabel);
-            this.Controls.Add(this.randomizebut);
-            this.Controls.Add(this.tmpnud);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.numericUpDown2);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.numericUpDown1);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.buttonRandomize);
+            this.Controls.Add(this.numericUpDownFocus);
+            this.Controls.Add(this.buttonStep);
+            this.Controls.Add(this.buttonStop);
+            this.Controls.Add(this.buttonRender);
+            this.Controls.Add(this.numericUpDownGamma);
+            this.Controls.Add(this.labelGamma);
+            this.Controls.Add(this.numericUpDownBrightness);
+            this.Controls.Add(this.labelBrightness);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tmpnud)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrightness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.NumericUpDown tmpnud;
-        private System.Windows.Forms.Button randomizebut;
+        private System.Windows.Forms.Label labelBrightness;
+        private System.Windows.Forms.NumericUpDown numericUpDownBrightness;
+        private System.Windows.Forms.Label labelGamma;
+        private System.Windows.Forms.NumericUpDown numericUpDownGamma;
+        private System.Windows.Forms.Button buttonRender;
+        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Button buttonStep;
+        private System.Windows.Forms.NumericUpDown numericUpDownFocus;
+        private System.Windows.Forms.Button buttonRandomize;
         private System.Windows.Forms.Label IteratorSelectLabel;
     }
 }

@@ -52,7 +52,10 @@ namespace GLDisplay.Leap
                 1.0f
             )
         };
+
+        private static float SummWeights;
         public static int IteratorCount => iterators.Count;
+
 
         private static Iterator finalit = new Iterator(
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
@@ -98,7 +101,7 @@ namespace GLDisplay.Leap
         public static void Randomize(Renderer r)
         {
             iterators.Clear();
-            var sumweights = 0.0f;
+            SummWeights = 0.0f;
             var itnum = rand.Next(5) + 2;
 
             for (var ii = 0; ii < itnum; ii++)
@@ -123,29 +126,39 @@ namespace GLDisplay.Leap
                 nit.tfID = rand.Next() % 2;//spherical
                 iterators.Add(nit);
 
-                sumweights += nit.w;
+                SummWeights += nit.w;
             }
-
-            for (var s = 0; s < itnum; s++)
-            {
-                var tmpit = iterators[s];
-                tmpit.w /= sumweights;
-                iterators[s] = tmpit;
-            }
-
-            r.Camera = new Camera();
-            r.UpdateParams(iterators, finalit);
+            Update(r, true);
+            // for (var s = 0; s < itnum; s++)
+            // {
+            //     var tmpit = iterators[s];
+            //     tmpit.w /= SummWeights;
+            //     iterators[s] = tmpit;
+            // }
+            // r.Camera = new Camera();
+            // r.UpdateParams(iterators, finalit);
             EditState = 0;
         }
 
-        public static void Update(Renderer r)
+        public static void Update(Renderer r, bool updateCamera = false)
         {
+            var waightedIterators = iterators.ToList();
+            for (var s = 0; s < waightedIterators.Count; s++)
+            {
+                var tmpit = waightedIterators[s];
+                tmpit.w /= SummWeights;
+                waightedIterators[s] = tmpit;
+            }
+            if (updateCamera)
+            {
+                r.Camera = new Camera();
+            }
             r.UpdateParams(iterators, finalit);
-            r.InvalidateAccumulation();
         }
 
         public static void UpdateIterator(Hand left, Renderer r)
         {
+            bool updateNeeded = false;
             if (!left.Fingers.Any(f => f.IsExtended) && left.Confidence >= 0.7)
             {
                 if (!leftGrabbed)
@@ -172,7 +185,8 @@ namespace GLDisplay.Leap
                         return c;
                     });
                 }
-                Update(r);
+
+                updateNeeded = true;
             }
             else if (leftGrabbed && left.Fingers.Any(f => f.IsExtended))
             {
@@ -187,8 +201,13 @@ namespace GLDisplay.Leap
                     float handDistance = 1.0f - (left.PalmPosition.z + 360.0f) / 360.0f;
 
                     // TODO ModifyCurrent(c => { c.w = handDistance; return c; });
+                    updateNeeded = true;
                 }
-            }          
+            }
+            if (updateNeeded)
+            {
+                Update(r);
+            }
         }
     }
 }
