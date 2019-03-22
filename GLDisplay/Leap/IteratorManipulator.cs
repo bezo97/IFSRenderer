@@ -153,7 +153,7 @@ namespace GLDisplay.Leap
             {
                 r.Camera = new Camera();
             }
-            r.UpdateParams(iterators, finalit);
+            r.UpdateParams(waightedIterators, finalit);
         }
 
         public static void UpdateIterator(Hand left, Renderer r)
