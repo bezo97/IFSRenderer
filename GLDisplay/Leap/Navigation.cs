@@ -35,7 +35,7 @@ namespace GLDisplay.Leap
         {
             if (r.Camera is Camera camera)
             {
-                if (!right.Fingers.Any(f => f.IsExtended) && right.Confidence >= 0.7)
+                if (!right.Fingers.Any(f => f.IsExtended) && right.Confidence >= 0.5)
                 {
                     if (!grabbed)
                     {   // ebben a frame ben grabbeljuk

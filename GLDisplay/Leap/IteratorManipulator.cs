@@ -163,7 +163,7 @@ namespace GLDisplay.Leap
         public static void UpdateIterator(Hand left, Renderer r)
         {
             bool updateNeeded = false;
-            if (!left.Fingers.Any(f => f.IsExtended) && left.Confidence >= 0.7)
+            if (!left.Fingers.Any(f => f.IsExtended) && left.Confidence >= 0.5)
             {
                 if (!leftGrabbed)
                 {
@@ -205,7 +205,7 @@ namespace GLDisplay.Leap
                 leftGrabbed = false;
                 // TODO
             }
-            /*if (left.Fingers.All(f => f.IsExtended) && left.Confidence >= 0.7)
+            /*if (left.Fingers.All(f => f.IsExtended) && left.Confidence >= 0.9)
             {
                 Vector felenk = new Vector(0, 0, -1);
                 if (Math.Abs(leftPalmNormalQueue.NextAvg(left.PalmNormal).Dot(felenk)) > 0.7)
