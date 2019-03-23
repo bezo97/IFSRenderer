@@ -18,7 +18,7 @@ namespace UnitTestProject1
             Renderer r = new Renderer(w,h, 1000, IntPtr.Zero, -1);
             int times = 10;
             for (int i = 0; i < times; i++)
-                r.Render();
+                r.RenderFrame();
             double[,][] o = r.Img(1.0f,4.0f);
             r.Dispose();
 

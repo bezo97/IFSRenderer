@@ -187,14 +187,14 @@ namespace IFSEngine
             else
                 dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat(ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
-            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count+1/*+final*/);//ezt load nal
+            iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
             settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
             pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
             rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);
 
             computekernel.SetMemoryArgument(0, calcbuf);
             //computekernel.SetMemoryArgument(1, randbuf);
-            //computekernel.SetMemoryArgument(1, iteratorsbuf);//ezt initben
+            computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
             computekernel.SetMemoryArgument(2, settingsbuf);
             computekernel.SetMemoryArgument(3, pointsstatebuf);
             computekernel.SetMemoryArgument(4, rng_states);
@@ -206,63 +206,64 @@ namespace IFSEngine
         }
 
         public Camera Camera { get; set; } = new Camera();
+        public float Brightness { get; set; } = 1.0f;
+        public float Gamma { get; set; } = 4.0f;
 
-        private bool invalid = false;
+        private bool invalidAccumulation = false;
         public void InvalidateAccumulation()
         {
             //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
-            if (!invalid)
-            {
-                //ez elv redundans, de megis reszponzivabb??
-                cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
-            }
-            invalid = true;
+            invalidAccumulation = true;
             
         }
 
-        //TODO: kulon valaszt params es camera update
+        private bool invalidParams = false;
+
+        bool debug = true;
         public void UpdateParams(List<Iterator> its, Iterator finalit)
         {
-            cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
-            if (its.Count != this.its.Count)
+            //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
+            /*//if (its.Count != this.its.Count)
             {
-                var bufferHandle = iteratorsbuf?.Handle;
-                iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1/*its+final*/);
-                bufferHandle?.Invalidate();//nem tudjuk csak siman Dispose() olni, mert lehet hogy epp szukseg van ra. Invalidate: A kovetkezo framek mar az ujt hasznaljak
-                //TODO: de most leak??
-                computekernel.SetMemoryArgument(1, iteratorsbuf);
-            }
+                //var bufferHandle = iteratorsbuf?.Handle;
+                iteratorsbuf?.Dispose();//ez miert nem szall el
+                iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1);//its+final
+                computekernel.Set0MemoryArgument(1, iteratorsbuf);
+            }*/
             this.its = its;
             this.finalit = finalit;
-            rendersteps = 0;
+            //rendersteps = 0;
             this.settings.itnum = its.Count;
             this.settings.pass_iters = 64;//minden renderrel duplazodik
-            this.settings.rendersteps = rendersteps;//0
-            //this.settings.camera = Camera.Settings;
-            rndcarousel = 0;
-            List<Iterator> its_and_final = new List<Iterator>(its);
+            /*List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
-            cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
-            //cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//ezt a renderben kell ugyis
-            InvalidateAccumulation();
+            cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);*/
+            invalidParams = true;
+            invalidAccumulation = true;
 
             //Render();
         }
 
-        int rndcarousel = 0;
-        int carouselLength = 0;
+        private List<ComputeEventBase> cEvents = new List<ComputeEventBase>();
 
-        public void Render()
+        public void RenderFrame()
         {
             //if volt init()
 
-            //StartingDistributions teszt:
-            //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
-
-            if(invalid)
+            if(invalidAccumulation)
             {
                 cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
-                invalid = false;
+                invalidAccumulation = false;
+                rendersteps = 0;
+
+                if (invalidParams)
+                {
+                    cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);//ezt gyakrabban?
+                    List<Iterator> its_and_final = new List<Iterator>(its);
+                    its_and_final.Add(finalit);
+                    cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
+                    invalidParams = false;
+                }
             }
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
@@ -271,8 +272,8 @@ namespace IFSEngine
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
 
             //e = Cl.EnqueueMarker(cq, out Event start);
-
-            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, null);
+            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, cEvents);
+            cEvents.Last().Completed += RenderFrame_Completed;
             //cq.Finish();
             rendersteps++;
             /*if (rendersteps == 10)
@@ -293,20 +294,55 @@ namespace IFSEngine
             //});
         }
 
-        public void UpdateDisplay(float brightness, float gamma)
+        bool rendering = false;
+        public void StartRendering()
+        {
+            rendering = true;
+            RenderFrame();
+        }
+        public void StopRendering()
+        {
+            rendering = false;
+        }
+
+        bool updateDisplayOnRender = true;//
+        public event EventHandler RenderFrameCompleted;
+        public event EventHandler DisplayFrameCompleted;
+        private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
+        {
+            args.Event.Dispose();
+            cEvents.Remove(args.Event);
+            RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
+            if (updateDisplayOnRender)
+                UpdateDisplay();
+            else if (rendering)
+                RenderFrame();
+        }
+
+        public void UpdateDisplay()
         {
             //Task.Run(() =>
             //{
 
             //cq.Finish();//
-            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , brightness, gamma }, dispsettingsbuf, false/**/, null);
+            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , Brightness, Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, /*new long[] { 1 }*/null, null);
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, /*new long[] { 1 }*/null, cEvents);
+            cEvents.Last().Completed += DisplayFrame_Completed;
             if (texturetarget > -1)//van gl
                 cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
             //cq.Finish();
             //});
+        }
+
+        private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
+        {
+            args.Event.Dispose();
+            cEvents.Remove(args.Event);
+            DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
+            if (rendering)
+                RenderFrame();
         }
 
         //TODO: rendberak kepbe iras
@@ -339,8 +375,10 @@ namespace IFSEngine
 
         public void Dispose()
         {
+            rendering = false;
+            cq.Finish();//wait until queue is empty
+
             calcbuf.Dispose();
-            //randbuf.Dispose();
             dispbuf.Dispose();
             iteratorsbuf.Dispose();
             pointsstatebuf.Dispose();

@@ -208,7 +208,7 @@
             this.Controls.Add(this.labelBrightness);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrightness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).EndInit();

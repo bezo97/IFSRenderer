@@ -39,8 +39,6 @@ namespace GLDisplay
 
         const int w = 1920;
         const int h = 1080;
-        float brightness = 1.0f;
-        float gamma = 4.0f;
 
         void UpdateIteratorSelectedText()
         {
@@ -77,6 +75,20 @@ namespace GLDisplay
 
             IteratorManipulator.Randomize(r);
             UpdateIteratorSelectedText();
+
+            r.DisplayFrameCompleted += R_DisplayFrameCompleted;
+            r.RenderFrameCompleted += R_RenderFrameCompleted; ;
+        }
+
+        private void R_RenderFrameCompleted(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void R_DisplayFrameCompleted(object sender, EventArgs e)
+        {
+            display1.Invoke((MethodInvoker)delegate { Refresh(); });
+            //TODO: fps szamolas stb.
         }
 
         int lastX;
@@ -93,16 +105,6 @@ namespace GLDisplay
             lastY = e.Y;
         }
 
-        public void UpdateImage()
-        {
-            r.UpdateDisplay(brightness, gamma);
-            //display1.Invoke((MethodInvoker)delegate
-            //{
-                display1.Invalidate();
-                //display1.Update();
-            //});
-        }
-
         private void Display1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -115,7 +117,7 @@ namespace GLDisplay
 
             display1.SwapBuffers();
         }
-
+        
         private void initGL()
         {
             texID = GL.GenTexture();
@@ -172,29 +174,16 @@ namespace GLDisplay
             GL.Viewport(0, 0, w, h);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
-        }
-
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            if (hack <= 0)
-            {
-                brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-                gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
-                //UpdateImage();
-                hack = 3;
-            }
-            hack--;
+            r.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            r.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
-        bool rendering = false;
-        int timermax = 1;
 
         private void ButtonRender_Click(object sender, EventArgs e)
         {
-            Task.Run(() =>
+            /*Task.Run(() =>
             {
                 rendering = true;
                 while (rendering)
@@ -202,39 +191,30 @@ namespace GLDisplay
                     r.Render();
                     UpdateImage();
                 }
-            });
+            });*/
+            r.StartRendering();
         }
 
         private void ButtonStop_Click(object sender, EventArgs e)
         {
-            rendering = false;
+            r.StopRendering();
         }
 
         private void ButtonStep_Click(object sender, EventArgs e)
         {
-            r.Render();
-            rendering = false;
-            UpdateImage();
+            r.RenderFrame();
+            r.UpdateDisplay();
         }
-
-        int hack = 0;
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
-            if (hack <= 0)
-            {
-                r.Camera.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
-                r.InvalidateAccumulation();
-                timermax = 1;
-                hack = 3;
-            }
-            hack--;
+            r.Camera.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
+            r.InvalidateAccumulation();
         }
 
         private void ButtonRandomize_Click(object sender, EventArgs e)
         {
             IteratorManipulator.Randomize(r);
-            timermax = 1;
             UpdateIteratorSelectedText();
         }
 
@@ -242,7 +222,6 @@ namespace GLDisplay
         {
             if (e.KeyCode == Keys.F10)
             {
-  
                 SetControlVisibility(!ControlsVisible);
             }
             else if (e.KeyCode == Keys.F11 || (FullScreen && e.KeyCode == Keys.Escape))
@@ -267,7 +246,7 @@ namespace GLDisplay
                    Width = restore.width;
                    Height = restore.height;
                    Location = restore.location;
-                    FullScreen = false;
+                   FullScreen = false;
                 }
             }
             else if (IsKeyDown(Keys.R))
@@ -309,6 +288,12 @@ namespace GLDisplay
             buttonRandomize.Visible = visible;
 
             IteratorSelectLabel.Visible = visible;
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            r.StopRendering();
+            r.Dispose();
         }
     }
 }
