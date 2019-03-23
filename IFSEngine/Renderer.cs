@@ -234,7 +234,7 @@ namespace IFSEngine
             this.finalit = finalit;
             //rendersteps = 0;
             this.settings.itnum = its.Count;
-            this.settings.pass_iters = 64;//minden renderrel duplazodik
+            this.settings.pass_iters = 100;//minden renderrel duplazodik
             /*List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);*/
@@ -274,24 +274,9 @@ namespace IFSEngine
             //e = Cl.EnqueueMarker(cq, out Event start);
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, cEvents);
             cEvents.Last().Completed += RenderFrame_Completed;
+            cEvents.Last().Aborted += RenderFrame_Completed;//TODO: log this
             //cq.Finish();
             rendersteps++;
-            /*if (rendersteps == 10)
-            {
-                rendersteps = 100;
-                this.settings.max_iters = 10000;//Math.Min(10000, (int)(this.settings.max_iters += 3000));
-            }*/
-
-            //motionblur pr
-            //this.settings.camera.ox = (float)Math.Pow(new Random().NextDouble()-0.5,0.25);
-
-            //e = Cl.EnqueueMarker(cq, out Event end);
-            //e = Cl.Finish(cq);
-
-            //InfoBuffer startb = Cl.GetEventProfilingInfo(start, ProfilingInfo.Queued, out e);
-            //InfoBuffer endb = Cl.GetEventProfilingInfo(end, ProfilingInfo.End, out e);
-            //Debug.WriteLine("Calc time: " + (int.Parse(endb.ToString()) - int.Parse(startb.ToString())) / 1000000);
-            //});
         }
 
         bool rendering = false;
@@ -310,8 +295,8 @@ namespace IFSEngine
         public event EventHandler DisplayFrameCompleted;
         private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            args.Event.Dispose();
             cEvents.Remove(args.Event);
+            args.Event.Dispose();
             RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (updateDisplayOnRender)
                 UpdateDisplay();
@@ -330,6 +315,7 @@ namespace IFSEngine
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, /*new long[] { 1 }*/null, cEvents);
             cEvents.Last().Completed += DisplayFrame_Completed;
+            cEvents.Last().Aborted += DisplayFrame_Completed;//TODO: log this
             if (texturetarget > -1)//van gl
                 cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
             //cq.Finish();
@@ -338,8 +324,8 @@ namespace IFSEngine
 
         private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            args.Event.Dispose();
             cEvents.Remove(args.Event);
+            args.Event.Dispose();
             DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (rendering)
                 RenderFrame();
