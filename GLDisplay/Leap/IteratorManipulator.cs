@@ -18,6 +18,9 @@ namespace GLDisplay.Leap
         //private static bool rightGrabbed;
         private static bool leftGrabbed;
 
+        private static FixedSizedVectorQueue leftPosQueue = new FixedSizedVectorQueue();
+        private static float grabpx, grabpy, grabpz;
+
         private static Random rand = new Random();
 
         private static int editState = 0;
@@ -142,18 +145,19 @@ namespace GLDisplay.Leap
 
         public static void Update(Renderer r, bool updateCamera = false)
         {
-            var waightedIterators = iterators.ToList();
-            for (var s = 0; s < waightedIterators.Count; s++)
+            var weightedIterators = iterators.ToList();
+            for (var s = 0; s < weightedIterators.Count; s++)
             {
-                var tmpit = waightedIterators[s];
+                var tmpit = weightedIterators[s];
                 tmpit.w /= SummWeights;
-                waightedIterators[s] = tmpit;
+                weightedIterators[s] = tmpit;
             }
+            SummWeights = 1;
             if (updateCamera)
             {
                 r.Camera = new Camera();
             }
-            r.UpdateParams(waightedIterators, finalit);
+            r.UpdateParams(weightedIterators, finalit);
         }
 
         public static void UpdateIterator(Hand left, Renderer r)
@@ -165,6 +169,9 @@ namespace GLDisplay.Leap
                 {
                     leftGrabbed = true;
                     leftPalmPosition = left.PalmPosition;
+                    grabpx = Current.aff.ox;
+                    grabpy = Current.aff.oy;
+                    grabpz = Current.aff.oz;
                     leftQuaternion = left.Rotation.Inverse();
                 }
 
@@ -172,7 +179,8 @@ namespace GLDisplay.Leap
                 if (Math.Abs(pitch) < MaxRotate && Math.Abs(roll) < MaxRotate && Math.Abs(yaw) < MaxRotate)
                 {
                     ModifyCurrent(c => {
-                        // TODO
+                        //c.cs = pitch % 1.0f;
+                        c.ci = roll % 1.0f;
                         return c;
                     });
                 }
@@ -181,7 +189,11 @@ namespace GLDisplay.Leap
                 if (Math.Abs(v.z) < MaxTrans && Math.Abs(v.z) < MaxTrans && Math.Abs(v.z) < MaxTrans)
                 {
                     ModifyCurrent(c => {
-                        // TODO
+                        //translate
+                        Vector tr = leftPosQueue.NextAvg(v);
+                        c.aff.ox = grabpx + tr.x; 
+                        c.aff.oy = grabpy + tr.y;
+                        c.aff.oz = grabpz + tr.z;
                         return c;
                     });
                 }
@@ -193,17 +205,17 @@ namespace GLDisplay.Leap
                 leftGrabbed = false;
                 // TODO
             }
-            if (left.Fingers.All(f => f.IsExtended) && left.Confidence >= 0.7)
+            /*if (left.Fingers.All(f => f.IsExtended) && left.Confidence >= 0.7)
             {
                 Vector felenk = new Vector(0, 0, -1);
                 if (Math.Abs(leftPalmNormalQueue.NextAvg(left.PalmNormal).Dot(felenk)) > 0.7)
                 {
                     float handDistance = 1.0f - (left.PalmPosition.z + 360.0f) / 360.0f;
 
-                    // TODO ModifyCurrent(c => { c.w = handDistance; return c; });
+                    // TODO
                     updateNeeded = true;
                 }
-            }
+            }*/
             if (updateNeeded)
             {
                 Update(r);
