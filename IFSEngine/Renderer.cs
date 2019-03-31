@@ -24,6 +24,7 @@ namespace IFSEngine
         internal int pass_iters;//iterations per pass
         internal int rendersteps;
         internal CameraSettings camera;
+        internal int enable_depthfog;
     }
 
     public struct Affine
@@ -208,6 +209,7 @@ namespace IFSEngine
         public Camera Camera { get; set; } = new Camera();
         public float Brightness { get; set; } = 1.0f;
         public float Gamma { get; set; } = 4.0f;
+        public bool EnableDepthFog { get; set; } = true;
 
         private bool invalidAccumulation = false;
         public void InvalidateAccumulation()
@@ -269,6 +271,7 @@ namespace IFSEngine
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
             settings.camera = Camera.Settings;
             settings.rendersteps = rendersteps;
+            settings.enable_depthfog = EnableDepthFog?1:0;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
 
             //e = Cl.EnqueueMarker(cq, out Event start);
@@ -282,8 +285,11 @@ namespace IFSEngine
         bool rendering = false;
         public void StartRendering()
         {
-            rendering = true;
-            RenderFrame();
+            if (!rendering)
+            {
+                rendering = true;
+                RenderFrame();
+            }
         }
         public void StopRendering()
         {
@@ -295,8 +301,12 @@ namespace IFSEngine
         public event EventHandler DisplayFrameCompleted;
         private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            cEvents.Remove(args.Event);
-            args.Event.Dispose();
+            try
+            {//ez a try nem old meg semmit
+                cEvents.Remove(args.Event);
+                args.Event.Dispose();
+            }
+            catch { }
             RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (updateDisplayOnRender)
                 UpdateDisplay();
@@ -324,8 +334,12 @@ namespace IFSEngine
 
         private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            cEvents.Remove(args.Event);
-            args.Event.Dispose();
+            try
+            {//ez a try nem old meg semmit
+                cEvents.Remove(args.Event);
+                args.Event.Dispose();
+            }
+            catch { }
             DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (rendering)
                 RenderFrame();

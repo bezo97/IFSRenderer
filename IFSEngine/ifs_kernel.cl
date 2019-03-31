@@ -51,6 +51,7 @@ typedef struct
 	int pass_iters;//do this many iterations
 	int rendersteps;
 	Camera camera;
+	int enable_depthfog;
 } Settings;
 
 typedef struct
@@ -268,14 +269,14 @@ __kernel void Main(
 
 		float4 color = (float4)(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
 
-		//depth fog pr
+		//depth fog option
 		float depthfog = 1.0f;
-		//if(x_index<width/2)
+		if(settings[0].enable_depthfog)
+		{
+			color.xyz*=color.w;//?
 			depthfog = 1.0f / (1.0f + pow(max(0.0f,length(finalp-(float3)(settings[0].camera.ox,settings[0].camera.oy,settings[0].camera.oz))-settings[0].camera.focusdistance-settings[0].camera.focallength),2));
-
-		//opacityvel szoroz
-		color.xyz*=color.w*depthfog;
-		
+		}
+		color.xyzw*=depthfog;
 		
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
@@ -284,7 +285,7 @@ __kernel void Main(
 			output[ipx+0] += color.x;//r
 			output[ipx+1] += color.y;//g
 			output[ipx+2] += color.z;//b
-			output[ipx+3] += 1.0f;//hany db, histogramhoz
+			output[ipx+3] += color.w;//hany db, histogramhoz
 			//accepted_iters++;
 		}
 		else
@@ -295,7 +296,9 @@ __kernel void Main(
 		//aa
 		float dx = proj.x - floor(proj.x);//proj.x % 1;
 		float dy = proj.y - floor(proj.y);//proj.y % 1;
+
 		float avg = 1.0/8.0;
+		color *= avg;
 		
 		x_index=floor(proj.x);
 		y_index=floor(proj.y);
@@ -303,10 +306,10 @@ __kernel void Main(
 		{//point lands on picture
 			float dd = 2.0f - dx-dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd * avg;
-			output[ipx+1] += color.y * dd * avg;
-			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
+			output[ipx+0] += color.x * dd;
+			output[ipx+1] += color.y * dd;
+			output[ipx+2] += color.z * dd;
+			output[ipx+3] += color.w * dd;//hany db, histogramhoz
 
 		};
       
@@ -316,10 +319,10 @@ __kernel void Main(
 		{//point lands on picture
 			float dd = dx+dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd * avg;
-			output[ipx+1] += color.y * dd * avg;
-			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
+			output[ipx+0] += color.x * dd;
+			output[ipx+1] += color.y * dd;
+			output[ipx+2] += color.z * dd;
+			output[ipx+3] += color.w * dd;//hany db, histogramhoz
 		};
       
 		x_index=floor(proj.x);
@@ -328,10 +331,10 @@ __kernel void Main(
 		{//point lands on picture
 			float dd = (1.0f-dx)+dy;
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd * avg;
-			output[ipx+1] += color.y * dd * avg;
-			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
+			output[ipx+0] += color.x * dd;
+			output[ipx+1] += color.y * dd;
+			output[ipx+2] += color.z * dd;
+			output[ipx+3] += color.w * dd;//hany db, histogramhoz
 		};
       
 		x_index=ceil(proj.x);
@@ -340,10 +343,10 @@ __kernel void Main(
 		{//point lands on picture
 			float dd = dx+(1.0f-dy);
 			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd * avg;
-			output[ipx+1] += color.y * dd * avg;
-			output[ipx+2] += color.z * dd * avg;
-			output[ipx+3] += 1.0f * dd * avg;//hany db, histogramhoz
+			output[ipx+0] += color.x * dd;
+			output[ipx+1] += color.y * dd;
+			output[ipx+2] += color.z * dd;
+			output[ipx+3] += color.w * dd;//hany db, histogramhoz
 		};
 		
 	}

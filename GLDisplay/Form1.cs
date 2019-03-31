@@ -284,7 +284,6 @@ namespace GLDisplay
             numericUpDownFocus.Visible = visible;
             buttonRender.Visible = visible;
             buttonStop.Visible = visible;
-            buttonStep.Visible = visible;
             buttonRandomize.Visible = visible;
 
             IteratorSelectLabel.Visible = visible;
@@ -294,6 +293,18 @@ namespace GLDisplay
         {
             r.StopRendering();
             r.Dispose();
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            r.EnableDepthFog = checkBox1.Checked;
+            r.InvalidateAccumulation();
+        }
+
+        private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
+        {
+            r.Camera.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
+            r.InvalidateAccumulation();
         }
     }
 }
