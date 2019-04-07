@@ -67,8 +67,8 @@ namespace GLDisplay
             IntPtr raw_context_handle = ctx.Context.Handle;
             r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
             
-            //leap init
-            leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
+            //if leap init
+            //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
 
             Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
             Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();

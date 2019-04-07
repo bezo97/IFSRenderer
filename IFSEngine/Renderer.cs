@@ -9,82 +9,11 @@ using Cloo;
 using Cloo.Bindings;
 using System.Linq;
 
+using IFSEngine.Model;
+using IFSEngine.mwc64x;
+
 namespace IFSEngine
 {
-
-    internal struct mwc64x_state_t
-    {
-        uint x;
-        uint c;
-    }
-
-    internal struct Settings
-    {
-        internal int itnum;//length of iterators - 1 (last one is finalit)
-        internal int pass_iters;//iterations per pass
-        internal int rendersteps;
-        internal CameraSettings camera;
-        internal int enable_depthfog;
-    }
-
-    public struct Affine
-    {
-        public float ox;
-        public float oy;
-        public float oz;
-         
-        public float xx;
-        public float xy;
-        public float xz;
-         
-        public float yx;
-        public float yy;
-        public float yz;
-
-        public float zx;
-        public float zy;
-        public float zz;
-
-        public Affine(float ox, float oy, float oz, float xx, float xy, float xz, float yx, float yy, float yz, float zx, float zy, float zz)
-        {
-            this.ox = ox;
-            this.oy = oy;
-            this.oz = oz;
-
-            this.xx = xx;
-            this.xy = xy;
-            this.xz = xz;
-
-            this.yx = yx;
-            this.yy = yy;
-            this.yz = yz;
-
-            this.zx = zx;
-            this.zy = zy;
-            this.zz = zz;
-        }
-    }
-
-    public struct Iterator
-    {
-        public Affine aff;
-        public int tfID;
-        public float w;
-        public float cs;
-        public float ci;//color index, 0 - 1
-        public float op;
-
-        public Iterator(Affine aff, int tfID, float w, float cs, float ci, float op)
-        {
-            this.aff = aff;
-            this.tfID = tfID;
-            this.w = w;
-            this.cs = cs;
-            this.ci = ci;
-            this.op = op;
-        }
-    }
-
     public class Renderer
     {
 
@@ -98,12 +27,12 @@ namespace IFSEngine
         static ComputeProgram prog1;
         ComputeKernel computekernel;
         ComputeKernel displaykernel;
-        ComputeBuffer<float>/*<double4>*/ calcbuf;
-        ComputeImage2D/*<double4>*/ dispimg;
+        ComputeBuffer<float> calcbuf;
+        ComputeImage2D dispimg;
         ComputeBuffer<float> dispbuf;
-        ComputeBuffer<float>/*<double>*/ dispsettingsbuf;
-        ComputeBuffer<Iterator>/*<double>*/ iteratorsbuf;
-        ComputeBuffer<Settings>/*<double>*/ settingsbuf;
+        ComputeBuffer<float> dispsettingsbuf;
+        ComputeBuffer<Iterator> iteratorsbuf;
+        ComputeBuffer<Settings> settingsbuf;
         ComputeBuffer<float> pointsstatebuf;
         ComputeBuffer<mwc64x_state_t> rng_states;
 
@@ -269,7 +198,7 @@ namespace IFSEngine
             }
 
             settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
-            settings.camera = Camera.Settings;
+            settings.camera = Camera.Params;
             settings.rendersteps = rendersteps;
             settings.enable_depthfog = EnableDepthFog?1:0;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt

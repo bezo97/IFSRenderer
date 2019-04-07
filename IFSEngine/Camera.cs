@@ -1,65 +1,40 @@
-﻿using System;
+﻿using IFSEngine.Model;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace IFSEngine
 {
-    internal struct CameraSettings
-    {
-        internal float ox;//pos
-        internal float oy;
-        internal float oz;
-
-        internal float dx;//dir
-        internal float dy;
-        internal float dz;
-
-        //dir
-        internal float theta;//0-pi
-        internal float phi;//0-2pi
-        //helpers
-        internal float sin_theta;
-        internal float cos_theta;
-        internal float sin_phi;
-        internal float cos_phi;
-        internal float sin_phi_hack;
-        internal float cos_phi_hack;
-
-        internal float focallength;//for perspective
-        
-        internal float focusdistance;//for dof
-        internal float dof_effect;
-    }
 
     public class Camera
     {
-        internal CameraSettings Settings = new CameraSettings(){ ox = 0.0f, oy = -2.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 2.0f, dof_effect = 0.01f };
+        internal CameraParameters Params = new CameraParameters(){ ox = 0.0f, oy = -2.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 2.0f, dof_effect = 0.01f };
 
         public float Theta {
-            get => Settings.theta;
+            get => Params.theta;
             set {
-                Settings.theta = value % (3.141592f);
-                Settings.sin_theta = (float)Math.Sin(Settings.theta);
-                Settings.cos_theta = (float)Math.Cos(Settings.theta);
-                getDir(Settings.theta, Settings.phi, out Settings.dx, out Settings.dy, out Settings.dz);
+                Params.theta = value % (3.141592f);
+                Params.sin_theta = (float)Math.Sin(Params.theta);
+                Params.cos_theta = (float)Math.Cos(Params.theta);
+                getDir(Params.theta, Params.phi, out Params.dx, out Params.dy, out Params.dz);
             }
         }
         public float Phi {
-            get => Settings.phi;
+            get => Params.phi;
             set {
-                Settings.phi = value % (2.0f * 3.141592f);
-                Settings.sin_phi = (float)Math.Sin(Settings.phi);
-                Settings.cos_phi = (float)Math.Cos(Settings.phi);
-                Settings.sin_phi_hack = (float)Math.Sin(Settings.phi - 3.1415926f / 2.0f);
-                Settings.cos_phi_hack = (float)Math.Cos(Settings.phi - 3.1415926f / 2.0f);
-                getDir(Settings.theta, Settings.phi, out Settings.dx, out Settings.dy, out Settings.dz);
+                Params.phi = value % (2.0f * 3.141592f);
+                Params.sin_phi = (float)Math.Sin(Params.phi);
+                Params.cos_phi = (float)Math.Cos(Params.phi);
+                Params.sin_phi_hack = (float)Math.Sin(Params.phi - 3.1415926f / 2.0f);
+                Params.cos_phi_hack = (float)Math.Cos(Params.phi - 3.1415926f / 2.0f);
+                getDir(Params.theta, Params.phi, out Params.dx, out Params.dy, out Params.dz);
             }
         }
-        public (float x,float y,float z) Pos { get => (Settings.ox, Settings.oy, Settings.oz); set  { Settings.ox = value.x; Settings.oy = value.y; Settings.oz = value.z; } }
+        public (float x,float y,float z) Pos { get => (Params.ox, Params.oy, Params.oz); set  { Params.ox = value.x; Params.oy = value.y; Params.oz = value.z; } }
 
-        public float FocalLength { get => Settings.focallength; set => Settings.focallength = value; }
-        public float FocusDistance { get => Settings.focusdistance; set => Settings.focusdistance = value; }
-        public float DepthOfField { get => Settings.dof_effect; set => Settings.dof_effect = value; }
+        public float FocalLength { get => Params.focallength; set => Params.focallength = value; }
+        public float FocusDistance { get => Params.focusdistance; set => Params.focusdistance = value; }
+        public float DepthOfField { get => Params.dof_effect; set => Params.dof_effect = value; }
 
         public void SetDirection(float x, float y, float z)
         {
@@ -69,8 +44,8 @@ namespace IFSEngine
 
         public Camera()
         {
-            Phi = Settings.phi;
-            Theta = Settings.theta;
+            Phi = Params.phi;
+            Theta = Params.theta;
         }
         public Camera((float x, float y, float z) position, (float x, float y, float z) direction)
         {
@@ -104,13 +79,13 @@ namespace IFSEngine
 
         private void getRight(out float rx, out float ry, out float rz)
         {
-            getDir(3.1415926f / 2.0f, Settings.phi - 3.1415926f / 2.0f, out rx, out ry, out rz);//???
+            getDir(3.1415926f / 2.0f, Params.phi - 3.1415926f / 2.0f, out rx, out ry, out rz);//???
             //Normalize(ref rx, ref ry, ref rz);
         }
 
         private void getUp(out float dx, out float dy, out float dz)
         {
-            getDir(Settings.theta - 3.1415926f / 2.0f, Settings.phi, out dx, out dy, out dz);
+            getDir(Params.theta - 3.1415926f / 2.0f, Params.phi, out dx, out dy, out dz);
             //Normalize(ref dx, ref dy, ref dz);
             /*dx *= -1;
             dy *= -1;
@@ -119,15 +94,15 @@ namespace IFSEngine
 
         public void Translate(float forward/*z*/, float strafe/*x*/, float height/*y*/)
         {
-            getDir(Settings.theta, Settings.phi, out float fx, out float fy, out float fz);//forward
+            getDir(Params.theta, Params.phi, out float fx, out float fy, out float fz);//forward
             getUp(out float ux, out float uy, out float uz);//up
             getRight(out float rx, out float ry, out float rz);//right
             float tx = fx * forward + rx * strafe + ux * height;
             float ty = fy * forward + ry * strafe + uy * height;
             float tz = fz * forward + rz * strafe + uz * height;
-            Settings.ox += tx;
-            Settings.oy += ty;
-            Settings.oz += tz;
+            Params.ox += tx;
+            Params.oy += ty;
+            Params.oz += tz;
         }
 
     }
