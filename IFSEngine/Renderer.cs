@@ -48,8 +48,8 @@ namespace IFSEngine
         });
 
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
-        int width;
-        int height;
+        public int Width { get; set; } = 1280;
+        public int Height { get; set; } = 720;
         int texturetarget;
         Random rgen = new Random();
         public int rendersteps = 0;
@@ -60,10 +60,11 @@ namespace IFSEngine
         //float[] pre_rnd;
         //float[] rnd;
 
+        public Renderer(int width, int height) : this (width, height, new IntPtr(0), -1) { }
         public Renderer(int width, int height, IntPtr glctxh, int texturetarget)
         {
-            this.width = width;
-            this.height = height;
+            this.Width = width;
+            this.Height = height;
             this.texturetarget = texturetarget;
 
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
@@ -183,7 +184,7 @@ namespace IFSEngine
 
             if(invalidAccumulation)
             {
-                cq.WriteToBuffer<float>(new float[width * height * 4], calcbuf, false, null);
+                cq.WriteToBuffer<float>(new float[Width * Height * 4], calcbuf, false, null);
                 invalidAccumulation = false;
                 rendersteps = 0;
 
@@ -252,7 +253,7 @@ namespace IFSEngine
             cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , Brightness, Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, /*new long[] { 1 }*/null, cEvents);
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, cEvents);
             cEvents.Last().Completed += DisplayFrame_Completed;
             cEvents.Last().Aborted += DisplayFrame_Completed;//TODO: log this
             if (texturetarget > -1)//van gl
@@ -274,33 +275,29 @@ namespace IFSEngine
                 RenderFrame();
         }
 
-        //TODO: rendberak kepbe iras
-        /*public double[,][] Img(float brightness, float gamma)
+        public double[,][] GenerateImage()
         {
-                float[] d = new float[width * height * 4];//rgba
+           float[] d = new float[Width * Height * 4];//rgba
 
-                //UpdateDisplay()
-                cq.WriteToBuffer<float>(new float[] { threadcnt * rendersteps /2(?), brightness, gamma }, dispsettingsbuf, true, null);
-                if (texturetarget > -1)//van gl
-                    cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-                cq.Execute(displaykernel, new long[] { 0 }, new long[] { width * height }, new long[] { 1 }, null);
-                cq.ReadFromBuffer<float>(dispbuf, ref d, true, null);
-                cq.Finish();
-                if (texturetarget > -1)//van gl
-                    cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+            UpdateDisplay();//ebbol event jon
 
-                double[,][] o = new double[width, height][];
-                for (int x = 0; x < width; x++)
-                    for (int y = 0; y < height; y++)
-                    {
-                        o[x, y] = new double[3];
-                        o[x, y][0] = d[x * 4 + y * 4 * width + 0];//?
-                        o[x, y][1] = d[x * 4 + y * 4 * width + 1];
-                        o[x, y][2] = d[x * 4 + y * 4 * width + 2];
-                        //s3 opacity
-                    }
-                return o;
-        }*/
+            cq.ReadFromBuffer(dispbuf, ref d, true, null);
+
+            double[,][] o = new double[Width, Height][];
+            for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
+                {
+                    o[x, y] = new double[4];
+                    o[x, y][0] = d[x * 4 + y * 4 * Width + 0];
+                    o[x, y][1] = d[x * 4 + y * 4 * Width + 1];
+                    o[x, y][2] = d[x * 4 + y * 4 * Width + 2];
+                    o[x, y][3] = d[x * 4 + y * 4 * Width + 3];
+                }
+
+            //TODO: image save netstandardbol?
+
+            return o;
+        }
 
         public void Dispose()
         {

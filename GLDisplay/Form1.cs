@@ -306,5 +306,17 @@ namespace GLDisplay
             r.Camera.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
             r.InvalidateAccumulation();
         }
+
+        private void SaveImage_Click(object sender, EventArgs e)
+        {
+            var p = r.GenerateImage();
+            Bitmap b = new Bitmap(r.Width, r.Height);
+            for(int y = 0;y<r.Height;y++)
+                for (int x = 0; x < r.Width; x++)
+                {
+                    b.SetPixel(x, r.Height - y - 1, Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0*p[x, y][2])));
+                }
+            b.Save("Output.bmp");
+        }
     }
 }

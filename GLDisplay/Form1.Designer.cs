@@ -41,6 +41,7 @@
             this.numericUpDownDOF = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.saveImage = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrightness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).BeginInit();
@@ -166,7 +167,7 @@
             // 
             this.buttonRandomize.Location = new System.Drawing.Point(15, 44);
             this.buttonRandomize.Name = "buttonRandomize";
-            this.buttonRandomize.Size = new System.Drawing.Size(156, 23);
+            this.buttonRandomize.Size = new System.Drawing.Size(75, 23);
             this.buttonRandomize.TabIndex = 6;
             this.buttonRandomize.Text = "Randomize params";
             this.buttonRandomize.UseVisualStyleBackColor = true;
@@ -239,12 +240,23 @@
             this.label2.TabIndex = 10;
             this.label2.Text = "Focus Distance";
             // 
+            // saveImage
+            // 
+            this.saveImage.Location = new System.Drawing.Point(96, 44);
+            this.saveImage.Name = "saveImage";
+            this.saveImage.Size = new System.Drawing.Size(75, 23);
+            this.saveImage.TabIndex = 11;
+            this.saveImage.Text = "Save Image";
+            this.saveImage.UseVisualStyleBackColor = true;
+            this.saveImage.Click += new System.EventHandler(this.SaveImage_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.saveImage);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.checkBox1);
@@ -284,6 +296,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDownDOF;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button saveImage;
     }
 }
 
