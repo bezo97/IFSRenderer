@@ -211,6 +211,7 @@ __kernel void Main(
 	float startz = rnd[next++]*2.0f-1.0f;
 	float3 p = (float3)(startx, starty, startz);//x,y,z
 	float2 p_shader = (float2)(0.0f, 1.0f);//c,o*/
+
 	float3 p = (float3)(
 		pointsstate[gid*4+0],
 		pointsstate[gid*4+1],
@@ -238,13 +239,20 @@ __kernel void Main(
 		if(i==0)
 			p_shader.x = its[r_index].ci;
 
-		//ha elozo iteracioban tul messze ment, akkor reset
-		/*if(p.x==INFINITY||p.y==INFINITY||p.z==INFINITY||p.x==-INFINITY||p.y==-INFINITY||p.z==-INFINITY || p.x==0||p.y==0||p.z==0)
+		//ha elozo iteracioban tul messze ment, akkor reset?
+		//TODO: ez opcio legyen
+		if(p.x==INFINITY||p.y==INFINITY||p.z==INFINITY||p.x==-INFINITY||p.y==-INFINITY||p.z==-INFINITY || (p.x==0 && p.y==0 && p.z==0))
 		{
-			p.x = rnd[(53*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
-			p.y = rnd[(67*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
-			p.z = rnd[(71*next++)%(gid*(pass_iters+3))]*2.0f-1.0f;
-		}*/
+			/*p.x = randhash(&rng)-0.5f;
+			p.y = randhash(&rng)-0.5f;
+			p.z = randhash(&rng)-0.5f;*/
+			//otlet: egy masik pontra tesszuk, ami mar nem random, igy gyorsabban konvergal
+			p.x = pointsstate[(gid+1)*4+0];
+			p.y = pointsstate[(gid+1)*4+1];
+			p.z = pointsstate[(gid+1)*4+2];
+			p_shader.x = p.x = pointsstate[(gid+1)*4+3];
+
+		}
 
 		p = Apply(its[r_index], p);//transform here
 		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
@@ -290,65 +298,7 @@ __kernel void Main(
 		}
 		else
 			continue;
-
-		continue;//no aa
-		
-		//aa
-		float dx = proj.x - floor(proj.x);//proj.x % 1;
-		float dy = proj.y - floor(proj.y);//proj.y % 1;
-
-		float avg = 1.0/8.0;
-		color *= avg;
-		
-		x_index=floor(proj.x);
-		y_index=floor(proj.y);
-		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
-		{//point lands on picture
-			float dd = 2.0f - dx-dy;
-			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd;
-			output[ipx+1] += color.y * dd;
-			output[ipx+2] += color.z * dd;
-			output[ipx+3] += color.w * dd;//hany db, histogramhoz
-
-		};
-      
-		x_index=ceil(proj.x);
-		y_index=ceil(proj.y);
-		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
-		{//point lands on picture
-			float dd = dx+dy;
-			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd;
-			output[ipx+1] += color.y * dd;
-			output[ipx+2] += color.z * dd;
-			output[ipx+3] += color.w * dd;//hany db, histogramhoz
-		};
-      
-		x_index=floor(proj.x);
-		y_index=ceil(proj.y);
-		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
-		{//point lands on picture
-			float dd = (1.0f-dx)+dy;
-			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd;
-			output[ipx+1] += color.y * dd;
-			output[ipx+2] += color.z * dd;
-			output[ipx+3] += color.w * dd;//hany db, histogramhoz
-		};
-      
-		x_index=ceil(proj.x);
-		y_index=floor(proj.y);
-		if(x_index>=0 && x_index<width && y_index>=0 && y_index<height)
-		{//point lands on picture
-			float dd = dx+(1.0f-dy);
-			int ipx = x_index*4 + y_index*4 * width;//pixel index
-			output[ipx+0] += color.x * dd;
-			output[ipx+1] += color.y * dd;
-			output[ipx+2] += color.z * dd;
-			output[ipx+3] += color.w * dd;//hany db, histogramhoz
-		};
-		
+					
 	}
 
 	//save point state for next pass
