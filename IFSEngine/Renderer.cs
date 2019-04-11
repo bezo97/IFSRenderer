@@ -1,6 +1,4 @@
-﻿#define CallBack
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -49,6 +47,9 @@ namespace IFSEngine
             Debug.WriteLine("CTX ERROR INFO: " + str);
         });
 
+        private CLEventCollection ComputeEventsCollection;
+        private CLEventCollection DisplayEventsCollection;
+
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
         public int Width { get; set; } = 1280;
         public int Height { get; set; } = 720;
@@ -68,6 +69,8 @@ namespace IFSEngine
             this.Width = width;
             this.Height = height;
             this.texturetarget = texturetarget;
+            ComputeEventsCollection = new CLEventCollection(this.RenderFrame_Completed);
+            DisplayEventsCollection = new CLEventCollection(this.DisplayFrame_Completed);
 
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
@@ -178,8 +181,6 @@ namespace IFSEngine
             //Render();
         }
 
-        private List<ComputeEventBase> cEvents = new List<ComputeEventBase>();
-
         public void RenderFrame()
         {
             //if volt init()
@@ -205,19 +206,14 @@ namespace IFSEngine
             settings.rendersteps = rendersteps;
             settings.enable_depthfog = EnableDepthFog?1:0;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
-#if CallBack
             //e = Cl.EnqueueMarker(cq, out Event start);
-            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, cEvents);
-            cEvents.Last().Completed += RenderFrame_Completed;
-            cEvents.Last().Aborted += RenderFrame_Completed;//TODO: log this
-#else
-            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, null);
-#endif
+            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
             //cq.Finish();
             rendersteps++;
         }
 
         bool rendering = false;
+
         public void StartRendering()
         {
             if (!rendering)
@@ -231,19 +227,14 @@ namespace IFSEngine
             rendering = false;
         }
 
-        bool updateDisplayOnRender = true;//
+        public bool UpdateDisplayOnRender { get; set; } = true;
         public event EventHandler RenderFrameCompleted;
         public event EventHandler DisplayFrameCompleted;
         private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            try
-            {//ez a try nem old meg semmit
-                cEvents.Remove(args.Event);
-                args.Event.Dispose();
-            }
-            catch { }
+            ComputeEventsCollection.Remove(args.Event);
             RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
-            if (updateDisplayOnRender)
+            if (UpdateDisplayOnRender)
                 UpdateDisplay();
             else if (rendering)
                 RenderFrame();
@@ -253,18 +244,12 @@ namespace IFSEngine
         {
             //Task.Run(() =>
             //{
-
+            
             //cq.Finish();//
             cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , Brightness, Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-#if CallBack
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, cEvents);
-            cEvents.Last().Completed += DisplayFrame_Completed;
-            cEvents.Last().Aborted += DisplayFrame_Completed;//TODO: log this
-#else
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, null);
-#endif
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);
             if (texturetarget > -1)//van gl
                 cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
             //cq.Finish();
@@ -273,12 +258,7 @@ namespace IFSEngine
 
         private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
-            try
-            {//ez a try nem old meg semmit
-                cEvents.Remove(args.Event);
-                args.Event.Dispose();
-            }
-            catch { }
+            DisplayEventsCollection.Remove(args.Event);
             DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (rendering)
                 RenderFrame();

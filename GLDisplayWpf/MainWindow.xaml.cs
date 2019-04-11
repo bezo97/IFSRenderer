@@ -99,7 +99,7 @@ namespace GLDisplayWpf
 
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            display1.Invoke((MethodInvoker)delegate { InvalidateVisual(); });
+            display1.Invoke((MethodInvoker)delegate { /*InvalidateVisual();*/display1.Refresh(); });
             //TODO: fps szamolas stb.
         }
 
