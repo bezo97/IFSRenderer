@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define CallBack
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -203,11 +205,14 @@ namespace IFSEngine
             settings.rendersteps = rendersteps;
             settings.enable_depthfog = EnableDepthFog?1:0;
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
-
+#if CallBack
             //e = Cl.EnqueueMarker(cq, out Event start);
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, cEvents);
             cEvents.Last().Completed += RenderFrame_Completed;
             cEvents.Last().Aborted += RenderFrame_Completed;//TODO: log this
+#else
+            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, null);
+#endif
             //cq.Finish();
             rendersteps++;
         }
@@ -253,9 +258,13 @@ namespace IFSEngine
             cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , Brightness, Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
+#if CallBack
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, cEvents);
             cEvents.Last().Completed += DisplayFrame_Completed;
             cEvents.Last().Aborted += DisplayFrame_Completed;//TODO: log this
+#else
+            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, null);
+#endif
             if (texturetarget > -1)//van gl
                 cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
             //cq.Finish();

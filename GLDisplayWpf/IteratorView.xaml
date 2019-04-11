@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="GLDisplayWpf.IteratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GLDisplayWpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="570" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition  Height="25"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition  Height="25"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition  Height="25"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition  Height="25"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition  Height="25"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="24"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+
+        <Grid Grid.Row="0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="labelIterator"  Content="Iterator &lt;0/0&gt;" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Content="Previos"  Grid.Column="1" Click="ButtonPrevious_Click"/>
+            <Button Content="Next"     Grid.Column="2" Click="ButtonNext_Click"/>
+            <Button Content="Remove"   Grid.Column="3" Click="ButtonRemove_Click"/>
+            <Button Content="Add New"  Grid.Column="4" Click="ButtonAddNew_Click"/>
+            <Button Content="Refresh"  Grid.Column="5" Click="ButtonRefresh_Click"/>
+        </Grid>
+
+
+
+        <Label              Grid.Row="1" Content="Affine O" FontWeight="Bold"/>
+        <local:ValueControl Grid.Row="2" Text="X" x:Name="affineOX"/>
+        <local:ValueControl Grid.Row="3" Text="Y" x:Name="affineOY"/>
+        <local:ValueControl Grid.Row="4" Text="Z" x:Name="affineOZ"/>
+
+        <Label              Grid.Row="5" Content="Affine X" FontWeight="Bold"/>
+        <local:ValueControl Grid.Row="6" Text="X" x:Name="affineXX"/>
+        <local:ValueControl Grid.Row="7" Text="Y" x:Name="affineXY"/>
+        <local:ValueControl Grid.Row="8" Text="Z" x:Name="affineXZ"/>
+
+        <Label              Grid.Row="9" Content="Affine Y" FontWeight="Bold"/>
+        <local:ValueControl Grid.Row="10" Text="X" x:Name="affineYX"/>
+        <local:ValueControl Grid.Row="11" Text="Y" x:Name="affineYY"/>
+        <local:ValueControl Grid.Row="12" Text="Z" x:Name="affineYZ"/>
+
+        <Label              Grid.Row="13" Content="Affine Z" FontWeight="Bold"/>
+        <local:ValueControl Grid.Row="14" Text="X" x:Name="affineZX"/>
+        <local:ValueControl Grid.Row="15" Text="Y" x:Name="affineZY"/>
+        <local:ValueControl Grid.Row="16" Text="Z" x:Name="affineZZ"/>
+
+        <Label              Grid.Row="17" Content="Iterator" FontWeight="Bold"/>
+        <local:ValueControl Grid.Row="18" Text="Weight"       x:Name="iteratorW" />
+        <local:ValueControl Grid.Row="19" Text="Color"        x:Name="iteratorCS"/>
+        <local:ValueControl Grid.Row="20" Text="Color Index"  x:Name="iteratorCI"/>
+        <local:ValueControl Grid.Row="21" Text="Opacity"      x:Name="iteratorOp"/>
+        <CheckBox           Grid.Row="22" Content="Spherical" x:Name="iteratorSph" Margin="0" HorizontalAlignment="Left" />
+    </Grid>
+</UserControl>
