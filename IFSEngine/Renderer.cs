@@ -171,7 +171,6 @@ namespace IFSEngine
             this.finalit = finalit;
             //rendersteps = 0;
             this.settings.itnum = its.Count;
-            this.settings.pass_iters = 100;//minden renderrel duplazodik
             /*List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);*/
@@ -189,6 +188,7 @@ namespace IFSEngine
             {
                 cq.WriteToBuffer<float>(new float[Width * Height * 4], calcbuf, false, null);
                 invalidAccumulation = false;
+                this.settings.pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
 
                 if (invalidParams)
@@ -201,7 +201,7 @@ namespace IFSEngine
                 }
             }
 
-            settings.pass_iters = Math.Min(settings.pass_iters * 2, 10000);
+            settings.pass_iters = Math.Min((int)(settings.pass_iters*1.1), 10000);
             settings.camera = Camera.Params;
             settings.rendersteps = rendersteps;
             settings.enable_depthfog = EnableDepthFog?1:0;

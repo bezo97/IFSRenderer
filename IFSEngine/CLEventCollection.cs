@@ -35,8 +35,12 @@ namespace IFSEngine
         public bool Remove(ComputeEventBase item)
         {
             //TODO: log item start/submit/finish time
-            item.Dispose();
-            l.Remove(item);
+            try
+            {
+                item.Dispose();
+                l.Remove(item);
+            }
+            catch { /*megesik*/ }
             return true;
         }
 
