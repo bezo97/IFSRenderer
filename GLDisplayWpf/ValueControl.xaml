@@ -18,8 +18,8 @@
             <ColumnDefinition MaxWidth="20"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="label" Grid.Column="0" Grid.RowSpan="2" Content="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" Padding="5,2,5,5"/>
-        <Slider x:Name="slider" Grid.Column="1" Grid.RowSpan="2" Maximum="1" LargeChange="0.1" SmallChange="0.001" Value="{Binding NativeValue, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBox x:Name="textBox" Grid.Column="2" Grid.RowSpan="2" Text="{Binding NativeValue, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+        <Slider x:Name="slider" Grid.Column="1" Grid.RowSpan="2" Maximum="1" LargeChange="0.1" SmallChange="0.001" Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBox x:Name="textBox" Grid.Column="2" Grid.RowSpan="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         <RepeatButton x:Name="buttonUp" Grid.Column="3" Grid.Row="0" Content="˄" Click="ButtonUp_Click" FontSize="8" VerticalContentAlignment="Top" Padding="0"/>
         <RepeatButton x:Name="buttonDown" Grid.Column="3" Grid.Row="1" Content="˅" Click="ButtonDown_Click" FontSize="8"  VerticalContentAlignment="Bottom"  Padding="0"/>
     </Grid>

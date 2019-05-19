@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GLDisplay.Leap;
 using IFSEngine;
+using IFSEngine.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -65,7 +66,9 @@ namespace GLDisplay
             initGL();
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             IntPtr raw_context_handle = ctx.Context.Handle;
-            r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
+
+            IFS Params = new IFS();
+            r = new IFSEngine.Renderer(Params, raw_context_handle, texID);
             
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
@@ -73,7 +76,8 @@ namespace GLDisplay
             Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
             Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
 
-            IteratorManipulator.Randomize(r);
+            //IteratorManipulator.Renderer = r;
+            //IteratorManipulator.Params = Params;
             UpdateIteratorSelectedText();
 
             r.DisplayFrameCompleted += R_DisplayFrameCompleted;
@@ -97,9 +101,11 @@ namespace GLDisplay
         {
             if(e.Button == MouseButtons.Left)
             {
-                r.Camera.Theta += (lastY-e.Y) / 100.0f;
-                r.Camera.Phi += (lastX-e.X) / 100.0f;
-                r.InvalidateAccumulation();
+                r.MutateCamera(c => {
+                    c.Theta += (lastY - e.Y) / 100.0f;
+                    c.Phi += (lastX - e.X) / 100.0f;
+                    return c;
+                });
             }
             lastX = e.X;
             lastY = e.Y;
@@ -176,8 +182,12 @@ namespace GLDisplay
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            r.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-            r.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
+            r.MutateCamera(c =>
+            {
+                c.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+                c.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
+                return c;
+            });
         }
 
 
@@ -208,13 +218,18 @@ namespace GLDisplay
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
-            r.Camera.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
-            r.InvalidateAccumulation();
+            r.MutateCamera(c => {
+                c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
+                return c;
+            });
         }
 
         private void ButtonRandomize_Click(object sender, EventArgs e)
         {
-            IteratorManipulator.Randomize(r);
+            r.MutateParams(p => p
+                .RandomizeParams()
+                .ResetCamera()
+            );
             UpdateIteratorSelectedText();
         }
 
@@ -255,11 +270,13 @@ namespace GLDisplay
             }
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
-                r.Camera.Translate(
+                r.MutateCamera(c => {
+                    c.Translate(
                     0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
                     0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
                     0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                r.InvalidateAccumulation();
+                    return c;
+                });
             }
         }
 
@@ -297,14 +314,18 @@ namespace GLDisplay
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            r.EnableDepthFog = checkBox1.Checked;
-            r.InvalidateAccumulation();
+            r.MutateCamera(c => {
+                c.EnableDepthFog = checkBox1.Checked;
+                return c;
+            });
         }
 
         private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
         {
-            r.Camera.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
-            r.InvalidateAccumulation();
+            r.MutateCamera(c => {
+                c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
+                return c;
+            });
         }
 
         private void SaveImage_Click(object sender, EventArgs e)

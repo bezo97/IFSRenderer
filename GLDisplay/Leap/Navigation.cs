@@ -33,7 +33,8 @@ namespace GLDisplay.Leap
 
         public static void UpdateCamera(Hand right, Renderer r)
         {
-            if (r.Camera is Camera camera)
+            var camera = r.CurrentParams.Camera;
+            //if (r.Camera is Camera camera)
             {
                 if (!right.Fingers.Any(f => f.IsExtended) && right.Confidence >= 0.5)
                 {
@@ -54,10 +55,13 @@ namespace GLDisplay.Leap
                         (float roll, float pitch, float yaw) = right.Rotation.Multiply(grabQuaternion).GetRotations();
                         if (Math.Abs(pitch) < MaxRotate && Math.Abs(roll) < MaxRotate)
                         {
-                            camera.Phi = grabPhi - phiQueue.NextAvg(pitch);
-                            camera.Theta = grabTheta - thetaQueue.NextAvg(roll);
-                            /*camera.Phi += pitch / 50.0f;
-                            camera.Theta += roll / 50.0f;*///masik lehetoseg
+                            r.MutateCamera(c => {
+                                c.Phi = grabPhi - phiQueue.NextAvg(pitch);
+                                c.Theta = grabTheta - thetaQueue.NextAvg(roll);
+                                /*c.Phi += pitch / 50.0f;
+                                c.Theta += roll / 50.0f;*///masik lehetoseg
+                                return c;
+                            });
                         }
                     }
 
@@ -71,11 +75,14 @@ namespace GLDisplay.Leap
 
                     if (Math.Abs(z) < MaxTrans && Math.Abs(x) < MaxTrans && Math.Abs(y) < MaxTrans)
                     {
-                        camera.Pos = (grabCamPos.x, grabCamPos.y, grabCamPos.z);
-                        camera.Translate(zQueue.NextAvg(z), xQueue.NextAvg(x), yQueue.NextAvg(y));
+                        r.MutateCamera(c =>
+                        {
+                            c.Pos = (grabCamPos.x, grabCamPos.y, grabCamPos.z);
+                            c.Translate(zQueue.NextAvg(z), xQueue.NextAvg(x), yQueue.NextAvg(y));
+                            return c;
+                        });
                     }
 
-                    r.InvalidateAccumulation();
                 }
                 else if (grabbed && right.Fingers.Any(f => f.IsExtended))
                 {

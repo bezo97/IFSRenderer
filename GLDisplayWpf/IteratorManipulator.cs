@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace GLDisplayWpf
 {
+    //TODO: remove
     public static class IteratorManipulator
     {
 

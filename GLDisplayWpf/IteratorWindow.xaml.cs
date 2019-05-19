@@ -19,10 +19,9 @@ namespace GLDisplayWpf
     /// </summary>
     public partial class IteratorWindow : Window
     {
-        public IteratorWindow(EventHandler eh)
+        public IteratorWindow()
         {
             InitializeComponent();
-            view.Refresh_CallBack += eh;
         }
     }
 }

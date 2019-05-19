@@ -43,7 +43,7 @@ namespace GLDisplayWpf
             iteratorCS.RangeToValue = f => (f * 2.0f - 1.0f) * 0.1f;
             iteratorCS.ValueToRange = f => (f / 0.1f + 1.0f) / 2.0f;
 
-            BindModify();
+            //BindModify();
 
             IteratorManipulator.EditStateChanged += EditStateChanged_Handler;
             IteratorManipulator.IteratorChanged += IteratorChanged_Handler;
@@ -53,7 +53,7 @@ namespace GLDisplayWpf
 
 
 
-        private Iterator Iterator {
+        /*private Iterator Iterator {
             get => iter;
 
             set {
@@ -84,9 +84,9 @@ namespace GLDisplayWpf
             }
         }
 
-        private Iterator iter;
+        private Iterator iter;*/
 
-        private void BindModify()
+        /*private void BindModify()
         {
             affineOX.ValueChanged += (s, e) => iter.aff.ox = e.Value;
             affineOY.ValueChanged += (s, e) => iter.aff.oy = e.Value;
@@ -110,7 +110,7 @@ namespace GLDisplayWpf
             iteratorOp.ValueChanged += (s, e) => iter.op = e.Value;
 
             iteratorSph.Checked += (s, e) => iter.tfID = ((s as CheckBox).IsChecked ?? false) ? 0 : 1;
-        }
+        }*/
 
 
         private void ButtonPrevious_Click(object sender, RoutedEventArgs e)
@@ -136,20 +136,20 @@ namespace GLDisplayWpf
         private void EditStateChanged_Handler(object sender, EventArgs e)
         {
             labelIterator.Content = "Iterator <" + IteratorManipulator.IteratorCount + "/" + (IteratorManipulator.EditState + 1) + ">";
-            Iterator = IteratorManipulator.Iterator;
+            DataContext = IteratorManipulator.Iterator;
         }
 
         private void IteratorChanged_Handler(object sender, EventArgs e)
         {
             if (sender != this)
             {
-                Iterator = IteratorManipulator.Iterator;
+                DataContext = IteratorManipulator.Iterator;
             }
         }
 
         private void ButtonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            IteratorManipulator.ModifyIterator(i => iter, this, EventArgs.Empty);
+            IteratorManipulator.ModifyIterator(i => (Iterator)DataContext, this, EventArgs.Empty);
             Refresh_CallBack?.Invoke(this, EventArgs.Empty);
         }
 

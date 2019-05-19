@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IFSEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,63 +43,49 @@ namespace GLDisplayWpf
             "ButtonStep", typeof(float), typeof(ValueControl), new PropertyMetadata(0.05f));
 
         public string Text {
-            get => (string)GetValue(TextProprty);
-            set => SetValue(TextProprty, value);
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
         }
-        public static readonly DependencyProperty TextProprty = DependencyProperty.Register(
+        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
             "Text", typeof(string), typeof(ValueControl), new PropertyMetadata("Label"));
 
-        public float NativeValue {
-            get => (float)GetValue(NativeValueProprty);
+        public float Value {
+            get => RangeToValue((float)GetValue(ValueProperty));
             set {
-                SetValue(NativeValueProprty, value);
+                SetValue(ValueProperty, ValueToRange(value));
                 //InvokeValueChanged();
             }
         }
-        public static readonly DependencyProperty NativeValueProprty = DependencyProperty.Register(
-            "NativeValue", typeof(float), typeof(ValueControl), new PropertyMetadata(0.0f));
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
+            "Value", typeof(float), typeof(ValueControl), new PropertyMetadata(0.0f));
 
-        public float Value {
-            get => RangeToValue(mvalue);
-            set {
-                mvalue = ValueToRange(value);
-                NativeValue = mvalue;
-            }
-        }
-
-        public PropertyChangedEventHandler<float> ValueChanged;
+        //public PropertyChangedEventHandler<float> ValueChanged;
 
         public Func<float, float> RangeToValue { get; set; } = f => f;
         public Func<float, float> ValueToRange { get; set; } = f => f;
-
-
-        private float mvalue = 0.0f;
 
         public ValueControl()
         {
             DataContext = this;
             InitializeComponent();
-            NativeValue = mvalue;
         }              
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
-            mvalue += ButtonStep;
-            NativeValue = mvalue;
+            Value += ButtonStep;
         }
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
-            mvalue -= ButtonStep;
-            NativeValue = mvalue;
+            Value -= ButtonStep;
         }
 
-        private void InvokeValueChanged()
+        /*private void InvokeValueChanged()
         {
             ValueChanged?.Invoke(this, new PropertyChangedEventArgs<float>(Value));
-        }
+        }*/
     }
-
+    /*
     public delegate void PropertyChangedEventHandler<T>(object sender, PropertyChangedEventArgs<T> e);
     public class PropertyChangedEventArgs<T> : EventArgs
     {
@@ -107,5 +94,5 @@ namespace GLDisplayWpf
         {
             Value = value;
         }
-    }
+    }*/
 }

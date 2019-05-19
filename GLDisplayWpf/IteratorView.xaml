@@ -55,9 +55,9 @@
 
 
         <Label              Grid.Row="1" Content="Affine O" FontWeight="Bold"/>
-        <local:ValueControl Grid.Row="2" Text="X" x:Name="affineOX"/>
-        <local:ValueControl Grid.Row="3" Text="Y" x:Name="affineOY"/>
-        <local:ValueControl Grid.Row="4" Text="Z" x:Name="affineOZ"/>
+        <local:ValueControl Grid.Row="2" Text="X" x:Name="affineOX" Value="{Binding Affine.ox}"/>
+        <local:ValueControl Grid.Row="3" Text="Y" x:Name="affineOY" Value="{Binding Affine.oy}"/>
+        <local:ValueControl Grid.Row="4" Text="Z" x:Name="affineOZ" Value="{Binding Affine.oz}"/>
 
         <Label              Grid.Row="5" Content="Affine X" FontWeight="Bold"/>
         <local:ValueControl Grid.Row="6" Text="X" x:Name="affineXX"/>

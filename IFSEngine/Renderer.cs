@@ -51,31 +51,31 @@ namespace IFSEngine
         private CLEventCollection DisplayEventsCollection;
 
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
-        public int Width { get; set; } = 1280;
-        public int Height { get; set; } = 720;
         int texturetarget;
         Random rgen = new Random();
         public int rendersteps = 0;
-        List<Iterator> its = new List<Iterator>();
-        Iterator finalit;
-        Settings settings = new Settings();//todo init
 
-        //float[] pre_rnd;
-        //float[] rnd;
+        //
+        public int Width => CurrentParams.Camera.Width;
+        public int Height => CurrentParams.Camera.Height;
 
-        public Renderer(int width, int height) : this (width, height, new IntPtr(0), -1) { }
-        public Renderer(int width, int height, IntPtr glctxh, int texturetarget)
+        /// <summary>
+        /// Use <see cref="UpdateParams(IFS)"/> to set params
+        /// </summary>
+        public IFS CurrentParams { get; private set; }
+
+        public Renderer(IFS Params) : this (Params, new IntPtr(0), -1) { }
+        public Renderer(IFS Params, IntPtr glctxh, int texturetarget)
         {
-            this.Width = width;
-            this.Height = height;
+            UpdateParams(Params);
             this.texturetarget = texturetarget;
             ComputeEventsCollection = new CLEventCollection(this.RenderFrame_Completed);
             DisplayEventsCollection = new CLEventCollection(this.DisplayFrame_Completed);
 
             //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
-            string kernelSource = "#define width (" + width + ")\r\n";
-            kernelSource += "#define height (" + height + ")\r\n";
+            string kernelSource = "#define width (" + Width + ")\r\n";
+            kernelSource += "#define height (" + Height + ")\r\n";
             //kernelSource += "#define max_iters (" + max_iters + ")\r\n";
             var assembly = typeof(Renderer).GetTypeInfo().Assembly;
             Stream resource = assembly.GetManifestResourceStream("IFSEngine.ifs_kernel.cl");
@@ -113,15 +113,15 @@ namespace IFSEngine
             displaykernel = prog1.CreateKernel("Display");
 
             //randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, maxthreadcnt * (/*max_iters*/10000 + 2));
-            calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, width * height * 4);//rgba
-            dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, width * height * 4);//rgba
+            calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, Width * Height * 4);//rgba
+            dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, Width * Height * 4);//rgba
             if (glctxh.ToInt32() > 0)
             {
                 dispimg = Cloo.ComputeImage2D.CreateFromGLTexture2D(ctx, ComputeMemoryFlags.WriteOnly, 3553/*gl texture2d*/, 0, texturetarget);
                 //dispimg = Cloo.ComputeImage2D.CreateFromGLRenderbuffer(ctx, ComputeMemoryFlags.WriteOnly, texturetarget/*buffertarget*/);
             }
             else
-                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat(ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), width, height, 0, IntPtr.Zero);
+                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat(ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), Width, Height, 0, IntPtr.Zero);
             dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
             iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
             settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
@@ -141,12 +141,10 @@ namespace IFSEngine
             displaykernel.SetMemoryArgument(3, dispsettingsbuf);
         }
 
-        public Camera Camera { get; set; } = new Camera();
-        public float Brightness { get; set; } = 1.0f;
-        public float Gamma { get; set; } = 4.0f;
-        public bool EnableDepthFog { get; set; } = true;
-
         private bool invalidAccumulation = false;
+        private bool invalidParams = false;
+        private int pass_iters;
+
         public void InvalidateAccumulation()
         {
             //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
@@ -154,10 +152,16 @@ namespace IFSEngine
             
         }
 
-        private bool invalidParams = false;
+        /// <summary>
+        /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
+        /// </summary>
+        public void MutateCamera(Func<Camera,Camera> mutator)
+        {
+            CurrentParams.Camera = mutator(CurrentParams.Camera);
+            invalidAccumulation = true;
+        }
 
-        bool debug = true;
-        public void UpdateParams(List<Iterator> its, Iterator finalit)
+        public void UpdateParams(IFS newParams)
         {
             //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
             /*//if (its.Count != this.its.Count)
@@ -167,49 +171,66 @@ namespace IFSEngine
                 iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1);//its+final
                 computekernel.Set0MemoryArgument(1, iteratorsbuf);
             }*/
-            this.its = its;
+            /*this.its = its;
             this.finalit = finalit;
             //rendersteps = 0;
-            this.settings.itnum = its.Count;
+            this.settings.itnum = its.Count;*/
             /*List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
             cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);*/
+
+            CurrentParams = newParams;
+
             invalidParams = true;
             invalidAccumulation = true;
-
-            //Render();
+        }
+        public void MutateParams(Func<IFS,IFS> mutator)
+        {
+            UpdateParams(mutator(CurrentParams));
         }
 
         public void RenderFrame()
         {
             //if volt init()
 
-            if(invalidAccumulation)
+            cq.Finish();//
+
+            if (invalidAccumulation)
             {
                 cq.WriteToBuffer<float>(new float[Width * Height * 4], calcbuf, false, null);
                 invalidAccumulation = false;
-                this.settings.pass_iters = 100;//minden renderrel duplazodik
+                pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
 
                 if (invalidParams)
                 {
                     cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);//ezt gyakrabban?
-                    List<Iterator> its_and_final = new List<Iterator>(its);
-                    its_and_final.Add(finalit);
+                    List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
+                    its_and_final.Add(CurrentParams.FinalIterator);
                     cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
                     invalidParams = false;
                 }
-            }
+            }           
 
-            settings.pass_iters = Math.Min((int)(settings.pass_iters*1.1), 10000);
-            settings.camera = Camera.Params;
-            settings.rendersteps = rendersteps;
-            settings.enable_depthfog = EnableDepthFog?1:0;
+            //ez mennyire faj?
+            var settings = new Settings
+            {
+                pass_iters = pass_iters,
+                camera = CurrentParams.Camera.Params,
+                rendersteps = rendersteps,
+                enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
+                itnum = CurrentParams.Iterators.Count,
+            };
+
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
-            //e = Cl.EnqueueMarker(cq, out Event start);
+            cq.Finish();//
+
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
-            //cq.Finish();
+
+            pass_iters = Math.Min((int)(pass_iters * 1.1), 10000);
             rendersteps++;
+
+            cq.Finish();//
         }
 
         bool rendering = false;
@@ -246,7 +267,7 @@ namespace IFSEngine
             //{
             
             //cq.Finish();//
-            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , Brightness, Gamma }, dispsettingsbuf, false/**/, null);
+            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);
@@ -270,6 +291,7 @@ namespace IFSEngine
 
             UpdateDisplay();//ebbol event jon
 
+            cq.Finish();//
             cq.ReadFromBuffer(dispbuf, ref d, true, null);
 
             double[,][] o = new double[Width, Height][];

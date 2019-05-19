@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 
 using System.Windows.Forms;
-
-
-
+using IFSEngine.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -60,7 +58,8 @@ namespace GLDisplayWpf
             initGL();
             var ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             var raw_context_handle = ctx.Context.Handle;
-            r = new IFSEngine.Renderer(w, h, raw_context_handle, texID);
+            IFS Params = new IFS();
+            r = new IFSEngine.Renderer(Params, raw_context_handle, texID);
 
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
@@ -68,15 +67,21 @@ namespace GLDisplayWpf
             // Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
             // Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
 
-            IteratorManipulator.Randomize(r);
+            //IteratorManipulator.Randomize(r);
             //UpdateIteratorSelectedText();
 
-            iteratorWindow = new IteratorWindow((s, e) => { IteratorManipulator.Update(r); });
+            List<IFSEngine.Model.Iterator> pr = new List<IFSEngine.Model.Iterator>();
+            pr.Add(new IFSEngine.Model.Iterator(new IFSEngine.Model.Affine(), 1, 1, 1, 1, 1));
+            pr.Add(new IFSEngine.Model.Iterator(new IFSEngine.Model.Affine(), 0, 0, 0, 0, 0));
+            iteratorWindow = new IteratorWindow()
+            {
+                DataContext = pr
+            };
             iteratorWindow.Show();
 
             r.DisplayFrameCompleted += R_DisplayFrameCompleted;
-            r.RenderFrameCompleted += R_RenderFrameCompleted; ;
-
+            r.RenderFrameCompleted += R_RenderFrameCompleted;
+            
             r.StartRendering();
 
            // Task.Run(() =>
@@ -190,9 +195,11 @@ void main(void)
         {
             if (e.Button == MouseButtons.Left)
             {
-                r.Camera.Theta += (lastY - e.Y) / 100.0f;
-                r.Camera.Phi += (lastX - e.X) / 100.0f;
-                r.InvalidateAccumulation();
+                r.MutateCamera(c => {
+                    c.Theta += (lastY - e.Y) / 100.0f;
+                    c.Phi += (lastX - e.X) / 100.0f;
+                    return c;
+                });
             }
             lastX = e.X;
             lastY = e.Y;
@@ -255,11 +262,14 @@ void main(void)
             }
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
-                r.Camera.Translate(
-                    0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
-                    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
-                    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                r.InvalidateAccumulation();
+                r.MutateCamera(c =>
+                {
+                    c.Translate(
+                        0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                        0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                        0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                    return c;
+                });
             }
         }
 

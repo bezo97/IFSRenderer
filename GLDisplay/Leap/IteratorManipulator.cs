@@ -27,10 +27,13 @@ namespace GLDisplay.Leap
         private static int editState = 0;
         public static int EditState {
             get => editState;
-            private set => editState = (value + iterators.Count) % iterators.Count;
+            private set => editState = (value + Params.Iterators.Count) % Params.Iterators.Count;
         }
 
-        private static List<Iterator> iterators = new List<Iterator>() {
+        public static Renderer Renderer { get; set; }
+        public static IFS Params { get; set; }
+
+        /*private static List<Iterator> iterators = new List<Iterator>() {
             new Iterator(
                 new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
                 0,
@@ -55,24 +58,24 @@ namespace GLDisplay.Leap
                 1.0f,
                 1.0f
             )
-        };
+        };*/
 
         private static float SummWeights;
-        public static int IteratorCount => iterators.Count;
+        public static int IteratorCount => Params?.Iterators.Count ?? 0;
 
 
-        private static Iterator finalit = new Iterator(
+        /*private static Iterator finalit = new Iterator(
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
             0,//linear
             0.0f,
             0.0f,
             1.0f,
             1.0f
-        );
+        );*/
 
         private static Iterator Current {
-            get => iterators[EditState];
-            set => iterators[EditState] = value;
+            get => Params.Iterators[EditState];
+            set => Params.Iterators[EditState] = value;
         }
 
         private static void ModifyCurrent(Func<Iterator, Iterator> func)
@@ -87,7 +90,7 @@ namespace GLDisplay.Leap
             Swipe.RightSwiped += (s, e) =>
             {
                 EditState++;
-                if (EditState >= iterators.Count)
+                if (EditState >= Params.Iterators.Count)
                 {
                     EditState = 0;
                 }
@@ -97,68 +100,9 @@ namespace GLDisplay.Leap
                 EditState--;
                 if (EditState <= 0)
                 {
-                    EditState = iterators.Count - 1;
+                    EditState = Params.Iterators.Count - 1;
                 }
             };
-        }
-
-        public static void Randomize(Renderer r)
-        {
-            iterators.Clear();
-            SummWeights = 0.0f;
-            var itnum = rand.Next(5) + 2;
-
-            for (var ii = 0; ii < itnum; ii++)
-            {
-                var nit = new Iterator();
-                nit.aff.ox = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.oy = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.oz = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.xx = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.xy = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.xz = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.yx = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.yy = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.yz = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.zx = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.zy = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.aff.zz = ((float)rand.NextDouble() * 2 - 1) * 1.5f;
-                nit.w = (float)rand.NextDouble();
-                nit.cs = (float)(rand.NextDouble() * 2.0f - 1.0f) * 0.1f;
-                nit.ci = (float)rand.NextDouble();
-                nit.op = (float)rand.NextDouble();
-                nit.tfID = rand.Next() % 2;//spherical
-                iterators.Add(nit);
-
-                SummWeights += nit.w;
-            }
-            Update(r, true);
-            // for (var s = 0; s < itnum; s++)
-            // {
-            //     var tmpit = iterators[s];
-            //     tmpit.w /= SummWeights;
-            //     iterators[s] = tmpit;
-            // }
-            // r.Camera = new Camera();
-            // r.UpdateParams(iterators, finalit);
-            EditState = 0;
-        }
-
-        public static void Update(Renderer r, bool updateCamera = false)
-        {
-            var weightedIterators = iterators.ToList();
-            for (var s = 0; s < weightedIterators.Count; s++)
-            {
-                var tmpit = weightedIterators[s];
-                tmpit.w /= SummWeights;
-                weightedIterators[s] = tmpit;
-            }
-            SummWeights = 1;
-            if (updateCamera)
-            {
-                r.Camera = new Camera();
-            }
-            r.UpdateParams(weightedIterators, finalit);
         }
 
         public static void UpdateIterator(Hand left, Renderer r)
@@ -219,7 +163,7 @@ namespace GLDisplay.Leap
             }*/
             if (updateNeeded)
             {
-                Update(r);
+                r.UpdateParams(Params);
             }
         }
     }

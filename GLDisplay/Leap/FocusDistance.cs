@@ -23,8 +23,10 @@ namespace GLDisplay.Leap
 
                     float handDistance = 1.0f - (right.PalmPosition.z + 360.0f) / 360.0f;
 
-                    r.Camera.FocusDistance = 2.0f + handDistance * 8.0f;
-                    r.InvalidateAccumulation();
+                    r.MutateCamera(c => {
+                        c.FocusDistance = 2.0f + handDistance * 8.0f;
+                        return c;
+                    });
                 }
             }
         }
