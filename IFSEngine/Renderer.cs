@@ -189,10 +189,13 @@ namespace IFSEngine
             UpdateParams(mutator(CurrentParams));
         }
 
+        Stopwatch renderwatch = new Stopwatch();
+        Stopwatch displaywatch = new Stopwatch();
+
         public void RenderFrame()
         {
+            renderwatch.Restart();
             //if volt init()
-
             cq.Finish();//
 
             if (invalidAccumulation)
@@ -224,10 +227,9 @@ namespace IFSEngine
 
             cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
             cq.Finish();//
-
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
 
-            pass_iters = Math.Min((int)(pass_iters * 1.1), 10000);
+            pass_iters = Math.Min((int)(pass_iters * 1.1), 50000);
             rendersteps++;
 
             cq.Finish();//
@@ -253,6 +255,8 @@ namespace IFSEngine
         public event EventHandler DisplayFrameCompleted;
         private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
+            renderwatch.Stop();
+            Debug.WriteLine($"RENDER: {renderwatch.ElapsedMilliseconds}ms");
             ComputeEventsCollection.Remove(args.Event);
             RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (UpdateDisplayOnRender)
@@ -263,9 +267,10 @@ namespace IFSEngine
 
         public void UpdateDisplay()
         {
+            displaywatch.Restart();
             //Task.Run(() =>
             //{
-            
+
             //cq.Finish();//
             cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
@@ -279,6 +284,9 @@ namespace IFSEngine
 
         private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
         {
+            displaywatch.Stop();
+            Debug.WriteLine($"DISPLAY: {displaywatch.ElapsedMilliseconds}ms");
+
             DisplayEventsCollection.Remove(args.Event);
             DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
             if (rendering)

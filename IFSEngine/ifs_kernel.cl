@@ -296,8 +296,6 @@ __kernel void Main(
 			output[ipx+3] += color.w;//hany db, histogramhoz
 			//accepted_iters++;
 		}
-		else
-			continue;
 					
 	}
 

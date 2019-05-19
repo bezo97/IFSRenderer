@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -89,10 +90,13 @@ namespace GLDisplay
             
         }
 
+        Stopwatch fps = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
+            fps.Stop();
             display1.Invoke((MethodInvoker)delegate { Refresh(); });
-            //TODO: fps szamolas stb.
+            this.Invoke((MethodInvoker)delegate { Text = $"{(fps.ElapsedMilliseconds>0?1000/fps.ElapsedMilliseconds:0)} FPS"; });
+            fps.Restart();
         }
 
         int lastX;
