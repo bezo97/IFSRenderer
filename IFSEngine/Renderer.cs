@@ -200,7 +200,7 @@ namespace IFSEngine
 
             if (invalidAccumulation)
             {
-                cq.WriteToBuffer<float>(new float[Width * Height * 4], calcbuf, false, null);
+                cq.FillBuffer(calcbuf, new float[]{ 0.0f }, 0, Width*Height*4, null);
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
@@ -268,18 +268,19 @@ namespace IFSEngine
         public void UpdateDisplay()
         {
             displaywatch.Restart();
-            //Task.Run(() =>
-            //{
 
-            //cq.Finish();//
+            //cq.Finish();
+
             cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);
+            //cq.Finish();//
             if (texturetarget > -1)//van gl
                 cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+
             //cq.Finish();
-            //});
+
         }
 
         private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
