@@ -55,7 +55,7 @@ namespace IFSEngine.Model
                 nit.cs = (float)(rand.NextDouble() * 2.0f - 1.0f) * 0.1f;
                 nit.ci = (float)rand.NextDouble();
                 nit.op = (float)rand.NextDouble();
-                nit.tfID = rand.Next() % 2;//spherical
+                nit.tfID = rand.Next() % 3;//transform id
                 Iterators.Add(nit);
 
                 SummWeights += nit.w;
