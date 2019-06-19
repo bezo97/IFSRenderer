@@ -147,6 +147,29 @@ float3 Apply(Iterator it, float3 input)
 		float r = length(p);
 		p = p/(r*r);
 	}
+	else if(it.tfID==2)
+	{//waves
+		
+		/*		
+		vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
+		vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
+		vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
+		*/
+		float3 o;
+		float waves2_w = 0.999f;
+		float sx = 0.02f;
+		float sy = 0.01f;
+		float sz = -0.04f;
+		float fx = 20.0f;
+		float fy = 10.0f;
+		float fz = 10.0f;
+
+		o.x = waves2_w * fma(sx, sin(p.y * fx), p.x);
+		o.y = waves2_w * fma(sy, sin(p.z * fy), p.y);
+		o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
+
+		p = o;
+	}
 
 	return p;
 }

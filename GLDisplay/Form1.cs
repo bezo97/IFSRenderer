@@ -233,7 +233,7 @@ namespace GLDisplay
             r.MutateParams(p => p
                 .RandomizeParams()
                 .ResetCamera()
-            );
+            );            
             UpdateIteratorSelectedText();
         }
 
