@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GLDisplay.Leap;
+//using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
 using OpenTK;
@@ -35,7 +35,7 @@ namespace GLDisplay
 
         OpenTK.GLControl display1;
 
-        Leap.Leap leap;
+        //Leap.Leap leap;
 
         private int texID;
 
@@ -44,7 +44,7 @@ namespace GLDisplay
 
         void UpdateIteratorSelectedText()
         {
-            IteratorSelectLabel.Text = $"< ({IteratorManipulator.EditState + 1}) / {IteratorManipulator.IteratorCount} >";
+            //IteratorSelectLabel.Text = $"< ({IteratorManipulator.EditState + 1}) / {IteratorManipulator.IteratorCount} >";
         }
 
 
@@ -74,8 +74,8 @@ namespace GLDisplay
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
 
-            Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
-            Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
+            //Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
+            //Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
 
             //IteratorManipulator.Renderer = r;
             //IteratorManipulator.Params = Params;
