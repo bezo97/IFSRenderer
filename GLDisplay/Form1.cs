@@ -16,8 +16,9 @@ using System.Windows.Forms;
 //using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+//using OpenTK;
+//using OpenTK.Graphics.OpenGL;
+using OpenGL;
 
 namespace GLDisplay
 {
@@ -31,13 +32,14 @@ namespace GLDisplay
         [DllImport("user32.dll")]
         public extern static Int16 GetKeyState(Int16 nVirtKey);
 
-        IFSEngine.Renderer r;
+        IFSEngine.RendererGL r;
 
-        OpenTK.GLControl display1;
+        //OpenTK.GLControl display1;
+        OpenGL.GlControl display1;
 
         //Leap.Leap leap;
 
-        private int texID;
+        private uint texID;
 
         const int w = 1920;
         const int h = 1080;
@@ -54,22 +56,23 @@ namespace GLDisplay
             this.Width = w;
             this.Height = h;
             OpenTK.Toolkit.Init();//
-            display1 = new OpenTK.GLControl();
+            display1 = new OpenGL.GlControl();
             display1.Width = w;
             display1.Height = h;
             display1.Left = 0;//(this.ClientSize.Width - w) / 2;
             display1.Top = 0; //(this.ClientSize.Height - h) / 2;
             display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
-            display1.Paint += Display1_Paint;
-            display1.MakeCurrent();
+            //display1.Paint += Display1_Paint;
+            display1.Render += Display1_Render;
+            //display1.MakeCurrent();
             this.Controls.Add(display1);
             initGL();
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
             IntPtr raw_context_handle = ctx.Context.Handle;
 
             IFS Params = new IFS();
-            r = new IFSEngine.Renderer(Params, raw_context_handle, texID);
+            r = new IFSEngine.RendererGL(Params, raw_context_handle, texID);
             
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
@@ -83,6 +86,18 @@ namespace GLDisplay
 
             r.DisplayFrameCompleted += R_DisplayFrameCompleted;
             r.RenderFrameCompleted += R_RenderFrameCompleted; ;
+        }
+
+        private void Display1_Render(object sender, GlControlEventArgs e)
+        {
+            Gl.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
+            //Gl.Clear(ClearBufferMask.ColorBufferBit);
+            Gl.Begin(PrimitiveType.Quads);
+            Gl.Vertex2(0, 0);//0 0
+            Gl.Vertex2(0, 1);//0 1
+            Gl.Vertex2(1, 1);//1 1
+            Gl.Vertex2(1, 0);//1 0
+            Gl.End();
         }
 
         private void R_RenderFrameCompleted(object sender, EventArgs e)
@@ -115,73 +130,86 @@ namespace GLDisplay
             lastY = e.Y;
         }
 
-        private void Display1_Paint(object sender, PaintEventArgs e)
+        /*private void Display1_Paint(object sender, PaintEventArgs e)
         {
 
-            GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);//0 0
-                GL.Vertex2(0, 1);//0 1
-                GL.Vertex2(1, 1);//1 1
-                GL.Vertex2(1, 0);//1 0
-            GL.End();
+            Gl.Begin(PrimitiveType.Quads);
+                Gl.Vertex2(0, 0);//0 0
+                Gl.Vertex2(0, 1);//0 1
+                Gl.Vertex2(1, 1);//1 1
+                Gl.Vertex2(1, 0);//1 0
+            Gl.End();
 
             display1.SwapBuffers();
-        }
+            
+        }*/
         
         private void initGL()
         {
-            texID = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texID);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb32f/*cl float*/, w, h, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            texID = Gl.GenTexture();
+            Gl.BindTexture(TextureTarget.Texture2d, texID);
+            Gl.TexParameter(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            Gl.TexParameter(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba32f/*cl float*/, w, h, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
             //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texID, 0);
             //DrawBuffersEnum[] dbe = new DrawBuffersEnum[1];
             //dbe[0] = DrawBuffersEnum.ColorAttachment0;
             //GL.DrawBuffers(1, dbe);
-            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
                 Console.WriteLine("BAJBJABJABAJ");
-            GL.ActiveTexture(TextureUnit.Texture0);
+            Gl.ActiveTexture(TextureUnit.Texture0);
 
             var assembly = typeof(Form1).GetTypeInfo().Assembly;
 
-            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.vert")).ReadToEnd());
-            GL.CompileShader(vertexShader);
-            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
+            var vertexShader = Gl.CreateShader(ShaderType.VertexShader);
+            Gl.ShaderSource(vertexShader, new string[] { new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.vert")).ReadToEnd() });
+            Gl.CompileShader(vertexShader);
+            Gl.GetShader(vertexShader, ShaderParameterName.CompileStatus, out int status);
             if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(vertexShader)));
+            {
+                StringBuilder sb = new StringBuilder();
+                Gl.GetShaderInfoLog(vertexShader, 9999, out int dummy, sb);
+                throw new Exception(
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), sb.ToString()));
+            }
 
-            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            var fragmentShader = Gl.CreateShader(ShaderType.FragmentShader);
             string elo = $"#version 450 \n #extension GL_ARB_explicit_attrib_location : enable \n";
             elo += $"uniform int width={w}; \n uniform int height={h};\n";
-            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.frag")).ReadToEnd());
-            GL.CompileShader(fragmentShader);
-            GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
+            Gl.ShaderSource(fragmentShader, new string[] { elo + new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.frag")).ReadToEnd() });
+            Gl.CompileShader(fragmentShader);
+            Gl.GetShader(fragmentShader, ShaderParameterName.CompileStatus, out status);
             if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
-            int _program = GL.CreateProgram();
-            GL.AttachShader(_program, vertexShader);
-            GL.AttachShader(_program, fragmentShader);
-            GL.LinkProgram(_program);
-            GL.GetProgram(_program, ProgramParameter.LinkStatus, out status);
+            {
+                StringBuilder sb = new StringBuilder();
+                Gl.GetShaderInfoLog(fragmentShader, 9999, out int dummy, sb);
+                throw new Exception(
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), sb.ToString()));
+            }
+            uint _program = Gl.CreateProgram();
+            Gl.AttachShader(_program, vertexShader);
+            Gl.AttachShader(_program, fragmentShader);
+            Gl.LinkProgram(_program);
+            Gl.GetProgram(_program, ProgramProperty.LinkStatus, out status);
             if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error linking program: {0}", GL.GetProgramInfoLog(_program)));
+            {
+                StringBuilder sb = new StringBuilder();
+                Gl.GetProgramInfoLog(_program, 9999, out int dummy, sb);
+                throw new Exception(
+                    String.Format("Error linking program: {0}", sb.ToString()));
+            }
 
-            GL.DetachShader(_program, vertexShader);
-            GL.DetachShader(_program, fragmentShader);
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
+            Gl.DetachShader(_program, vertexShader);
+            Gl.DetachShader(_program, fragmentShader);
+            Gl.DeleteShader(vertexShader);
+            Gl.DeleteShader(fragmentShader);
 
-            GL.UseProgram(_program);
+            Gl.UseProgram(_program);
 
             //beallitjuk a texturat
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
+            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
 
-            GL.Viewport(0, 0, w, h);
+            Gl.Viewport(0, 0, w, h);
         }
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)

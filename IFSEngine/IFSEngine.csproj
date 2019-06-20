@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="Cloo.clSharp" Version="1.0.0" />
+    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
   </ItemGroup>
 
 </Project>
