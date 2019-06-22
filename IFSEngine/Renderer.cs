@@ -102,7 +102,7 @@ namespace IFSEngine
             prog1 = new Cloo.ComputeProgram(ctx, kernelSource);
             try
             {
-                prog1.Build(new ComputeDevice[] { device1 }, "", buildnotif, IntPtr.Zero);
+                prog1.Build(new ComputeDevice[] { device1 }, /*"-cl-mad-enable"*//*"-cl-unsafe-math-optimizations"*/"-cl-mad-enable -cl-no-signed-zeros -cl-denorms-are-zero -cl-single-precision-constant", buildnotif, IntPtr.Zero);
             }
             catch (Cloo.BuildProgramFailureComputeException)
             {
@@ -207,13 +207,18 @@ namespace IFSEngine
 
                 if (invalidParams)
                 {
-                    cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);//ezt gyakrabban?
+                    cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
                     cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
                     invalidParams = false;
                 }
-            }           
+            }
+
+            if (pass_iters > 10000)//TODO: pass_iters helyett ossz. iterszam
+            {
+                cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, true, null);
+            }
 
             //ez mennyire faj?
             var settings = new Settings

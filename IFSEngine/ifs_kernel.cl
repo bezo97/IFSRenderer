@@ -489,15 +489,15 @@ __kernel void Display(__global float* calc, __global float* disp, __write_only i
 {
 	int gid = get_global_id(0);
 
-	//float  = settings[0];//int //quality
-	//float brightness = settings[1];
-	//float gamma = settings[2];
+	//settings[0] rendersteps
+	//settings[1] Brightness
+	//settings[2] Gamma
 
 	float3 acc_color = (float3)(calc[gid*4+0], calc[gid*4+1], calc[gid*4+2]);//accumulated color
 
 	float acc_histogram = calc[gid*4+3];//how many times this pixel was hit
 
-	float logscale = (settings[1] * log(1.0f + acc_histogram / (settings[0]/settings[2]))) / acc_histogram;
+	float logscale = (settings[1] * native_log(1.0f + acc_histogram / (settings[0]/settings[2]))) / acc_histogram;
 	//float logscale = settings[1] * exp(log(acc_histogram/settings[0]) / settings[2]); //ez vmi mas
 	float3 logscaled_color = logscale * acc_color;
 	//float3 linearscaled_color = acc_color / settings[0];
