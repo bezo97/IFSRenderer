@@ -28,6 +28,9 @@ uniform bool Display;
 void main() {
 	uint gid = gl_GlobalInvocationID.x;
 	pointsstate[gid].x = pointsstate[gid].x + 1;
-	ivec2 p = ivec2(pointsstate[gid].x, pointsstate[gid].y);
-	imageStore(img_output, p, vec4(1.0,0.0,0.0,1.0));
+	if (Display)
+	{
+		ivec2 p = ivec2(pointsstate[gid].x, pointsstate[gid].y);
+		imageStore(img_output, p, vec4(1.0, 0.0, 0.0, 1.0));
+	}
 }

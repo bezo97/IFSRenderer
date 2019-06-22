@@ -54,9 +54,13 @@ namespace IFSEngine
         private CLEventCollection DisplayEventsCollection;*/
 
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
-        int dispTexH;
         int histogramH;
         int computeProgramH;
+
+        //display
+        private int dispTexH;
+        private int displayProgramH;
+
         Random rgen = new Random();
         public int rendersteps = 0;
         private bool updateDisplayNow=false;
@@ -70,109 +74,19 @@ namespace IFSEngine
         /// </summary>
         public IFS CurrentParams { get; private set; }
 
-        public RendererGL(IFS Params) : this(Params, null) { }
-        public RendererGL(IFS Params, int? texturetarget)
+        public RendererGL(IFS Params) : this(Params, 1920, 1080) { }
+        public RendererGL(IFS Params, int w, int h)
         {
             UpdateParams(Params);
-            //ComputeEventsCollection = new CLEventCollection(this.RenderFrame_Completed);
-            //DisplayEventsCollection = new CLEventCollection(this.DisplayFrame_Completed);
+            MutateParams(p =>{
+                p.Camera.Width = w;
+                p.Camera.Height = h;
+                return p;
+            });
 
+            initDisplay();
+            initRenderer();
 
-            //assemble source string
-            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.compute");
-            string computeShaderSource = "";
-            computeShaderSource += new StreamReader(resource).ReadToEnd();
-
-            Debug.WriteLine("init openGL..");
-
-            //platforms, devices
-
-            //cq from ctx
-            //compute program from source
-            int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
-            GL.ShaderSource(computeShaderH, computeShaderSource );
-            GL.CompileShader(computeShaderH);
-            Console.WriteLine(GL.GetShaderInfoLog(computeShaderH));
-
-            computeProgramH = GL.CreateProgram();
-            GL.AttachShader(computeProgramH, computeShaderH);
-            GL.LinkProgram(computeProgramH);//build
-            Console.WriteLine(GL.GetProgramInfoLog(computeProgramH));
-            GL.UseProgram(computeProgramH);//EZKELL?
-
-            //create kernels from program
-
-            //calc, disp buffers Width * Height * 4);//rgba
-
-            //points state storage buffer
-            int pointsbufH = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-            Vector4[] deb = new Vector4[4 * threadcnt];
-            Random r = new Random();
-            for(int i=0;i<deb.Length;i++)
-            {
-                deb[i] = new Vector4(r.Next(Width), r.Next(Height), 0, 0);
-            }
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy/**/);
-
-            if (texturetarget!=null)
-            {
-                //use texture texturetarget
-            }
-            else
-            {
-                //TODO: new texture Rgba, ComputeImageChannelType.Float), Width, Height
-            }
-
-            //histogram
-            // dimensions of the image
-            histogramH = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture1);//ebben a unitban
-            GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-            GL.BindImageTexture(0/**/, histogramH, 0, false, 0, TextureAccess.ReadWrite/**/, SizedInternalFormat.Rgba32f);//EZ KELL?
-                                                                                                                          //GL.Accum(AccumOp.Load, 0);
-
-            //Uniforms
-            //dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
-            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
-            //settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
-            //pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
-            //rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);*/
-
-            //set uniforms
-            GL.UseProgram(computeProgramH);//setterek erre vonatkoznak
-
-            /* computekernel.SetMemoryArgument(0, calcbuf);
-             //computekernel.SetMemoryArgument(1, randbuf);
-             computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
-             computekernel.SetMemoryArgument(2, settingsbuf);
-             computekernel.SetMemoryArgument(3, pointsstatebuf);
-             computekernel.SetMemoryArgument(4, rng_states);
-
-             displaykernel.SetMemoryArgument(0, calcbuf);
-             displaykernel.SetMemoryArgument(1, dispbuf);
-             displaykernel.SetMemoryArgument(2, dispimg);
-             displaykernel.SetMemoryArgument(3, dispsettingsbuf);*/
-
-            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
-            //GL.BindTexture(TextureTarget.Texture2D, texturetarget??0);//ezt a texture objectet parameterezzuk
-            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "img_output"), 0);
-
-            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
-            //GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
-            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "histogram"), 0);
-
-            //layout binds
-            GL.BindImageTexture(0/**/, texturetarget ?? 0, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
-
-
-            Console.WriteLine(GL.GetError().ToString());
         }
 
         private bool invalidAccumulation = false;
@@ -263,6 +177,16 @@ namespace IFSEngine
 
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
+                GL.UseProgram(displayProgramH);
+                //GL.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
+                //GL.Clear(ClearBufferMask.ColorBufferBit);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Vertex2(0, 0);//0 0
+                GL.Vertex2(0, 1);//0 1
+                GL.Vertex2(1, 1);//1 1
+                GL.Vertex2(1, 0);//1 0
+                GL.End();
+
                 DisplayFrameCompleted?.Invoke(this, null);
                 updateDisplayNow = false;
             }
@@ -362,6 +286,169 @@ namespace IFSEngine
             //TODO: image save netstandardbol?
 
             return o;
+        }
+
+        private void initDisplay()
+        {
+            dispTexH = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f/*cl float*/, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texID, 0);
+            //DrawBuffersEnum[] dbe = new DrawBuffersEnum[1];
+            //dbe[0] = DrawBuffersEnum.ColorAttachment0;
+            //GL.DrawBuffers(1, dbe);
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+                Console.WriteLine("BAJBJABJABAJ");
+
+            // Because we're also using this tex as an image (in order to write to it),
+            // we bind it to an image unit as well
+            GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//EZKELL?
+
+            var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
+
+            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vertexShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.vert")).ReadToEnd());
+            GL.CompileShader(vertexShader);
+            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
+            if (status == 0)
+            {
+                throw new GraphicsException(
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(vertexShader)));
+            }
+
+            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            string elo = $"#version 450 \n #extension GL_ARB_explicit_attrib_location : enable \n";
+            elo += $"uniform int width={Width}; \n uniform int height={Height};\n";
+            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag")).ReadToEnd());
+            GL.CompileShader(fragmentShader);
+            GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
+            if (status == 0)
+            {
+                throw new GraphicsException(
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
+            }
+            displayProgramH = GL.CreateProgram();
+            GL.AttachShader(displayProgramH, vertexShader);
+            GL.AttachShader(displayProgramH, fragmentShader);
+            GL.LinkProgram(displayProgramH);
+            GL.GetProgram(displayProgramH, GetProgramParameterName.LinkStatus, out status);
+            if (status == 0)
+            {
+                throw new GraphicsException(
+                    String.Format("Error linking program: {0}", GL.GetProgramInfoLog(displayProgramH)));
+            }
+
+            GL.DetachShader(displayProgramH, vertexShader);
+            GL.DetachShader(displayProgramH, fragmentShader);
+            GL.DeleteShader(vertexShader);
+            GL.DeleteShader(fragmentShader);
+
+            GL.UseProgram(displayProgramH);
+
+            //beallitjuk a texturat
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
+
+            GL.Viewport(0, 0, Width, Height);
+        }
+
+        private void initRenderer()
+        {
+
+            //assemble source string
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.compute");
+            string computeShaderSource = "";
+            computeShaderSource += new StreamReader(resource).ReadToEnd();
+
+            Debug.WriteLine("init openGL..");
+
+            //platforms, devices
+
+            //cq from ctx
+            //compute program from source
+            int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
+            GL.ShaderSource(computeShaderH, computeShaderSource);
+            GL.CompileShader(computeShaderH);
+            Console.WriteLine(GL.GetShaderInfoLog(computeShaderH));
+
+            computeProgramH = GL.CreateProgram();
+            GL.AttachShader(computeProgramH, computeShaderH);
+            GL.LinkProgram(computeProgramH);//build
+            Console.WriteLine(GL.GetProgramInfoLog(computeProgramH));
+            GL.UseProgram(computeProgramH);//EZKELL?
+
+            //create kernels from program
+
+            //calc, disp buffers Width * Height * 4);//rgba
+
+            //points state storage buffer
+            int pointsbufH = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+            Vector4[] deb = new Vector4[4 * threadcnt];
+            Random r = new Random();
+            for (int i = 0; i < deb.Length; i++)
+            {
+                deb[i] = new Vector4(r.Next(10,Width-10), r.Next(10,Height-10), 0, 0);
+            }
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy/**/);
+
+            /*if (texID != null)
+            {
+                //use texture texturetarget
+            }
+            else
+            {
+                //TODO: new texture Rgba, ComputeImageChannelType.Float), Width, Height
+            }*/
+
+            //histogram
+            // dimensions of the image
+            histogramH = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture1);//ebben a unitban
+            GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
+            GL.BindImageTexture(0/**/, histogramH, 0, false, 0, TextureAccess.ReadWrite/**/, SizedInternalFormat.Rgba32f);//EZ KELL?
+                                                                                                                          //GL.Accum(AccumOp.Load, 0);
+
+            //Uniforms
+            //dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
+            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
+            //settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
+            //pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
+            //rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);*/
+
+            //set uniforms
+            GL.UseProgram(computeProgramH);//setterek erre vonatkoznak
+
+            /* computekernel.SetMemoryArgument(0, calcbuf);
+             //computekernel.SetMemoryArgument(1, randbuf);
+             computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
+             computekernel.SetMemoryArgument(2, settingsbuf);
+             computekernel.SetMemoryArgument(3, pointsstatebuf);
+             computekernel.SetMemoryArgument(4, rng_states);
+
+             displaykernel.SetMemoryArgument(0, calcbuf);
+             displaykernel.SetMemoryArgument(1, dispbuf);
+             displaykernel.SetMemoryArgument(2, dispimg);
+             displaykernel.SetMemoryArgument(3, dispsettingsbuf);*/
+
+            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
+            //GL.BindTexture(TextureTarget.Texture2D, texturetarget??0);//ezt a texture objectet parameterezzuk
+            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "img_output"), 0);
+
+            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
+            //GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
+            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "histogram"), 0);
+
+            //layout binds
+            GL.BindImageTexture(0/**/, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
         }
 
         public void Dispose()

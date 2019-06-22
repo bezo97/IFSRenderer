@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove="glsl\Display.frag" />
+    <None Remove="glsl\Display.vert" />
     <None Remove="glsl\ifs_kernel.compute" />
     <None Remove="ifs_kernel.cl" />
     <None Remove="mwc64x.cl" />
@@ -15,6 +16,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="glsl\Display.frag" />
+    <EmbeddedResource Include="glsl\Display.vert" />
     <EmbeddedResource Include="glsl\ifs_kernel.compute" />
     <EmbeddedResource Include="ifs_kernel.cl" />
     <EmbeddedResource Include="mwc64x.cl">
