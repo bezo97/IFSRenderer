@@ -6,7 +6,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-using OpenGL;
+//using OpenGL;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 using System.Linq;
 
@@ -21,7 +23,7 @@ namespace IFSEngine
         [DllImport("opengl32.dll")]
         extern static IntPtr wglGetCurrentDC();
 
-        ComputePlatform platf;
+        /*ComputePlatform platf;
         static ComputeDevice device1;
         ComputeContext ctx;
         ComputeCommandQueue cq;
@@ -49,12 +51,15 @@ namespace IFSEngine
         });
 
         private CLEventCollection ComputeEventsCollection;
-        private CLEventCollection DisplayEventsCollection;
+        private CLEventCollection DisplayEventsCollection;*/
 
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
-        int texturetarget;
+        int dispTexH;
+        int histogramH;
+        int computeProgramH;
         Random rgen = new Random();
         public int rendersteps = 0;
+        private bool updateDisplayNow=false;
 
         //
         public int Width => CurrentParams.Camera.Width;
@@ -65,81 +70,109 @@ namespace IFSEngine
         /// </summary>
         public IFS CurrentParams { get; private set; }
 
-        public RendererGL(IFS Params) : this(Params, new IntPtr(0), -1) { }
-        public RendererGL(IFS Params, IntPtr glctxh, uint texturetarget)
+        public RendererGL(IFS Params) : this(Params, null) { }
+        public RendererGL(IFS Params, int? texturetarget)
         {
             UpdateParams(Params);
-            this.texturetarget = texturetarget;
-            ComputeEventsCollection = new CLEventCollection(this.RenderFrame_Completed);
-            DisplayEventsCollection = new CLEventCollection(this.DisplayFrame_Completed);
+            //ComputeEventsCollection = new CLEventCollection(this.RenderFrame_Completed);
+            //DisplayEventsCollection = new CLEventCollection(this.DisplayFrame_Completed);
 
-            //e.OnAnyError(ec => throw new Exception(ec.ToString()));
 
-            string kernelSource = "#define width (" + Width + ")\r\n";
-            kernelSource += "#define height (" + Height + ")\r\n";
-            //kernelSource += "#define max_iters (" + max_iters + ")\r\n";
-            var assembly = typeof(Renderer).GetTypeInfo().Assembly;
-            Stream resource = assembly.GetManifestResourceStream("IFSEngine.ifs_kernel.cl");
-            kernelSource += new StreamReader(resource).ReadToEnd();
+            //assemble source string
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.compute");
+            string computeShaderSource = "";
+            computeShaderSource += new StreamReader(resource).ReadToEnd();
 
-            Debug.WriteLine("init opencl..");
-            //platf = ComputePlatform.Platforms[0];
-            platf = ComputePlatform.Platforms.Where(pl => pl.Name == "NVIDIA CUDA").First();
-            device1 = platf.Devices[0];//TODO: minden platform
+            Debug.WriteLine("init openGL..");
 
-            if (glctxh.ToInt32() > 0)
+            //platforms, devices
+
+            //cq from ctx
+            //compute program from source
+            int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
+            GL.ShaderSource(computeShaderH, computeShaderSource );
+            GL.CompileShader(computeShaderH);
+            Console.WriteLine(GL.GetShaderInfoLog(computeShaderH));
+
+            computeProgramH = GL.CreateProgram();
+            GL.AttachShader(computeProgramH, computeShaderH);
+            GL.LinkProgram(computeProgramH);//build
+            Console.WriteLine(GL.GetProgramInfoLog(computeProgramH));
+            GL.UseProgram(computeProgramH);//EZKELL?
+
+            //create kernels from program
+
+            //calc, disp buffers Width * Height * 4);//rgba
+
+            //points state storage buffer
+            int pointsbufH = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+            Vector4[] deb = new Vector4[4 * threadcnt];
+            Random r = new Random();
+            for(int i=0;i<deb.Length;i++)
             {
-                IntPtr raw_context_handle = glctxh;
-                ComputeContextProperty p1 = new ComputeContextProperty(ComputeContextPropertyName.CL_GL_CONTEXT_KHR, raw_context_handle);
-                ComputeContextProperty p2 = new ComputeContextProperty(ComputeContextPropertyName.CL_WGL_HDC_KHR, wglGetCurrentDC());
-                ComputeContextProperty p3 = new ComputeContextProperty(ComputeContextPropertyName.Platform, platf.Handle.Value);
-                List<ComputeContextProperty> props = new List<ComputeContextProperty>() { p1, p2, p3 };
-                ComputeContextPropertyList Properties = new ComputeContextPropertyList(props);
-                ctx = new ComputeContext(ComputeDeviceTypes.Gpu, Properties, contextnotif, IntPtr.Zero);
+                deb[i] = new Vector4(r.Next(Width), r.Next(Height), 0, 0);
+            }
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy/**/);
+
+            if (texturetarget!=null)
+            {
+                //use texture texturetarget
             }
             else
-                ctx = new Cloo.ComputeContext(new ComputeDevice[] { device1 }, new ComputeContextPropertyList(platf), contextnotif, IntPtr.Zero);
-            cq = new Cloo.ComputeCommandQueue(ctx, /*glcq?*/device1, ComputeCommandQueueFlags.Profiling/*None*/);
-            prog1 = new Cloo.ComputeProgram(ctx, kernelSource);
-            try
             {
-                prog1.Build(new ComputeDevice[] { device1 }, "", buildnotif, IntPtr.Zero);
+                //TODO: new texture Rgba, ComputeImageChannelType.Float), Width, Height
             }
-            catch (Cloo.BuildProgramFailureComputeException)
-            {
-                Debug.WriteLine("BUILD ERROR: " + prog1.GetBuildLog(device1));
-                return;
-            }
-            computekernel = prog1.CreateKernel("Main");
-            displaykernel = prog1.CreateKernel("Display");
 
-            //randbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, maxthreadcnt * (/*max_iters*/10000 + 2));
-            calcbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, Width * Height * 4);//rgba
-            dispbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.WriteOnly, Width * Height * 4);//rgba
-            if (glctxh.ToInt32() > 0)
-            {
-                dispimg = Cloo.ComputeImage2D.CreateFromGLTexture2D(ctx, ComputeMemoryFlags.WriteOnly, 3553/*gl texture2d*/, 0, texturetarget);
-                //dispimg = Cloo.ComputeImage2D.CreateFromGLRenderbuffer(ctx, ComputeMemoryFlags.WriteOnly, texturetarget/*buffertarget*/);
-            }
-            else
-                dispimg = new Cloo.ComputeImage2D(ctx, ComputeMemoryFlags.WriteOnly, new ComputeImageFormat(ComputeImageChannelOrder.Rgba, ComputeImageChannelType.Float), Width, Height, 0, IntPtr.Zero);
-            dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
-            iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
-            settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
-            pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
-            rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);
+            //histogram
+            // dimensions of the image
+            histogramH = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture1);//ebben a unitban
+            GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
+            GL.BindImageTexture(0/**/, histogramH, 0, false, 0, TextureAccess.ReadWrite/**/, SizedInternalFormat.Rgba32f);//EZ KELL?
+                                                                                                                          //GL.Accum(AccumOp.Load, 0);
 
-            computekernel.SetMemoryArgument(0, calcbuf);
-            //computekernel.SetMemoryArgument(1, randbuf);
-            computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
-            computekernel.SetMemoryArgument(2, settingsbuf);
-            computekernel.SetMemoryArgument(3, pointsstatebuf);
-            computekernel.SetMemoryArgument(4, rng_states);
+            //Uniforms
+            //dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
+            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
+            //settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
+            //pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
+            //rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);*/
 
-            displaykernel.SetMemoryArgument(0, calcbuf);
-            displaykernel.SetMemoryArgument(1, dispbuf);
-            displaykernel.SetMemoryArgument(2, dispimg);
-            displaykernel.SetMemoryArgument(3, dispsettingsbuf);
+            //set uniforms
+            GL.UseProgram(computeProgramH);//setterek erre vonatkoznak
+
+            /* computekernel.SetMemoryArgument(0, calcbuf);
+             //computekernel.SetMemoryArgument(1, randbuf);
+             computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
+             computekernel.SetMemoryArgument(2, settingsbuf);
+             computekernel.SetMemoryArgument(3, pointsstatebuf);
+             computekernel.SetMemoryArgument(4, rng_states);
+
+             displaykernel.SetMemoryArgument(0, calcbuf);
+             displaykernel.SetMemoryArgument(1, dispbuf);
+             displaykernel.SetMemoryArgument(2, dispimg);
+             displaykernel.SetMemoryArgument(3, dispsettingsbuf);*/
+
+            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
+            //GL.BindTexture(TextureTarget.Texture2D, texturetarget??0);//ezt a texture objectet parameterezzuk
+            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "img_output"), 0);
+
+            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
+            //GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
+            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "histogram"), 0);
+
+            //layout binds
+            GL.BindImageTexture(0/**/, texturetarget ?? 0, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
+
+
+            Console.WriteLine(GL.GetError().ToString());
         }
 
         private bool invalidAccumulation = false;
@@ -164,22 +197,6 @@ namespace IFSEngine
 
         public void UpdateParams(IFS newParams)
         {
-            //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);
-            /*//if (its.Count != this.its.Count)
-            {
-                //var bufferHandle = iteratorsbuf?.Handle;
-                iteratorsbuf?.Dispose();//ez miert nem szall el
-                iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, its.Count + 1);//its+final
-                computekernel.Set0MemoryArgument(1, iteratorsbuf);
-            }*/
-            /*this.its = its;
-            this.finalit = finalit;
-            //rendersteps = 0;
-            this.settings.itnum = its.Count;*/
-            /*List<Iterator> its_and_final = new List<Iterator>(its);
-            its_and_final.Add(finalit);
-            cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);*/
-
             CurrentParams = newParams;
 
             invalidParams = true;
@@ -191,27 +208,29 @@ namespace IFSEngine
         }
 
         Stopwatch renderwatch = new Stopwatch();
-        Stopwatch displaywatch = new Stopwatch();
 
         public void RenderFrame()
         {
             renderwatch.Restart();
             //if volt init()
-            cq.Finish();//
+
+            GL.Finish();
 
             if (invalidAccumulation)
             {
-                cq.FillBuffer(calcbuf, new float[] { 0.0f }, 0, Width * Height * 4, null);
+                //TODO: reset accumulation
+                //GL.ClearAccum(0, 0, 0, 0);
+                GL.ClearTexImage(histogramH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
 
                 if (invalidParams)
                 {
-                    cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);//ezt gyakrabban?
+                    //TODO: update pointsstate uniform StartingDistributions.UniformUnitCube(threadcnt)
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
-                    cq.WriteToBuffer<Iterator>(its_and_final.ToArray(), iteratorsbuf, false, null);
+                    //TODO: update Iterators uniform, its_and_final
                     invalidParams = false;
                 }
             }
@@ -226,14 +245,28 @@ namespace IFSEngine
                 itnum = CurrentParams.Iterators.Count,
             };
 
-            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
-            cq.Finish();//
-            cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
+            //TODO: update Settings uniform
+            GL.UseProgram(computeProgramH);
+            if (updateDisplayNow || UpdateDisplayOnRender)
+                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "Display"), 1);
+            else
+                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "Display"), 0);
+            GL.Finish();
+            GL.DispatchCompute(threadcnt, 1, 1);
+
+            GL.Finish();
+            //GL.Accum(AccumOp.Accum, 1.0f/rendersteps);
 
             pass_iters = Math.Min((int)(pass_iters * 1.1), 50000);
             rendersteps++;
 
-            cq.Finish();//
+
+            if (updateDisplayNow || UpdateDisplayOnRender)
+            {
+                DisplayFrameCompleted?.Invoke(this, null);
+                updateDisplayNow = false;
+            }
+
         }
 
         bool rendering = false;
@@ -243,7 +276,16 @@ namespace IFSEngine
             if (!rendering)
             {
                 rendering = true;
-                RenderFrame();
+
+                /*new System.Threading.Thread(() =>
+                {//gl nem hivhato mas threadrol
+                    while (rendering)
+                        RenderFrame();
+                }).Start();*/
+
+                while(rendering)
+                    RenderFrame();
+
             }
         }
         public void StopRendering()
@@ -252,47 +294,48 @@ namespace IFSEngine
         }
 
         public bool UpdateDisplayOnRender { get; set; } = true;
-        public event EventHandler RenderFrameCompleted;
+        //public event EventHandler RenderFrameCompleted;
         public event EventHandler DisplayFrameCompleted;
-        private void RenderFrame_Completed(object sender, ComputeCommandStatusArgs args)
+
+        /*private void RenderFrame_Completed(object sender, object args)
         {
             renderwatch.Stop();
             Debug.WriteLine($"RENDER: {renderwatch.ElapsedMilliseconds}ms");
-            ComputeEventsCollection.Remove(args.Event);
-            RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
-            if (UpdateDisplayOnRender)
-                UpdateDisplay();
-            else if (rendering)
-                RenderFrame();
-        }
+            //RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
+            //if (UpdateDisplayOnRender)
+            //{
+            //    UpdateDisplay();
+            //    DisplayFrameCompleted?.Invoke(this, null);
+            //}
+            if (rendering)
+                Parallel.Invoke(RenderFrame);
+        }*/
 
         public void UpdateDisplay()
         {
-            displaywatch.Restart();
+            //displaywatch.Restart();
 
-            //cq.Finish();
+            //TODO: update uniform: rendersteps , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma 
 
-            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
-            if (texturetarget > -1)//van gl
-                cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
-            cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);
-            //cq.Finish();//
-            if (texturetarget > -1)//van gl
-                cq.ReleaseGLObjects(new ComputeMemory[] { dispimg }, null);//
+            //make sure writing to image has finished before read
+            //GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
 
-            //cq.Finish();
+            //GL.Finish();
 
-        }
+            updateDisplayNow = true;
 
-        private void DisplayFrame_Completed(object sender, ComputeCommandStatusArgs args)
-        {
-            displaywatch.Stop();
-            Debug.WriteLine($"DISPLAY: {displaywatch.ElapsedMilliseconds}ms");
+            //GL.Accum(AccumOp.Return, 1.0f);
 
-            DisplayEventsCollection.Remove(args.Event);
-            DisplayFrameCompleted?.Invoke(this, null);//TODO: pass useful args
-            if (rendering)
-                RenderFrame();
+            //GL.Clear(ClearBufferMask.ColorBufferBit);
+            //GL.UseProgram(quad_program);
+            //GL.BindVertexArray(quad_vao);
+            //GL.ActiveTexture(GL_TEXTURE0);
+            //GL.BindTexture(GL_TEXTURE_2D, tex_output);
+            //GL.DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+            //TODO: dispatch display kernel, Width * Height
+            //DisplayFrame_Completed(this, null);
+
         }
 
         public double[,][] GenerateImage()
@@ -300,9 +343,10 @@ namespace IFSEngine
             float[] d = new float[Width * Height * 4];//rgba
 
             UpdateDisplay();//ebbol event jon
+            RenderFrame();
 
-            cq.Finish();//
-            cq.ReadFromBuffer(dispbuf, ref d, true, null);
+            GL.Finish();
+            //TODO: read display texture
 
             double[,][] o = new double[Width, Height][];
             for (int x = 0; x < Width; x++)
@@ -323,17 +367,7 @@ namespace IFSEngine
         public void Dispose()
         {
             rendering = false;
-            cq.Finish();//wait until queue is empty
-
-            calcbuf.Dispose();
-            dispbuf.Dispose();
-            iteratorsbuf.Dispose();
-            pointsstatebuf.Dispose();
-
-            prog1.Dispose();
-            computekernel.Dispose();
-            cq.Dispose();
-            ctx.Dispose();
+            //TOOD: dispose
         }
 
     }
