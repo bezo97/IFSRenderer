@@ -56,6 +56,7 @@ namespace IFSEngine
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
         int histogramH;
         int computeProgramH;
+        int settingsbufH;
 
         //display
         private int dispTexH;
@@ -135,6 +136,7 @@ namespace IFSEngine
                 //TODO: reset accumulation
                 //GL.ClearAccum(0, 0, 0, 0);
                 GL.ClearTexImage(histogramH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
+                GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
@@ -144,7 +146,10 @@ namespace IFSEngine
                     //TODO: update pointsstate uniform StartingDistributions.UniformUnitCube(threadcnt)
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
-                    //TODO: update Iterators uniform, its_and_final
+
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count* 16*sizeof(float) * 1*sizeof(int), its_and_final.ToArray(), BufferUsageHint.DynamicCopy/**/);
+
                     invalidParams = false;
                 }
             }
@@ -158,6 +163,9 @@ namespace IFSEngine
                 enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
                 itnum = CurrentParams.Iterators.Count,
             };
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicCopy/**/);
+
 
             //TODO: update Settings uniform
             GL.UseProgram(computeProgramH);
@@ -194,6 +202,7 @@ namespace IFSEngine
         }
 
         bool rendering = false;
+        private int itersbufH;
 
         public void StartRendering()
         {
@@ -386,7 +395,7 @@ namespace IFSEngine
             //points state storage buffer
             int pointsbufH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-            Vector4[] deb = new Vector4[4 * threadcnt];
+            Vector4[] deb = new Vector4[threadcnt];
             Random r = new Random();
             for (int i = 0; i < deb.Length; i++)
             {
@@ -394,27 +403,20 @@ namespace IFSEngine
             }
             GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy/**/);
 
-            /*if (texID != null)
-            {
-                //use texture texturetarget
-            }
-            else
-            {
-                //TODO: new texture Rgba, ComputeImageChannelType.Float), Width, Height
-            }*/
-
             //histogram
-            // dimensions of the image
-            histogramH = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture1);//ebben a unitban
-            GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-            GL.BindImageTexture(0/**/, histogramH, 0, false, 0, TextureAccess.ReadWrite/**/, SizedInternalFormat.Rgba32f);//EZ KELL?
-                                                                                                                          //GL.Accum(AccumOp.Load, 0);
+            int histogramH = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
+
+            //settings
+            settingsbufH = GL.GenBuffer();
+            //GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
+            //GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*sizeof(int), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
+
+            //settings
+            itersbufH = GL.GenBuffer();
+            //GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
+            //GL.BufferData(BufferTarget.ShaderStorageBuffer, , , BufferUsageHint.DynamicCopy/**/);
 
             //Uniforms
             //dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
@@ -438,17 +440,12 @@ namespace IFSEngine
              displaykernel.SetMemoryArgument(2, dispimg);
              displaykernel.SetMemoryArgument(3, dispsettingsbuf);*/
 
-            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
-            //GL.BindTexture(TextureTarget.Texture2D, texturetarget??0);//ezt a texture objectet parameterezzuk
-            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "img_output"), 0);
-
-            //GL.ActiveTexture(TextureUnit.Texture0);//ebben a unitban
-            //GL.BindTexture(TextureTarget.Texture2D, histogramH);//ezt a texture objectet parameterezzuk
-            //GL.Uniform1(GL.GetUniformLocation(computeProgramH, "histogram"), 0);
-
             //layout binds
             GL.BindImageTexture(0/**/, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1/**/, histogramH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3/**/, settingsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4/**/, itersbufH);
         }
 
         public void Dispose()
