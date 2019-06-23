@@ -70,6 +70,10 @@ namespace IFSEngine
         public int Width => CurrentParams.Camera.Width;
         public int Height => CurrentParams.Camera.Height;
 
+        //TODO: ehelyett jobbat kitalalni, ezekhez nem kell Mutate()
+        public float Brightness { get => CurrentParams.Brightness; set => CurrentParams.Brightness = value; }
+        public float Gamma { get => CurrentParams.Gamma; set => CurrentParams.Gamma = value; }
+
         /// <summary>
         /// Use <see cref="UpdateParams(IFS)"/> to set params
         /// </summary>
@@ -129,25 +133,23 @@ namespace IFSEngine
             renderwatch.Restart();
             //if volt init()
 
-            GL.Finish();
+            //GL.Finish();
             GL.UseProgram(computeProgramH);
 
             if (invalidAccumulation)
             {
                 //reset accumulation
-                //GL.ClearTexImage(histogramH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-                GL.BufferData(BufferTarget.ShaderStorageBuffer, Width*Height*4 * sizeof(float), new IntPtr(0), BufferUsageHint.DynamicCopy/**/);
-                //GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
+                GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
 
                 if (invalidParams)
                 {
-                    //TODO: update pointsstate uniform StartingDistributions.UniformUnitCube(threadcnt)
+                    //update pointsstate
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy/**/);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy/**/);
 
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
@@ -171,25 +173,21 @@ namespace IFSEngine
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicCopy/**/);
 
-            //GL.UseProgram(computeProgramH);
-            if (updateDisplayNow || UpdateDisplayOnRender)
-                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "Display"), 1);
-            else
-                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "Display"), 0);
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
 
-            GL.Finish();
-            //GL.Accum(AccumOp.Accum, 1.0f/rendersteps);
-
             pass_iters = Math.Min((int)(pass_iters * 1.1), 50000);
             rendersteps++;
+            //GL.Finish();
+
 
 
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
                 GL.UseProgram(displayProgramH);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "rendersteps"), rendersteps);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), Brightness);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), Gamma);
                 //GL.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
                 //GL.Clear(ClearBufferMask.ColorBufferBit);
                 GL.Begin(PrimitiveType.Quads);
@@ -455,6 +453,9 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3/**/, settingsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4/**/, itersbufH);
+
+            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), Height);
         }
 
         public void Dispose()

@@ -271,7 +271,7 @@ namespace IFSEngine
 
             //cq.Finish();
 
-            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
+            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Brightness, CurrentParams.Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);

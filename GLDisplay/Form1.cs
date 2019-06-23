@@ -137,12 +137,8 @@ namespace GLDisplay
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            r.MutateCamera(c =>
-            {
-                c.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-                c.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
-                return c;
-            });
+            r.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            r.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
 

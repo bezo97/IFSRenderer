@@ -181,8 +181,21 @@ namespace IFSEngine
         /// <returns></returns>
         public static float[] UnitGrid(int p_num)
         {
-            //TODO: implement, document, write unit tests
-            throw new NotImplementedException();
+            float[] distr = new float[p_num * 4];
+            Random r = new Random();
+            int cnt=0;
+            float d = 1.01f / (float)Math.Floor(Math.Pow(p_num, 1.0 / 3.0));//
+            for (float x = -0.5f; x < 0.5f; x += d)
+                for (float y = -0.5f; y < 0.5f; y += d)
+                    for (float z = -0.5f; z < 0.5f; z += d)
+                    {
+                        distr[cnt + 0] = x;
+                        distr[cnt + 1] = y;
+                        distr[cnt + 2] = z;
+                        distr[cnt + 3] = 0.0f;//leave 0
+                        cnt += 4;
+                    }
+            return distr;
         }
 
 

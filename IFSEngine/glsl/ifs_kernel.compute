@@ -92,11 +92,10 @@ layout(std430, binding = 4) buffer iterbuf
 {
 	Iterator its[];
 };
-uniform bool Display;
 
 //TODO: ezt beleegetni
-uniform int width=1920;
-uniform int height=1080;
+uniform int width;
+uniform int height;
 
 //Default input vars:
 //in uvec3 gl_NumWorkGroups;
@@ -108,13 +107,55 @@ uniform int height=1080;
 // storage buffers or Textures. Image Load Store
 //uniform writeonly image2D destTex;
 
-float randhash(int rng)
-{
-	//TODO: add hash
-	return rng;
+//random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
+uint hash(uint x) {
+	x += (x << 10u);
+	x ^= (x >> 6u);
+	x += (x << 3u);
+	x ^= (x >> 11u);
+	x += (x << 15u);
+	return x;
+}
+uint hash(uvec2 v) {
+	return hash(v.x ^ hash(v.y));
 }
 
-vec2 Project(CameraParameters c, vec3 p, float ra, float rl)
+uint hash(uvec3 v) {
+	return hash(v.x ^ hash(v.y) ^ hash(v.z));
+}
+
+uint hash(uvec4 v) {
+	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
+}
+float random(float f) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash(floatBitsToUint(f));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
+float random(float f1, float f2, uint nextSample) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
+
+float randhash(uint nextSample)
+{
+	return random(gl_GlobalInvocationID.x, settings.rendersteps, nextSample);
+}
+
+ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 {
 	//ezek mik?
 	float r1 = 0.0f;
@@ -131,7 +172,7 @@ vec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 
 	float subject_distance = -r.x * c.sin_phi_hack * c.sin_theta + r.y * c.cos_phi_hack * c.sin_theta - r.z * c.cos_theta + r3 -/*ez miert nem +*/ c.focallength;
 	if (subject_distance < 0.0f)//discard if behind camera
-		return vec2(-2, -2);
+		return ivec2(-2, -2);
 
 	float model_x = r.x * c.cos_phi_hack + r.y * c.sin_phi_hack + r1;
 	float model_y = -r.x * c.sin_phi_hack * c.cos_theta + r.y * c.cos_phi_hack * c.cos_theta + r.z * c.sin_theta - r2;
@@ -150,9 +191,14 @@ vec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 	model_x += pow(rl, 0.5f) * dof * cos(ra * 6.28318530718f);
 	model_y += pow(rl, 0.5f) * dof * sin(ra * 6.28318530718f);
 
-	vec2 o;
-	o.x = model_x * c.focallength / subject_distance;//project
-	o.y = model_y * c.focallength / subject_distance;
+	vec2 proj = vec2(//project
+		model_x * c.focallength / subject_distance, 
+		model_y * c.focallength / subject_distance
+	);
+	ivec2 o = ivec2(//windows center
+		int(width / 2.0f + proj.x * width / 2.0f),
+		int(height / 2.0f + proj.y * height / 2.0f)
+	);
 	return o;
 
 }
@@ -237,8 +283,8 @@ vec3 getPaletteColor(float pos)
 void main() {
 	uint gid = gl_GlobalInvocationID.x;
 
-	//TODO: seed randoms
-	int rng = 0;
+	//TODO: seed random
+	int next = 34567;
 
 	vec3 p = pointsstate[gid].xyz;
 	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
@@ -246,7 +292,7 @@ void main() {
 	for (int i = 0; i < settings.pass_iters; i++)
 	{//pick a random weighted Transform index
 		int r_index = 0;
-		float r = randhash(rng);
+		float r = randhash(next++);
 		float w_acc = 0.0f;
 		for (int j = 0; j < settings.itnum; j++)
 			if (w_acc < r) {
@@ -265,9 +311,9 @@ void main() {
 		//TODO: ez opcio legyen
 		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
 		{
-			/*p.x = randhash(&rng)-0.5f;
-			p.y = randhash(&rng)-0.5f;
-			p.z = randhash(&rng)-0.5f;*/
+			/*p.x = randhash(next++)-0.5f;
+			p.y = randhash(next++)-0.5f;
+			p.z = randhash(next++)-0.5f;*/
 			//otlet: egy masik pontra tesszuk, ami mar nem random, igy gyorsabban konvergal
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
@@ -282,12 +328,12 @@ void main() {
 		finalp_shader.y = p_shader.y;//opacity=1 a finalon
 	
 		//perspective project
-		float ra1 = randhash(rng);
-		float ra2 = randhash(rng);
-		vec2 proj = Project(settings.camera, finalp, /*rnd[i%pass_iters]*/ra1,/*rnd[(i+422)%pass_iters]*/ra2);
+		float ra1 = randhash(next++);
+		float ra2 = randhash(next++);
+		vec2 proj = Project(settings.camera, finalp, ra1, ra2);
 		//window center
-		proj.x = width / 2.0f + proj.x * width / 2.0f;
-		proj.y = height / 2.0f + proj.y * height / 2.0f;
+		//proj.x = width / 2.0f + proj.x * width / 2.0f;
+		//proj.y = height / 2.0f + proj.y * height / 2.0f;
 	
 		int x_index = int(round(proj.x));
 		int y_index = int(round(proj.y));
@@ -312,16 +358,7 @@ void main() {
 		}
 	
 	}
-	//histogram[int(pointsstate[gid].x + pointsstate[gid].y * 1920)] += vec4(0.1);
 
 	pointsstate[gid] = vec4(p, p_shader.x);
-
-	//TODO: save rng state?
-
-	/*if (Display)
-	{
-		ivec2 px = ivec2(gid, gid);
-		imageStore(img_output, px, histogram[px.x + px.y * width]);
-	}*/
 
 }

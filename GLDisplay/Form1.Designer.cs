@@ -52,10 +52,10 @@
             // 
             this.numericUpDownBrightness.DecimalPlaces = 3;
             this.numericUpDownBrightness.Increment = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
-            65536});
+            131072});
             this.numericUpDownBrightness.Location = new System.Drawing.Point(74, 75);
             this.numericUpDownBrightness.Maximum = new decimal(new int[] {
             9999,
@@ -94,10 +94,10 @@
             // 
             this.numericUpDownGamma.DecimalPlaces = 3;
             this.numericUpDownGamma.Increment = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
-            65536});
+            131072});
             this.numericUpDownGamma.Location = new System.Drawing.Point(74, 107);
             this.numericUpDownGamma.Maximum = new decimal(new int[] {
             9999,

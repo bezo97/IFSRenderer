@@ -6,13 +6,15 @@ namespace IFSEngine.Model
 {
     public class IFS
     {
+        public float Brightness { get; set; } = 1.0f;
+        public float Gamma { get; set; } = 4.0f;
 
         public IFS(bool random=true)
         {
             RandomizeParams();
         }
 
-        public List<Iterator> Iterators = new List<Iterator>();
+        public List<Iterator> Iterators { get; set; } = new List<Iterator>();
         public Iterator FinalIterator { get; set; } = new Iterator(
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
             0,//linear

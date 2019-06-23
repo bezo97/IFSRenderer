@@ -1,7 +1,8 @@
-﻿//#version 450
+﻿//ezt compile elott beirjuk:
+//#version 450
 //#extension GL_ARB_explicit_attrib_location : enable
-//uniform int width=300;//ezt compile elott beirjuk
-//uniform int height=300;
+//uniform int width=...;
+//uniform int height=...;
 
 layout(location = 0) out vec3 color;
 //uniform sampler2D renderedTexture;
@@ -9,7 +10,9 @@ layout(std140, binding = 1) buffer histogrambuf
 {
 	vec4 histogram[];
 };
-uniform int rendersteps;
+uniform int rendersteps = 1;
+uniform float Brightness = 1.0;
+uniform float Gamma = 4.0;
 
 
 vec3 RgbToHsv(vec3 rgb)
@@ -170,10 +173,7 @@ void main(void)
 	int px = int(gl_FragCoord.x);
 	int py = int(gl_FragCoord.y);
 	vec2 uv = vec2(gl_FragCoord.x/float(width),gl_FragCoord.y/float(height));
-	int pxi = int(gl_FragCoord.x+gl_FragCoord.y*width);
-
-	float Brightness = 1.0;
-	float Gamma = 4.0;
+	int pxi = px+py*width;
 
 	vec3 acc_color = histogram[pxi].xyz;//accumulated color
 	float acc_histogram = histogram[pxi].z;//how many times this pixel was hit
@@ -187,7 +187,4 @@ void main(void)
 	logscaled_color = clamp(logscaled_color, 0.0f, 1.0f);
 
 	color = logscaled_color;//texture(renderedTexture, uv ,1).xyz;
-
-	//debug
-	//color = histogram[pxi].xyz;
 }
