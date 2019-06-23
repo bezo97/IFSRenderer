@@ -130,13 +130,15 @@ namespace IFSEngine
             //if volt init()
 
             GL.Finish();
+            GL.UseProgram(computeProgramH);
 
             if (invalidAccumulation)
             {
-                //TODO: reset accumulation
-                //GL.ClearAccum(0, 0, 0, 0);
-                GL.ClearTexImage(histogramH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
-                GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
+                //reset accumulation
+                //GL.ClearTexImage(histogramH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+                GL.BufferData(BufferTarget.ShaderStorageBuffer, Width*Height*4 * sizeof(float), new IntPtr(0), BufferUsageHint.DynamicCopy/**/);
+                //GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
                 rendersteps = 0;
@@ -144,6 +146,9 @@ namespace IFSEngine
                 if (invalidParams)
                 {
                     //TODO: update pointsstate uniform StartingDistributions.UniformUnitCube(threadcnt)
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy/**/);
+
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
 
@@ -166,9 +171,7 @@ namespace IFSEngine
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicCopy/**/);
 
-
-            //TODO: update Settings uniform
-            GL.UseProgram(computeProgramH);
+            //GL.UseProgram(computeProgramH);
             if (updateDisplayNow || UpdateDisplayOnRender)
                 GL.Uniform1(GL.GetUniformLocation(computeProgramH, "Display"), 1);
             else
@@ -186,6 +189,7 @@ namespace IFSEngine
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
                 GL.UseProgram(displayProgramH);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "rendersteps"), rendersteps);
                 //GL.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
                 //GL.Clear(ClearBufferMask.ColorBufferBit);
                 GL.Begin(PrimitiveType.Quads);
@@ -203,6 +207,7 @@ namespace IFSEngine
 
         bool rendering = false;
         private int itersbufH;
+        private int pointsbufH;
 
         public void StartRendering()
         {
@@ -360,6 +365,10 @@ namespace IFSEngine
             //beallitjuk a texturat
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
 
+            histogramH = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
+
             GL.Viewport(0, 0, Width, Height);
         }
 
@@ -393,20 +402,20 @@ namespace IFSEngine
             //calc, disp buffers Width * Height * 4);//rgba
 
             //points state storage buffer
-            int pointsbufH = GL.GenBuffer();
+            pointsbufH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
             Vector4[] deb = new Vector4[threadcnt];
-            Random r = new Random();
+            /*Random r = new Random();
             for (int i = 0; i < deb.Length; i++)
             {
                 deb[i] = new Vector4(r.Next(10,Width-10), r.Next(10,Height-10), 0, 0);
             }
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy/**/);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy);*/
 
             //histogram
-            int histogramH = GL.GenBuffer();
+            //int histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
+            //GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
 
             //settings
             settingsbufH = GL.GenBuffer();
