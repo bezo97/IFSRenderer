@@ -34,7 +34,7 @@ struct Settings
 {
 	int itnum;//length of iterators - 1 (last one is finalit)
 	int pass_iters;//iterations per pass
-	int rendersteps;
+	int framestep;
 	CameraParameters camera;
 	int enable_depthfog;
 };
@@ -152,7 +152,7 @@ float random(float f1, float f2, uint nextSample) {
 
 float randhash(uint nextSample)
 {
-	return random(gl_GlobalInvocationID.x, settings.rendersteps, nextSample);
+	return random(gl_GlobalInvocationID.x, settings.framestep, nextSample);
 }
 
 ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
@@ -350,7 +350,7 @@ void main() {
 		color.xyzw *= depthfog;
 	
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
-		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && i>16)
+		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && !(i < 16 && settings.framestep == 0))
 		{//point lands on picture
 			int ipx = x_index + y_index * width;//pixel index
 			histogram[ipx] += color;//r,g,b,db

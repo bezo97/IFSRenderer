@@ -27,7 +27,15 @@ namespace IFSEngine.Model
 
         public IFS ResetCamera()
         {
+            //HACK: az uj kameraig: resetnel a resolutiont megjegyezzuk
+            int w = Camera.Width;
+            int h = Camera.Height;
+
             Camera = new Camera();
+
+            Camera.Width = w;
+            Camera.Height = h;
+
             return this;
         }
 

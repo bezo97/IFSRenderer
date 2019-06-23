@@ -10,7 +10,7 @@ layout(std140, binding = 1) buffer histogrambuf
 {
 	vec4 histogram[];
 };
-uniform int rendersteps = 1;
+uniform int framestep = 0;
 uniform float Brightness = 1.0;
 uniform float Gamma = 4.0;
 
@@ -178,10 +178,10 @@ void main(void)
 	vec3 acc_color = histogram[pxi].xyz;//accumulated color
 	float acc_histogram = histogram[pxi].z;//how many times this pixel was hit
 
-	float logscale = (Brightness * log(1.0f + acc_histogram / (rendersteps / Gamma))) / acc_histogram;
+	float logscale = (Brightness * log(1.0f + acc_histogram / (framestep / Gamma))) / acc_histogram;
 	vec3 logscaled_color = logscale * acc_color;
 
-	float ls = /*vibrancy*/1.0f * alpha_magic_gamma(acc_histogram / rendersteps, 1.0f / Gamma, 0.0f/*g_thresh*/);// / (acc_histogram / settings[0]);
+	float ls = /*vibrancy*/1.0f * alpha_magic_gamma(acc_histogram / framestep, 1.0f / Gamma, 0.0f/*g_thresh*/);// / (acc_histogram / settings[0]);
 	ls = clamp(ls, 0.0f, 1.0f);
 	logscaled_color = CalcNewRgb(logscaled_color, ls, /*high pow*/2.0f);
 	logscaled_color = clamp(logscaled_color, 0.0f, 1.0f);

@@ -1,72 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Linq;
 
 //using OpenGL;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-using System.Linq;
-
 using IFSEngine.Model;
-using IFSEngine.mwc64x;
+
 
 namespace IFSEngine
 {
     public class RendererGL
     {
+        public event EventHandler DisplayFrameCompleted;
+        //public event EventHandler RenderFrameCompleted;
 
-        [DllImport("opengl32.dll")]
-        extern static IntPtr wglGetCurrentDC();
-
-        /*ComputePlatform platf;
-        static ComputeDevice device1;
-        ComputeContext ctx;
-        ComputeCommandQueue cq;
-        static ComputeProgram prog1;
-        ComputeKernel computekernel;
-        ComputeKernel displaykernel;
-        ComputeBuffer<float> calcbuf;
-        ComputeImage2D dispimg;
-        ComputeBuffer<float> dispbuf;
-        ComputeBuffer<float> dispsettingsbuf;
-        ComputeBuffer<Iterator> iteratorsbuf;
-        ComputeBuffer<Settings> settingsbuf;
-        ComputeBuffer<float> pointsstatebuf;
-        ComputeBuffer<mwc64x_state_t> rng_states;
-
-        ComputeErrorCode e;
-        ComputeProgramBuildNotifier buildnotif = new ComputeProgramBuildNotifier(builddebug);
-        static void builddebug(CLProgramHandle h, IntPtr p)
-        {
-            Debug.WriteLine("BUILD LOG: " + prog1.GetBuildLog(device1));
-        }
-
-        ComputeContextNotifier contextnotif = new ComputeContextNotifier((str, a, b, c) => {
-            Debug.WriteLine("CTX ERROR INFO: " + str);
-        });
-
-        private CLEventCollection ComputeEventsCollection;
-        private CLEventCollection DisplayEventsCollection;*/
-
-        int threadcnt = 1500;//gtx970: 1664, 610m: 48
-        int histogramH;
-        int computeProgramH;
-        int settingsbufH;
-
-        //display
-        private int dispTexH;
-        private int displayProgramH;
-
-        Random rgen = new Random();
-        public int rendersteps = 0;
-        private bool updateDisplayNow=false;
-
-        //
+        public bool UpdateDisplayOnRender { get; set; } = true;
+        public int Framestep { get; private set; } = 0;
         public int Width => CurrentParams.Camera.Width;
         public int Height => CurrentParams.Camera.Height;
 
@@ -79,7 +32,26 @@ namespace IFSEngine
         /// </summary>
         public IFS CurrentParams { get; private set; }
 
-        public RendererGL(IFS Params) : this(Params, 1920, 1080) { }
+
+        private const int threadcnt = 1500;//TODO: const helyett ez legyen megadhato / adaptiv??
+
+        private bool invalidAccumulation = false;
+        private bool invalidParams = false;
+        private int pass_iters;
+        private bool updateDisplayNow = false;
+        private bool rendering = false;
+
+        //compute handlers
+        private int computeProgramH;
+        private int histogramH;
+        private int settingsbufH;
+        private int itersbufH;
+        private int pointsbufH;
+        //display handlers
+        private int dispTexH;
+        private int displayProgramH;
+
+        public RendererGL(IFS Params) : this(Params, Params.Camera.Width, Params.Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
         {
             UpdateParams(Params);
@@ -89,14 +61,11 @@ namespace IFSEngine
                 return p;
             });
 
+            //TODO: ne a konstruktorban
             initDisplay();
             initRenderer();
 
         }
-
-        private bool invalidAccumulation = false;
-        private bool invalidParams = false;
-        private int pass_iters;
 
         public void InvalidateAccumulation()
         {
@@ -121,19 +90,14 @@ namespace IFSEngine
             invalidParams = true;
             invalidAccumulation = true;
         }
+
         public void MutateParams(Func<IFS, IFS> mutator)
         {
             UpdateParams(mutator(CurrentParams));
         }
 
-        Stopwatch renderwatch = new Stopwatch();
-
         public void RenderFrame()
         {
-            renderwatch.Restart();
-            //if volt init()
-
-            //GL.Finish();
             GL.UseProgram(computeProgramH);
 
             if (invalidAccumulation)
@@ -142,59 +106,64 @@ namespace IFSEngine
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
                 GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
-                pass_iters = 100;//minden renderrel duplazodik
-                rendersteps = 0;
+                pass_iters = 100;//ez novekszik minden frammel
+                Framestep = 0;
 
                 if (invalidParams)
                 {
                     //update pointsstate
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy/**/);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
 
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count* 16*sizeof(float) * 1*sizeof(int), its_and_final.ToArray(), BufferUsageHint.DynamicCopy/**/);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count * (16*sizeof(float)) * (1*sizeof(int)), its_and_final.ToArray(), BufferUsageHint.DynamicDraw);
 
                     invalidParams = false;
                 }
             }
 
-            //ez mennyire faj?
+            if(Framestep%(5000/pass_iters)==0)//TODO: ezt szebben
+            {
+                //update pointsstate
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+                GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+            }
+
             var settings = new Settings
             {
                 pass_iters = pass_iters,
                 camera = CurrentParams.Camera.Params,
-                rendersteps = rendersteps,
+                framestep = Framestep,
                 enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
                 itnum = CurrentParams.Iterators.Count,
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicCopy/**/);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
 
-            pass_iters = Math.Min((int)(pass_iters * 1.1), 50000);
-            rendersteps++;
+            pass_iters = Math.Min((int)(pass_iters * 1.5), 5000);
+            Framestep++;
+
             //GL.Finish();
-
-
 
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
                 GL.UseProgram(displayProgramH);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "rendersteps"), rendersteps);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), Gamma);
-                //GL.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
-                //GL.Clear(ClearBufferMask.ColorBufferBit);
+
+                //draw quad
                 GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);//0 0
-                GL.Vertex2(0, 1);//0 1
-                GL.Vertex2(1, 1);//1 1
-                GL.Vertex2(1, 0);//1 0
+                GL.Vertex2(0, 0);
+                GL.Vertex2(0, 1);
+                GL.Vertex2(1, 1);
+                GL.Vertex2(1, 0);
                 GL.End();
 
                 DisplayFrameCompleted?.Invoke(this, null);
@@ -203,16 +172,13 @@ namespace IFSEngine
 
         }
 
-        bool rendering = false;
-        private int itersbufH;
-        private int pointsbufH;
-
         public void StartRendering()
         {
             if (!rendering)
             {
                 rendering = true;
 
+                //TODO: baj
                 /*new System.Threading.Thread(() =>
                 {//gl nem hivhato mas threadrol
                     while (rendering)
@@ -224,65 +190,29 @@ namespace IFSEngine
 
             }
         }
+
         public void StopRendering()
         {
             rendering = false;
+            GL.Finish();
         }
-
-        public bool UpdateDisplayOnRender { get; set; } = true;
-        //public event EventHandler RenderFrameCompleted;
-        public event EventHandler DisplayFrameCompleted;
-
-        /*private void RenderFrame_Completed(object sender, object args)
-        {
-            renderwatch.Stop();
-            Debug.WriteLine($"RENDER: {renderwatch.ElapsedMilliseconds}ms");
-            //RenderFrameCompleted?.Invoke(this, null);//TODO: pass useful args
-            //if (UpdateDisplayOnRender)
-            //{
-            //    UpdateDisplay();
-            //    DisplayFrameCompleted?.Invoke(this, null);
-            //}
-            if (rendering)
-                Parallel.Invoke(RenderFrame);
-        }*/
 
         public void UpdateDisplay()
         {
-            //displaywatch.Restart();
-
-            //TODO: update uniform: rendersteps , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma 
-
-            //make sure writing to image has finished before read
-            //GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
-
-            //GL.Finish();
-
             updateDisplayNow = true;
-
-            //GL.Accum(AccumOp.Return, 1.0f);
-
-            //GL.Clear(ClearBufferMask.ColorBufferBit);
-            //GL.UseProgram(quad_program);
-            //GL.BindVertexArray(quad_vao);
-            //GL.ActiveTexture(GL_TEXTURE0);
-            //GL.BindTexture(GL_TEXTURE_2D, tex_output);
-            //GL.DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-            //TODO: dispatch display kernel, Width * Height
-            //DisplayFrame_Completed(this, null);
-
+            //TODO: if (!rendering) RenderFrame();
         }
 
         public double[,][] GenerateImage()
         {
             float[] d = new float[Width * Height * 4];//rgba
 
-            UpdateDisplay();//ebbol event jon
-            RenderFrame();
+            UpdateDisplay();//benne RenderFrame() ha kell
 
+            //Read display texture
             GL.Finish();
-            //TODO: read display texture
+            GL.UseProgram(displayProgramH);
+            GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.Float, d);
 
             double[,][] o = new double[Width, Height][];
             for (int x = 0; x < Width; x++)
@@ -302,22 +232,15 @@ namespace IFSEngine
 
         private void initDisplay()
         {
+            //init display image texture
             dispTexH = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, dispTexH);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f/*cl float*/, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-            //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texID, 0);
-            //DrawBuffersEnum[] dbe = new DrawBuffersEnum[1];
-            //dbe[0] = DrawBuffersEnum.ColorAttachment0;
-            //GL.DrawBuffers(1, dbe);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                Console.WriteLine("BAJBJABJABAJ");
-
-            // Because we're also using this tex as an image (in order to write to it),
-            // we bind it to an image unit as well
-            GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//EZKELL?
+                throw new GraphicsException("Frame Buffer Error");
 
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
@@ -360,12 +283,9 @@ namespace IFSEngine
 
             GL.UseProgram(displayProgramH);
 
-            //beallitjuk a texturat
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
-
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicRead);
 
             GL.Viewport(0, 0, Width, Height);
         }
@@ -375,92 +295,43 @@ namespace IFSEngine
 
             //assemble source string
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.compute");
-            string computeShaderSource = "";
+            string computeShaderSource = "";//TODO: add consts here
             computeShaderSource += new StreamReader(resource).ReadToEnd();
 
-            Debug.WriteLine("init openGL..");
-
-            //platforms, devices
-
-            //cq from ctx
-            //compute program from source
+            //compile compute shader
             int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
             GL.ShaderSource(computeShaderH, computeShaderSource);
             GL.CompileShader(computeShaderH);
             Console.WriteLine(GL.GetShaderInfoLog(computeShaderH));
 
+            //build shader program
             computeProgramH = GL.CreateProgram();
             GL.AttachShader(computeProgramH, computeShaderH);
-            GL.LinkProgram(computeProgramH);//build
+            GL.LinkProgram(computeProgramH);
             Console.WriteLine(GL.GetProgramInfoLog(computeProgramH));
-            GL.UseProgram(computeProgramH);//EZKELL?
+            GL.UseProgram(computeProgramH);
 
-            //create kernels from program
-
-            //calc, disp buffers Width * Height * 4);//rgba
-
-            //points state storage buffer
+            //create buffers
             pointsbufH = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-            Vector4[] deb = new Vector4[threadcnt];
-            /*Random r = new Random();
-            for (int i = 0; i < deb.Length; i++)
-            {
-                deb[i] = new Vector4(r.Next(10,Width-10), r.Next(10,Height-10), 0, 0);
-            }
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, threadcnt * 4 * sizeof(float), deb, BufferUsageHint.DynamicCopy);*/
-
-            //histogram
-            //int histogramH = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            //GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
-
-            //settings
             settingsbufH = GL.GenBuffer();
-            //GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            //GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*sizeof(int), IntPtr.Zero, BufferUsageHint.DynamicCopy/**/);
-
-            //settings
             itersbufH = GL.GenBuffer();
-            //GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-            //GL.BufferData(BufferTarget.ShaderStorageBuffer, , , BufferUsageHint.DynamicCopy/**/);
 
-            //Uniforms
-            //dispsettingsbuf = new Cloo.ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadOnly, 3);
-            //iteratorsbuf = new ComputeBuffer<Iterator>(ctx, ComputeMemoryFlags.ReadOnly, 10 /*max 10 most...*/ /*its+final*/);//HACK: ezt update params ban kene
-            //settingsbuf = new ComputeBuffer<Settings>(ctx, ComputeMemoryFlags.ReadOnly, 1);
-            //pointsstatebuf = new ComputeBuffer<float>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt * 4);//minden szal pontjat mentjuk a kovi passba
-            //rng_states = new ComputeBuffer<mwc64x_state_t>(ctx, ComputeMemoryFlags.ReadWrite, threadcnt);*/
+            //bind layout:
+            GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, histogramH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
 
             //set uniforms
-            GL.UseProgram(computeProgramH);//setterek erre vonatkoznak
-
-            /* computekernel.SetMemoryArgument(0, calcbuf);
-             //computekernel.SetMemoryArgument(1, randbuf);
-             computekernel.SetMemoryArgument(1, iteratorsbuf);//HACK: ezt update params ban kene
-             computekernel.SetMemoryArgument(2, settingsbuf);
-             computekernel.SetMemoryArgument(3, pointsstatebuf);
-             computekernel.SetMemoryArgument(4, rng_states);
-
-             displaykernel.SetMemoryArgument(0, calcbuf);
-             displaykernel.SetMemoryArgument(1, dispbuf);
-             displaykernel.SetMemoryArgument(2, dispimg);
-             displaykernel.SetMemoryArgument(3, dispsettingsbuf);*/
-
-            //layout binds
-            GL.BindImageTexture(0/**/, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1/**/, histogramH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2/**/, pointsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3/**/, settingsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4/**/, itersbufH);
-
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), Height);
+
         }
 
         public void Dispose()
         {
-            rendering = false;
+            StopRendering();
             //TOOD: dispose
         }
 

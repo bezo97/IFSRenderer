@@ -1,24 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
 //using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-//using OpenGL;
+
 
 namespace GLDisplay
 {
@@ -51,8 +41,8 @@ namespace GLDisplay
         public Form1()
         {
             InitializeComponent();
-            this.Width = w+50;
-            this.Height = h+50;
+            this.Width = w;
+            this.Height = h;
             OpenTK.Toolkit.Init();//
             display1 = new OpenTK.GLControl();
             display1.Width = w;
@@ -61,7 +51,6 @@ namespace GLDisplay
             display1.Top = 0; //(this.ClientSize.Height - h) / 2;
             display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
-            display1.Paint += Display1_Paint;
             display1.MakeCurrent();
             this.Controls.Add(display1);
             //initGL();
@@ -82,23 +71,15 @@ namespace GLDisplay
             UpdateIteratorSelectedText();
 
             r.DisplayFrameCompleted += R_DisplayFrameCompleted;
-            //r.RenderFrameCompleted += R_RenderFrameCompleted; ;
+            //r.RenderFrameCompleted += R_RenderFrameCompleted;
 
-        }
-
-        private void R_RenderFrameCompleted(object sender, EventArgs e)
-        {
-            
         }
 
         Stopwatch fps = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            //GL.UseProgram(_program);
-            display1.Invoke((MethodInvoker)delegate { Refresh(); });            //display1.Invalidate();
-            fps.Stop();
-            this.Invoke((MethodInvoker)delegate { Text = $"{(fps.ElapsedMilliseconds>0?1000/(fps.ElapsedMilliseconds):0)} FPS"; fps.Restart(); });
-            //fps.Restart();
+            display1.SwapBuffers();
+            this.Invoke((MethodInvoker)delegate { fps.Stop(); Text = $"{(fps.ElapsedMilliseconds>0?1000/(fps.ElapsedMilliseconds):0)} FPS"; fps.Restart(); });
             Application.DoEvents();
         }
 
@@ -116,24 +97,7 @@ namespace GLDisplay
             }
             lastX = e.X;
             lastY = e.Y;
-        }
-
-        private void Display1_Paint(object sender, PaintEventArgs e)
-        {
-            //GL.Viewport(0, 0, display1.ClientSize.Width, display1.ClientSize.Height);
-            //GL.Clear(ClearBufferMask.ColorBufferBit);
-
-            /*GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);//0 0
-                GL.Vertex2(0, 1);//0 1
-                GL.Vertex2(1, 1);//1 1
-                GL.Vertex2(1, 0);//1 0
-            GL.End();*/
-
-            display1.SwapBuffers();
-            
-        }
-       
+        }       
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
@@ -144,16 +108,6 @@ namespace GLDisplay
 
         private void ButtonRender_Click(object sender, EventArgs e)
         {
-            /*Task.Run(() =>
-            {
-                rendering = true;
-                while (rendering)
-                {
-                    r.Render();
-                    UpdateImage();
-                }
-            });*/
-
             r.StartRendering();
         }
 
@@ -187,6 +141,7 @@ namespace GLDisplay
             }
             else if (e.KeyCode == Keys.F11 || (FullScreen && e.KeyCode == Keys.Escape))
             {
+                //TODO: refactor
                 if (!FullScreen)
                 {
                     restore.location = Location;
@@ -226,15 +181,14 @@ namespace GLDisplay
             }
         }
 
+        //TODO: refactor. Fullscreenhez: uj ablak, uj renderer, parametereket atadjuk
         struct clientRect
         {
             public Point location;
             public int width;
             public int height;
         };
-        // this should be in the scope your class
         clientRect restore;
-
         private bool FullScreen { get; set; } = false;
         private bool ControlsVisible { get; set; } = true;
         private void SetControlVisibility(bool visible)
