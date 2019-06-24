@@ -1,0 +1,364 @@
+﻿#version 430
+//#version 430 compatibility
+//#extension GL_ARB_compute_shader : enable
+//#extension GL_ARB_shader_storage_buffer_object : enable
+
+struct CameraParameters
+{
+	float ox;//pos
+	float oy;
+	float oz;
+
+	float dx;//dir
+	float dy;
+	float dz;
+
+	//dir
+	float theta;//0-pi
+	float phi;//0-2pi
+	//helpers
+	float sin_theta;
+	float cos_theta;
+	float sin_phi;
+	float cos_phi;
+	float sin_phi_hack;
+	float cos_phi_hack;
+
+	float focallength;//for perspective
+
+	float focusdistance;//for dof
+	float dof_effect;
+};
+
+struct Settings
+{
+	int itnum;//length of iterators - 1 (last one is finalit)
+	int pass_iters;//iterations per pass
+	int framestep;
+	CameraParameters camera;
+	int enable_depthfog;
+};
+
+struct Affine
+{
+	float ox;
+	float oy;
+	float oz;
+
+	float xx;
+	float xy;
+	float xz;
+
+	float yx;
+	float yy;
+	float yz;
+
+	float zx;
+	float zy;
+	float zz;
+};
+
+struct Iterator
+{
+	Affine aff;
+	int tfID;
+	float w;
+	float cs;
+	float ci;//color index, 0 - 1
+	float op;
+};
+
+layout(local_size_x = 1, local_size_y = 1) in;
+
+layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
+//layout(rgba32f, binding = 1) uniform image2D histogram;
+
+//biggest difference between uniform buffers and shader storage buffers is that you can write to shader storage buffers from your shader programs.
+layout(std140, binding = 1) buffer histogrambuf
+{
+	vec4 histogram[];
+};
+layout(std140, binding = 2) buffer pointsbuf
+{
+	vec4 pointsstate[];
+};
+
+layout(std430, binding = 3) buffer settingsbuf
+{
+	Settings settings;
+};
+
+layout(std430, binding = 4) buffer iterbuf
+{
+	Iterator its[];
+};
+
+//TODO: ezt beleegetni
+uniform int width;
+uniform int height;
+
+//Default input vars:
+//in uvec3 gl_NumWorkGroups;
+//in uvec3 gl_WorkGroupID;
+//in uvec3 gl_LocalInvocationID; //within workgroup
+//in uvec3 gl_GlobalInvocationID; //within dispatch
+//in uint  gl_LocalInvocationIndex; //1d local id
+
+// storage buffers or Textures. Image Load Store
+//uniform writeonly image2D destTex;
+
+//random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
+uint hash(uint x) {
+	x += (x << 10u);
+	x ^= (x >> 6u);
+	x += (x << 3u);
+	x ^= (x >> 11u);
+	x += (x << 15u);
+	return x;
+}
+uint hash(uvec2 v) {
+	return hash(v.x ^ hash(v.y));
+}
+
+uint hash(uvec3 v) {
+	return hash(v.x ^ hash(v.y) ^ hash(v.z));
+}
+
+uint hash(uvec4 v) {
+	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
+}
+float random(float f) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash(floatBitsToUint(f));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
+float random(float f1, float f2, uint nextSample) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
+
+float randhash(uint nextSample)
+{
+	return random(gl_GlobalInvocationID.x, settings.framestep, nextSample);
+}
+
+ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
+{
+	//ezek mik?
+	float r1 = 0.0f;
+	float r2 = 0.0f;
+	float r3 = 0.0f;
+
+	vec3 r;//ray from camera to point
+	r.x = (p.x - c.ox);
+	r.y = (p.y - c.oy);
+	r.z = (p.z - c.oz);
+
+	//float hack=c.phi;//miert vetitunk a kamera jobb oldala iranyaba???
+	//c.phi-=3.1415926f/2.0f;
+
+	float subject_distance = -r.x * c.sin_phi_hack * c.sin_theta + r.y * c.cos_phi_hack * c.sin_theta - r.z * c.cos_theta + r3 -/*ez miert nem +*/ c.focallength;
+	if (subject_distance < 0.0f)//discard if behind camera
+		return ivec2(-2, -2);
+
+	float model_x = r.x * c.cos_phi_hack + r.y * c.sin_phi_hack + r1;
+	float model_y = -r.x * c.sin_phi_hack * c.cos_theta + r.y * c.cos_phi_hack * c.cos_theta + r.z * c.sin_theta - r2;
+
+	//c.phi=hack;
+
+	//dof pr
+	vec3 co = vec3(c.ox, c.oy, c.oz);
+	vec3 cd = vec3(c.dx, c.dy, c.dz);
+	vec3 rd = normalize(p - co);
+	vec3 focuspoint = co + (rd * c.focusdistance);// / dot(rd, cd));
+	vec3 fpn = -cd;//focal plane normal
+	float D = dot(fpn, focuspoint);
+	float dd = abs(dot(fpn, p) + D);
+	float dof = c.dof_effect * dd;
+	model_x += pow(rl, 0.5f) * dof * cos(ra * 6.28318530718f);
+	model_y += pow(rl, 0.5f) * dof * sin(ra * 6.28318530718f);
+
+	vec2 proj = vec2(//project
+		model_x * c.focallength / subject_distance, 
+		model_y * c.focallength / subject_distance
+	);
+	ivec2 o = ivec2(//windows center
+		int(width / 2.0f + proj.x * width / 2.0f),
+		int(height / 2.0f + proj.y * height / 2.0f)
+	);
+	return o;
+
+}
+
+vec3 affine(Affine aff, vec3 input) {
+	float px = aff.xx * input.x + aff.xy * input.y + aff.xz * input.z + aff.ox;
+	float py = aff.yx * input.x + aff.yy * input.y + aff.yz * input.z + aff.oy;
+	float pz = aff.zx * input.x + aff.zy * input.y + aff.zz * input.z + aff.oz;
+	return vec3(px, py, pz);
+}
+
+vec3 Apply(Iterator it, vec3 input)
+{
+	vec3 p = affine(it.aff, input.xyz);
+	//transform here: TODO
+	if (it.tfID == 0)
+	{
+		//linear
+	}
+	else if (it.tfID == 1)
+	{//spherical
+		float r = length(p);
+		p = p / (r * r);
+	}
+	else if (it.tfID == 2)
+	{//waves
+
+		/*
+		vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
+		vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
+		vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
+		*/
+		vec3 o;
+		float waves2_w = 0.999f;
+		float sx = 0.02f;
+		float sy = 0.01f;
+		float sz = -0.04f;
+		float fx = 20.0f;
+		float fy = 10.0f;
+		float fz = 10.0f;
+
+		o.x = waves2_w * fma(sx, sin(p.y * fx), p.x);
+		o.y = waves2_w * fma(sy, sin(p.z * fy), p.y);
+		o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
+
+		p = o;
+	}
+
+	return p;
+}
+
+vec2 ApplyShader(Iterator it, vec2 input/*(color,opacity)*/)
+{
+	//float c = (input.x + it.ci) / it.cs;//color//ez hibas a paperben
+	float c = it.cs * it.ci + (1.0f - it.cs) * input.x;
+	float o = it.op;//opacity
+	return vec2(c - floor(c), o);//(color,opacity)
+}
+
+vec3 getPaletteColor(float pos)
+{
+	//define two constant colors, like red and blue
+	vec3 red = vec3(1.0f, 0.0f, 0.0f);
+	vec3 green = vec3(0.0f, 1.0f, 0.0f);
+	vec3 blue = vec3(0.0f, 0.0f, 1.0f);
+	//interpolate linearly between the two, according to pos
+	vec3 result; //= (1.0f-pos) * red + pos * blue;//mix(red, blue, pos);
+
+	if (pos <= 0.5f)
+	{
+		result = (green * pos * 2.0f) + red * (0.5f - pos) * 2.0f;
+	}
+	else
+	{
+		result = blue * (pos - 0.5f) * 2.0f + green * (1.0f - pos) * 2.0f;
+	}
+
+	//return that color
+	return result;
+}
+
+void main() {
+	uint gid = gl_GlobalInvocationID.x;
+
+	//TODO: seed random
+	int next = 34567;
+
+	vec3 p = pointsstate[gid].xyz;
+	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
+
+	for (int i = 0; i < settings.pass_iters; i++)
+	{//pick a random weighted Transform index
+		int r_index = 0;
+		float r = randhash(next++);
+		float w_acc = 0.0f;
+		for (int j = 0; j < settings.itnum; j++)
+			if (w_acc < r) {
+				w_acc += its[j].w;
+				r_index = j;
+			}
+			else
+				break;
+	
+		//?? ha elso iter, akkor allitsuk be a shadert az elsore??
+		if (i == 0)
+			p_shader.x = its[r_index].ci;
+	
+		//ha elozo iteracioban tul messze ment, akkor reset?
+		//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
+		//TODO: ez opcio legyen
+		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
+		{
+			/*p.x = randhash(next++)-0.5f;
+			p.y = randhash(next++)-0.5f;
+			p.z = randhash(next++)-0.5f;*/
+			//otlet: egy masik pontra tesszuk, ami mar nem random, igy gyorsabban konvergal
+			p = pointsstate[(gid + 1)].xyz;
+			p_shader.x = pointsstate[(gid + 1)].w;
+	
+		}
+	
+		p = Apply(its[r_index], p);//transform here
+		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
+		
+		vec3 finalp = Apply(/*finalit*/its[settings.itnum], p);
+		vec2 finalp_shader = ApplyShader(/*finalit*/its[settings.itnum], p_shader);/*color,opacity*/
+		finalp_shader.y = p_shader.y;//opacity=1 a finalon
+	
+		//perspective project
+		float ra1 = randhash(next++);
+		float ra2 = randhash(next++);
+		vec2 proj = Project(settings.camera, finalp, ra1, ra2);
+		//window center
+		//proj.x = width / 2.0f + proj.x * width / 2.0f;
+		//proj.y = height / 2.0f + proj.y * height / 2.0f;
+	
+		int x_index = int(round(proj.x));
+		int y_index = int(round(proj.y));
+	
+		vec4 color = vec4(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
+	
+		//depth fog option
+		float depthfog = 1.0f;
+		if (settings.enable_depthfog==1)//bool?
+		{
+			color.xyz *= color.w;//?
+			depthfog = 1.0f / (1.0f + pow(max(0.0f, length(finalp - vec3(settings.camera.ox, settings.camera.oy, settings.camera.oz)) - settings.camera.focusdistance - settings.camera.focallength), 2));
+		}
+		color.xyzw *= depthfog;
+	
+		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
+		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && !(i < 16 && settings.framestep == 0))
+		{//point lands on picture
+			int ipx = x_index + y_index * width;//pixel index
+			histogram[ipx] += color;//r,g,b,db
+			//accepted_iters++;
+		}
+	
+	}
+
+	pointsstate[gid] = vec4(p, p_shader.x);
+
+}

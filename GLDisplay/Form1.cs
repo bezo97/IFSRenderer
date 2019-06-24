@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
 //using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+
 
 namespace GLDisplay
 {
@@ -31,16 +22,15 @@ namespace GLDisplay
         [DllImport("user32.dll")]
         public extern static Int16 GetKeyState(Int16 nVirtKey);
 
-        IFSEngine.Renderer r;
+        IFSEngine.RendererGL r;
 
         OpenTK.GLControl display1;
+        //OpenGL.GlControl display1;
 
         //Leap.Leap leap;
 
-        private int texID;
-
-        const int w = 1920;
-        const int h = 1080;
+        const int w = 1280;
+        const int h = 720;
 
         void UpdateIteratorSelectedText()
         {
@@ -61,15 +51,14 @@ namespace GLDisplay
             display1.Top = 0; //(this.ClientSize.Height - h) / 2;
             display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
-            display1.Paint += Display1_Paint;
             display1.MakeCurrent();
             this.Controls.Add(display1);
-            initGL();
-            OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
-            IntPtr raw_context_handle = ctx.Context.Handle;
+            //initGL();
+            //OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
+            //IntPtr raw_context_handle = ctx.Context.Handle;
 
             IFS Params = new IFS();
-            r = new IFSEngine.Renderer(Params, raw_context_handle, texID);
+            r = new IFSEngine.RendererGL(Params, w, h);
             
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
@@ -82,21 +71,16 @@ namespace GLDisplay
             UpdateIteratorSelectedText();
 
             r.DisplayFrameCompleted += R_DisplayFrameCompleted;
-            r.RenderFrameCompleted += R_RenderFrameCompleted; ;
-        }
+            //r.RenderFrameCompleted += R_RenderFrameCompleted;
 
-        private void R_RenderFrameCompleted(object sender, EventArgs e)
-        {
-            
         }
 
         Stopwatch fps = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            fps.Stop();
-            display1.Invoke((MethodInvoker)delegate { Refresh(); });
-            this.Invoke((MethodInvoker)delegate { Text = $"{(fps.ElapsedMilliseconds>0?1000/fps.ElapsedMilliseconds:0)} FPS"; });
-            fps.Restart();
+            display1.SwapBuffers();
+            this.Invoke((MethodInvoker)delegate { fps.Stop(); Text = $"{(fps.ElapsedMilliseconds>0?1000/(fps.ElapsedMilliseconds):0)} FPS"; fps.Restart(); });
+            Application.DoEvents();
         }
 
         int lastX;
@@ -113,111 +97,23 @@ namespace GLDisplay
             }
             lastX = e.X;
             lastY = e.Y;
-        }
-
-        private void Display1_Paint(object sender, PaintEventArgs e)
-        {
-
-            GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);//0 0
-                GL.Vertex2(0, 1);//0 1
-                GL.Vertex2(1, 1);//1 1
-                GL.Vertex2(1, 0);//1 0
-            GL.End();
-
-            display1.SwapBuffers();
-        }
-        
-        private void initGL()
-        {
-            texID = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texID);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb32f/*cl float*/, w, h, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-            //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texID, 0);
-            //DrawBuffersEnum[] dbe = new DrawBuffersEnum[1];
-            //dbe[0] = DrawBuffersEnum.ColorAttachment0;
-            //GL.DrawBuffers(1, dbe);
-            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                Console.WriteLine("BAJBJABJABAJ");
-            GL.ActiveTexture(TextureUnit.Texture0);
-
-            var assembly = typeof(Form1).GetTypeInfo().Assembly;
-
-            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.vert")).ReadToEnd());
-            GL.CompileShader(vertexShader);
-            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
-            if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(vertexShader)));
-
-            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            string elo = $"#version 450 \n #extension GL_ARB_explicit_attrib_location : enable \n";
-            elo += $"uniform int width={w}; \n uniform int height={h};\n";
-            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("GLDisplay.Display.frag")).ReadToEnd());
-            GL.CompileShader(fragmentShader);
-            GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
-            if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
-            int _program = GL.CreateProgram();
-            GL.AttachShader(_program, vertexShader);
-            GL.AttachShader(_program, fragmentShader);
-            GL.LinkProgram(_program);
-            GL.GetProgram(_program, ProgramParameter.LinkStatus, out status);
-            if (status == 0)
-                throw new GraphicsException(
-                    String.Format("Error linking program: {0}", GL.GetProgramInfoLog(_program)));
-
-            GL.DetachShader(_program, vertexShader);
-            GL.DetachShader(_program, fragmentShader);
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
-
-            GL.UseProgram(_program);
-
-            //beallitjuk a texturat
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//to screen
-
-            GL.Viewport(0, 0, w, h);
-        }
+        }       
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            r.MutateCamera(c =>
-            {
-                c.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-                c.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
-                return c;
-            });
+            r.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            r.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
 
         private void ButtonRender_Click(object sender, EventArgs e)
         {
-            /*Task.Run(() =>
-            {
-                rendering = true;
-                while (rendering)
-                {
-                    r.Render();
-                    UpdateImage();
-                }
-            });*/
             r.StartRendering();
         }
 
         private void ButtonStop_Click(object sender, EventArgs e)
         {
             r.StopRendering();
-        }
-
-        private void ButtonStep_Click(object sender, EventArgs e)
-        {
-            r.RenderFrame();
-            r.UpdateDisplay();
         }
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
@@ -245,6 +141,7 @@ namespace GLDisplay
             }
             else if (e.KeyCode == Keys.F11 || (FullScreen && e.KeyCode == Keys.Escape))
             {
+                //TODO: refactor
                 if (!FullScreen)
                 {
                     restore.location = Location;
@@ -284,15 +181,14 @@ namespace GLDisplay
             }
         }
 
+        //TODO: refactor. Fullscreenhez: uj ablak, uj renderer, parametereket atadjuk
         struct clientRect
         {
             public Point location;
             public int width;
             public int height;
         };
-        // this should be in the scope your class
         clientRect restore;
-
         private bool FullScreen { get; set; } = false;
         private bool ControlsVisible { get; set; } = true;
         private void SetControlVisibility(bool visible)
