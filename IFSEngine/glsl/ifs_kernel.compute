@@ -36,7 +36,7 @@ struct Settings
 	int pass_iters;//iterations per pass
 	int framestep;
 	CameraParameters camera;
-	int enable_depthfog;
+	float fog_effect;
 };
 
 struct Affine
@@ -340,14 +340,19 @@ void main() {
 	
 		vec4 color = vec4(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
 	
-		//depth fog option
-		float depthfog = 1.0f;
-		if (settings.enable_depthfog==1)//bool?
+		//optional fog effect
+		if (settings.fog_effect>0.0f)//bool?
 		{
+
 			color.xyz *= color.w;//?
-			depthfog = 1.0f / (1.0f + pow(max(0.0f, length(finalp - vec3(settings.camera.ox, settings.camera.oy, settings.camera.oz)) - settings.camera.focusdistance - settings.camera.focallength), 2));
+
+			vec3 cpos = vec3(settings.camera.ox, settings.camera.oy, settings.camera.oz);//pls
+			vec3 cdir = vec3(settings.camera.dx, settings.camera.dy, settings.camera.dz);
+			vec3 focuspoint = cpos + (cdir * settings.camera.focusdistance);//TODO: ez a focuspoint camera param legyen, dof-nak is kell
+
+			float focusarea = 1.0f;//TODO: param: keep area around focuspoint focused, ugyanez DOFra
+			color.xyzw *= 1.0f / pow(1.0f+abs(length(focuspoint-finalp) - focusarea), settings.fog_effect);
 		}
-		color.xyzw *= depthfog;
 	
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && !(i < 16 && settings.framestep == 0))

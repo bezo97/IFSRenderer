@@ -10,6 +10,6 @@ namespace IFSEngine.Model
         internal int pass_iters;//iterations per pass
         internal int framestep;
         internal CameraParameters camera;
-        internal int enable_depthfog;
+        internal float fog_effect;
     }
 }

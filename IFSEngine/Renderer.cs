@@ -221,7 +221,7 @@ namespace IFSEngine
                 pass_iters = pass_iters,
                 camera = CurrentParams.Camera.Params,
                 framestep = framestep,
-                enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
+                fog_effect = CurrentParams.Camera.FogEffect,
                 itnum = CurrentParams.Iterators.Count,
             };
 

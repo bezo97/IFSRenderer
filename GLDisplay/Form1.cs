@@ -212,10 +212,10 @@ namespace GLDisplay
             r.Dispose();
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void NumericUpDownFog_ValueChanged(object sender, EventArgs e)
         {
             r.MutateCamera(c => {
-                c.EnableDepthFog = checkBox1.Checked;
+                c.FogEffect = (float)Convert.ToDouble(numericUpDownFog.Value);
                 return c;
             });
         }
@@ -239,5 +239,6 @@ namespace GLDisplay
                 }
             b.Save("Output.bmp");
         }
+
     }
 }

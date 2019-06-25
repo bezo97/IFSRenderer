@@ -37,26 +37,28 @@
             this.numericUpDownFocus = new System.Windows.Forms.NumericUpDown();
             this.buttonRandomize = new System.Windows.Forms.Button();
             this.IteratorSelectLabel = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.numericUpDownDOF = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.saveImage = new System.Windows.Forms.Button();
+            this.numericUpDownFog = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrightness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDOF)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFog)).BeginInit();
             this.SuspendLayout();
             // 
             // numericUpDownBrightness
             // 
             this.numericUpDownBrightness.DecimalPlaces = 3;
             this.numericUpDownBrightness.Increment = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             131072});
-            this.numericUpDownBrightness.Location = new System.Drawing.Point(74, 75);
+            this.numericUpDownBrightness.Location = new System.Drawing.Point(15, 73);
             this.numericUpDownBrightness.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -75,7 +77,7 @@
             // labelBrightness
             // 
             this.labelBrightness.AutoSize = true;
-            this.labelBrightness.Location = new System.Drawing.Point(12, 82);
+            this.labelBrightness.Location = new System.Drawing.Point(110, 80);
             this.labelBrightness.Name = "labelBrightness";
             this.labelBrightness.Size = new System.Drawing.Size(56, 13);
             this.labelBrightness.TabIndex = 1;
@@ -84,7 +86,7 @@
             // labelGamma
             // 
             this.labelGamma.AutoSize = true;
-            this.labelGamma.Location = new System.Drawing.Point(25, 109);
+            this.labelGamma.Location = new System.Drawing.Point(110, 109);
             this.labelGamma.Name = "labelGamma";
             this.labelGamma.Size = new System.Drawing.Size(43, 13);
             this.labelGamma.TabIndex = 1;
@@ -98,7 +100,7 @@
             0,
             0,
             131072});
-            this.numericUpDownGamma.Location = new System.Drawing.Point(74, 107);
+            this.numericUpDownGamma.Location = new System.Drawing.Point(15, 102);
             this.numericUpDownGamma.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -142,7 +144,7 @@
             0,
             0,
             131072});
-            this.numericUpDownFocus.Location = new System.Drawing.Point(12, 160);
+            this.numericUpDownFocus.Location = new System.Drawing.Point(15, 159);
             this.numericUpDownFocus.Maximum = new decimal(new int[] {
             10,
             0,
@@ -185,19 +187,6 @@
             this.IteratorSelectLabel.Text = "< ( 1 ) / 5 >";
             this.IteratorSelectLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Checked = true;
-            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(12, 186);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(76, 17);
-            this.checkBox1.TabIndex = 8;
-            this.checkBox1.Text = "Depth Fog";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
             // numericUpDownDOF
             // 
             this.numericUpDownDOF.DecimalPlaces = 3;
@@ -206,7 +195,7 @@
             0,
             0,
             196608});
-            this.numericUpDownDOF.Location = new System.Drawing.Point(12, 134);
+            this.numericUpDownDOF.Location = new System.Drawing.Point(15, 133);
             this.numericUpDownDOF.Maximum = new decimal(new int[] {
             10,
             0,
@@ -225,7 +214,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(71, 141);
+            this.label1.Location = new System.Drawing.Point(74, 140);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 13);
             this.label1.TabIndex = 9;
@@ -234,7 +223,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(71, 167);
+            this.label2.Location = new System.Drawing.Point(74, 166);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(81, 13);
             this.label2.TabIndex = 10;
@@ -250,6 +239,39 @@
             this.saveImage.UseVisualStyleBackColor = true;
             this.saveImage.Click += new System.EventHandler(this.SaveImage_Click);
             // 
+            // numericUpDownFog
+            // 
+            this.numericUpDownFog.DecimalPlaces = 3;
+            this.numericUpDownFog.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.numericUpDownFog.Location = new System.Drawing.Point(15, 185);
+            this.numericUpDownFog.Maximum = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.numericUpDownFog.Name = "numericUpDownFog";
+            this.numericUpDownFog.Size = new System.Drawing.Size(56, 20);
+            this.numericUpDownFog.TabIndex = 5;
+            this.numericUpDownFog.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            65536});
+            this.numericUpDownFog.ValueChanged += new System.EventHandler(this.NumericUpDownFog_ValueChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(74, 187);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(55, 13);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Fog effect";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -257,12 +279,13 @@
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.saveImage);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.IteratorSelectLabel);
             this.Controls.Add(this.buttonRandomize);
             this.Controls.Add(this.numericUpDownDOF);
+            this.Controls.Add(this.numericUpDownFog);
             this.Controls.Add(this.numericUpDownFocus);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonRender);
@@ -277,6 +300,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGamma)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFocus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDOF)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFog)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -292,11 +316,12 @@
         private System.Windows.Forms.NumericUpDown numericUpDownFocus;
         private System.Windows.Forms.Button buttonRandomize;
         private System.Windows.Forms.Label IteratorSelectLabel;
-        private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.NumericUpDown numericUpDownDOF;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button saveImage;
+        private System.Windows.Forms.NumericUpDown numericUpDownFog;
+        private System.Windows.Forms.Label label3;
     }
 }
 

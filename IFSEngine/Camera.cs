@@ -10,7 +10,7 @@ namespace IFSEngine
     {
         public int Width { get; set; } = 1920;
         public int Height { get; set; } = 1080;
-        public bool EnableDepthFog { get; set; } = true;
+        public float FogEffect { get; set; } = 2.0f;
 
         internal CameraParameters Params = new CameraParameters(){ ox = 0.0f, oy = -2.0f, oz = 0.0f, focallength = 0.65f, theta = 3.1415926f/2.0f, phi = 3.1415926f / 2.0f, focusdistance = 2.0f, dof_effect = 0.01f };
 
