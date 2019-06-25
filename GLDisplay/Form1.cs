@@ -78,9 +78,9 @@ namespace GLDisplay
         Stopwatch fps = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
+            display1.MakeCurrent();//render thread gets the context
             display1.SwapBuffers();
             this.Invoke((MethodInvoker)delegate { fps.Stop(); Text = $"{(fps.ElapsedMilliseconds>0?1000/(fps.ElapsedMilliseconds):0)} FPS"; fps.Restart(); });
-            Application.DoEvents();
         }
 
         int lastX;

@@ -178,16 +178,14 @@ namespace IFSEngine
             {
                 rendering = true;
 
-                //TODO: baj
-                /*new System.Threading.Thread(() =>
-                {//gl nem hivhato mas threadrol
+                //take context from main thread
+                OpenTK.Graphics.GraphicsContext.CurrentContext.MakeCurrent(null);
+
+                new System.Threading.Thread(() =>
+                {
                     while (rendering)
                         RenderFrame();
-                }).Start();*/
-
-                while(rendering)
-                    RenderFrame();
-
+                }).Start();
             }
         }
 
