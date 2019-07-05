@@ -3,39 +3,21 @@
 //#extension GL_ARB_compute_shader : enable
 //#extension GL_ARB_shader_storage_buffer_object : enable
 
+//%4=0 db float kell
 struct CameraParameters
 {
-	float ox;//pos
-	float oy;
-	float oz;
-
-	float dx;//dir
-	float dy;
-	float dz;
-
-	//dir
-	float theta;//0-pi
-	float phi;//0-2pi
-	//helpers
-	float sin_theta;
-	float cos_theta;
-	float sin_phi;
-	float cos_phi;
-	float sin_phi_hack;
-	float cos_phi_hack;
-
-	float focallength;//for perspective
-
-	float focusdistance;//for dof
-	float dof_effect;
+	//vec4 position; ///VEC4
+	mat4 viewProjectionMatrix;
+	vec4 position;
+	vec4 forward;
 };
 
 struct Settings
 {
+	CameraParameters camera;
 	int itnum;//length of iterators - 1 (last one is finalit)
 	int pass_iters;//iterations per pass
-	int framestep;
-	CameraParameters camera;
+	int framestep;	
 	int enable_depthfog;
 };
 
@@ -82,7 +64,7 @@ layout(std140, binding = 2) buffer pointsbuf
 {
 	vec4 pointsstate[];
 };
-
+//uniformba
 layout(std430, binding = 3) buffer settingsbuf
 {
 	Settings settings;
@@ -157,48 +139,19 @@ float randhash(uint nextSample)
 
 ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 {
-	//ezek mik?
-	float r1 = 0.0f;
-	float r2 = 0.0f;
-	float r3 = 0.0f;
 
-	vec3 r;//ray from camera to point
-	r.x = (p.x - c.ox);
-	r.y = (p.y - c.oy);
-	r.z = (p.z - c.oz);
-
-	//float hack=c.phi;//miert vetitunk a kamera jobb oldala iranyaba???
-	//c.phi-=3.1415926f/2.0f;
-
-	float subject_distance = -r.x * c.sin_phi_hack * c.sin_theta + r.y * c.cos_phi_hack * c.sin_theta - r.z * c.cos_theta + r3 -/*ez miert nem +*/ c.focallength;
-	if (subject_distance < 0.0f)//discard if behind camera
+	vec3 pointDir = normalize((p-c.position.xyz));
+	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
 
-	float model_x = r.x * c.cos_phi_hack + r.y * c.sin_phi_hack + r1;
-	float model_y = -r.x * c.sin_phi_hack * c.cos_theta + r.y * c.cos_phi_hack * c.cos_theta + r.z * c.sin_theta - r2;
+	vec4 normalizedPoint =   c.viewProjectionMatrix* vec4(p.xyz, 1.0f);
+	normalizedPoint /= normalizedPoint.w;
 
-	//c.phi=hack;
-
-	//dof pr
-	vec3 co = vec3(c.ox, c.oy, c.oz);
-	vec3 cd = vec3(c.dx, c.dy, c.dz);
-	vec3 rd = normalize(p - co);
-	vec3 focuspoint = co + (rd * c.focusdistance);// / dot(rd, cd));
-	vec3 fpn = -cd;//focal plane normal
-	float D = dot(fpn, focuspoint);
-	float dd = abs(dot(fpn, p) + D);
-	float dof = c.dof_effect * dd;
-	model_x += pow(rl, 0.5f) * dof * cos(ra * 6.28318530718f);
-	model_y += pow(rl, 0.5f) * dof * sin(ra * 6.28318530718f);
-
-	vec2 proj = vec2(//project
-		model_x * c.focallength / subject_distance, 
-		model_y * c.focallength / subject_distance
-	);
 	ivec2 o = ivec2(//windows center
-		int(width / 2.0f + proj.x * width / 2.0f),
-		int(height / 2.0f + proj.y * height / 2.0f)
+		int((normalizedPoint.x + 1) * width / 2.0f),
+		int((normalizedPoint.y + 1) * height / 2.0f)
 	);
+	
 	return o;
 
 }
@@ -330,29 +283,25 @@ void main() {
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		vec2 proj = Project(settings.camera, finalp, ra1, ra2);
-		//window center
-		//proj.x = width / 2.0f + proj.x * width / 2.0f;
-		//proj.y = height / 2.0f + proj.y * height / 2.0f;
+		ivec2 proj = Project(settings.camera, finalp, ra1, ra2);
+
 	
-		int x_index = int(round(proj.x));
-		int y_index = int(round(proj.y));
-	
+		
 		vec4 color = vec4(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
 	
 		//depth fog option
-		float depthfog = 1.0f;
-		if (settings.enable_depthfog==1)//bool?
-		{
-			color.xyz *= color.w;//?
-			depthfog = 1.0f / (1.0f + pow(max(0.0f, length(finalp - vec3(settings.camera.ox, settings.camera.oy, settings.camera.oz)) - settings.camera.focusdistance - settings.camera.focallength), 2));
-		}
-		color.xyzw *= depthfog;
+		//float depthfog = 1.0f;
+		//if (settings.enable_depthfog==1)//bool?
+		//{
+		//	color.xyz *= color.w;//?
+		//	depthfog = 1.0f / (1.0f + pow(max(0.0f, length(finalp - settings.camera.position) - settings.camera.focusdistance - settings.camera.focallength), 2));
+		//}
+		//color.xyzw *= depthfog;
 	
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
-		if (x_index >= 0 && x_index < width && y_index >= 0 && y_index < height && !(i < 16 && settings.framestep == 0))
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))
 		{//point lands on picture
-			int ipx = x_index + y_index * width;//pixel index
+			int ipx = proj.x + proj.y * width;//pixel index
 			histogram[ipx] += color;//r,g,b,db
 			//accepted_iters++;
 		}

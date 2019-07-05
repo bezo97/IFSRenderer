@@ -8,6 +8,7 @@ using System.Windows.Forms;
 //using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
+using OpenTK;
 
 
 namespace GLDisplay
@@ -90,8 +91,7 @@ namespace GLDisplay
             if(e.Button == MouseButtons.Left)
             {
                 r.MutateCamera(c => {
-                    c.Theta += (lastY - e.Y) / 100.0f;
-                    c.Phi += (lastX - e.X) / 100.0f;
+                    c.ProcessMouseMovement(( e.X-lastX) / 5.0f, (lastY - e.Y) / 5.0f);
                     return c;
                 });
             }
@@ -119,7 +119,7 @@ namespace GLDisplay
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
             r.MutateCamera(c => {
-                c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
+                //c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
                 return c;
             });
         }
@@ -172,10 +172,19 @@ namespace GLDisplay
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
                 r.MutateCamera(c => {
-                    c.Translate(
-                    0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
-                    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
-                    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                    //var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                    //    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                    //    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                    //c.Translate(translateVector);
+                    if(IsKeyDown(Keys.W))
+                        c.Translate(CameraMovement.FORWARD, 0.01f);
+                    if (IsKeyDown(Keys.S))
+                        c.Translate(CameraMovement.BACKWARD, 0.01f);
+                    if (IsKeyDown(Keys.A))
+                        c.Translate(CameraMovement.LEFT,0.01f);
+                    if (IsKeyDown(Keys.D))
+                        c.Translate(CameraMovement.RIGHT, 0.01f);
+
                     return c;
                 });
             }
@@ -223,7 +232,7 @@ namespace GLDisplay
         private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
         {
             r.MutateCamera(c => {
-                c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
+                //c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
                 return c;
             });
         }

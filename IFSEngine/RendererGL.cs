@@ -77,7 +77,7 @@ namespace IFSEngine
         /// <summary>
         /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
         /// </summary>
-        public void MutateCamera(Func<Camera, Camera> mutator)
+        public void MutateCamera(Func<YPCamera, YPCamera> mutator)
         {
             CurrentParams.Camera = mutator(CurrentParams.Camera);
             invalidAccumulation = true;
@@ -134,14 +134,15 @@ namespace IFSEngine
 
             var settings = new Settings
             {
-                pass_iters = pass_iters,
                 camera = CurrentParams.Camera.Params,
+                itnum = CurrentParams.Iterators.Count,
+                pass_iters = pass_iters,
                 framestep = Framestep,
                 enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
-                itnum = CurrentParams.Iterators.Count,
+                
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+17*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+(16+8)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);

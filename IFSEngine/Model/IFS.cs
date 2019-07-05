@@ -23,7 +23,7 @@ namespace IFSEngine.Model
             1.0f,
             1.0f
         );
-        public Camera Camera { get; set; } = new Camera();
+        public YPCamera Camera { get; set; } = new YPCamera();
 
         public IFS ResetCamera()
         {
@@ -31,7 +31,7 @@ namespace IFSEngine.Model
             int w = Camera.Width;
             int h = Camera.Height;
 
-            Camera = new Camera();
+            Camera = new YPCamera();
 
             Camera.Width = w;
             Camera.Height = h;

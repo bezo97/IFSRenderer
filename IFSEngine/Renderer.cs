@@ -155,7 +155,7 @@ namespace IFSEngine
         /// <summary>
         /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
         /// </summary>
-        public void MutateCamera(Func<Camera,Camera> mutator)
+        public void MutateCamera(Func<YPCamera,YPCamera> mutator)
         {
             CurrentParams.Camera = mutator(CurrentParams.Camera);
             invalidAccumulation = true;
