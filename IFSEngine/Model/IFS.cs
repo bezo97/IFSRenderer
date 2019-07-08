@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using IFSEngine.Model.Camera;
 
 namespace IFSEngine.Model
 {
@@ -8,6 +9,7 @@ namespace IFSEngine.Model
     {
         public float Brightness { get; set; } = 1.0f;
         public float Gamma { get; set; } = 4.0f;
+        public float FogEffect { get; set; } = 1.0f;
 
         public IFS(bool random=true)
         {
@@ -23,7 +25,7 @@ namespace IFSEngine.Model
             1.0f,
             1.0f
         );
-        public Camera Camera { get; set; } = new Camera();
+        public CameraBase Camera { get; set; } = new YawPitchCamera();
 
         public IFS ResetCamera()
         {
@@ -31,7 +33,7 @@ namespace IFSEngine.Model
             int w = Camera.Width;
             int h = Camera.Height;
 
-            Camera = new Camera();
+            Camera = new YawPitchCamera();
 
             Camera.Width = w;
             Camera.Height = h;

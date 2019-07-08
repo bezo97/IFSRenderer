@@ -9,6 +9,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using IFSEngine.Model;
+using IFSEngine.Model.Camera;
 
 
 namespace IFSEngine
@@ -27,11 +28,8 @@ namespace IFSEngine
         public float Brightness { get => CurrentParams.Brightness; set => CurrentParams.Brightness = value; }
         public float Gamma { get => CurrentParams.Gamma; set => CurrentParams.Gamma = value; }
 
-        /// <summary>
-        /// Use <see cref="UpdateParams(IFS)"/> to set params
-        /// </summary>
         public IFS CurrentParams { get; private set; }
-
+        public CameraBase Camera => CurrentParams.Camera;
 
         private const int threadcnt = 1500;//TODO: const helyett ez legyen megadhato / adaptiv??
 
@@ -54,13 +52,13 @@ namespace IFSEngine
         public RendererGL(IFS Params) : this(Params, Params.Camera.Width, Params.Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
         {
-            UpdateParams(Params);
-            MutateParams(p =>{
-                p.Camera.Width = w;
-                p.Camera.Height = h;
-                return p;
-            });
 
+            CurrentParams = Params;
+            invalidParams = true;
+            invalidAccumulation = true;
+            Camera.OnManipulate += InvalidateAccumulation;
+            Camera.Width = w;
+            Camera.Height = h;
             //TODO: ne a konstruktorban
             initDisplay();
             initRenderer();
@@ -74,26 +72,13 @@ namespace IFSEngine
 
         }
 
-        /// <summary>
-        /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
-        /// </summary>
-        public void MutateCamera(Func<Camera, Camera> mutator)
+        public void Reset()
         {
-            CurrentParams.Camera = mutator(CurrentParams.Camera);
-            invalidAccumulation = true;
-        }
-
-        public void UpdateParams(IFS newParams)
-        {
-            CurrentParams = newParams;
-
+            CurrentParams.RandomizeParams();
+            CurrentParams.ResetCamera();
+            Camera.OnManipulate += InvalidateAccumulation;
             invalidParams = true;
             invalidAccumulation = true;
-        }
-
-        public void MutateParams(Func<IFS, IFS> mutator)
-        {
-            UpdateParams(mutator(CurrentParams));
         }
 
         public void RenderFrame()
@@ -134,14 +119,14 @@ namespace IFSEngine
 
             var settings = new Settings
             {
-                pass_iters = pass_iters,
-                camera = CurrentParams.Camera.Params,
-                framestep = Framestep,
-                fog_effect = CurrentParams.Camera.FogEffect,
+                CameraBase = CurrentParams.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
+                pass_iters = pass_iters,
+                framestep = Framestep,
+                fog_effect = CurrentParams.FogEffect
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 3 * sizeof(int)+18*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 3 * sizeof(int)+(16+9)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
