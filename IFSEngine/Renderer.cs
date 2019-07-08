@@ -10,6 +10,7 @@ using Cloo.Bindings;
 using System.Linq;
 
 using IFSEngine.Model;
+using IFSEngine.Model.Camera;
 using IFSEngine.mwc64x;
 
 namespace IFSEngine
@@ -219,13 +220,13 @@ namespace IFSEngine
             var settings = new Settings
             {
                 pass_iters = pass_iters,
-                camera = CurrentParams.Camera.Params,
+                CameraBase = CurrentParams.Camera.Params,
                 framestep = framestep,
                 enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
                 itnum = CurrentParams.Iterators.Count,
             };
 
-            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//camera motion blur es pass_iters miatt
+            cq.WriteToBuffer<Settings>(new Settings[] { settings }, settingsbuf, true, null);//CameraBase motion blur es pass_iters miatt
             cq.Finish();//
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
 

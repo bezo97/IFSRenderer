@@ -6,7 +6,7 @@ namespace IFSEngine.Model
 {
     internal struct Settings
     {
-        internal YPCameraParameters camera;
+        internal CameraBaseParameters CameraBase;
         internal int itnum;//length of iterators - 1 (last one is finalit)
         internal int pass_iters;//iterations per pass
         internal int framestep;

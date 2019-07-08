@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using IFSEngine.Model.Camera;
 
 namespace IFSEngine.Model
 {

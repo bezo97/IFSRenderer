@@ -5,7 +5,7 @@ using OpenTK;
 
 namespace IFSEngine.Model
 {
-    internal struct YPCameraParameters
+    internal struct CameraBaseParameters
     {
         internal Matrix4 viewProjMatrix;
         internal Vector4 position;

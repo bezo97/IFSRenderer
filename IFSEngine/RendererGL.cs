@@ -9,6 +9,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using IFSEngine.Model;
+using IFSEngine.Model.Camera;
 
 
 namespace IFSEngine
@@ -134,7 +135,7 @@ namespace IFSEngine
 
             var settings = new Settings
             {
-                camera = CurrentParams.Camera.Params,
+                CameraBase = CurrentParams.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = pass_iters,
                 framestep = Framestep,

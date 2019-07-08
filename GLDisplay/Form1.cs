@@ -172,18 +172,10 @@ namespace GLDisplay
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
                 r.MutateCamera(c => {
-                    //var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
-                    //    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
-                    //    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                    //c.Translate(translateVector);
-                    if(IsKeyDown(Keys.W))
-                        c.Translate(CameraMovement.FORWARD, 0.01f);
-                    if (IsKeyDown(Keys.S))
-                        c.Translate(CameraMovement.BACKWARD, 0.01f);
-                    if (IsKeyDown(Keys.A))
-                        c.Translate(CameraMovement.LEFT,0.01f);
-                    if (IsKeyDown(Keys.D))
-                        c.Translate(CameraMovement.RIGHT, 0.01f);
+                    var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                        0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                        0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                    c.Translate(translateVector);
 
                     return c;
                 });
