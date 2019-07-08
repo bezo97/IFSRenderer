@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-//using GLDisplay.Leap;
 using IFSEngine;
 using IFSEngine.Model;
 using OpenTK;
@@ -23,56 +22,36 @@ namespace GLDisplay
         [DllImport("user32.dll")]
         public extern static Int16 GetKeyState(Int16 nVirtKey);
 
-        IFSEngine.RendererGL renderer;
+        RendererGL renderer;
 
-        OpenTK.GLControl display1;
-        //OpenGL.GlControl display1;
-
-        //Leap.Leap leap;
+        GLControl display1;
 
         const int w = 1280;
         const int h = 720;
 
-        void UpdateIteratorSelectedText()
-        {
-            //IteratorSelectLabel.Text = $"< ({IteratorManipulator.EditState + 1}) / {IteratorManipulator.IteratorCount} >";
-        }
-
-
         public Form1()
         {
             InitializeComponent();
+
+            //Init GL Control
             this.Width = w;
             this.Height = h;
-            OpenTK.Toolkit.Init();//
+            OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
             display1.Width = w;
             display1.Height = h;
-            display1.Left = 0;//(this.ClientSize.Width - w) / 2;
-            display1.Top = 0; //(this.ClientSize.Height - h) / 2;
+            display1.Left = 0;
+            display1.Top = 0;
             display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
             display1.MakeCurrent();
             this.Controls.Add(display1);
-            //initGL();
-            //OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
-            //IntPtr raw_context_handle = ctx.Context.Handle;
+
 
             IFS Params = new IFS();
-            renderer = new IFSEngine.RendererGL(Params, w, h);
-            
-            //if leap init
-            //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
-
-            //Swipe.RightSwiped += (s, e) => UpdateIteratorSelectedText();
-            //Swipe.LeftSwiped += (s, e) => UpdateIteratorSelectedText();
-
-            //IteratorManipulator.Renderer = r;
-            //IteratorManipulator.Params = Params;
-            UpdateIteratorSelectedText();
+            renderer = new RendererGL(Params, w, h);
 
             renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
-            //r.RenderFrameCompleted += R_RenderFrameCompleted;
 
         }
 
@@ -122,8 +101,7 @@ namespace GLDisplay
 
         private void ButtonRandomize_Click(object sender, EventArgs e)
         {
-            renderer.Reset();           
-            UpdateIteratorSelectedText();
+            renderer.Reset();
         }
 
         private void KeyDown_Custom(object sender, PreviewKeyDownEventArgs e)
@@ -193,8 +171,6 @@ namespace GLDisplay
             buttonRender.Visible = visible;
             buttonStop.Visible = visible;
             buttonRandomize.Visible = visible;
-
-            IteratorSelectLabel.Visible = visible;
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

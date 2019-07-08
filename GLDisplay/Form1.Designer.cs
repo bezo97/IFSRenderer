@@ -36,7 +36,6 @@
             this.buttonStop = new System.Windows.Forms.Button();
             this.numericUpDownFocus = new System.Windows.Forms.NumericUpDown();
             this.buttonRandomize = new System.Windows.Forms.Button();
-            this.IteratorSelectLabel = new System.Windows.Forms.Label();
             this.numericUpDownDOF = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -175,18 +174,6 @@
             this.buttonRandomize.UseVisualStyleBackColor = true;
             this.buttonRandomize.Click += new System.EventHandler(this.ButtonRandomize_Click);
             // 
-            // IteratorSelectLabel
-            // 
-            this.IteratorSelectLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.IteratorSelectLabel.AutoSize = true;
-            this.IteratorSelectLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.IteratorSelectLabel.Location = new System.Drawing.Point(577, 7);
-            this.IteratorSelectLabel.Name = "IteratorSelectLabel";
-            this.IteratorSelectLabel.Size = new System.Drawing.Size(211, 42);
-            this.IteratorSelectLabel.TabIndex = 7;
-            this.IteratorSelectLabel.Text = "< ( 1 ) / 5 >";
-            this.IteratorSelectLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
             // numericUpDownDOF
             // 
             this.numericUpDownDOF.DecimalPlaces = 3;
@@ -282,7 +269,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.IteratorSelectLabel);
             this.Controls.Add(this.buttonRandomize);
             this.Controls.Add(this.numericUpDownDOF);
             this.Controls.Add(this.numericUpDownFog);
@@ -315,7 +301,6 @@
         private System.Windows.Forms.Button buttonStop;
         private System.Windows.Forms.NumericUpDown numericUpDownFocus;
         private System.Windows.Forms.Button buttonRandomize;
-        private System.Windows.Forms.Label IteratorSelectLabel;
         private System.Windows.Forms.NumericUpDown numericUpDownDOF;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;

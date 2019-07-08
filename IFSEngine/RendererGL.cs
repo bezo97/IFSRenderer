@@ -72,6 +72,7 @@ namespace IFSEngine
 
         }
 
+        //TODO: ez nem jo ide (nincs olyan hogy renderer reset) + nem oldja meg teljesen a mutate trukkot
         public void Reset()
         {
             CurrentParams.RandomizeParams();

@@ -8,26 +8,12 @@
     <None Remove="glsl\Display.frag" />
     <None Remove="glsl\Display.vert" />
     <None Remove="glsl\ifs_kernel.compute" />
-    <None Remove="ifs_kernel.cl" />
-    <None Remove="mwc64x.cl" />
-    <None Remove="mwc64x\mwc64x_rng.cl" />
-    <None Remove="mwc64x\skip_mwc.cl" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="glsl\Display.frag" />
     <EmbeddedResource Include="glsl\Display.vert" />
     <EmbeddedResource Include="glsl\ifs_kernel.compute" />
-    <EmbeddedResource Include="ifs_kernel.cl" />
-    <EmbeddedResource Include="mwc64x.cl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="mwc64x\mwc64x_rng.cl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="mwc64x\skip_mwc.cl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
