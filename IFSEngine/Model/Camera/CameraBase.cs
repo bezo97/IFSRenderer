@@ -12,7 +12,8 @@ namespace IFSEngine.Model.Camera
 
         public int Width { get; set; } = 1920;
         public int Height { get; set; } = 1080;
-
+        public float MovementSpeed { get; set; } = 2.5f;
+        public float Sensitivity { get; set; } = 0.2f;
         public float FOV
         {
             get => fov;
@@ -22,19 +23,9 @@ namespace IFSEngine.Model.Camera
                 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)Width / (float)Height, 0.2f, 100.0f);
             }
         }
-
         private float fov = 30;
-        public bool EnableDepthFog { get; set; } = true;
 
-        //public float FocalLength { get => Params.focallength; set => Params.focallength = value; }
-        //public float FocusDistance { get => Params.focusdistance; set => Params.focusdistance = value; }
-        //public float DepthOfField { get => Params.dof_effect; set => Params.dof_effect = value; }
-
-        // Default CameraBase values
-        private const float Speed = 2.5f;
-        private const float Sensitivity = 0.1f;
-
-        // Camera Attributes
+        // Camera 3D Attributes
         protected Vector3 position
         {
             get => Params.position.Xyz;
@@ -50,10 +41,6 @@ namespace IFSEngine.Model.Camera
         protected Matrix4 projectionMatrix;
         protected readonly Vector3 worldUp;
 
-        // Camera options
-        private readonly float movementSpeed;
-        private readonly float mouseSensitivity;
-
         public CameraBase() : this(new Vector3(0.0f, 0.0f, 2.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0.0f, 0.0f, -1.0f))
         {
         }
@@ -62,21 +49,36 @@ namespace IFSEngine.Model.Camera
         public CameraBase(Vector3 position, Vector3 up, Vector3 front)
         {
             this.front = front;
-            movementSpeed = Speed;
-            mouseSensitivity = Sensitivity;
             this.position = position;
             worldUp = up;
             FOV = 30f;
         }
 
-        // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-        protected abstract void SetViewProjMatrix();
-
-        // Processes input received from any keyboard-like input system. Accepts input parameter in the form of CameraBase defined ENUM (to abstract it from windowing systems)
-        public abstract void Translate(Vector3 translateVector);
+        public void Translate(Vector3 translateVector)
+        {
+            translateVector *= MovementSpeed;
+            position += front * translateVector.X;
+            position += right * translateVector.Y;
+            position += up * translateVector.Z;
+            UpdateCamera();
+        }
 
         // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
         public abstract void ProcessMouseMovement(float xoffset, float yoffset);
 
+        // Calculates the front vector from the Camera's (updated) Euler Angles
+        protected void UpdateCamera()
+        {
+            RefreshCameraValues();
+            SetViewProjMatrix();
+        }
+
+        protected abstract void RefreshCameraValues();
+
+        // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
+        protected void SetViewProjMatrix()
+        {
+            Params.viewProjMatrix = Matrix4.LookAt(position, position + front, Vector3.UnitY) * projectionMatrix;
+        }
     }
 }

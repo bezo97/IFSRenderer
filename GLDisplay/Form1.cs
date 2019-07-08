@@ -91,7 +91,7 @@ namespace GLDisplay
             if(e.Button == MouseButtons.Left)
             {
                 r.MutateCamera(c => {
-                    c.ProcessMouseMovement(( e.X-lastX) / 5.0f, (lastY - e.Y) / 5.0f);
+                    c.ProcessMouseMovement(( e.X-lastX), (lastY - e.Y));
                     return c;
                 });
             }
@@ -216,7 +216,7 @@ namespace GLDisplay
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             r.MutateCamera(c => {
-                c.EnableDepthFog = checkBox1.Checked;
+               // c.EnableDepthFog = checkBox1.Checked;
                 return c;
             });
         }
