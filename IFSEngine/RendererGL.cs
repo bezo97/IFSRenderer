@@ -28,11 +28,8 @@ namespace IFSEngine
         public float Brightness { get => CurrentParams.Brightness; set => CurrentParams.Brightness = value; }
         public float Gamma { get => CurrentParams.Gamma; set => CurrentParams.Gamma = value; }
 
-        /// <summary>
-        /// Use <see cref="UpdateParams(IFS)"/> to set params
-        /// </summary>
         public IFS CurrentParams { get; private set; }
-
+        public CameraBase Camera => CurrentParams.Camera;
 
         private const int threadcnt = 1500;//TODO: const helyett ez legyen megadhato / adaptiv??
 
@@ -55,13 +52,13 @@ namespace IFSEngine
         public RendererGL(IFS Params) : this(Params, Params.Camera.Width, Params.Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
         {
-            UpdateParams(Params);
-            MutateParams(p =>{
-                p.Camera.Width = w;
-                p.Camera.Height = h;
-                return p;
-            });
 
+            CurrentParams = Params;
+            invalidParams = true;
+            invalidAccumulation = true;
+            Camera.OnManipulate += InvalidateAccumulation;
+            Camera.Width = w;
+            Camera.Height = h;
             //TODO: ne a konstruktorban
             initDisplay();
             initRenderer();
@@ -75,26 +72,13 @@ namespace IFSEngine
 
         }
 
-        /// <summary>
-        /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
-        /// </summary>
-        public void MutateCamera(Func<YawPitchCamera, YawPitchCamera> mutator)
+        public void Reset()
         {
-            CurrentParams.Camera = mutator(CurrentParams.Camera);
-            invalidAccumulation = true;
-        }
-
-        public void UpdateParams(IFS newParams)
-        {
-            CurrentParams = newParams;
-
+            CurrentParams.RandomizeParams();
+            CurrentParams.ResetCamera();
+            Camera.OnManipulate += InvalidateAccumulation;
             invalidParams = true;
             invalidAccumulation = true;
-        }
-
-        public void MutateParams(Func<IFS, IFS> mutator)
-        {
-            UpdateParams(mutator(CurrentParams));
         }
 
         public void RenderFrame()

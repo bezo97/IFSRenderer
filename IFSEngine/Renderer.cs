@@ -153,15 +153,6 @@ namespace IFSEngine
             
         }
 
-        /// <summary>
-        /// azert van kulon a kameranak, hogy mozgatasnal ne kelljen a fraktalt feleslegesen frissiteni
-        /// </summary>
-        public void MutateCamera(Func<YawPitchCamera,YawPitchCamera> mutator)
-        {
-            CurrentParams.Camera = mutator(CurrentParams.Camera);
-            invalidAccumulation = true;
-        }
-
         public void UpdateParams(IFS newParams)
         {
             //cq.WriteToBuffer<float>(StartingDistributions.UniformUnitCube(threadcnt), pointsstatebuf, false, null);

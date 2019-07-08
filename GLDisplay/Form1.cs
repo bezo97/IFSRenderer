@@ -23,7 +23,7 @@ namespace GLDisplay
         [DllImport("user32.dll")]
         public extern static Int16 GetKeyState(Int16 nVirtKey);
 
-        IFSEngine.RendererGL r;
+        IFSEngine.RendererGL renderer;
 
         OpenTK.GLControl display1;
         //OpenGL.GlControl display1;
@@ -59,7 +59,7 @@ namespace GLDisplay
             //IntPtr raw_context_handle = ctx.Context.Handle;
 
             IFS Params = new IFS();
-            r = new IFSEngine.RendererGL(Params, w, h);
+            renderer = new IFSEngine.RendererGL(Params, w, h);
             
             //if leap init
             //leap = new Leap.Leap(/*WindowsFormsSynchronizationContext.Current*/SynchronizationContext.Current, r);
@@ -71,7 +71,7 @@ namespace GLDisplay
             //IteratorManipulator.Params = Params;
             UpdateIteratorSelectedText();
 
-            r.DisplayFrameCompleted += R_DisplayFrameCompleted;
+            renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
             //r.RenderFrameCompleted += R_RenderFrameCompleted;
 
         }
@@ -90,10 +90,7 @@ namespace GLDisplay
         {
             if(e.Button == MouseButtons.Left)
             {
-                r.MutateCamera(c => {
-                    c.ProcessMouseMovement(( e.X-lastX), (lastY - e.Y));
-                    return c;
-                });
+                renderer.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             lastX = e.X;
             lastY = e.Y;
@@ -101,35 +98,31 @@ namespace GLDisplay
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            r.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-            r.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
+            renderer.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            renderer.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
 
         private void ButtonRender_Click(object sender, EventArgs e)
         {
-            r.StartRendering();
+            renderer.StartRendering();
         }
 
         private void ButtonStop_Click(object sender, EventArgs e)
         {
-            r.StopRendering();
+            renderer.StopRendering();
         }
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
-            r.MutateCamera(c => {
-                //c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
-                return c;
-            });
+            //renderer.MutateCamera(c => {
+            //    //c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
+            //});
         }
 
         private void ButtonRandomize_Click(object sender, EventArgs e)
         {
-            r.MutateParams(p => p
-                .RandomizeParams()
-                .ResetCamera()
-            );            
+            renderer.Reset();           
             UpdateIteratorSelectedText();
         }
 
@@ -171,14 +164,11 @@ namespace GLDisplay
             }
             else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
             {
-                r.MutateCamera(c => {
                     var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
                         0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
                         0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                    c.Translate(translateVector);
-
-                    return c;
-                });
+                    renderer.Camera.Translate(translateVector);
+                
             }
         }
 
@@ -209,34 +199,32 @@ namespace GLDisplay
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            r.StopRendering();
-            r.Dispose();
+            renderer.StopRendering();
+            renderer.Dispose();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            r.MutateCamera(c => {
-               // c.EnableDepthFog = checkBox1.Checked;
-                return c;
-            });
+            //renderer.MutateCamera(c => {
+            //   // c.EnableDepthFog = checkBox1.Checked;
+            //});
         }
 
         private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
         {
-            r.MutateCamera(c => {
-                //c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
-                return c;
-            });
+            //renderer.MutateCamera(c => {
+            //    //c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
+            //});
         }
 
         private void SaveImage_Click(object sender, EventArgs e)
         {
-            var p = r.GenerateImage();
-            Bitmap b = new Bitmap(r.Width, r.Height);
-            for(int y = 0;y<r.Height;y++)
-                for (int x = 0; x < r.Width; x++)
+            var p = renderer.GenerateImage();
+            Bitmap b = new Bitmap(renderer.Width, renderer.Height);
+            for(int y = 0;y<renderer.Height;y++)
+                for (int x = 0; x < renderer.Width; x++)
                 {
-                    b.SetPixel(x, r.Height - y - 1, Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0*p[x, y][2])));
+                    b.SetPixel(x, renderer.Height - y - 1, Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0*p[x, y][2])));
                 }
             b.Save("Output.bmp");
         }

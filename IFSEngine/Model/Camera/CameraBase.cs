@@ -9,7 +9,7 @@ namespace IFSEngine.Model.Camera
     public abstract class CameraBase
     {
         internal CameraBaseParameters Params = new CameraBaseParameters();
-
+        public event Action OnManipulate;
         public int Width { get; set; } = 1920;
         public int Height { get; set; } = 1080;
         public float MovementSpeed { get; set; } = 2.5f;
@@ -71,6 +71,8 @@ namespace IFSEngine.Model.Camera
         {
             RefreshCameraValues();
             SetViewProjMatrix();
+            if(OnManipulate!=null)
+            OnManipulate();
         }
 
         protected abstract void RefreshCameraValues();

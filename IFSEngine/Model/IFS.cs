@@ -24,7 +24,7 @@ namespace IFSEngine.Model
             1.0f,
             1.0f
         );
-        public YawPitchCamera Camera { get; set; } = new YawPitchCamera();
+        public CameraBase Camera { get; set; } = new YawPitchCamera();
 
         public IFS ResetCamera()
         {
