@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cloo.clSharp" Version="1.0.0" />
     <PackageReference Include="OpenTK" Version="3.0.1" />
   </ItemGroup>
 

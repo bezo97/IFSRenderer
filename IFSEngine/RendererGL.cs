@@ -92,7 +92,7 @@ namespace IFSEngine
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
                 GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
-                pass_iters = 100;//ez novekszik minden frammel
+                pass_iters = 500;//ez novekszik minden frammel
                 Framestep = 0;
 
                 if (invalidParams)
@@ -111,7 +111,7 @@ namespace IFSEngine
                 }
             }
 
-            if(Framestep%(5000/pass_iters)==0)//TODO: ezt szebben
+            if(Framestep%(10000/pass_iters)==0)//TODO: ezt szebben
             {
                 //update pointsstate
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
@@ -132,7 +132,7 @@ namespace IFSEngine
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
 
-            pass_iters = Math.Min((int)(pass_iters * 1.5), 5000);
+            pass_iters = Math.Min((int)(pass_iters * 1.5), 1000);
             Framestep++;
 
             //GL.Finish();
