@@ -71,8 +71,7 @@ namespace IFSEngine.Model.Camera
         {
             RefreshCameraValues();
             SetViewProjMatrix();
-            if(OnManipulate!=null)
-            OnManipulate();
+            OnManipulate?.Invoke();
         }
 
         protected abstract void RefreshCameraValues();
