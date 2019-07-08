@@ -53,7 +53,7 @@ namespace IFSEngine
         int threadcnt = 1500;//gtx970: 1664, 610m: 48
         int texturetarget;
         Random rgen = new Random();
-        public int rendersteps = 0;
+        public int framestep = 0;
 
         //
         public int Width => CurrentParams.Camera.Width;
@@ -173,7 +173,7 @@ namespace IFSEngine
             }*/
             /*this.its = its;
             this.finalit = finalit;
-            //rendersteps = 0;
+            //framestep = 0;
             this.settings.itnum = its.Count;*/
             /*List<Iterator> its_and_final = new List<Iterator>(its);
             its_and_final.Add(finalit);
@@ -203,7 +203,7 @@ namespace IFSEngine
                 cq.FillBuffer(calcbuf, new float[]{ 0.0f }, 0, Width*Height*4, null);
                 invalidAccumulation = false;
                 pass_iters = 100;//minden renderrel duplazodik
-                rendersteps = 0;
+                framestep = 0;
 
                 if (invalidParams)
                 {
@@ -225,8 +225,8 @@ namespace IFSEngine
             {
                 pass_iters = pass_iters,
                 camera = CurrentParams.Camera.Params,
-                rendersteps = rendersteps,
-                enable_depthfog = CurrentParams.Camera.EnableDepthFog ? 1 : 0,
+                framestep = framestep,
+                fog_effect = CurrentParams.Camera.FogEffect,
                 itnum = CurrentParams.Iterators.Count,
             };
 
@@ -235,7 +235,7 @@ namespace IFSEngine
             cq.Execute(computekernel, new long[] { 0 }, new long[] { threadcnt }, /*new long[] { 1 }*/null, ComputeEventsCollection);
 
             pass_iters = Math.Min((int)(pass_iters * 1.1), 50000);
-            rendersteps++;
+            framestep++;
 
             cq.Finish();//
         }
@@ -276,7 +276,7 @@ namespace IFSEngine
 
             //cq.Finish();
 
-            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/rendersteps/**width*height*/ , CurrentParams.Camera.Brightness, CurrentParams.Camera.Gamma }, dispsettingsbuf, false/**/, null);
+            cq.WriteToBuffer<float>(new float[] { /*threadcnt**/framestep/**width*height*/ , CurrentParams.Brightness, CurrentParams.Gamma }, dispsettingsbuf, false/**/, null);
             if (texturetarget > -1)//van gl
                 cq.AcquireGLObjects(new ComputeMemory[] { dispimg }, null);//
             cq.Execute(displaykernel, new long[] { 0 }, new long[] { Width * Height }, /*new long[] { 1 }*/null, DisplayEventsCollection);

@@ -8,8 +8,8 @@ namespace IFSEngine.Model
     {
         internal int itnum;//length of iterators - 1 (last one is finalit)
         internal int pass_iters;//iterations per pass
-        internal int rendersteps;
+        internal int framestep;
         internal CameraParameters camera;
-        internal int enable_depthfog;
+        internal float fog_effect;
     }
 }

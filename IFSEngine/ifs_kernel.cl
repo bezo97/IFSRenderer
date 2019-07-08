@@ -49,7 +49,7 @@ typedef struct
 {
 	int itnum;//length of its - 1 (last one is finalit)
 	int pass_iters;//do this many iterations
-	int rendersteps;
+	int framestep;
 	Camera camera;
 	int enable_depthfog;
 } Settings;
@@ -215,14 +215,14 @@ __kernel void Main(
 	int gid = get_global_id(0);
 
 	const int pass_iters = settings[0].pass_iters;
-	const int rendersteps = settings[0].rendersteps;
+	const int framestep = settings[0].framestep;
 
 	//rnd index: cpu rol jott randomok
-	//int next = (gid*(pass_iters+3) + /*hash()*/rendersteps) % /*randbuf meret*/(1500*(10000+2));
+	//int next = (gid*(pass_iters+3) + /*hash()*/framestep) % /*randbuf meret*/(1500*(10000+2));
 
 	//init mwc64x random hash
 	mwc64x_state_t rng = rng_state[gid];
-	if(rendersteps==0)
+	if(framestep==0)
 	{
 		ulong perStream=3*10000*100;//ez miert tobb?
 		MWC64X_SeedStreams(&rng, gid, perStream); 
