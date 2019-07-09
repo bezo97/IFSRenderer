@@ -176,7 +176,7 @@ void main(void)
 	int pxi = px+py*width;
 
 	vec3 acc_color = histogram[pxi].xyz;//accumulated color
-	float acc_histogram = histogram[pxi].z;//how many times this pixel was hit
+	float acc_histogram = histogram[pxi].w;//how many times this pixel was hit
 
 	float logscale = (Brightness * log(1.0f + acc_histogram / (framestep / Gamma))) / acc_histogram;
 	vec3 logscaled_color = logscale * acc_color;
