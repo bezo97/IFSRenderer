@@ -81,7 +81,7 @@ namespace WpfDisplay
 
             return (Size)transformToDevice.Transform((Vector)element.DesiredSize);
         }
-
+        
         Stopwatch fpsCounter = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {

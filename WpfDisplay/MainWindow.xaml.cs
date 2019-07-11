@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Primitives;
 
 namespace WpfDisplay
 {
@@ -35,6 +37,8 @@ namespace WpfDisplay
             Host.Loaded += (s, e) =>
             {
                 renderer = Host.Renderer;
+                BrightnessSetter.Value = renderer.Brightness;
+                GammaSetter.Value = renderer.Gamma;
             };
         }
 
@@ -46,6 +50,20 @@ namespace WpfDisplay
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             renderer.Reset();
+        }
+
+        private void Brightness_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (renderer == null)
+                return;
+            renderer.Brightness =(float) BrightnessSetter.Value;
+        }
+
+        private void Gamma_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (renderer == null)
+                return;
+            renderer.Gamma = (float)GammaSetter.Value;
         }
     }
 }
