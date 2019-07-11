@@ -31,7 +31,9 @@
             </StackPanel>
         </md:Card>
         <md:Card Grid.Row="1" Padding="32" Margin="16" VerticalAlignment="Stretch">
-            <local:RenderDisplay x:Name="Host" Width="1280" Height="720"/>
+            <DockPanel Name="Docker">
+                <local:RenderDisplay x:Name="Host" Height="{Binding ActualHeight, ElementName=Docker}" Width="{Binding ActualWidth, ElementName=Docker}"/>
+            </DockPanel>
         </md:Card>
     </Grid>
 </Window>
