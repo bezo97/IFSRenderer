@@ -94,9 +94,8 @@ namespace GLDisplay
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
-            //renderer.MutateCamera(c => {
-            //    //c.FocusDistance = (float)Convert.ToDouble(numericUpDownFocus.Value);
-            //});
+            renderer.CurrentParams.FocusDistance = (float)numericUpDownFocus.Value;
+            renderer.InvalidateAccumulation();
         }
 
         private void ButtonRandomize_Click(object sender, EventArgs e)
@@ -181,16 +180,14 @@ namespace GLDisplay
 
         private void NumericUpDownFog_ValueChanged(object sender, EventArgs e)
         {
-            //renderer.MutateCamera(c => {
-            //   // c.EnableDepthFog = checkBox1.Checked;
-            //});
+            renderer.CurrentParams.FogEffect = (float)numericUpDownFog.Value;
+            renderer.InvalidateAccumulation();
         }
 
         private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
         {
-            //renderer.MutateCamera(c => {
-            //    //c.DepthOfField = (float)Convert.ToDouble(numericUpDownDOF.Value);
-            //});
+            renderer.CurrentParams.Dof = (float)numericUpDownDOF.Value;
+            renderer.InvalidateAccumulation();
         }
 
         private void SaveImage_Click(object sender, EventArgs e)
