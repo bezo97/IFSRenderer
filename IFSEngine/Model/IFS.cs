@@ -13,7 +13,7 @@ namespace IFSEngine.Model
         public CameraBase Camera { get; set; } = new YawPitchCamera();
         public float Brightness { get; set; } = 1.0f;
         public float Gamma { get; set; } = 4.0f;
-        public float FogEffect { get; set; } = 1.0f;
+        public float FogEffect { get; set; } = 2.0f;
         public float Dof { get; set; } = 0.05f;
         public float FocusDistance { get; set; } = 2.0f;
         public float FocusArea { get; set; } = 0.25f;

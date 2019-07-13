@@ -127,10 +127,11 @@ namespace IFSEngine
                 fog_effect = CurrentParams.FogEffect,
                 dof = CurrentParams.Dof,
                 focusdistance = CurrentParams.FocusDistance,
-                focusarea = CurrentParams.FocusArea
+                focusarea = CurrentParams.FocusArea,
+                focuspoint = CurrentParams.Camera.Params.position + CurrentParams.FocusDistance * CurrentParams.Camera.Params.forward
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 3 * sizeof(int)+(16+12)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+(24+8)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
