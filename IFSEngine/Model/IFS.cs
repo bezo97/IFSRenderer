@@ -7,9 +7,17 @@ namespace IFSEngine.Model
 {
     public class IFS
     {
+        //TODO: IFS: Iterators + FinalIterator + Views (+ Animations?)
+        #region View
+        //width, height kivenni ide kamerabol
+        public CameraBase Camera { get; set; } = new YawPitchCamera();
         public float Brightness { get; set; } = 1.0f;
         public float Gamma { get; set; } = 4.0f;
         public float FogEffect { get; set; } = 1.0f;
+        public float Dof { get; set; } = 0.05f;
+        public float FocusDistance { get; set; } = 2.0f;
+        public float FocusArea { get; set; } = 0.25f;
+        #endregion
 
         public IFS(bool random=true)
         {
@@ -25,11 +33,10 @@ namespace IFSEngine.Model
             1.0f,
             1.0f
         );
-        public CameraBase Camera { get; set; } = new YawPitchCamera();
 
         public IFS ResetCamera()
         {
-            //HACK: scene-ek bevezeteseig: resetnel a resolutiont megjegyezzuk
+            //HACK: view-k bevezeteseig: resetnel a resolutiont megjegyezzuk
             int w = Camera.Width;
             int h = Camera.Height;
 

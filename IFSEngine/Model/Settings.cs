@@ -11,5 +11,8 @@ namespace IFSEngine.Model
         internal int pass_iters;//iterations per pass
         internal int framestep;
         internal float fog_effect;
+        internal float dof;
+        internal float focusdistance;
+        internal float focusarea;
     }
 }

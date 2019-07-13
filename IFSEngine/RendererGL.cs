@@ -124,10 +124,13 @@ namespace IFSEngine
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = pass_iters,
                 framestep = Framestep,
-                fog_effect = CurrentParams.FogEffect
+                fog_effect = CurrentParams.FogEffect,
+                dof = CurrentParams.Dof,
+                focusdistance = CurrentParams.FocusDistance,
+                focusarea = CurrentParams.FocusArea
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 3 * sizeof(int)+(16+9)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 3 * sizeof(int)+(16+12)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);

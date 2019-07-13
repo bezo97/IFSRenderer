@@ -19,6 +19,9 @@ struct Settings
 	int pass_iters;//iterations per pass
 	int framestep;	
 	float fog_effect;
+	float dof;
+	float focusdistance;
+	float focusarea;
 };
 
 struct Affine
@@ -75,7 +78,6 @@ layout(std430, binding = 4) buffer iterbuf
 	Iterator its[];
 };
 
-//TODO: ezt beleegetni
 uniform int width;
 uniform int height;
 
@@ -85,9 +87,6 @@ uniform int height;
 //in uvec3 gl_LocalInvocationID; //within workgroup
 //in uvec3 gl_GlobalInvocationID; //within dispatch
 //in uint  gl_LocalInvocationIndex; //1d local id
-
-// storage buffers or Textures. Image Load Store
-//uniform writeonly image2D destTex;
 
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
 uint hash(uint x) {
@@ -140,16 +139,21 @@ float randhash(uint nextSample)
 ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 {
 
-	vec3 pointDir = normalize((p-c.position.xyz));
+	vec3 pointDir = normalize(p - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
 
-	vec4 normalizedPoint =   c.viewProjectionMatrix* vec4(p.xyz, 1.0f);
+	vec4 normalizedPoint = c.viewProjectionMatrix * vec4(p.xyz, 1.0f);
 	normalizedPoint /= normalizedPoint.w;
 
-	ivec2 o = ivec2(//windows center
+	//dof
+	vec3 focuspoint = c.position.xyz + (c.forward.xyz * settings.focusdistance);// / dot(rd, cd));
+	float dof = settings.dof * max(0, abs(dot(p - focuspoint, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
+	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f));
+
+	ivec2 o = ivec2(//image center
 		int((normalizedPoint.x + 1) * width / 2.0f),
-		int((normalizedPoint.y + 1) * height / 2.0f)
+		int((normalizedPoint.y + 1) * width / 2.0f)
 	);
 	
 	return o;
