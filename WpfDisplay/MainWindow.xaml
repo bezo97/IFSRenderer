@@ -28,6 +28,8 @@
                 <TextBlock Margin="10" Style="{DynamicResource MaterialDesignTitleTextBlock}">TODO: replace, add gui</TextBlock>
                 <Button Margin="10" Content="Start" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click"/>
                 <Button Margin="10" Content="Reset" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_1" />
+                <Button Margin="10" Content="Debug1" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_2" />
+                <Button Margin="10" Content="Debug2" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_3" />
             </StackPanel>
         </md:Card>
         <md:Card Grid.Row="1" Padding="32" Margin="16" VerticalAlignment="Stretch">

@@ -69,7 +69,7 @@ namespace GLDisplay
         {
             if(e.Button == MouseButtons.Left)
             {
-                renderer.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
+                renderer.ActiveView.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             lastX = e.X;
             lastY = e.Y;
@@ -94,7 +94,7 @@ namespace GLDisplay
 
         private void NumericUpDownFocus_ValueChanged(object sender, EventArgs e)
         {
-            renderer.CurrentParams.FocusDistance = (float)numericUpDownFocus.Value;
+            renderer.ActiveView.FocusDistance = (float)numericUpDownFocus.Value;
             renderer.InvalidateAccumulation();
         }
 
@@ -144,7 +144,7 @@ namespace GLDisplay
                     var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
                         0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
                         0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                    renderer.Camera.Translate(translateVector);
+                    renderer.ActiveView.Camera.Translate(translateVector);
                 
             }
         }
@@ -180,13 +180,13 @@ namespace GLDisplay
 
         private void NumericUpDownFog_ValueChanged(object sender, EventArgs e)
         {
-            renderer.CurrentParams.FogEffect = (float)numericUpDownFog.Value;
+            renderer.ActiveView.FogEffect = (float)numericUpDownFog.Value;
             renderer.InvalidateAccumulation();
         }
 
         private void numericUpDownDOF_ValueChanged(object sender, EventArgs e)
         {
-            renderer.CurrentParams.Dof = (float)numericUpDownDOF.Value;
+            renderer.ActiveView.Dof = (float)numericUpDownDOF.Value;
             renderer.InvalidateAccumulation();
         }
 

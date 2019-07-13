@@ -1,29 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using IFSEngine.Model.Camera;
+using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
     public class IFS
     {
         //TODO: IFS: Iterators + FinalIterator + Views (+ Animations?)
-        #region View
-        //width, height kivenni ide kamerabol
-        public CameraBase Camera { get; set; } = new YawPitchCamera();
-        public float Brightness { get; set; } = 1.0f;
-        public float Gamma { get; set; } = 4.0f;
-        public float FogEffect { get; set; } = 2.0f;
-        public float Dof { get; set; } = 0.05f;
-        public float FocusDistance { get; set; } = 2.0f;
-        public float FocusArea { get; set; } = 0.25f;
-        #endregion
 
-        public IFS(bool random=true)
-        {
-            RandomizeParams();
-        }
-
+        public List<IFSView> Views { get; set; } = new List<IFSView>();
         public List<Iterator> Iterators { get; set; } = new List<Iterator>();
         public Iterator FinalIterator { get; set; } = new Iterator(
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
@@ -34,21 +21,13 @@ namespace IFSEngine.Model
             1.0f
         );
 
-        public IFS ResetCamera()
+        public IFS(bool random=true)
         {
-            //HACK: view-k bevezeteseig: resetnel a resolutiont megjegyezzuk
-            int w = Camera.Width;
-            int h = Camera.Height;
-
-            Camera = new YawPitchCamera();
-
-            Camera.Width = w;
-            Camera.Height = h;
-
-            return this;
+            RandomizeParams();
+            Views.Add(new IFSView());
         }
 
-        public IFS RandomizeParams()
+        public void RandomizeParams()
         {
             Random rand = new Random();
             Iterators.Clear();
@@ -88,7 +67,16 @@ namespace IFSEngine.Model
                 Iterators[s] = tmpit;
             }
 
-            return this;
+        }
+
+        public static IFS LoadJson(string path)
+        {
+            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path));
+        }
+
+        public void SaveJson(string path)
+        {
+            File.WriteAllText(path, JsonConvert.SerializeObject(this));
         }
 
     }

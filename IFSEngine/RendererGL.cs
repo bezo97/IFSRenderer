@@ -21,15 +21,15 @@ namespace IFSEngine
 
         public bool UpdateDisplayOnRender { get; set; } = true;
         public int Framestep { get; private set; } = 0;
-        public int Width => CurrentParams.Camera.Width;
-        public int Height => CurrentParams.Camera.Height;
+        public int Width => ActiveView.Camera.Width;
+        public int Height => ActiveView.Camera.Height;
 
         //TODO: ehelyett jobbat kitalalni, ezekhez nem kell Mutate()
-        public float Brightness { get => CurrentParams.Brightness; set => CurrentParams.Brightness = value; }
-        public float Gamma { get => CurrentParams.Gamma; set => CurrentParams.Gamma = value; }
+        public float Brightness { get => ActiveView.Brightness; set => ActiveView.Brightness = value; }
+        public float Gamma { get => ActiveView.Gamma; set => ActiveView.Gamma = value; }
 
-        public IFS CurrentParams { get; private set; }
-        public CameraBase Camera => CurrentParams.Camera;
+        public IFS CurrentParams { get; set; }
+        public IFSView ActiveView { get; set; }
 
         private const int threadcnt = 1500;//TODO: const helyett ez legyen megadhato / adaptiv??
 
@@ -49,35 +49,44 @@ namespace IFSEngine
         private int dispTexH;
         private int displayProgramH;
 
-        public RendererGL(IFS Params) : this(Params, Params.Camera.Width, Params.Camera.Height) { }
+        public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.Width, Params.Views.First().Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
         {
 
             CurrentParams = Params;
+            ActiveView = CurrentParams.Views.First();
+            ActiveView.Camera.OnManipulate += InvalidateAccumulation;
+            ActiveView.Camera.Width = w;
+            ActiveView.Camera.Height = h;
             invalidParams = true;
             invalidAccumulation = true;
-            Camera.OnManipulate += InvalidateAccumulation;
-            Camera.Width = w;
-            Camera.Height = h;
             //TODO: ne a konstruktorban
             initDisplay();
             initRenderer();
 
         }
 
+        //TODO: ennel jobb api-t talalni?
         public void InvalidateAccumulation()
         {
             //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
             invalidAccumulation = true;
 
         }
+        public void InvalidateParams()
+        {
+            //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
+            InvalidateAccumulation();
+            invalidParams = true;
+        }
 
         //TODO: ez nem jo ide (nincs olyan hogy renderer reset) + nem oldja meg teljesen a mutate trukkot
         public void Reset()
         {
             CurrentParams.RandomizeParams();
-            CurrentParams.ResetCamera();
-            Camera.OnManipulate += InvalidateAccumulation;
+            ActiveView = CurrentParams.Views.First();
+            ActiveView.ResetCamera();
+            ActiveView.Camera.OnManipulate += InvalidateAccumulation;
             invalidParams = true;
             invalidAccumulation = true;
         }
@@ -120,15 +129,15 @@ namespace IFSEngine
 
             var settings = new Settings
             {
-                CameraBase = CurrentParams.Camera.Params,
+                CameraBase = ActiveView.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = pass_iters,
                 framestep = Framestep,
-                fog_effect = CurrentParams.FogEffect,
-                dof = CurrentParams.Dof,
-                focusdistance = CurrentParams.FocusDistance,
-                focusarea = CurrentParams.FocusArea,
-                focuspoint = CurrentParams.Camera.Params.position + CurrentParams.FocusDistance * CurrentParams.Camera.Params.forward
+                fog_effect = ActiveView.FogEffect,
+                dof = ActiveView.Dof,
+                focusdistance = ActiveView.FocusDistance,
+                focusarea = ActiveView.FocusArea,
+                focuspoint = ActiveView.Camera.Params.position + ActiveView.FocusDistance * ActiveView.Camera.Params.forward
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+(24+8)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
