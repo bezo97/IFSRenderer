@@ -14,11 +14,19 @@ struct CameraParameters
 
 struct Settings
 {
+	//current view:
 	CameraParameters camera;
+	vec4 focuspoint;//from camera,focusdistance
+	float fog_effect;
+	float dof;
+	float focusdistance;
+	float focusarea;//focal plane -> focal 'area'
+	//current frame:
 	int itnum;//length of iterators - 1 (last one is finalit)
 	int pass_iters;//iterations per pass
 	int framestep;	
-	float fog_effect;
+	//padding
+	int padding;
 };
 
 struct Affine
@@ -75,7 +83,6 @@ layout(std430, binding = 4) buffer iterbuf
 	Iterator its[];
 };
 
-//TODO: ezt beleegetni
 uniform int width;
 uniform int height;
 
@@ -85,9 +92,6 @@ uniform int height;
 //in uvec3 gl_LocalInvocationID; //within workgroup
 //in uvec3 gl_GlobalInvocationID; //within dispatch
 //in uint  gl_LocalInvocationIndex; //1d local id
-
-// storage buffers or Textures. Image Load Store
-//uniform writeonly image2D destTex;
 
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
 uint hash(uint x) {
@@ -140,16 +144,20 @@ float randhash(uint nextSample)
 ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 {
 
-	vec3 pointDir = normalize((p-c.position.xyz));
+	vec3 pointDir = normalize(p - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
 
-	vec4 normalizedPoint =   c.viewProjectionMatrix* vec4(p.xyz, 1.0f);
+	vec4 normalizedPoint = c.viewProjectionMatrix * vec4(p.xyz, 1.0f);
 	normalizedPoint /= normalizedPoint.w;
 
-	ivec2 o = ivec2(//windows center
+	//dof
+	float dof = settings.dof * max(0, abs(dot(p - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
+	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f));
+
+	ivec2 o = ivec2(//image center
 		int((normalizedPoint.x + 1) * width / 2.0f),
-		int((normalizedPoint.y + 1) * height / 2.0f)
+		int((normalizedPoint.y + 1) * width / 2.0f)
 	);
 	
 	return o;
@@ -290,18 +298,11 @@ void main() {
 		vec4 color = vec4(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
 	
 		//optional fog effect
-		//if (settings.fog_effect>0.0f)//bool?
-		//{
-		//
-		//	color.xyz *= color.w;//?
-		//
-		//	vec3 cpos = vec3(settings.camera.ox, settings.camera.oy, settings.camera.oz);//pls
-		//	vec3 cdir = vec3(settings.camera.dx, settings.camera.dy, settings.camera.dz);
-		//	vec3 focuspoint = cpos + (cdir * settings.camera.focusdistance);//TODO: ez a focuspoint camera param legyen, dof-nak is kell
-		//
-		//	float focusarea = 1.0f;//TODO: param: keep area around focuspoint focused, ugyanez DOFra
-		//	color.xyzw *= 1.0f / pow(1.0f+abs(length(focuspoint-finalp) - focusarea), settings.fog_effect);
-		//}
+		if (settings.fog_effect>0.0f)
+		{
+			color.xyz *= color.w;//?
+			color.xyzw *= 1.0f / pow(1.0f+abs(length(settings.focuspoint.xyz-finalp) - settings.focusarea), settings.fog_effect);
+		}
 	
 		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))

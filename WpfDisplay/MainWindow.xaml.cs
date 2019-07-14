@@ -1,4 +1,5 @@
 ﻿using IFSEngine;
+using IFSEngine.Model;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,21 @@ namespace WpfDisplay
             if (renderer == null)
                 return;
             renderer.Gamma = (float)GammaSetter.Value;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams.SaveJson("tmp.json");
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams = IFS.LoadJson("tmp.json");
+            renderer.ActiveView = renderer.CurrentParams.Views.First();
+            renderer.ActiveView.Camera.OnManipulate += renderer.InvalidateAccumulation;//ez igy bena
+            renderer.InvalidateParams();
+            //szebb lenne pl.
+            //renderer.LoadParams(IFS.LoadJson("tmp.json"), [ActiveView=0]);
         }
     }
 }

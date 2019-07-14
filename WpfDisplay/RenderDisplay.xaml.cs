@@ -99,7 +99,7 @@ namespace WpfDisplay
         {
             if (e.Button == MouseButtons.Left)
             {
-                Renderer.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
+                Renderer.ActiveView.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             lastX = e.X;
             lastY = e.Y;
@@ -126,7 +126,7 @@ namespace WpfDisplay
                     0.02f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
                     0.02f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
-                Renderer.Camera.Translate(translateVector);
+                Renderer.ActiveView.Camera.Translate(translateVector);
             }
         }
 
