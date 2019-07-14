@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -36,32 +37,51 @@ namespace WpfDisplay
         {
             InitializeComponent();
 
-            Loaded += (s, e) => {
-
-                Window.GetWindow(this).Closing += (s2, e2) => Renderer.Dispose();
-                //vagy this.Unloaded+=
-
-                //Init GL Control
-                OpenTK.Toolkit.Init();
-                display1 = new OpenTK.GLControl();
-                display1.Width = (int)this.Width;
-                display1.Height = (int)this.Height;
-                display1.Left = 0;
-                display1.Top = 0;
-                //display1.PreviewKeyDown += KeyDown_Custom;
-                display1.MouseMove += Display1_MouseMove;
-                display1.MakeCurrent();
-                this.Child = display1;
-
-                IFS Params = new IFS();
-                Renderer = new RendererGL(Params, display1.Width, display1.Height);//TODO: separate render and view resolutions, make it dynamic
-
-                Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
-
-            };
+            Loaded += me_Loaded;
+            //me_Loaded();
 
         }
 
+        private void me_Loaded(object sender, RoutedEventArgs e)
+        {
+            Window.GetWindow(this).Closing += (s2, e2) => Renderer.Dispose();
+            //vagy this.Unloaded+=
+            
+            //Init GL Control
+            OpenTK.Toolkit.Init();
+            display1 = new OpenTK.GLControl();
+            var renderedPixels = GetElementPixelSize(this);
+            display1.Width =(int) renderedPixels.Width;
+            display1.Height = (int) renderedPixels.Height;
+            display1.Left = 0;
+            display1.Top = 0;
+            //display1.PreviewKeyDown += KeyDown_Custom;
+            display1.MouseMove += Display1_MouseMove;
+            display1.MakeCurrent();
+            this.Child = display1;
+
+            IFS Params = new IFS();
+            Renderer = new RendererGL(Params, display1.Width, display1.Height);//TODO: separate render and view resolutions, make it dynamic
+
+            Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
+        }
+
+        public Size GetElementPixelSize(UIElement element)
+        {
+            Matrix transformToDevice;
+            var source = PresentationSource.FromVisual(element);
+            if (source != null)
+                transformToDevice = source.CompositionTarget.TransformToDevice;
+            else
+                using (var src = new HwndSource(new HwndSourceParameters()))
+                    transformToDevice = src.CompositionTarget.TransformToDevice;
+
+            if (element.DesiredSize == new Size())
+                element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            return (Size)transformToDevice.Transform((Vector)element.DesiredSize);
+        }
+        
         Stopwatch fpsCounter = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
@@ -79,7 +99,7 @@ namespace WpfDisplay
         {
             if (e.Button == MouseButtons.Left)
             {
-                Renderer.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
+                Renderer.ActiveView.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             lastX = e.X;
             lastY = e.Y;
@@ -106,7 +126,7 @@ namespace WpfDisplay
                     0.02f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
                     0.02f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
-                Renderer.Camera.Translate(translateVector);
+                Renderer.ActiveView.Camera.Translate(translateVector);
             }
         }
 

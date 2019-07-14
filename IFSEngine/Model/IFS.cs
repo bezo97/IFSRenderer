@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using IFSEngine.Model.Camera;
+using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
     public class IFS
     {
-        public float Brightness { get; set; } = 1.0f;
-        public float Gamma { get; set; } = 4.0f;
-        public float FogEffect { get; set; } = 1.0f;
+        //TODO: IFS: Iterators + FinalIterator + Views (+ Animations?)
 
-        public IFS(bool random=true)
-        {
-            RandomizeParams();
-        }
-
+        public List<IFSView> Views { get; set; } = new List<IFSView>();
         public List<Iterator> Iterators { get; set; } = new List<Iterator>();
         public Iterator FinalIterator { get; set; } = new Iterator(
             new Affine(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
@@ -25,23 +20,14 @@ namespace IFSEngine.Model
             1.0f,
             1.0f
         );
-        public CameraBase Camera { get; set; } = new YawPitchCamera();
 
-        public IFS ResetCamera()
+        public IFS(bool random=true)
         {
-            //HACK: scene-ek bevezeteseig: resetnel a resolutiont megjegyezzuk
-            int w = Camera.Width;
-            int h = Camera.Height;
-
-            Camera = new YawPitchCamera();
-
-            Camera.Width = w;
-            Camera.Height = h;
-
-            return this;
+            RandomizeParams();
+            Views.Add(new IFSView());
         }
 
-        public IFS RandomizeParams()
+        public void RandomizeParams()
         {
             Random rand = new Random();
             Iterators.Clear();
@@ -81,7 +67,16 @@ namespace IFSEngine.Model
                 Iterators[s] = tmpit;
             }
 
-            return this;
+        }
+
+        public static IFS LoadJson(string path)
+        {
+            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path));
+        }
+
+        public void SaveJson(string path)
+        {
+            File.WriteAllText(path, JsonConvert.SerializeObject(this));
         }
 
     }

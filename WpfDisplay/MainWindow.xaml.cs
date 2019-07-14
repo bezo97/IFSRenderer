@@ -1,4 +1,5 @@
 ﻿using IFSEngine;
+using IFSEngine.Model;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Primitives;
 
 namespace WpfDisplay
 {
@@ -35,6 +38,8 @@ namespace WpfDisplay
             Host.Loaded += (s, e) =>
             {
                 renderer = Host.Renderer;
+                BrightnessSetter.Value = renderer.Brightness;
+                GammaSetter.Value = renderer.Gamma;
             };
         }
 
@@ -46,6 +51,35 @@ namespace WpfDisplay
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             renderer.Reset();
+        }
+
+        private void Brightness_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (renderer == null)
+                return;
+            renderer.Brightness =(float) BrightnessSetter.Value;
+        }
+
+        private void Gamma_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (renderer == null)
+                return;
+            renderer.Gamma = (float)GammaSetter.Value;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams.SaveJson("tmp.json");
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams = IFS.LoadJson("tmp.json");
+            renderer.ActiveView = renderer.CurrentParams.Views.First();
+            renderer.ActiveView.Camera.OnManipulate += renderer.InvalidateAccumulation;//ez igy bena
+            renderer.InvalidateParams();
+            //szebb lenne pl.
+            //renderer.LoadParams(IFS.LoadJson("tmp.json"), [ActiveView=0]);
         }
     }
 }
