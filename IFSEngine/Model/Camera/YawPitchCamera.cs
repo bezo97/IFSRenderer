@@ -15,6 +15,7 @@ namespace IFSEngine.Model.Camera
         // Default YawPitchCamera values
         private const float Yaw = -90.0f;
         private const float Pitch = 0.0f;
+        private Vector3 worldUp { get; } = new Vector3(0.0f, 1.0f, 0.0f);
 
         // Euler Angles
         private float yaw;
@@ -59,10 +60,15 @@ namespace IFSEngine.Model.Camera
             front.X = (float)(Math.Cos(NumericExtensions.ToRadians(yaw)) * Math.Cos(NumericExtensions.ToRadians(pitch)));
             front.Y = (float)(Math.Sin(NumericExtensions.ToRadians(pitch)));
             front.Z = (float)(Math.Sin(NumericExtensions.ToRadians(yaw)) * Math.Cos(NumericExtensions.ToRadians(pitch)));
-            this.front = front.Normalized();
+            this.forward = front.Normalized();
             // Also re-calculate the Right and Up vector
-            right = Vector3.Cross(this.front, worldUp).Normalized();// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-            up = Vector3.Cross(right, this.front).Normalized();
+            right = Vector3.Cross(this.forward, worldUp).Normalized();// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+            up = Vector3.Cross(right, this.forward).Normalized();
+        }
+
+        protected override void SetViewProjMatrix()
+        {
+            Params.viewProjMatrix = Matrix4.LookAt(position, position + forward, worldUp) * projectionMatrix;
         }
     }
 }

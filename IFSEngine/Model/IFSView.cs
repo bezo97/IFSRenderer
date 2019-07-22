@@ -7,7 +7,7 @@ namespace IFSEngine.Model
 {
     public class IFSView
     {
-        public CameraBase Camera { get; set; } = new YawPitchCamera();
+        public CameraBase Camera { get; set; } = new QuatCamera();
         //public float Width { get; set; } = 1920;
         //public float Height { get; set; } = 1080; //FOV miatt egyelore kameraban maradt
         public float Brightness { get; set; } = 1.0f;
@@ -23,7 +23,7 @@ namespace IFSEngine.Model
             int w = Camera.Width;
             int h = Camera.Height;
 
-            Camera = new YawPitchCamera();
+            Camera = new QuatCamera();
 
             Camera.Width = w;
             Camera.Height = h;
