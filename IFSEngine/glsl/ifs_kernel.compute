@@ -152,12 +152,13 @@ ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 	normalizedPoint /= normalizedPoint.w;
 
 	//dof
+	float ratio = width / height;
 	float dof = settings.dof * max(0, abs(dot(p - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
-	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f));
+	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f)*ratio);
 
 	ivec2 o = ivec2(//image center
 		int((normalizedPoint.x + 1) * width / 2.0f),
-		int((normalizedPoint.y + 1) * width / 2.0f)
+		int((normalizedPoint.y + 1) * height / 2.0f)
 	);
 	
 	return o;
