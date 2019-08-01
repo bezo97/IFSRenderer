@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfDisplay"
+        xmlns:local="clr-namespace:WpfDisplay.Controls"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
@@ -15,6 +15,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}" WindowState="Maximized"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -45,6 +46,7 @@
             <!-- Effects -->
             <md:Card Grid.Column="0" Padding="6" Margin="8" VerticalAlignment="Stretch">
                 <StackPanel>
+                    <local:ValueSlider ValueName="Brightness" Value="{Binding Brightness, Mode=TwoWay}"/>
                     <TextBlock Text="Effects" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
                     <TextBlock Text="Brightness"  Foreground="Gray" FontWeight="Bold" />
                     <xctk:DoubleUpDown Value="1.0" Name="BrightnessSetter" AllowSpin="True" Increment="0.05" ValueChanged="Brightness_ValueChanged" />
@@ -59,7 +61,7 @@
                 </DockPanel>
             </md:Card>
             <md:Card Grid.Column="2" Padding="32" Margin="8" VerticalAlignment="Stretch">
-
+                
             </md:Card>
         </Grid>
         <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">

@@ -20,7 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay
+namespace WpfDisplay.Controls
 {
     /// <summary>
     /// Interaction logic for RenderDisplay.xaml

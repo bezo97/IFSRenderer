@@ -87,9 +87,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="RenderDisplay.xaml.cs">
+    <Compile Include="Controls\RenderDisplay.xaml.cs">
       <DependentUpon>RenderDisplay.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\ValueSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -98,11 +102,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\ValueSlider.xaml.cs">
+      <DependentUpon>ValueSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BetterBoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\BooleanConverter.cs" />
+    <Compile Include="Converters\DoubleStringFormatConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RenderDisplay.xaml">
+    <Page Include="Controls\RenderDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -141,5 +151,6 @@
       <Name>IFSEngine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
