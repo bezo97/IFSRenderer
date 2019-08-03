@@ -9,7 +9,7 @@ namespace IFSEngine.Model
     {
         public CameraBase Camera { get; set; } = new QuatCamera();
         //public float Width { get; set; } = 1920;
-        //public float Height { get; set; } = 1080; //FOV miatt egyelore kameraban maradt
+        //public float Height { get; set; } = 1080; //stays in camera for now because of fov
         public float Brightness { get; set; } = 1.0f;
         public float Gamma { get; set; } = 4.0f;
         public float FogEffect { get; set; } = 2.0f;
@@ -19,7 +19,7 @@ namespace IFSEngine.Model
 
         public void ResetCamera()
         {
-            //HACK: ameddig kameraban van a resolution, megjegyezzuk
+            //HACK: remember resolution
             int w = Camera.Width;
             int h = Camera.Height;
 

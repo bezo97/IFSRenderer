@@ -264,19 +264,19 @@ void main() {
 			else
 				break;
 	
-		//?? ha elso iter, akkor allitsuk be a shadert az elsore??
+		//set shader to what on first iteration??
 		if (i == 0)
 			p_shader.x = its[r_index].ci;
 	
-		//ha elozo iteracioban tul messze ment, akkor reset?
+		//reset position if too far
 		//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
-		//TODO: ez opcio legyen
+		//TODO: make this optional
 		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
 		{
 			/*p.x = randhash(next++)-0.5f;
 			p.y = randhash(next++)-0.5f;
 			p.z = randhash(next++)-0.5f;*/
-			//otlet: egy masik pontra tesszuk, ami mar nem random, igy gyorsabban konvergal
+			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
 	
@@ -287,7 +287,7 @@ void main() {
 		
 		vec3 finalp = Apply(/*finalit*/its[settings.itnum], p);
 		vec2 finalp_shader = ApplyShader(/*finalit*/its[settings.itnum], p_shader);/*color,opacity*/
-		finalp_shader.y = p_shader.y;//opacity=1 a finalon
+		finalp_shader.y = p_shader.y;//opacity=1 on final
 	
 		//perspective project
 		float ra1 = randhash(next++);
@@ -305,7 +305,7 @@ void main() {
 			color.xyzw *= 1.0f / pow(1.0f+abs(length(settings.focuspoint.xyz-finalp) - settings.focusarea), settings.fog_effect);
 		}
 	
-		//ha kamera mogott van, akkor az egyik sarok utan van, kilog
+		//lands on the histogram && initial skipping
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))
 		{//point lands on picture
 			int ipx = proj.x + proj.y * width;//pixel index

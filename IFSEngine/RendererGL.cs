@@ -31,7 +31,7 @@ namespace IFSEngine
         public IFS CurrentParams { get; set; }
         public IFSView ActiveView { get; set; }
 
-        private const int threadcnt = 1500;//TODO: const helyett ez legyen megadhato / adaptiv??
+        private const int threadcnt = 1500;//TODO: make this a setting or make it adaptive
 
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
@@ -60,27 +60,27 @@ namespace IFSEngine
             ActiveView.Camera.Height = h;
             invalidParams = true;
             invalidAccumulation = true;
-            //TODO: ne a konstruktorban
+            //TODO: separate opengl initialization from ctor
             initDisplay();
             initRenderer();
 
         }
 
-        //TODO: ennel jobb api-t talalni?
+        //TODO: find a better api than this?
         public void InvalidateAccumulation()
         {
-            //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
+            //can be called multiple times, but it's enough to reset once before first frame
             invalidAccumulation = true;
 
         }
         public void InvalidateParams()
         {
-            //tobben is hivhatjak, de eleg egyszer resetelni, ezert invalidate
+            //can be called multiple times, but it's enough to reset once before first frame
             InvalidateAccumulation();
             invalidParams = true;
         }
 
-        //TODO: ez nem jo ide (nincs olyan hogy renderer reset) + nem oldja meg teljesen a mutate trukkot
+        //TODO: remove this
         public void Reset()
         {
             CurrentParams.RandomizeParams();
@@ -101,7 +101,7 @@ namespace IFSEngine
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
                 GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
-                pass_iters = 500;//ez novekszik minden frammel
+                pass_iters = 500;//increases by each frame
                 Framestep = 0;
 
                 if (invalidParams)
@@ -120,7 +120,7 @@ namespace IFSEngine
                 }
             }
 
-            if(Framestep%(10000/pass_iters)==0)//TODO: ezt szebben
+            if(Framestep%(10000/pass_iters)==0)//TODO: fix condition
             {
                 //update pointsstate
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
@@ -204,7 +204,7 @@ namespace IFSEngine
         {
             float[] d = new float[Width * Height * 4];//rgba
 
-            UpdateDisplay();//benne RenderFrame() ha kell
+            UpdateDisplay();//RenderFrame() if needed
 
             //Read display texture
             GL.Finish();
@@ -222,7 +222,7 @@ namespace IFSEngine
                     o[x, y][3] = d[x * 4 + y * 4 * Width + 3];
                 }
 
-            //TODO: image save netstandardbol?
+            //TODO: image save in netstandard?
 
             return o;
         }
