@@ -24,10 +24,6 @@ namespace IFSEngine
         public int Width => ActiveView.Camera.Width;
         public int Height => ActiveView.Camera.Height;
 
-        //TODO: ehelyett jobbat kitalalni, ezekhez nem kell Mutate()
-        public float Brightness { get => ActiveView.Brightness; set => ActiveView.Brightness = value; }
-        public float Gamma { get => ActiveView.Gamma; set => ActiveView.Gamma = value; }
-
         public IFS CurrentParams { get; set; }
         public IFSView ActiveView { get; set; }
 
@@ -154,8 +150,8 @@ namespace IFSEngine
             {
                 GL.UseProgram(displayProgramH);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), Gamma);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), ActiveView.Brightness);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), ActiveView.Brightness);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
