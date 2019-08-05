@@ -17,18 +17,18 @@
     </UserControl.Resources>
     <StackPanel>
         <Label Grid.Column="0" Content="{Binding ValueName}"/>
-        <Border BorderBrush="Black" BorderThickness="2">
+        
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{x:Null}" Padding="10,5,10,5" Click="Down_Click">-</Button>
-                <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" Style="{x:Null}" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" MouseWheel="Button_MouseWheel"/>
-                <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Style="{x:Null}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus"/>
-                <Button Grid.Column="2" Style="{x:Null}" Padding="10,5,10,5" Click="Up_Click">+</Button>
+                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Padding="10,5,10,5" Click="Down_Click">-</Button>
+                <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" Background="#303030" Style="{DynamicResource MaterialDesignLabel}" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" MouseWheel="Button_MouseWheel"/>
+            <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Background="#606060" Style="{DynamicResource MaterialDesignTextBox}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus"/>
+                <Button Grid.Column="2" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Padding="10,5,10,5" Click="Up_Click">+</Button>
             </Grid>
-        </Border>
+        
     </StackPanel>
 </UserControl>

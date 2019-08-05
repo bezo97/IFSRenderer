@@ -55,7 +55,7 @@
                     <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.ActiveView.FocusDistance, ElementName=mainWindow}"/>
                     <local:ValueSlider ValueName="Focus area" Value="{Binding DataContext.ActiveView.FocusArea, ElementName=mainWindow}"/>
 
-                    <Button Content="Next View >" Click="Button_Click_4"/>
+                    <Button Content="Next View >" Click="Button_Click_4" Margin="0 10 0 0"/>
                 </StackPanel>
             </md:Card>
             <!-- Render -->
