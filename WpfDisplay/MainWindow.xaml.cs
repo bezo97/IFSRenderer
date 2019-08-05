@@ -32,14 +32,15 @@ namespace WpfDisplay
     public partial class MainWindow : Window
     {
         private RendererGL renderer;
+
         public MainWindow()
         {
             InitializeComponent();
             Host.Loaded += (s, e) =>
             {
                 renderer = Host.Renderer;
-                BrightnessSetter.Value = renderer.Brightness;
-                GammaSetter.Value = renderer.Gamma;
+                this.DataContext = renderer;
+
             };
         }
 
@@ -51,20 +52,6 @@ namespace WpfDisplay
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             renderer.Reset();
-        }
-
-        private void Brightness_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (renderer == null)
-                return;
-            renderer.Brightness =(float) BrightnessSetter.Value;
-        }
-
-        private void Gamma_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (renderer == null)
-                return;
-            renderer.Gamma = (float)GammaSetter.Value;
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -80,6 +67,13 @@ namespace WpfDisplay
             renderer.InvalidateParams();
             //szebb lenne pl.
             //renderer.LoadParams(IFS.LoadJson("tmp.json"), [ActiveView=0]);
+        }
+
+        int nextviewcnt = 1;
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            renderer.ActiveView = renderer.CurrentParams.Views[nextviewcnt++ % renderer.CurrentParams.Views.Count];
+            renderer.InvalidateAccumulation();
         }
     }
 }

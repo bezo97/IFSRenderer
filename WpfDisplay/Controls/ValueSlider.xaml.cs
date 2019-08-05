@@ -22,6 +22,7 @@ namespace WpfDisplay.Controls
     /// </summary>
     public partial class ValueSlider : UserControl
     {
+        //TODO: implement optional Min and Max properties
 
         public string ValueName
         {
@@ -39,7 +40,8 @@ namespace WpfDisplay.Controls
             set { SetValue(ValueProperty, value); }
         }
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new PropertyMetadata(0.0));
+            DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        
 
         public double Increment
         {
@@ -48,7 +50,6 @@ namespace WpfDisplay.Controls
         }
         public static readonly DependencyProperty IncrementProperty =
             DependencyProperty.Register("Increment", typeof(double), typeof(ValueSlider), new PropertyMetadata(0.1));
-
 
 
         public bool Editing

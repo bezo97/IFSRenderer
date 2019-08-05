@@ -22,7 +22,7 @@ namespace IFSEngine.Model
             //HACK: remember resolution
             int w = Camera.Width;
             int h = Camera.Height;
-
+            
             Camera = new QuatCamera();
 
             Camera.Width = w;

@@ -77,8 +77,8 @@ namespace GLDisplay
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            renderer.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-            renderer.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
+            renderer.ActiveView.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            renderer.ActiveView.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
 
