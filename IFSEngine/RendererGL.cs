@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Linq;
+using IFSEngine.Animation;
 
 //using OpenGL;
 using OpenTK;
@@ -26,6 +27,7 @@ namespace IFSEngine
 
         public IFS CurrentParams { get; set; }
         public IFSView ActiveView { get; set; }
+        public AnimationManager AnimationManager { get; set; }
 
         private const int threadcnt = 1500;//TODO: make this a setting or make it adaptive
 
@@ -48,7 +50,7 @@ namespace IFSEngine
         public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.Width, Params.Views.First().Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
         {
-
+            AnimationManager = new AnimationManager();
             CurrentParams = Params;
             ActiveView = CurrentParams.Views.First();
             ActiveView.Camera.OnManipulate += InvalidateAccumulation;

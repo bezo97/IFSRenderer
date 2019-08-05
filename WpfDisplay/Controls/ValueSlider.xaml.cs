@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using IFSEngine;
 
 namespace WpfDisplay.Controls
 {
@@ -31,9 +32,7 @@ namespace WpfDisplay.Controls
         }
         public static readonly DependencyProperty ValueNameProperty =
             DependencyProperty.Register("ValueName", typeof(string), typeof(ValueSlider), new PropertyMetadata("ValueName"));
-
-
-
+        
         public double Value
         {
             get { return (double)GetValue(ValueProperty); }
@@ -42,7 +41,6 @@ namespace WpfDisplay.Controls
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
         
-
         public double Increment
         {
             get { return (double)GetValue(IncrementProperty); }
@@ -59,14 +57,15 @@ namespace WpfDisplay.Controls
         }
         public static readonly DependencyProperty EditingProperty =
             DependencyProperty.Register("Editing", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
-
-
-
-
-
+        
         public ValueSlider()
         {
             InitializeComponent();
+        }
+
+        private void SetValue(float value)
+        {
+            Value = value;
         }
 
         private void Down_Click(object sender, RoutedEventArgs e)
@@ -77,6 +76,11 @@ namespace WpfDisplay.Controls
         private void Up_Click(object sender, RoutedEventArgs e)
         {
             Value = Math.Round(Value + Increment, 3);
+        }
+
+        private void Animate_Click(object sender, RoutedEventArgs e)
+        {
+           ((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
         }
 
         private void ValueEditor_KeyDown(object sender, KeyEventArgs e)
@@ -124,7 +128,7 @@ namespace WpfDisplay.Controls
 
         private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            Value = Math.Round(Value + e.Delta/Math.Abs(e.Delta)*Increment, 3);
+            Value = Math.Round(Value + (double)e.Delta/Math.Abs(e.Delta)*Increment, 3);
         }
     }
 }
