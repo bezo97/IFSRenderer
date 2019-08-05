@@ -26,8 +26,8 @@ namespace GLDisplay
 
         GLControl display1;
 
-        const int w = 1280;
-        const int h = 720;
+        const int w = 1080;
+        const int h = 1080;
 
         public Form1()
         {
@@ -77,8 +77,8 @@ namespace GLDisplay
 
         private void BrightnessOrGamma_ValueChanged(object sender, EventArgs e)
         {
-            renderer.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
-            renderer.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
+            renderer.ActiveView.Brightness = (float)Convert.ToDouble(numericUpDownBrightness.Value);
+            renderer.ActiveView.Gamma = (float)Convert.ToDouble(numericUpDownGamma.Value);
         }
 
 
@@ -125,27 +125,33 @@ namespace GLDisplay
                     FullScreen = true;
                 }
                 else
-                {                   
-                   TopMost = false;
-                   WindowState = FormWindowState.Normal;
-                   FormBorderStyle = FormBorderStyle.Sizable;
-                   Width = restore.width;
-                   Height = restore.height;
-                   Location = restore.location;
-                   FullScreen = false;
+                {
+                    TopMost = false;
+                    WindowState = FormWindowState.Normal;
+                    FormBorderStyle = FormBorderStyle.Sizable;
+                    Width = restore.width;
+                    Height = restore.height;
+                    Location = restore.location;
+                    FullScreen = false;
                 }
             }
             else if (IsKeyDown(Keys.R))
             {
                 ButtonRandomize_Click(this, e);
             }
-            else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C))
+            else if (IsKeyDown(Keys.W, Keys.A, Keys.S, Keys.D, Keys.Q, Keys.E, Keys.C, Keys.I, Keys.K, Keys.J, Keys.L, Keys.U, Keys.O))
             {
-                    var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
-                        0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
-                        0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
-                    renderer.ActiveView.Camera.Translate(translateVector);
-                
+                var translateVector = new Vector3(0.02f * ((IsKeyDown(Keys.W) ? 1 : 0) - (IsKeyDown(Keys.S) ? 1 : 0)),
+                    0.02f * ((IsKeyDown(Keys.D) ? 1 : 0) - (IsKeyDown(Keys.A) ? 1 : 0)),
+                    0.02f * ((IsKeyDown(Keys.E) ? 1 : 0) - (IsKeyDown(Keys.C) || (IsKeyDown(Keys.Q)) ? 1 : 0)));
+                renderer.ActiveView.Camera.Translate(translateVector);
+
+                float pitchd = 0.05f * ((IsKeyDown(Keys.I) ? 1 : 0) - (IsKeyDown(Keys.K) ? 1 : 0));
+                float yawd = 0.05f * ((IsKeyDown(Keys.J) ? 1 : 0) - (IsKeyDown(Keys.L) ? 1 : 0));
+                float rolld = 0.05f * ((IsKeyDown(Keys.U) ? 1 : 0) - (IsKeyDown(Keys.O) ? 1 : 0));
+                (renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd, pitchd, rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
+
+                renderer.ActiveView.Camera.UpdateCamera();
             }
         }
 

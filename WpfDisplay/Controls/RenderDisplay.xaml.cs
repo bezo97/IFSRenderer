@@ -20,7 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay
+namespace WpfDisplay.Controls
 {
     /// <summary>
     /// Interaction logic for RenderDisplay.xaml
@@ -51,8 +51,8 @@ namespace WpfDisplay
             OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
             var renderedPixels = GetElementPixelSize(this);
-            display1.Width =(int) renderedPixels.Width;
-            display1.Height = (int) renderedPixels.Height;
+            display1.Width = (int)renderedPixels.Width;
+            display1.Height = (int)renderedPixels.Height;
             display1.Left = 0;
             display1.Top = 0;
             //display1.PreviewKeyDown += KeyDown_Custom;
@@ -113,13 +113,22 @@ namespace WpfDisplay
             if (Keyboard.IsKeyDown(Key.Space))
                 Renderer.StartRendering();
 
-            if (Keyboard.IsKeyDown(Key.W) ||
+            if (
+               //translate
+               Keyboard.IsKeyDown(Key.W) ||
                Keyboard.IsKeyDown(Key.S) ||
                Keyboard.IsKeyDown(Key.D) ||
                Keyboard.IsKeyDown(Key.A) ||
                Keyboard.IsKeyDown(Key.Q) ||
                Keyboard.IsKeyDown(Key.E) ||
-               Keyboard.IsKeyDown(Key.C))
+               Keyboard.IsKeyDown(Key.C) ||
+               //rotate
+               Keyboard.IsKeyDown(Key.I) ||
+               Keyboard.IsKeyDown(Key.K) ||
+               Keyboard.IsKeyDown(Key.J) ||
+               Keyboard.IsKeyDown(Key.L) ||
+               Keyboard.IsKeyDown(Key.U) ||
+               Keyboard.IsKeyDown(Key.O))
             {
                 var translateVector = new Vector3(
                     0.02f * ((Keyboard.IsKeyDown(Key.W) ? 1 : 0) - (Keyboard.IsKeyDown(Key.S) ? 1 : 0)),
@@ -127,6 +136,13 @@ namespace WpfDisplay
                     0.02f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
                 Renderer.ActiveView.Camera.Translate(translateVector);
+
+                float pitchd = 0.05f * ((Keyboard.IsKeyDown(Key.I) ? 1 : 0) - (Keyboard.IsKeyDown(Key.K) ? 1 : 0));
+                float yawd = 0.05f * ((Keyboard.IsKeyDown(Key.J) ? 1 : 0) - (Keyboard.IsKeyDown(Key.L) ? 1 : 0));
+                float rolld = 0.05f * ((Keyboard.IsKeyDown(Key.U) ? 1 : 0) - (Keyboard.IsKeyDown(Key.O) ? 1 : 0));
+                (Renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
+
+                Renderer.ActiveView.Camera.UpdateCamera();//szinten a Mutate-es sztori..
             }
         }
 

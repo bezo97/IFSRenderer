@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfDisplay"
+        xmlns:local="clr-namespace:WpfDisplay.Controls"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
@@ -15,6 +15,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}" WindowState="Maximized"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        x:Name="mainWindow"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -30,8 +31,8 @@
                 <TextBlock Margin="10" Style="{DynamicResource MaterialDesignTitleTextBlock}">TODO: replace, add gui</TextBlock>
                 <Button Margin="10" Content="Start" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click"/>
                 <Button Margin="10" Content="Reset" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_1" />
-                <Button Margin="10" Content="Debug1" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_2" />
-                <Button Margin="10" Content="Debug2" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_3" />
+                <Button Margin="10" Content="Save JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_2" />
+                <Button Margin="10" Content="Load JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_3" />
             </StackPanel>
         </md:Card>
         <Grid Grid.Row="1">
@@ -45,11 +46,16 @@
             <!-- Effects -->
             <md:Card Grid.Column="0" Padding="6" Margin="8" VerticalAlignment="Stretch">
                 <StackPanel>
-                    <TextBlock Text="Effects" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                    <TextBlock Text="Brightness"  Foreground="Gray" FontWeight="Bold" />
-                    <xctk:DoubleUpDown Value="1.0" Name="BrightnessSetter" AllowSpin="True" Increment="0.05" ValueChanged="Brightness_ValueChanged" />
-                    <TextBlock Text="Gamma"  Foreground="Gray" FontWeight="Bold" />
-                    <xctk:DoubleUpDown Value="1.0" Name="GammaSetter" AllowSpin="True" Increment="0.5" ValueChanged="Gamma_ValueChanged" />
+                    <!--TODO: separate xaml for this panel-->
+                    <TextBlock Text="Active View" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+                    <local:ValueSlider ValueName="Brightness" Value="{Binding DataContext.ActiveView.Brightness, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="Gamma" Value="{Binding DataContext.ActiveView.Gamma, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="Fog" Value="{Binding DataContext.ActiveView.FogEffect, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="DOF" Value="{Binding DataContext.ActiveView.Dof, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.ActiveView.FocusDistance, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="Focus area" Value="{Binding DataContext.ActiveView.FocusArea, ElementName=mainWindow}"/>
+
+                    <Button Content="Next View >" Click="Button_Click_4"/>
                 </StackPanel>
             </md:Card>
             <!-- Render -->
@@ -59,7 +65,7 @@
                 </DockPanel>
             </md:Card>
             <md:Card Grid.Column="2" Padding="32" Margin="8" VerticalAlignment="Stretch">
-
+                
             </md:Card>
         </Grid>
         <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">
