@@ -7,6 +7,6 @@ namespace IFSEngine.Animation
 {
     interface ICurveImplementation
     {
-        void Evaluate(float t, List<ControlPoint> controlPoints);
+        float Evaluate(float t, List<ControlPoint> controlPoints);
     }
 }

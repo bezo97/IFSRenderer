@@ -5,11 +5,11 @@ using System.Text;
 
 namespace IFSEngine.Animation
 {
-    public struct ControlPoint
+    public class ControlPoint
     {
         public float t;
-        public Vector2 Point;
-        public Vector2 LeftTangent;
+        public float Value;
+        public Vector2 LeftTangent; //maybe angle enough
         public Vector2 RightTangent;
     }
 }
