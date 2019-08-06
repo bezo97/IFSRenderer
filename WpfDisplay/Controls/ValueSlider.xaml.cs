@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,6 +25,9 @@ namespace WpfDisplay.Controls
     public partial class ValueSlider : UserControl
     {
         //TODO: implement optional Min and Max properties
+
+        [DllImport("User32.dll")]
+        private static extern bool SetCursorPos(int X, int Y);
 
         public string ValueName
         {
@@ -92,43 +96,61 @@ namespace WpfDisplay.Controls
         private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
         {
             Editing = false;
+            dragging = false;
         }
 
         bool dragging = false;
-        double dragp;
+        Point dragp;
         double lastv;//value before editing
 
         private void Button_MouseDown(object sender, MouseButtonEventArgs e)
         {
             dragging = true;
-            dragp = e.GetPosition(this).X;
+            dragp = e.GetPosition(App.Current.MainWindow);
             lastv = Value;
+            Mouse.OverrideCursor = Cursors.None;
         }
 
+        bool cursorReset = false;
         private void Button_MouseMove(object sender, MouseEventArgs e)
         {
-            if(dragging)
+            if (dragging && !cursorReset)
             {
-                double delta = (e.GetPosition(this).X - dragp);
-                Value = lastv + delta*Increment;
+                double delta = (e.GetPosition(App.Current.MainWindow).X - dragp.X);
+                Value = lastv + delta * Increment;
             }
+            else if (cursorReset)
+                cursorReset = false;
         }
 
         private void Button_MouseUp(object sender, MouseButtonEventArgs e)
         {
             dragging = false;
-            double delta = (e.GetPosition(this).X - dragp);
+            double delta = (e.GetPosition(App.Current.MainWindow).X - dragp.X);
 
             if (Math.Abs(delta)<1)
             {//click
                 Editing = true;
                 ValueEditor.Focus();
+                ValueEditor.SelectAll();
             }
+
+            Mouse.OverrideCursor = Cursors.Arrow;
         }
 
         private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             Value = Math.Round(Value + (double)e.Delta/Math.Abs(e.Delta)*Increment, 3);
+        }
+
+        private void ValueSlider_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (dragging)
+            {
+                cursorReset = true;
+                lastv = Value;
+                SetCursorPos((int)(App.Current.MainWindow.Left + dragp.X), (int)(App.Current.MainWindow.Top + dragp.Y + 25));
+            }
         }
     }
 }

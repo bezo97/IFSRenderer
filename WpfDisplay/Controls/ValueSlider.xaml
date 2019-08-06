@@ -25,7 +25,7 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Padding="10,5,10,5" Click="Down_Click">-</Button>
-            <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" Background="#303030" Style="{DynamicResource MaterialDesignLabel}" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" MouseWheel="Button_MouseWheel">
+            <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" MouseLeave="ValueSlider_MouseLeave" Background="#303030" Style="{DynamicResource MaterialDesignLabel}" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" MouseWheel="Button_MouseWheel">
                 <Label.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Animate" Click="Animate_Click"/>

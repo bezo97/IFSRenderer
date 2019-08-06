@@ -153,7 +153,7 @@ namespace IFSEngine
                 GL.UseProgram(displayProgramH);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), ActiveView.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), ActiveView.Brightness);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), ActiveView.Gamma);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
