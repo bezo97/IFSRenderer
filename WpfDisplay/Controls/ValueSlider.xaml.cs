@@ -40,7 +40,14 @@ namespace WpfDisplay.Controls
         public double Value
         {
             get { return (double)GetValue(ValueProperty); }
-            set { SetValue(ValueProperty, value); }
+            set {
+                double constrainedValue = value;
+                if (MinValue != null)
+                    constrainedValue = Math.Max(MinValue ?? 0, constrainedValue);
+                if (MaxValue != null)
+                    constrainedValue = Math.Min(MaxValue ?? 0, constrainedValue);
+                SetValue(ValueProperty, constrainedValue);
+            }
         }
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
@@ -61,7 +68,29 @@ namespace WpfDisplay.Controls
         }
         public static readonly DependencyProperty EditingProperty =
             DependencyProperty.Register("Editing", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
-        
+
+
+        public double? MinValue
+        {
+            get { return (double?)GetValue(MinValueProperty); }
+            set { SetValue(MinValueProperty, value); }
+        }
+        public static readonly DependencyProperty MinValueProperty =
+            DependencyProperty.Register("MinValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
+
+
+        public double? MaxValue
+        {
+            get { return (double?)GetValue(MaxValueProperty); }
+            set { SetValue(MaxValueProperty, value); }
+        }
+        public static readonly DependencyProperty MaxValueProperty =
+            DependencyProperty.Register("MaxValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
+
+
+
+
+
         public ValueSlider()
         {
             InitializeComponent();
@@ -105,10 +134,13 @@ namespace WpfDisplay.Controls
 
         private void Button_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            dragging = true;
-            dragp = e.GetPosition(App.Current.MainWindow);
-            lastv = Value;
-            Mouse.OverrideCursor = Cursors.None;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                dragging = true;
+                dragp = e.GetPosition(App.Current.MainWindow);
+                lastv = Value;
+                Mouse.OverrideCursor = Cursors.None;
+            }
         }
 
         bool cursorReset = false;
