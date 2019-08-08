@@ -63,7 +63,7 @@ namespace WpfDisplay
         {
             renderer.CurrentParams = IFS.LoadJson("tmp.json");
             renderer.ActiveView = renderer.CurrentParams.Views.First();
-            renderer.ActiveView.Camera.OnManipulate += renderer.InvalidateAccumulation;//ez igy bena
+            //renderer.ActiveView.Camera.OnManipulate += renderer.InvalidateAccumulation;//ez igy bena
             renderer.InvalidateParams();
             //szebb lenne pl.
             //renderer.LoadParams(IFS.LoadJson("tmp.json"), [ActiveView=0]);

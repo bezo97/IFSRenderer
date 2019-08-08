@@ -11,7 +11,7 @@ using OpenTK.Graphics.OpenGL;
 
 using IFSEngine.Model;
 using IFSEngine.Model.Camera;
-
+using System.ComponentModel;
 
 namespace IFSEngine
 {
@@ -26,7 +26,14 @@ namespace IFSEngine
         public int Height => ActiveView.Camera.Height;
 
         public IFS CurrentParams { get; set; }
-        public IFSView ActiveView { get; set; }
+        public IFSView ActiveView {
+            get => activeView;
+            set {
+                //activeView.PropertyChanged -= HandleInvalidation;
+                activeView = value;
+                activeView.PropertyChanged += HandleInvalidation;
+            }
+        }
         public AnimationManager AnimationManager { get; set; }
 
         private const int threadcnt = 1500;//TODO: make this a setting or make it adaptive
@@ -46,6 +53,7 @@ namespace IFSEngine
         //display handlers
         private int dispTexH;
         private int displayProgramH;
+        private IFSView activeView;
 
         public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.Width, Params.Views.First().Camera.Height) { }
         public RendererGL(IFS Params, int w, int h)
@@ -53,7 +61,7 @@ namespace IFSEngine
             AnimationManager = new AnimationManager();
             CurrentParams = Params;
             ActiveView = CurrentParams.Views.First();
-            ActiveView.Camera.OnManipulate += InvalidateAccumulation;
+            //ActiveView.Camera.OnManipulate += InvalidateAccumulation;
             ActiveView.Camera.Width = w;
             ActiveView.Camera.Height = h;
             invalidParams = true;
@@ -64,7 +72,23 @@ namespace IFSEngine
 
         }
 
-        //TODO: find a better api than this?
+        private void HandleInvalidation(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "1":
+                    InvalidateAccumulation();
+                    break;
+                case "2":
+                    InvalidateParams();
+                    break;
+                case "0":
+                default:
+                    break;
+
+            }
+        }
+
         public void InvalidateAccumulation()
         {
             //can be called multiple times, but it's enough to reset once before first frame
@@ -84,7 +108,7 @@ namespace IFSEngine
             CurrentParams.RandomizeParams();
             ActiveView = CurrentParams.Views.First();
             ActiveView.ResetCamera();
-            ActiveView.Camera.OnManipulate += InvalidateAccumulation;
+            //ActiveView.Camera.OnManipulate += InvalidateAccumulation;
             invalidParams = true;
             invalidAccumulation = true;
         }
@@ -106,19 +130,19 @@ namespace IFSEngine
                 {
                     //update pointsstate
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4*threadcnt*sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
 
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count * (16*sizeof(float)) * (1*sizeof(int)), its_and_final.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count * (16 * sizeof(float)) * (1 * sizeof(int)), its_and_final.ToArray(), BufferUsageHint.DynamicDraw);
 
                     invalidParams = false;
                 }
             }
 
-            if(Framestep%(10000/pass_iters)==0)//TODO: fix condition
+            if (Framestep % (10000 / pass_iters) == 0)//TODO: fix condition
             {
                 //update pointsstate
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
@@ -138,7 +162,7 @@ namespace IFSEngine
                 focuspoint = ActiveView.Camera.Params.position + ActiveView.FocusDistance * ActiveView.Camera.Params.forward
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int)+(24+8)*sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int) + (24 + 8) * sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
 
             GL.Finish();
             GL.DispatchCompute(threadcnt, 1, 1);
