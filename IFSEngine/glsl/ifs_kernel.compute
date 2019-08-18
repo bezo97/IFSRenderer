@@ -25,8 +25,8 @@ struct Settings
 	int itnum;//length of iterators - 1 (last one is finalit)
 	int pass_iters;//iterations per pass
 	int framestep;	
+	int palettecnt;
 	//padding
-	int padding;
 };
 
 struct Affine
@@ -81,6 +81,11 @@ layout(std430, binding = 3) buffer settingsbuf
 layout(std430, binding = 4) buffer iterbuf
 {
 	Iterator its[];
+};
+
+layout(std140, binding = 5) buffer palettebuf
+{
+	vec4 palette[];
 };
 
 uniform int width;
@@ -219,7 +224,7 @@ vec2 ApplyShader(Iterator it, vec2 input/*(color,opacity)*/)
 	float o = it.op;//opacity
 	return vec2(c - floor(c), o);//(color,opacity)
 }
-
+/*
 vec3 getPaletteColor(float pos)
 {
 	//define two constant colors, like red and blue
@@ -240,6 +245,17 @@ vec3 getPaletteColor(float pos)
 
 	//return that color
 	return result;
+}
+*/
+vec3 getPaletteColor(float pos)
+{
+	float palettepos = pos * (settings.palettecnt - 1);
+	int index = int(floor(palettepos));
+	vec3 c1 = palette[index].xyz;
+	vec3 c2 = palette[index+1].xyz;
+	float a = fract(palettepos);
+	//TODO: interpolate in a different color space?
+	return mix(c1, c2, a);//lerp
 }
 
 void main() {

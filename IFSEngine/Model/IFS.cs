@@ -8,8 +8,9 @@ namespace IFSEngine.Model
 {
     public class IFS
     {
-        //TODO: IFS: Iterators + FinalIterator + Views (+ Animations?)
+        //TODO: IFS: Palette + Iterators + FinalIterator + Views (+ Animations?)
 
+        public UFPalette Palette { get; set; } = UFPalette.Default;
         public List<IFSView> Views { get; set; } = new List<IFSView>();
         public List<Iterator> Iterators { get; set; } = new List<Iterator>();
         public Iterator FinalIterator { get; set; } = new Iterator(

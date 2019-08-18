@@ -139,7 +139,7 @@ namespace WpfDisplay.Controls
 
                 float pitchd = 0.05f * ((Keyboard.IsKeyDown(Key.I) ? 1 : 0) - (Keyboard.IsKeyDown(Key.K) ? 1 : 0));
                 float yawd = 0.05f * ((Keyboard.IsKeyDown(Key.J) ? 1 : 0) - (Keyboard.IsKeyDown(Key.L) ? 1 : 0));
-                float rolld = 0.05f * ((Keyboard.IsKeyDown(Key.U) ? 1 : 0) - (Keyboard.IsKeyDown(Key.O) ? 1 : 0));
+                float rolld = 0.05f * ((Keyboard.IsKeyDown(Key.O) ? 1 : 0) - (Keyboard.IsKeyDown(Key.U) ? 1 : 0));
                 (Renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
 
                 Renderer.ActiveView.Camera.UpdateCamera();//szinten a Mutate-es sztori..

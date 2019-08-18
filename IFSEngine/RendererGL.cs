@@ -50,6 +50,7 @@ namespace IFSEngine
         private int settingsbufH;
         private int itersbufH;
         private int pointsbufH;
+        private int palettebufH;
         //display handlers
         private int dispTexH;
         private int displayProgramH;
@@ -61,7 +62,6 @@ namespace IFSEngine
             AnimationManager = new AnimationManager();
             CurrentParams = Params;
             ActiveView = CurrentParams.Views.First();
-            //ActiveView.Camera.OnManipulate += InvalidateAccumulation;
             ActiveView.Camera.Width = w;
             ActiveView.Camera.Height = h;
             invalidParams = true;
@@ -131,12 +131,14 @@ namespace IFSEngine
                     //update pointsstate
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
-
+                    //update iterators
                     List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
                     its_and_final.Add(CurrentParams.FinalIterator);
-
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count * (16 * sizeof(float)) * (1 * sizeof(int)), its_and_final.ToArray(), BufferUsageHint.DynamicDraw);
+                    //update palette
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, palettebufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, CurrentParams.Palette.Colors.Count * sizeof(float) * 4, CurrentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
 
                     invalidParams = false;
                 }
@@ -159,7 +161,8 @@ namespace IFSEngine
                 dof = ActiveView.Dof,
                 focusdistance = ActiveView.FocusDistance,
                 focusarea = ActiveView.FocusArea,
-                focuspoint = ActiveView.Camera.Params.position + ActiveView.FocusDistance * ActiveView.Camera.Params.forward
+                focuspoint = ActiveView.Camera.Params.position + ActiveView.FocusDistance * ActiveView.Camera.Params.forward,
+                palettecnt = CurrentParams.Palette.Colors.Count
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int) + (24 + 8) * sizeof(float), ref settings, BufferUsageHint.DynamicDraw);
@@ -334,6 +337,7 @@ namespace IFSEngine
             pointsbufH = GL.GenBuffer();
             settingsbufH = GL.GenBuffer();
             itersbufH = GL.GenBuffer();
+            palettebufH = GL.GenBuffer();
 
             //bind layout:
             GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
@@ -341,6 +345,7 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, palettebufH);
 
             //set uniforms
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);

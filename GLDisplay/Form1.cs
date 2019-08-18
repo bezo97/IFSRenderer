@@ -148,7 +148,7 @@ namespace GLDisplay
 
                 float pitchd = 0.05f * ((IsKeyDown(Keys.I) ? 1 : 0) - (IsKeyDown(Keys.K) ? 1 : 0));
                 float yawd = 0.05f * ((IsKeyDown(Keys.J) ? 1 : 0) - (IsKeyDown(Keys.L) ? 1 : 0));
-                float rolld = 0.05f * ((IsKeyDown(Keys.U) ? 1 : 0) - (IsKeyDown(Keys.O) ? 1 : 0));
+                float rolld = 0.05f * ((IsKeyDown(Keys.O) ? 1 : 0) - (IsKeyDown(Keys.U) ? 1 : 0));
                 (renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd, pitchd, rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
 
                 renderer.ActiveView.Camera.UpdateCamera();
