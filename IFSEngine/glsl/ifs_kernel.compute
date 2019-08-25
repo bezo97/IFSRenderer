@@ -317,8 +317,9 @@ void main() {
 		//optional fog effect
 		if (settings.fog_effect>0.0f)
 		{
-			color.xyz *= color.w;//?
-			color.xyzw *= 1.0f / pow(1.0f+abs(length(settings.focuspoint.xyz-finalp) - settings.focusarea), settings.fog_effect);
+			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - finalp), settings.fog_effect);
+			pr1 = clamp(pr1, 0.0f, 1.0f);
+			color.xyzw *= pr1;
 		}
 	
 		//lands on the histogram && initial skipping
