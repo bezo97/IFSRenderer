@@ -42,7 +42,6 @@ namespace WpfDisplay
                 this.DataContext = renderer;
 
             };
-            var v = UFPalette.FromFile("example.gradient");
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -79,7 +78,7 @@ namespace WpfDisplay
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            renderer.CurrentParams.Palette = UFPalette.FromFile("example.gradient")[0];
+            renderer.CurrentParams.Palette = UFPalette.FromFile(@"Resources\example.gradient")[0];
             renderer.InvalidateParams();
         }
 

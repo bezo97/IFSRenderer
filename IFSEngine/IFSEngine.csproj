@@ -21,4 +21,9 @@
     <PackageReference Include="OpenTK" Version="3.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IFSEngine.TransformFunctions\IFSEngine.TransformFunctions.csproj" />
+    <ProjectReference Include="..\IFSEngine.Util\IFSEngine.Util.csproj" />
+  </ItemGroup>
+
 </Project>

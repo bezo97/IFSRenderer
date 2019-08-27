@@ -12,6 +12,7 @@ using OpenTK.Graphics.OpenGL;
 using IFSEngine.Model;
 using IFSEngine.Model.Camera;
 using System.ComponentModel;
+using IFSEngine.Model.GpuStructs;
 
 namespace IFSEngine
 {
@@ -51,6 +52,9 @@ namespace IFSEngine
         private int itersbufH;
         private int pointsbufH;
         private int palettebufH;
+        private int tfsbufH;
+        private int tfparamstartbufH;
+        private int tfparamsbufH;
         //display handlers
         private int dispTexH;
         private int displayProgramH;
@@ -131,11 +135,51 @@ namespace IFSEngine
                     //update pointsstate
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+
                     //update iterators
-                    List<Iterator> its_and_final = new List<Iterator>(CurrentParams.Iterators);
-                    its_and_final.Add(CurrentParams.FinalIterator);
+                    //generate iterator and transform structs
+                    List<IteratorStruct> its = new List<IteratorStruct>();
+                    List<int> tfs = new List<int>();
+                    List<int> tfsparamstart = new List<int> { 0 };
+                    List<float> tfsparams = new List<float>();
+                    CurrentParams.Iterators.ForEach(it =>
+                    {
+                        //iterators
+                        its.Add(new IteratorStruct
+                        {
+                         TfFirst = tfs.Count,
+                         TfNum = it.Transforms.Count,
+                         w = (float)it.w,
+                         cs = (float)it.cs,
+                         ci = (float)it.ci,
+                         op = (float)it.op,
+                        });
+                        //transform IDs
+                        it.Transforms.ForEach(tfi =>
+                        {
+                            tfs.Add(tfi.Id);
+                            //transform params
+                            List<double> tfiparams = tfi.GetListOfParams();
+                            tfsparams.AddRange(tfiparams.Select(p=>(float)p));
+                            tfsparamstart.Add(tfsparamstart.LastOrDefault() + tfiparams.Count);//sets for next tf
+                        });
+                        
+
+                    });
+                    //TODO: tfparamstart pop last value
+
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its_and_final.Count * (16 * sizeof(float)) * (1 * sizeof(int)), its_and_final.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (2*sizeof(int)+4*sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
+
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfsbufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfs.Count * sizeof(int), tfs.ToArray(), BufferUsageHint.DynamicDraw);
+
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamstartbufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparamstart.Count * sizeof(int), tfsparamstart.ToArray(), BufferUsageHint.DynamicDraw);
+
+                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamsbufH);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
+
                     //update palette
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, palettebufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, CurrentParams.Palette.Colors.Count * sizeof(float) * 4, CurrentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
@@ -338,6 +382,9 @@ namespace IFSEngine
             settingsbufH = GL.GenBuffer();
             itersbufH = GL.GenBuffer();
             palettebufH = GL.GenBuffer();
+            tfsbufH = GL.GenBuffer();
+            tfparamstartbufH = GL.GenBuffer();
+            tfparamsbufH = GL.GenBuffer();
 
             //bind layout:
             GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
@@ -346,6 +393,10 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, palettebufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 6, tfsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 7, tfparamstartbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 8, tfparamsbufH);
+
 
             //set uniforms
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);

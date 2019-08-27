@@ -22,13 +22,14 @@ struct Settings
 	float focusdistance;
 	float focusarea;//focal plane -> focal 'area'
 	//current frame:
-	int itnum;//length of iterators - 1 (last one is finalit)
+	int itnum;//length of iterators
 	int pass_iters;//iterations per pass
-	int framestep;	
+	int framestep;
 	int palettecnt;
 	//padding
 };
 
+//TODO: remove
 struct Affine
 {
 	float ox;
@@ -50,8 +51,8 @@ struct Affine
 
 struct Iterator
 {
-	Affine aff;
-	int tfID;
+	int TfFirst;
+	int TfNum;
 	float w;
 	float cs;
 	float ci;//color index, 0 - 1
@@ -86,6 +87,21 @@ layout(std430, binding = 4) buffer iterbuf
 layout(std140, binding = 5) buffer palettebuf
 {
 	vec4 palette[];
+};
+
+layout(std430, binding = 6) buffer tfsbuf
+{
+	int tfs[];//transform id-s of all iterators
+	//int tfParamStart[];
+	//float tfParams[];
+};
+layout(std430, binding = 7) buffer tfparamstartbuf
+{
+	int tfParamStart[];//tfParams indices
+};
+layout(std430, binding = 8) buffer tfparamsbuf
+{
+	float tfParams[];//parameters of all transforms
 };
 
 uniform int width;
@@ -177,42 +193,63 @@ vec3 affine(Affine aff, vec3 input) {
 	return vec3(px, py, pz);
 }
 
-vec3 Apply(Iterator it, vec3 input)
+vec3 Apply(Iterator iter, vec3 input)
 {
-	vec3 p = affine(it.aff, input.xyz);
-	//transform here: TODO
-	if (it.tfID == 0)
+	vec3 p = input;
+	for (int itf = iter.TfFirst; itf < iter.TfFirst + iter.TfNum; itf++)//transforms of iterator
 	{
-		//linear
-	}
-	else if (it.tfID == 1)
-	{//spherical
-		float r = length(p);
-		p = p / (r * r);
-	}
-	else if (it.tfID == 2)
-	{//waves
+		if (tfs[itf] == 0)
+		{//affine
 
-		/*
-		vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
-		vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
-		vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
-		*/
-		vec3 o;
-		float waves2_w = 0.999f;
-		float sx = 0.02f;
-		float sy = 0.01f;
-		float sz = -0.04f;
-		float fx = 20.0f;
-		float fy = 10.0f;
-		float fz = 10.0f;
+			//get affine transform parameters
+			int p_cnt = tfParamStart[itf]+0;
+			Affine aff;
+			aff.ox = tfParams[p_cnt++];
+			aff.oy = tfParams[p_cnt++];
+			aff.oz = tfParams[p_cnt++];
+			aff.xx = tfParams[p_cnt++];
+			aff.xy = tfParams[p_cnt++];//TODO: find better way?
+			aff.xz = tfParams[p_cnt++];
+			aff.yx = tfParams[p_cnt++];
+			aff.yy = tfParams[p_cnt++];
+			aff.yz = tfParams[p_cnt++];
+			aff.zx = tfParams[p_cnt++];
+			aff.zy = tfParams[p_cnt++];
+			aff.zz = tfParams[p_cnt++];
 
-		o.x = waves2_w * fma(sx, sin(p.y * fx), p.x);
-		o.y = waves2_w * fma(sy, sin(p.z * fy), p.y);
-		o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
+			p = affine(aff, p.xyz);		
+		}
+		else if (tfs[itf] == 1)
+		{//spherical
+			float r = length(p);
+			p = p / (r * r);
+		}
+		else if (tfs[itf] == 2)
+		{//waves
 
-		p = o;
+			/*
+			vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
+			vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
+			vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
+			*/
+			vec3 o;
+			float waves2_w = 0.999f;
+			float sx = 0.02f;
+			float sy = 0.01f;
+			float sz = -0.04f;
+			float fx = 20.0f;
+			float fy = 10.0f;
+			float fz = 10.0f;
+
+			o.x = waves2_w * fma(sx, sin(p.y * fx), p.x);
+			o.y = waves2_w * fma(sy, sin(p.z * fy), p.y);
+			o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
+
+			p = o;
+		}
 	}
+
+
 
 	return p;
 }
@@ -261,8 +298,7 @@ vec3 getPaletteColor(float pos)
 void main() {
 	uint gid = gl_GlobalInvocationID.x;
 
-	//TODO: seed random
-	int next = 34567;
+	int next = 34567;//TODO: option to change this seed by animation frame number
 
 	vec3 p = pointsstate[gid].xyz;
 	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
@@ -300,24 +336,20 @@ void main() {
 	
 		p = Apply(its[r_index], p);//transform here
 		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
-		
-		vec3 finalp = Apply(/*finalit*/its[settings.itnum], p);
-		vec2 finalp_shader = ApplyShader(/*finalit*/its[settings.itnum], p_shader);/*color,opacity*/
-		finalp_shader.y = p_shader.y;//opacity=1 on final
 	
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, finalp, ra1, ra2);
+		ivec2 proj = Project(settings.camera, p, ra1, ra2);
 
 	
 		
-		vec4 color = vec4(getPaletteColor(finalp_shader.x), finalp_shader.y);//TODO: calc by Palette(p_shader.color)
+		vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);//TODO: calc by Palette(p_shader.color)
 	
 		//optional fog effect
 		if (settings.fog_effect>0.0f)
 		{
-			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - finalp), settings.fog_effect);
+			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
 			pr1 = clamp(pr1, 0.0f, 1.0f);
 			color.xyzw *= pr1;
 		}

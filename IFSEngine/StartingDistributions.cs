@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IFSEngine.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,12 +19,11 @@ namespace IFSEngine
         public static float[] UniformUnitCube(int p_num)
         {
             float[] distr = new float[p_num * 4];
-            Random r = new Random();
             for (int i = 0; i < p_num; i++)
             {
-                distr[i + 0] = (float)r.NextDouble() * 1.0f - 0.5f;
-                distr[i + 1] = (float)r.NextDouble() * 1.0f - 0.5f;
-                distr[i + 2] = (float)r.NextDouble() * 1.0f - 0.5f;
+                distr[i + 0] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
+                distr[i + 1] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
+                distr[i + 2] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
                 distr[i + 3] = 0.0f;//leave 0
             }
             return distr;
@@ -55,11 +55,10 @@ namespace IFSEngine
         public static float[] ZUniformAxis(int p_num)
         {
             float[] distr = new float[p_num * 4];
-            Random r = new Random();
             for (int i = 0; i < p_num; i++)
             {
                 distr[i + 0] = 0.0f;
-                distr[i + 1] = (float)r.NextDouble() * 1.0f - 0.5f;
+                distr[i + 1] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
                 distr[i + 2] = 0.0f;
                 distr[i + 3] = 0.0f;//leave 0
             }
@@ -74,12 +73,11 @@ namespace IFSEngine
         public static float[] ZUniformUnitSquare(int p_num)
         {
             float[] distr = new float[p_num * 4];
-            Random r = new Random();
             for (int i = 0; i < p_num; i++)
             {
-                distr[i + 0] = (float)r.NextDouble() * 1.0f - 0.5f;
+                distr[i + 0] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
                 distr[i + 1] = 0.0f;
-                distr[i + 2] = (float)r.NextDouble() * 1.0f - 0.5f;
+                distr[i + 2] = (float)RandHelper.NextDouble() * 1.0f - 0.5f;
                 distr[i + 3] = 0.0f;//leave 0
             }
             return distr;
@@ -104,23 +102,22 @@ namespace IFSEngine
         public static float[] Diamond(int p_num)
         {
             float[] distr = new float[p_num * 4];
-            Random r = new Random();
             for (int i = 0; i < p_num; i++)
             {
                 //3 random szam, osszeguk 1
-                float r1 = (float)r.NextDouble();
+                float r1 = (float)RandHelper.NextDouble();
                 float maradektartomany = 1 - r1;
-                float r2 = (float)r.NextDouble() * maradektartomany;
+                float r2 = (float)RandHelper.NextDouble() * maradektartomany;
                 float r3 = 1 - r1 - r2;
 
                 //randomra elojelt valt
-                r1 *= r.Next(2) == 0 ? 1 : -1;
-                r2 *= r.Next(2) == 0 ? 1 : -1;
-                r3 *= r.Next(2) == 0 ? 1 : -1;
+                r1 *= RandHelper.Next(2) == 0 ? 1 : -1;
+                r2 *= RandHelper.Next(2) == 0 ? 1 : -1;
+                r3 *= RandHelper.Next(2) == 0 ? 1 : -1;
 
                 //tengelyeknek kiosztani a szamokat
                 float[] randomok = new float[] { r1, r2, r3 };
-                var shuffled = randomok.ToList().OrderBy(item => r.Next()).ToList();
+                var shuffled = randomok.ToList().OrderBy(item => RandHelper.Next()).ToList();
 
                 distr[i + 0] = shuffled[0];
                 distr[i + 1] = shuffled[1];
@@ -182,7 +179,6 @@ namespace IFSEngine
         public static float[] UnitGrid(int p_num)
         {
             float[] distr = new float[p_num * 4];
-            Random r = new Random();
             int cnt=0;
             float d = 1.01f / (float)Math.Floor(Math.Pow(p_num, 1.0 / 3.0));//
             for (float x = -0.5f; x < 0.5f; x += d)
