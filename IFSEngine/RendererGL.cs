@@ -117,6 +117,12 @@ namespace IFSEngine
             invalidAccumulation = true;
         }
 
+        private void UpdatePointsState()
+        {
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+        }
+
         public void RenderFrame()
         {
             GL.UseProgram(computeProgramH);
@@ -132,9 +138,7 @@ namespace IFSEngine
 
                 if (invalidParams)
                 {
-                    //update pointsstate
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+                    UpdatePointsState();
 
                     //update iterators
                     //generate iterator and transform structs
@@ -190,9 +194,9 @@ namespace IFSEngine
 
             if (Framestep % (10000 / pass_iters) == 0)//TODO: fix condition
             {
-                //update pointsstate
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
-                GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * threadcnt * sizeof(float), StartingDistributions.UniformUnitCube(threadcnt), BufferUsageHint.DynamicCopy);
+                UpdatePointsState();
+                //idea: place new random points along the most dense area?
+                //idea: place new random points along the least dense area?
             }
 
             var settings = new Settings

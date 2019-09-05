@@ -40,18 +40,18 @@ namespace IFSEngine.TransformFunctions
             {
                 return new Affine
                 {
-                    ox = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    oy = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    oz = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    xx = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    xy = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    xz = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    yx = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    yy = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    yz = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    zx = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    zy = (RandHelper.NextDouble() * 2 - 1) * 1.5,
-                    zz = (RandHelper.NextDouble() * 2 - 1) * 1.5
+                    ox = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    oy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    oz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    xx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    xy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    xz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    yx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    yy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    yz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    zx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    zy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    zz = (RandHelper.NextDouble() * 2 - 1) * 1.1
                 };
             }
         }

@@ -198,6 +198,25 @@ namespace IFSEngine
         //TODO: implement more distribution ideas:
         //non-Unit sized shapes..
         //non-uniform distributions..
+        //non-origo based 
+
+        /// <summary>
+        /// Generates a uniform distibution of points in a small cube at a specific position.
+        /// </summary>
+        /// <param name="p_num">Number of points to generate</param>
+        /// <returns>Generated distribution</returns>
+        public static float[] UniformSmallCubeAtPosition(int p_num, OpenTK.Vector4 pos)
+        {
+            float[] distr = new float[p_num * 4];
+            for (int i = 0; i < p_num; i++)
+            {
+                distr[i + 0] = (float)RandHelper.NextDouble() * 0.1f - 0.05f + pos.X;
+                distr[i + 1] = (float)RandHelper.NextDouble() * 0.1f - 0.05f + pos.Y;
+                distr[i + 2] = (float)RandHelper.NextDouble() * 0.1f - 0.05f + pos.Z;
+                distr[i + 3] = 0.0f;//leave 0
+            }
+            return distr;
+        }
 
 
     }

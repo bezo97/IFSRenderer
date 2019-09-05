@@ -29,7 +29,7 @@ namespace IFSEngine.Model
                         r1 = new Spherical();
                         break;
                     case 2:
-                        r1 = new Waves();
+                        r1 = Waves.RandomWaves;
                         break;
                     default:
                         break;
