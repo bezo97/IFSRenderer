@@ -51,12 +51,14 @@ struct Affine
 
 struct Iterator
 {
-	int TfFirst;
-	int TfNum;
 	float w;
 	float cs;
 	float ci;//color index, 0 - 1
 	float op;
+	int tfId;
+	int tfParamsStart;
+	int padding2;
+	int padding3;
 };
 
 layout(local_size_x = 1, local_size_y = 1) in;
@@ -89,17 +91,7 @@ layout(std140, binding = 5) buffer palettebuf
 	vec4 palette[];
 };
 
-layout(std430, binding = 6) buffer tfsbuf
-{
-	int tfs[];//transform id-s of all iterators
-	//int tfParamStart[];
-	//float tfParams[];
-};
-layout(std430, binding = 7) buffer tfparamstartbuf
-{
-	int tfParamStart[];//tfParams indices
-};
-layout(std430, binding = 8) buffer tfparamsbuf
+layout(std430, binding = 6) buffer tfparamsbuf
 {
 	float tfParams[];//parameters of all transforms
 };
@@ -196,13 +188,13 @@ vec3 affine(Affine aff, vec3 input) {
 vec3 Apply(Iterator iter, vec3 input)
 {
 	vec3 p = input;
-	for (int itf = iter.TfFirst; itf < iter.TfFirst + iter.TfNum; itf++)//transforms of iterator
+	//for (int itf = iter.TfFirst; itf < iter.TfFirst + iter.TfNum; itf++)//transforms of iterator
 	{
-		if (tfs[itf] == 0)
+		if (iter.tfId == 0)
 		{//affine
 
 			//get affine transform parameters
-			int p_cnt = tfParamStart[itf]+0;
+			int p_cnt = iter.tfParamsStart;
 			Affine aff;
 			aff.ox = tfParams[p_cnt++];
 			aff.oy = tfParams[p_cnt++];
@@ -219,12 +211,12 @@ vec3 Apply(Iterator iter, vec3 input)
 
 			p = affine(aff, p.xyz);		
 		}
-		else if (tfs[itf] == 1)
+		else if (iter.tfId == 1)
 		{//spherical
 			float r = length(p);
 			p = p / (r * r);
 		}
-		else if (tfs[itf] == 2)
+		else if (iter.tfId == 2)
 		{//waves
 
 			/*

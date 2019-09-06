@@ -52,8 +52,6 @@ namespace IFSEngine
         private int itersbufH;
         private int pointsbufH;
         private int palettebufH;
-        private int tfsbufH;
-        private int tfparamstartbufH;
         private int tfparamsbufH;
         //display handlers
         private int dispTexH;
@@ -143,43 +141,27 @@ namespace IFSEngine
                     //update iterators
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
-                    List<int> tfs = new List<int>();
-                    List<int> tfsparamstart = new List<int> { 0 };
                     List<float> tfsparams = new List<float>();
-                    CurrentParams.Iterators.ForEach(it =>
+                    foreach (var it in CurrentParams.Iterators)
                     {
                         //iterators
                         its.Add(new IteratorStruct
                         {
-                         TfFirst = tfs.Count,
-                         TfNum = it.Transforms.Count,
+                         tfId = it.Transform.Id,
+                         tfParamsStart = tfsparams.Count,
                          w = (float)it.w,
                          cs = (float)it.cs,
                          ci = (float)it.ci,
                          op = (float)it.op,
                         });
-                        //transform IDs
-                        it.Transforms.ForEach(tfi =>
-                        {
-                            tfs.Add(tfi.Id);
-                            //transform params
-                            List<double> tfiparams = tfi.GetListOfParams();
-                            tfsparams.AddRange(tfiparams.Select(p=>(float)p));
-                            tfsparamstart.Add(tfsparamstart.LastOrDefault() + tfiparams.Count);//sets for next tf
-                        });
-                        
-
-                    });
+                        //transform params
+                        List<double> tfiparams = it.Transform.GetListOfParams();
+                        tfsparams.AddRange(tfiparams.Select(p=>(float)p));
+                    }
                     //TODO: tfparamstart pop last value
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (2*sizeof(int)+4*sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
-
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfs.Count * sizeof(int), tfs.ToArray(), BufferUsageHint.DynamicDraw);
-
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamstartbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparamstart.Count * sizeof(int), tfsparamstart.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (4*sizeof(int)+4*sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamsbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
@@ -386,8 +368,6 @@ namespace IFSEngine
             settingsbufH = GL.GenBuffer();
             itersbufH = GL.GenBuffer();
             palettebufH = GL.GenBuffer();
-            tfsbufH = GL.GenBuffer();
-            tfparamstartbufH = GL.GenBuffer();
             tfparamsbufH = GL.GenBuffer();
 
             //bind layout:
@@ -397,9 +377,7 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, palettebufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 6, tfsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 7, tfparamstartbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 8, tfparamsbufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 6, tfparamsbufH);
 
 
             //set uniforms

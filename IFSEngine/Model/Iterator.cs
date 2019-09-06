@@ -9,11 +9,12 @@ namespace IFSEngine.Model
 {
     public class Iterator
     {
-        public List<ITransformFunction> Transforms = new List<ITransformFunction>();
-        public double w;
+        public ITransformFunction Transform;// = new Affine();
+        public double w;//baseweight
         public double cs;
         public double ci;//color index, 0 - 1
         public double op;
+        public Dictionary<Iterator, double> WeightTo = new Dictionary<Iterator, double>();
 
         public static Iterator RandomIterator {
             get
@@ -23,7 +24,7 @@ namespace IFSEngine.Model
                 switch (RandHelper.Next(3))
                 {
                     case 0:
-                        r1 = new Affine();
+                        r1 = Affine.RandomAffine;
                         break;
                     case 1:
                         r1 = new Spherical();
@@ -36,7 +37,8 @@ namespace IFSEngine.Model
                 };
                 return new Iterator
                 {
-                    Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
+                    Transform = r1,
+                    //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
                     ci = RandHelper.NextDouble(),
                     cs = (RandHelper.NextDouble() * 2.0f - 1.0f) * 0.1f,
                     op = RandHelper.NextDouble(),

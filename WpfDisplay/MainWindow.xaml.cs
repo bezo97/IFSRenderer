@@ -82,5 +82,17 @@ namespace WpfDisplay
             renderer.InvalidateParams();
         }
 
+        private void Button_Click_6(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams.AddIterator(Iterator.RandomIterator, true);
+            renderer.InvalidateParams();
+        }
+
+        private void Button_Click_7(object sender, RoutedEventArgs e)
+        {
+            renderer.CurrentParams.RemoveIterator(renderer.CurrentParams.Iterators.Last());
+            renderer.InvalidateParams();
+        }
+
     }
 }
