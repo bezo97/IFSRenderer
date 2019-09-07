@@ -10,7 +10,7 @@ namespace IFSEngine.Model
     public class Iterator
     {
         public ITransformFunction Transform;// = new Affine();
-        public double w;//baseweight
+        public double baseWeight;//baseweight
         public double cs;
         public double ci;//color index, 0 - 1
         public double op;
@@ -40,9 +40,9 @@ namespace IFSEngine.Model
                     Transform = r1,
                     //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
                     ci = RandHelper.NextDouble(),
-                    cs = (RandHelper.NextDouble() * 2.0f - 1.0f) * 0.1f,
+                    cs = 0.5+(RandHelper.NextDouble() * 2.0f - 1.0f) * 0.1f,
                     op = RandHelper.NextDouble(),
-                    w = RandHelper.NextDouble()
+                    baseWeight = RandHelper.NextDouble()
                 };
             }
         }

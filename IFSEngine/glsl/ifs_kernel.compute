@@ -51,7 +51,7 @@ struct Affine
 
 struct Iterator
 {
-	float w;
+	float wsum;//outgoing xaos weights sum
 	float cs;
 	float ci;//color index, 0 - 1
 	float op;
@@ -73,7 +73,7 @@ layout(std140, binding = 1) buffer histogrambuf
 };
 layout(std140, binding = 2) buffer pointsbuf
 {
-	vec4 pointsstate[];
+	vec4 pointsstate[];//for each thread
 };
 //uniformba
 layout(std430, binding = 3) buffer settingsbuf
@@ -94,6 +94,16 @@ layout(std140, binding = 5) buffer palettebuf
 layout(std430, binding = 6) buffer tfparamsbuf
 {
 	float tfParams[];//parameters of all transforms
+};
+
+layout(std430, binding = 7) buffer xaosbuf
+{
+	float xaos[];//xaos matrix: weights to Iterators
+};
+
+layout(std430, binding = 8) buffer last_tf_index_buf
+{
+	int last_tf_index[];//remember previous tranform index for each thread, needed for xaos
 };
 
 uniform int width;
@@ -295,26 +305,42 @@ void main() {
 	vec3 p = pointsstate[gid].xyz;
 	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
 
+	if (settings.framestep == 0)
+	{//first iteration
+		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
+	}
+
+
 	for (int i = 0; i < settings.pass_iters; i++)
-	{//pick a random weighted Transform index
+	{
+		//pick a random xaos weighted Transform index
 		int r_index = 0;
 		float r = randhash(next++);
-		float w_acc = 0.0f;
+		r *= its[last_tf_index[gid]].wsum;//sum outgoing xaos weight
+		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
 			if (w_acc < r) {
-				w_acc += its[j].w;
+				w_acc += xaos[last_tf_index[gid] * settings.itnum + j];
 				r_index = j;
 			}
 			else
 				break;
+
+		if (w_acc == 0.0f)
+		{
+			/*p.x = randhash(next++)-0.5f;
+			p.y = randhash(next++)-0.5f;
+			p.z = randhash(next++)-0.5f;*/
+			//idea: place next to another point instead of random reset
+			p = pointsstate[(gid + 1)].xyz;
+			p_shader.x = pointsstate[(gid + 1)].w;
+			last_tf_index[gid] = int(randhash(next++) * settings.itnum);
+			return;
+		}
 	
-		//set shader to what on first iteration??
-		if (i == 0)
-			p_shader.x = its[r_index].ci;
-	
-		//reset position if too far
+		//reset position if too far or no weight out
 		//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
-		//TODO: make this optional
+		//TODO: make this optional?
 		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
 		{
 			/*p.x = randhash(next++)-0.5f;
@@ -323,7 +349,12 @@ void main() {
 			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
-	
+			last_tf_index[gid] = last_tf_index[gid+1];
+		}
+
+		if (settings.framestep == 0)
+		{//first iteration
+			p_shader.x = its[r_index].ci;//TODO: set color to what? chosen Iterator's color index / random / ?
 		}
 	
 		p = Apply(its[r_index], p);//transform here

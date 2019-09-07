@@ -87,7 +87,14 @@ namespace IFSEngine.Model
                 AddIterator(Iterator.RandomIterator, true);
             }
             NormalizeBaseWeights();
-
+            //randomize xaos weights
+            foreach (var it in Iterators)
+            {
+                foreach (var itTo in Iterators)
+                {
+                    it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
+                }
+            }
         }
 
         public void NormalizeBaseWeights()
@@ -95,11 +102,11 @@ namespace IFSEngine.Model
             double SummWeights = 0.0f;
             foreach (var it in Iterators)
             {
-                SummWeights += it.w;
+                SummWeights += it.baseWeight;
             }
             foreach (var it in Iterators)
             {
-                it.w /= SummWeights;
+                it.baseWeight /= SummWeights;
             }
         }
 

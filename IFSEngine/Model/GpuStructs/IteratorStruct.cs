@@ -6,7 +6,7 @@ namespace IFSEngine.Model.GpuStructs
 {
     internal struct IteratorStruct
     {
-        internal float w;
+        internal float wsum;//outgoing xaos weights sum
         internal float cs;
         internal float ci;//color index, 0 - 1
         internal float op;
