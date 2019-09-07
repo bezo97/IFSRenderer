@@ -51,10 +51,10 @@
                 <StackPanel>
                     <!--TODO: separate xaml for this panel-->
                     <TextBlock Text="Active View" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                    <local:ValueSlider ValueName="Brightness" MinValue="0" Value="{Binding DataContext.ActiveView.Brightness, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" Value="{Binding DataContext.ActiveView.Brightness, ElementName=mainWindow}"/>
                     <local:ValueSlider ValueName="Gamma" MinValue="0" Value="{Binding DataContext.ActiveView.Gamma, ElementName=mainWindow}"/>
                     <local:ValueSlider ValueName="Fog" MinValue="0" Value="{Binding DataContext.ActiveView.FogEffect, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="DOF" MinValue="0" Increment="0.0025" Value="{Binding DataContext.ActiveView.Dof, ElementName=mainWindow}"/>
+                    <local:ValueSlider ValueName="DOF" MinValue="0" Increment="0.0001" Value="{Binding DataContext.ActiveView.Dof, ElementName=mainWindow}"/>
                     <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.ActiveView.FocusDistance, ElementName=mainWindow}"/>
                     <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.ActiveView.FocusArea, ElementName=mainWindow}"/>
 

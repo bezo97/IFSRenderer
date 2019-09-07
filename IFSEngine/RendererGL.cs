@@ -187,11 +187,11 @@ namespace IFSEngine
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = pass_iters,
                 framestep = Framestep,
-                fog_effect = ActiveView.FogEffect,
-                dof = ActiveView.Dof,
-                focusdistance = ActiveView.FocusDistance,
-                focusarea = ActiveView.FocusArea,
-                focuspoint = ActiveView.Camera.Params.position + ActiveView.FocusDistance * ActiveView.Camera.Params.forward,
+                fog_effect = (float)ActiveView.FogEffect,
+                dof = (float)ActiveView.Dof,
+                focusdistance = (float)ActiveView.FocusDistance,
+                focusarea = (float)ActiveView.FocusArea,
+                focuspoint = ActiveView.Camera.Params.position + (float)ActiveView.FocusDistance * ActiveView.Camera.Params.forward,
                 palettecnt = CurrentParams.Palette.Colors.Count
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
@@ -209,8 +209,8 @@ namespace IFSEngine
             {
                 GL.UseProgram(displayProgramH);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), ActiveView.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), ActiveView.Gamma);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), (float)ActiveView.Gamma);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);

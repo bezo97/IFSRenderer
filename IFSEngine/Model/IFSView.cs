@@ -17,12 +17,12 @@ namespace IFSEngine.Model
     /// </remarks>
     public class IFSView : INotifyPropertyChanged
     {
-        private float brightness = 1.0f;
-        private float gamma = 4.0f;
-        private float fogEffect = 2.0f;
-        private float dof = 0.05f;
-        private float focusDistance = 2.0f;
-        private float focusArea = 0.25f;
+        private double brightness = 0.5;
+        private double gamma = 4.0;
+        private double fogEffect = 2.0;
+        private double dof = 0.05;
+        private double focusDistance = 2.0;
+        private double focusArea = 0.25;
         private CameraBase camera;
 
         public IFSView()
@@ -41,7 +41,7 @@ namespace IFSEngine.Model
     }
         //public float Width { get; set; } = 1920;
         //public float Height { get; set; } = 1080; //stays in camera for now because of fov
-        public float Brightness
+        public double Brightness
         {
             get => brightness;
             set
@@ -50,7 +50,7 @@ namespace IFSEngine.Model
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
             }
         }
-        public float Gamma
+        public double Gamma
         {
             get => gamma;
             set
@@ -59,7 +59,7 @@ namespace IFSEngine.Model
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
             }
         }
-        public float FogEffect
+        public double FogEffect
         {
             get => fogEffect;
             set
@@ -68,7 +68,7 @@ namespace IFSEngine.Model
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
         }
-        public float Dof
+        public double Dof
         {
             get => dof;
             set
@@ -77,7 +77,7 @@ namespace IFSEngine.Model
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
         }
-        public float FocusDistance
+        public double FocusDistance
         {
             get => focusDistance;
             set
@@ -86,7 +86,7 @@ namespace IFSEngine.Model
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
         }
-        public float FocusArea
+        public double FocusArea
         {
             get => focusArea;
             set

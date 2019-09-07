@@ -57,6 +57,7 @@ namespace WpfDisplay.Controls
             display1.Top = 0;
             //display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
+            display1.MouseWheel += Display1_MouseWheel;
             display1.MakeCurrent();
             this.Child = display1;
 
@@ -64,6 +65,11 @@ namespace WpfDisplay.Controls
             Renderer = new RendererGL(Params, display1.Width, display1.Height);//TODO: separate render and view resolutions, make it dynamic
 
             Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
+        }
+
+        private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            Renderer.ActiveView.FocusDistance += e.Delta * Renderer.ActiveView.FocusDistance * 0.001;
         }
 
         public Size GetElementPixelSize(UIElement element)
@@ -131,9 +137,9 @@ namespace WpfDisplay.Controls
                Keyboard.IsKeyDown(Key.O))
             {
                 var translateVector = new Vector3(
-                    0.02f * ((Keyboard.IsKeyDown(Key.W) ? 1 : 0) - (Keyboard.IsKeyDown(Key.S) ? 1 : 0)),
-                    0.02f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
-                    0.02f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.W) ? 1 : 0) - (Keyboard.IsKeyDown(Key.S) ? 1 : 0)),
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
                 Renderer.ActiveView.Camera.Translate(translateVector);
 
