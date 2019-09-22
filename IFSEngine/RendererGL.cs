@@ -26,9 +26,11 @@ namespace IFSEngine
         public int Height => ActiveView.Camera.RenderHeight;
 
         public IFS CurrentParams { get; set; }
-        public IFSView ActiveView {
+        public IFSView ActiveView
+        {
             get => activeView;
-            set {
+            set
+            {
                 //activeView.PropertyChanged -= HandleInvalidation;
                 activeView = value;
                 activeView.PropertyChanged += HandleInvalidation;
@@ -55,8 +57,10 @@ namespace IFSEngine
         private int xaosbufH;
         private int last_tf_index_bufH;
         //display handlers
+        private int fboH;
         private int dispTexH;
         private int displayProgramH;
+
         private IFSView activeView;
 
         public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.RenderWidth, Params.Views.First().Camera.RenderHeight) { }
@@ -105,6 +109,13 @@ namespace IFSEngine
             invalidParams = true;
         }
 
+        private int displayWidth = 1280, displayHeight = 720;
+        public void SetDisplayResolution(int displayWidth, int displayHeight)
+        {
+            this.displayWidth = displayWidth;
+            this.displayHeight = displayHeight;
+        }
+
         //TODO: remove this
         public void Reset()
         {
@@ -148,21 +159,21 @@ namespace IFSEngine
                         //iterators
                         its.Add(new IteratorStruct
                         {
-                         tfId = it.Transform.Id,
-                         tfParamsStart = tfsparams.Count,
-                         wsum = (float)it.WeightTo.Sum(xw=>xw.Value*xw.Key.baseWeight),
-                         cs = (float)it.cs,
-                         ci = (float)it.ci,
-                         op = (float)it.op,
+                            tfId = it.Transform.Id,
+                            tfParamsStart = tfsparams.Count,
+                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * xw.Key.baseWeight),
+                            cs = (float)it.cs,
+                            ci = (float)it.ci,
+                            op = (float)it.op,
                         });
                         //transform params
                         List<double> tfiparams = it.Transform.GetListOfParams();
-                        tfsparams.AddRange(tfiparams.Select(p=>(float)p));
+                        tfsparams.AddRange(tfiparams.Select(p => (float)p));
                     }
                     //TODO: tfparamstart pop last value
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (4*sizeof(int)+4*sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (4 * sizeof(int) + 4 * sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamsbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
@@ -173,7 +184,7 @@ namespace IFSEngine
                     {
                         foreach (var toIt in CurrentParams.Iterators)
                         {
-                            xaosm.Add((float)(it.WeightTo[toIt]*toIt.baseWeight));
+                            xaosm.Add((float)(it.WeightTo[toIt] * toIt.baseWeight));
                         }
                     }
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, xaosbufH);
@@ -224,11 +235,11 @@ namespace IFSEngine
 
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), (float)ActiveView.Gamma);
-
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
                 GL.Vertex2(0, 0);
@@ -236,6 +247,19 @@ namespace IFSEngine
                 GL.Vertex2(1, 1);
                 GL.Vertex2(1, 0);
                 GL.End();
+
+                float rw = displayWidth / (float)Width;
+                float rh = displayHeight / (float)Height;
+                float rr = (rw < rh ? rw : rh)*.98f;
+                GL.BlitNamedFramebuffer(fboH,
+                    0, 0, 0, Width, Height, 
+                    (int)(displayWidth / 2 - Width / 2 * rr), 
+                    (int)(displayHeight / 2 - Height / 2 * rr), 
+                    (int)(displayWidth / 2 + Width / 2 * rr), 
+                    (int)(displayHeight / 2 + Height / 2 * rr),
+                    ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+                //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
                 DisplayFrameCompleted?.Invoke(this, null);
                 updateDisplayNow = false;
@@ -277,7 +301,13 @@ namespace IFSEngine
 
             //Read display texture
             GL.Finish();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
+            
             GL.UseProgram(displayProgramH);
+            //GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            //GL.BindBuffer(BufferTarget.TextureBuffer, fboH);//
+            //GL.ReadBuffer(ReadBufferMode.ColorAttachment0);//
+            
             GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.Float, d);
 
             double[,][] o = new double[Width, Height][];
@@ -298,16 +328,6 @@ namespace IFSEngine
 
         private void initDisplay()
         {
-            //init display image texture
-            dispTexH = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, dispTexH);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                throw new GraphicsException("Frame Buffer Error");
-
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
             var vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -329,8 +349,27 @@ namespace IFSEngine
             if (status == 0)
             {
                 throw new GraphicsException(
-                    String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
             }
+            
+            //init display image texture
+            dispTexH = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+                throw new GraphicsException("Frame Buffer Error");
+
+            fboH = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//offscreen
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, dispTexH, 0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
+
             displayProgramH = GL.CreateProgram();
             GL.AttachShader(displayProgramH, vertexShader);
             GL.AttachShader(displayProgramH, fragmentShader);
@@ -353,7 +392,6 @@ namespace IFSEngine
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicRead);
 
-            GL.Viewport(0, 0, Width, Height);
         }
 
         private void initRenderer()
@@ -402,6 +440,7 @@ namespace IFSEngine
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);
             GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), Height);
 
+            GL.Viewport(0, 0, Width, Height);
         }
 
         public void Dispose()

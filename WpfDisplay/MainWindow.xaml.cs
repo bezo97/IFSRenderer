@@ -1,6 +1,7 @@
 ﻿using IFSEngine;
 using IFSEngine.Model;
 using IFSEngine.Util;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
 namespace WpfDisplay
@@ -72,6 +73,18 @@ namespace WpfDisplay
         {
             renderer.CurrentParams.RemoveIterator(renderer.CurrentParams.Iterators.Last());
             renderer.InvalidateParams();
+        }
+
+        private void Button_Click_8(object sender, RoutedEventArgs e)
+        {
+            var p = renderer.GenerateImage();
+            Bitmap b = new Bitmap(renderer.Width, renderer.Height);
+            for (int y = 0; y < renderer.Height; y++)
+                for (int x = 0; x < renderer.Width; x++)
+                {
+                    b.SetPixel(x, renderer.Height - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
+                }
+            b.Save("Output.bmp");
         }
 
     }

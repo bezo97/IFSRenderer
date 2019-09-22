@@ -50,9 +50,9 @@ namespace WpfDisplay.Controls
             //Init GL Control
             OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
-            var renderedPixels = GetElementPixelSize(this);
-            display1.Width = (int)renderedPixels.Width;
-            display1.Height = (int)renderedPixels.Height;
+            var displayedResolution = GetElementPixelSize(this);
+            display1.Width = (int)displayedResolution.Width;
+            display1.Height = (int)displayedResolution.Height;
             display1.Left = 0;
             display1.Top = 0;
             //display1.PreviewKeyDown += KeyDown_Custom;
@@ -62,9 +62,9 @@ namespace WpfDisplay.Controls
 
             display1.MakeCurrent();
             ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
-            Renderer = new RendererGL(new IFS(), 500, 500);//TODO: separate render and view resolutions, make it dynamic
+            Renderer = new RendererGL(new IFS(), 1920, 1080);//TODO: separate render and view resolutions, make it dynamic
+            Renderer.SetDisplayResolution(display1.Width, display1.Height);
             display1.Context.MakeCurrent(null);//
-
 
             Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
         }

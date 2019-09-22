@@ -36,6 +36,7 @@
                 <Button Margin="10" Content="Apply example.gradient" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_5" />
                 <Button Margin="10" Content="+" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_6" />
                 <Button Margin="10" Content="-" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_7" />
+                <Button Margin="10" Content="Save output.bmp" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
             </StackPanel>
         </md:Card>
         <Grid Grid.Row="1">
