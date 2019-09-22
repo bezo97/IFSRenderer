@@ -10,7 +10,6 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using IFSEngine.Model;
-using IFSEngine.Model.Camera;
 using System.ComponentModel;
 using IFSEngine.Model.GpuStructs;
 
@@ -23,8 +22,8 @@ namespace IFSEngine
 
         public bool UpdateDisplayOnRender { get; set; } = true;
         public int Framestep { get; private set; } = 0;
-        public int Width => ActiveView.Camera.Width;
-        public int Height => ActiveView.Camera.Height;
+        public int Width => ActiveView.Camera.RenderWidth;
+        public int Height => ActiveView.Camera.RenderHeight;
 
         public IFS CurrentParams { get; set; }
         public IFSView ActiveView {
@@ -60,14 +59,14 @@ namespace IFSEngine
         private int displayProgramH;
         private IFSView activeView;
 
-        public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.Width, Params.Views.First().Camera.Height) { }
+        public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.RenderWidth, Params.Views.First().Camera.RenderHeight) { }
         public RendererGL(IFS Params, int w, int h)
         {
             AnimationManager = new AnimationManager();
             CurrentParams = Params;
             ActiveView = CurrentParams.Views.First();
-            ActiveView.Camera.Width = w;
-            ActiveView.Camera.Height = h;
+            ActiveView.Camera.RenderWidth = w;
+            ActiveView.Camera.RenderHeight = h;
             invalidParams = true;
             invalidAccumulation = true;
             //TODO: separate opengl initialization from ctor
@@ -250,9 +249,6 @@ namespace IFSEngine
             {
                 rendering = true;
 
-                //take context from main thread
-                OpenTK.Graphics.GraphicsContext.CurrentContext.MakeCurrent(null);
-
                 new System.Threading.Thread(() =>
                 {
                     while (rendering)
@@ -410,6 +406,7 @@ namespace IFSEngine
 
         public void Dispose()
         {
+            DisplayFrameCompleted = null;
             StopRendering();
             //TOOD: dispose
         }

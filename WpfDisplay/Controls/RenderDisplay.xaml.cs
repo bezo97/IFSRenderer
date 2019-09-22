@@ -1,6 +1,7 @@
 ﻿using IFSEngine;
 using IFSEngine.Model;
 using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,6 +34,8 @@ namespace WpfDisplay.Controls
 
         private GLControl display1;
 
+        IGraphicsContext ctx;
+
         public RenderDisplay()
         {
             InitializeComponent();
@@ -43,10 +46,7 @@ namespace WpfDisplay.Controls
         }
 
         private void me_Loaded(object sender, RoutedEventArgs e)
-        {
-            Window.GetWindow(this).Closing += (s2, e2) => Renderer.Dispose();
-            //vagy this.Unloaded+=
-            
+        {            
             //Init GL Control
             OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
@@ -58,11 +58,13 @@ namespace WpfDisplay.Controls
             //display1.PreviewKeyDown += KeyDown_Custom;
             display1.MouseMove += Display1_MouseMove;
             display1.MouseWheel += Display1_MouseWheel;
-            display1.MakeCurrent();
             this.Child = display1;
 
-            IFS Params = new IFS();
-            Renderer = new RendererGL(Params, display1.Width, display1.Height);//TODO: separate render and view resolutions, make it dynamic
+            display1.MakeCurrent();
+            ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
+            Renderer = new RendererGL(new IFS(), 500, 500);//TODO: separate render and view resolutions, make it dynamic
+            display1.Context.MakeCurrent(null);//
+
 
             Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
         }
@@ -91,10 +93,10 @@ namespace WpfDisplay.Controls
         Stopwatch fpsCounter = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            display1.MakeCurrent();//render thread gets the context
-            display1.SwapBuffers();
-            fpsCounter.Stop();
+            ctx.MakeCurrent(display1.WindowInfo);
+            ctx.SwapBuffers();
             FPS = (int)(fpsCounter.ElapsedMilliseconds > 0 ? 1000 / (fpsCounter.ElapsedMilliseconds) : 0);
+            fpsCounter.Stop();
             fpsCounter.Restart();
             //TODO: update fps view: NotifyPropertyChanged mashol, vagy itt Dispatcher.Invoke(()=>{ ... });
         }

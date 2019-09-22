@@ -149,6 +149,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IFSEngine.Util\IFSEngine.Util.csproj">
+      <Project>{52B72CB8-CA7E-4127-84EA-C80129931A5D}</Project>
+      <Name>IFSEngine.Util</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IFSEngine\IFSEngine.csproj">
       <Project>{cd8ae533-71a9-4409-8c68-fe48f2f0fa61}</Project>
       <Name>IFSEngine</Name>

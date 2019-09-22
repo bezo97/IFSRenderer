@@ -101,13 +101,13 @@ namespace IFSEngine.Model
         public void ResetCamera()
         {
             //HACK: remember resolution
-            int w = Camera.Width;
-            int h = Camera.Height;
+            int w = Camera.RenderWidth;
+            int h = Camera.RenderHeight;
 
             Camera = new QuatCamera();
 
-            Camera.Width = w;
-            Camera.Height = h;
+            Camera.RenderWidth = w;
+            Camera.RenderHeight = h;
         }
     }
 }

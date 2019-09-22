@@ -10,8 +10,8 @@ namespace IFSEngine.Model.Camera
     {
         internal CameraBaseParameters Params = new CameraBaseParameters();
         public event Action OnManipulate;
-        public int Width { get; set; } = 1920;
-        public int Height { get; set; } = 1080;
+        public int RenderWidth { get; set; } = 1920;
+        public int RenderHeight { get; set; } = 1080;
         public float MovementSpeed { get; set; } = 2.5f;
         public float Sensitivity { get; set; } = 0.2f;
         public float FOV
@@ -20,7 +20,7 @@ namespace IFSEngine.Model.Camera
             set
             {
                 fov = value;
-                projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)Width / (float)Height, 0.2f, 100.0f);
+                projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)RenderWidth / (float)RenderHeight, 0.2f, 100.0f);
             }
         }
         private float fov = 30;
