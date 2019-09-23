@@ -62,7 +62,7 @@ namespace WpfDisplay.Controls
 
             display1.MakeCurrent();
             ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
-            Renderer = new RendererGL(new IFS(), 1920, 1080);//TODO: separate render and view resolutions, make it dynamic
+            Renderer = new RendererGL(ctx, display1.WindowInfo);
             Renderer.SetDisplayResolution(display1.Width, display1.Height);
             display1.Context.MakeCurrent(null);//
 

@@ -12,6 +12,8 @@ using OpenTK.Graphics.OpenGL;
 using IFSEngine.Model;
 using System.ComponentModel;
 using IFSEngine.Model.GpuStructs;
+using OpenTK.Graphics;
+using OpenTK.Platform;
 
 namespace IFSEngine
 {
@@ -36,6 +38,8 @@ namespace IFSEngine
                 activeView.PropertyChanged += HandleInvalidation;
             }
         }
+        private int displayWidth = 1280, displayHeight = 720;
+
         public AnimationManager AnimationManager { get; set; }
 
         private const int threadcnt = 1500;//TODO: make this a setting or make it adaptive
@@ -45,6 +49,10 @@ namespace IFSEngine
         private int pass_iters;
         private bool updateDisplayNow = false;
         private bool rendering = false;
+
+
+        private IGraphicsContext ctx;//add public setter?
+        private IWindowInfo wInfo;//add public setter?
 
         //compute handlers
         private int computeProgramH;
@@ -63,14 +71,14 @@ namespace IFSEngine
 
         private IFSView activeView;
 
-        public RendererGL(IFS Params) : this(Params, Params.Views.First().Camera.RenderWidth, Params.Views.First().Camera.RenderHeight) { }
-        public RendererGL(IFS Params, int w, int h)
+        public RendererGL(IGraphicsContext ctx, IWindowInfo wInfo)
         {
+            this.ctx = ctx;
+            this.wInfo = wInfo;
+
             AnimationManager = new AnimationManager();
-            CurrentParams = Params;
+            CurrentParams = new IFS();
             ActiveView = CurrentParams.Views.First();
-            ActiveView.Camera.RenderWidth = w;
-            ActiveView.Camera.RenderHeight = h;
             invalidParams = true;
             invalidAccumulation = true;
             //TODO: separate opengl initialization from ctor
@@ -109,7 +117,6 @@ namespace IFSEngine
             invalidParams = true;
         }
 
-        private int displayWidth = 1280, displayHeight = 720;
         public void SetDisplayResolution(int displayWidth, int displayHeight)
         {
             this.displayWidth = displayWidth;
@@ -275,40 +282,47 @@ namespace IFSEngine
 
                 new System.Threading.Thread(() =>
                 {
+                    ctx.MakeCurrent(wInfo);
                     while (rendering)
                         RenderFrame();
+                    ctx.MakeCurrent(null);
+                    stopRender.Set();
                 }).Start();
             }
         }
 
+        System.Threading.AutoResetEvent stopRender = new System.Threading.AutoResetEvent(false);
+
         public void StopRendering()
         {
             rendering = false;
+            
             GL.Finish();
         }
 
         public void UpdateDisplay()
         {
             updateDisplayNow = true;
-            //TODO: if (!rendering) RenderFrame();
+            //TODO: make 1 frame, skip 1st (compute) pass
         }
 
         public double[,][] GenerateImage()
         {
             float[] d = new float[Width * Height * 4];//rgba
 
-            UpdateDisplay();//RenderFrame() if needed
+            bool continueRendering = false;
+            if (rendering)
+            {
+                UpdateDisplay();//RenderFrame() if needed
+                StopRendering();
+                continueRendering = true;
+            }
+            stopRender.WaitOne();//wait for render thread to stop
 
-            //Read display texture
-            GL.Finish();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
-            
-            GL.UseProgram(displayProgramH);
-            //GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            //GL.BindBuffer(BufferTarget.TextureBuffer, fboH);//
-            //GL.ReadBuffer(ReadBufferMode.ColorAttachment0);//
-            
+            ctx.MakeCurrent(wInfo);//lend context from render thread
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);
             GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.Float, d);
+            ctx.MakeCurrent(null);
 
             double[,][] o = new double[Width, Height][];
             for (int x = 0; x < Width; x++)
@@ -322,6 +336,9 @@ namespace IFSEngine
                 }
 
             //TODO: image save in netstandard?
+
+            if (continueRendering)
+                StartRendering();//restart render thread if it was running
 
             return o;
         }
@@ -362,12 +379,12 @@ namespace IFSEngine
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                throw new GraphicsException("Frame Buffer Error");
 
             fboH = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//offscreen
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, dispTexH, 0);
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+                throw new GraphicsException("Frame Buffer Error");
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
 
             displayProgramH = GL.CreateProgram();

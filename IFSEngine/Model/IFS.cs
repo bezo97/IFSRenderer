@@ -21,7 +21,13 @@ namespace IFSEngine.Model
         public IFS(bool random=true)
         {
             RandomizeParams();
+            //hd final render
             Views.Add(new IFSView());
+            //small preview render
+            Views.Add(new IFSView());
+            Views[1].Camera.RenderWidth = 480;
+            Views[1].Camera.RenderHeight = 270;
+
         }
 
         public void AddIterator(Iterator it1, bool connect)
