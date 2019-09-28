@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using IFSEngine.Helper;
-using OpenTK;
+using System.Numerics;
 
 namespace IFSEngine.Model.Camera
 {
@@ -20,7 +20,7 @@ namespace IFSEngine.Model.Camera
             set
             {
                 fov = value;
-                projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)RenderWidth / (float)RenderHeight, 0.2f, 100.0f);
+                projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)RenderWidth / (float)RenderHeight, 0.2f, 100.0f);
             }
         }
         private float fov = 30;
@@ -28,17 +28,17 @@ namespace IFSEngine.Model.Camera
         // Camera 3D Attributes
         protected Vector3 position
         {
-            get => Params.position.Xyz;
+            get => new Vector3(Params.position.X, Params.position.Y, Params.position.Z);
             set => Params.position = new Vector4(value, 1.0f);
         }
         protected Vector3 forward
         {
-            get => Params.forward.Xyz;
+            get => new Vector3(Params.forward.X, Params.forward.Y, Params.forward.Z);
             set => Params.forward = new Vector4(value, 1.0f);
         }
         protected Vector3 up;
         protected Vector3 right;
-        protected Matrix4 projectionMatrix;
+        protected Matrix4x4 projectionMatrix;
 
         public CameraBase() : this(new Vector3(0.0f, 0.0f, -2.0f), new Vector3(0.0f, 0.0f, 1.0f), new Vector3(1.0f, 0.0f, 0.0f), new Vector3(0.0f,1.0f,0.0f), 60.0f)
         {

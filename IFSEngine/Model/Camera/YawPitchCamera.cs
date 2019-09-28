@@ -1,10 +1,10 @@
 ﻿using IFSEngine.Helper;
-using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using IFSEngine.Model;
+using System.Numerics;
 
 namespace IFSEngine.Model.Camera
 {
@@ -60,15 +60,15 @@ namespace IFSEngine.Model.Camera
             front.X = (float)(Math.Cos(NumericExtensions.ToRadians(yaw)) * Math.Cos(NumericExtensions.ToRadians(pitch)));
             front.Y = (float)(Math.Sin(NumericExtensions.ToRadians(pitch)));
             front.Z = (float)(Math.Sin(NumericExtensions.ToRadians(yaw)) * Math.Cos(NumericExtensions.ToRadians(pitch)));
-            this.forward = front.Normalized();
+            this.forward = Vector3.Normalize(front);
             // Also re-calculate the Right and Up vector
-            right = Vector3.Cross(this.forward, worldUp).Normalized();// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-            up = Vector3.Cross(right, this.forward).Normalized();
+            right = Vector3.Normalize(Vector3.Cross(this.forward, worldUp));// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+            up = Vector3.Normalize(Vector3.Cross(right, this.forward));
         }
 
         protected override void SetViewProjMatrix()
         {
-            Params.viewProjMatrix = Matrix4.LookAt(position, position + forward, worldUp) * projectionMatrix;
+            Params.viewProjMatrix = Matrix4x4.CreateLookAt(position, position + forward, worldUp) * projectionMatrix;
         }
     }
 }

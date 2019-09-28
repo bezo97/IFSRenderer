@@ -138,7 +138,7 @@ namespace WpfDisplay.Controls
                Keyboard.IsKeyDown(Key.U) ||
                Keyboard.IsKeyDown(Key.O))
             {
-                var translateVector = new Vector3(
+                var translateVector = new System.Numerics.Vector3(
                     (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.W) ? 1 : 0) - (Keyboard.IsKeyDown(Key.S) ? 1 : 0)),
                     (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
                     (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))

@@ -1,8 +1,8 @@
 ﻿using IFSEngine.Helper;
-using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Numerics;
 
 namespace IFSEngine.Model.Camera
 {
@@ -15,7 +15,7 @@ namespace IFSEngine.Model.Camera
 
         public QuatCamera()
         {
-            orientation = Quaternion.FromEulerAngles(0,-3.141592f/2.0f,0);//no rotation
+            orientation = Quaternion.CreateFromYawPitchRoll(-3.141592f / 2.0f, -3.141592f/2.0f,0);//no rotation
             UpdateCamera();
         }
 
@@ -28,9 +28,9 @@ namespace IFSEngine.Model.Camera
 
         public void RotateBy(float YawDelta, float PitchDelta, float RollDelta)
         {
-            Quaternion rotq = new Quaternion(PitchDelta, YawDelta, RollDelta);//order matters
+            Quaternion rotq = Quaternion.CreateFromYawPitchRoll(YawDelta, PitchDelta, RollDelta);//order matters
             orientation = rotq * orientation;//order matters
-            orientation.Normalize();
+            orientation =  Quaternion.Normalize(orientation);
         }
 
         //https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -93,7 +93,7 @@ namespace IFSEngine.Model.Camera
 
         protected override void SetViewProjMatrix()
         {
-            Params.viewProjMatrix = Matrix4.LookAt(position, position + forward, up) * projectionMatrix;
+            Params.viewProjMatrix = Matrix4x4.CreateLookAt(position, position + forward, up) * projectionMatrix;
         }
     }
 }

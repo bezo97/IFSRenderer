@@ -6,7 +6,7 @@ using IFSEngine.Helper;
 using IFSEngine.Model.Camera;
 using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace IFSEngine.Model
 {
@@ -118,12 +118,12 @@ namespace IFSEngine.Model
 
         public static IFS LoadJson(string path)
         {
-            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path));
+            return JsonSerializer.Deserialize<IFS>(File.ReadAllText(path));
         }
 
         public void SaveJson(string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(this));
+            File.WriteAllText(path, JsonSerializer.Serialize(this));
         }
 
     }
