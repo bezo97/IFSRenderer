@@ -306,6 +306,10 @@ namespace IFSEngine
             //TODO: make 1 frame, skip 1st (compute) pass
         }
 
+        /// <summary>
+        /// Pixel format: rgba
+        /// </summary>
+        /// <returns></returns>
         public double[,][] GenerateImage()
         {
             float[] d = new float[Width * Height * 4];//rgba

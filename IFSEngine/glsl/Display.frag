@@ -4,7 +4,7 @@
 //uniform int width=...;
 //uniform int height=...;
 
-layout(location = 0) out vec3 color;
+layout(location = 0) out vec4 color;
 //uniform sampler2D renderedTexture;
 layout(std140, binding = 1) buffer histogrambuf
 {
@@ -186,5 +186,5 @@ void main(void)
 	logscaled_color = CalcNewRgb(logscaled_color, ls, /*high pow*/2.0f);
 	logscaled_color = clamp(logscaled_color, 0.0f, 1.0f);
 
-	color = logscaled_color;//texture(renderedTexture, uv ,1).xyz;
+	color = vec4(logscaled_color, 1.0);//TODO: calc alpha channel, blend background
 }

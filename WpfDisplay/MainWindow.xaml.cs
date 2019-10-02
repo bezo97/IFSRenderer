@@ -84,7 +84,7 @@ namespace WpfDisplay
                 {
                     b.SetPixel(x, renderer.Height - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
                 }
-            b.Save("Output.bmp");
+            b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
     }
