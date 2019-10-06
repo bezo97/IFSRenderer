@@ -1,8 +1,7 @@
-﻿using OpenTK;
+﻿using System.Numerics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace IFSEngine.Model
 {
