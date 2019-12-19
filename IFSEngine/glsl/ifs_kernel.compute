@@ -381,7 +381,8 @@ void main() {
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))
 		{//point lands on picture
 			int ipx = proj.x + proj.y * width;//pixel index
-			histogram[ipx] += color;//r,g,b,db
+			histogram[ipx].xyz += color.xyz;//r,g,b
+			histogram[ipx].w += 1;//db
 			//accepted_iters++;
 		}
 	
