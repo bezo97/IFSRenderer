@@ -255,7 +255,7 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ActiveView.Gamma));
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)ActiveView.GammaThreshold);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)ActiveView.Vibrancy);
-                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), (float)ActiveView.BackgroundColor.R, (float)ActiveView.BackgroundColor.G, (float)ActiveView.BackgroundColor.B);
+                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), ActiveView.BackgroundColor.R / 255.0f, ActiveView.BackgroundColor.G / 255.0f, ActiveView.BackgroundColor.B / 255.0f);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);

@@ -28,7 +28,10 @@ vec4 Tonemap(vec4 histogram)
 	vec3 acc_c = histogram.xyz;//accumulated color
 	float acc_h = histogram.w;//how many times this pixel was hit
 
-	float act_density = 0.5+framestep;//apo:0.001
+	if(acc_h < 1.0)
+		return vec4(BackgroundColor, 1.0);//TODO: transparent bg
+
+	float act_density = framestep;//apo:0.001
 
 	float ls = Brightness * log10(1.0 + acc_h / act_density) / acc_h;
 
@@ -57,7 +60,6 @@ vec4 Tonemap(vec4 histogram)
 
 	o = clamp(o, vec3(0.0), vec3(1.0));
 	return vec4(o, alpha);
-
 }
 
 

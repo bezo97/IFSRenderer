@@ -374,15 +374,17 @@ void main() {
 		{
 			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
 			pr1 = clamp(pr1, 0.0f, 1.0f);
-			color.xyzw *= pr1;
+			color.w *= pr1;
 		}
+
+		color.xyz *= color.w;
 	
 		//lands on the histogram && initial skipping
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))
 		{//point lands on picture
 			int ipx = proj.x + proj.y * width;//pixel index
 			histogram[ipx].xyz += color.xyz;//r,g,b
-			histogram[ipx].w += 1;//db
+			histogram[ipx].w += color.w;//db
 			//accepted_iters++;
 		}
 	
