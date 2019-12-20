@@ -221,7 +221,7 @@ namespace IFSEngine
                 //idea: place new random points along the least dense area?
             }
 
-            var settings = new Settings
+            var settings = new SettingsStruct
             {
                 CameraBase = ActiveView.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
@@ -249,9 +249,14 @@ namespace IFSEngine
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep*ThreadCount);//TODO: rename uniform
+                //TODO:  only update if needed
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep/*/ThreadCount*/);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Gamma"), (float)ActiveView.Gamma);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ActiveView.Gamma));
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)ActiveView.GammaThreshold);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)ActiveView.Vibrancy);
+                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), (float)ActiveView.BackgroundColor.R, (float)ActiveView.BackgroundColor.G, (float)ActiveView.BackgroundColor.B);
+
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
                 GL.Vertex2(0, 0);

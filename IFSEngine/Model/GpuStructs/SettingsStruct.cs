@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 
-namespace IFSEngine.Model
+namespace IFSEngine.Model.GpuStructs
 {
-    internal struct Settings
+    internal struct SettingsStruct
     {
         //current view:
         internal CameraBaseParameters CameraBase;

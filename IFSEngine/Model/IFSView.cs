@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Text;
 
 namespace IFSEngine.Model
@@ -17,13 +18,16 @@ namespace IFSEngine.Model
     /// </remarks>
     public class IFSView : INotifyPropertyChanged
     {
-        private double brightness = 0.5;
-        private double gamma = 4.0;
-        private double fogEffect = 2.0;
-        private double dof = 0.05;
+        private double brightness = 1.0;
+        private double gamma = 1.0;
+        private double gammaThreshold = 0.0;
+        private double vibrancy = 1.0;
+        private double fogEffect = 0.0;
+        private double dof = 0.0;
         private double focusDistance = 2.0;
         private double focusArea = 0.25;
         private CameraBase camera;
+        private Color bgColor = Color.Black;
 
         public IFSView()
         {
@@ -56,6 +60,24 @@ namespace IFSEngine.Model
             set
             {
                 gamma = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
+            }
+        }
+        public double GammaThreshold
+        {
+            get => gammaThreshold;
+            set
+            {
+                gammaThreshold = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
+            }
+        }
+        public double Vibrancy
+        {
+            get => vibrancy;
+            set
+            {
+                vibrancy = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
             }
         }
@@ -93,6 +115,16 @@ namespace IFSEngine.Model
             {
                 focusArea = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
+            }
+        }
+
+        public System.Drawing.Color BackgroundColor
+        {
+            get => bgColor;
+            set
+            {
+                bgColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("0"));
             }
         }
 

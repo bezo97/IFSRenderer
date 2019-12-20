@@ -133,6 +133,7 @@
     </Compile>
     <Compile Include="Converters\BetterBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
+    <Compile Include="Converters\ColorTypeConverter.cs" />
     <Compile Include="Converters\DoubleStringFormatConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
