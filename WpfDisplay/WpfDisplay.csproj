@@ -135,6 +135,7 @@
     <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Converters\ColorTypeConverter.cs" />
     <Compile Include="Converters\DoubleStringFormatConverter.cs" />
+    <Compile Include="Helper\KeyboardController.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

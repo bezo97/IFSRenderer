@@ -214,7 +214,7 @@ namespace IFSEngine
                 }
             }
 
-            if (Framestep % (10000 / pass_iters) == 0)//TODO: fix condition
+            if (Framestep % (10000 / pass_iters) == 5)//TODO: fix condition
             {
                 UpdatePointsState();
                 //idea: place new random points along the most dense area?
@@ -250,7 +250,7 @@ namespace IFSEngine
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
                 //TODO:  only update if needed
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep/*/ThreadCount*/);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep/*/(float)ThreadCount*/);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ActiveView.Gamma));
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)ActiveView.GammaThreshold);

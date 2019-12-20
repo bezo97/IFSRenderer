@@ -20,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.Controls
 {
@@ -33,14 +34,17 @@ namespace WpfDisplay.Controls
         public int FPS { get; set; }
 
         private GLControl display1;
+        private KeyboardController kbc;
 
         IGraphicsContext ctx;
 
         public RenderDisplay()
         {
             InitializeComponent();
-
+            
             Loaded += me_Loaded;
+            kbc = new KeyboardController(this);
+            kbc.KeyboardTick += KeydownHandler;
             //me_Loaded();
 
         }
@@ -113,41 +117,40 @@ namespace WpfDisplay.Controls
             lastY = e.Y;
         }
 
-        private void WindowsFormsHost_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void KeydownHandler(object sender, EventArgs e)
         {
-            //TODO: replace these with gui
-            if (Keyboard.IsKeyDown(Key.R))
+            if (kbc.IsKeyDown(Key.R))
                 Renderer.Reset();
-            if (Keyboard.IsKeyDown(Key.Space))
+            if (kbc.IsKeyDown(Key.Space))
                 Renderer.StartRendering();
 
             if (
                //translate
-               Keyboard.IsKeyDown(Key.W) ||
-               Keyboard.IsKeyDown(Key.S) ||
-               Keyboard.IsKeyDown(Key.D) ||
-               Keyboard.IsKeyDown(Key.A) ||
-               Keyboard.IsKeyDown(Key.Q) ||
-               Keyboard.IsKeyDown(Key.E) ||
-               Keyboard.IsKeyDown(Key.C) ||
+               kbc.IsKeyDown(Key.W) ||
+               kbc.IsKeyDown(Key.S) ||
+               kbc.IsKeyDown(Key.D) ||
+               kbc.IsKeyDown(Key.A) ||
+               kbc.IsKeyDown(Key.Q) ||
+               kbc.IsKeyDown(Key.E) ||
+               kbc.IsKeyDown(Key.C) ||
                //rotate
-               Keyboard.IsKeyDown(Key.I) ||
-               Keyboard.IsKeyDown(Key.K) ||
-               Keyboard.IsKeyDown(Key.J) ||
-               Keyboard.IsKeyDown(Key.L) ||
-               Keyboard.IsKeyDown(Key.U) ||
-               Keyboard.IsKeyDown(Key.O))
+               kbc.IsKeyDown(Key.I) ||
+               kbc.IsKeyDown(Key.K) ||
+               kbc.IsKeyDown(Key.J) ||
+               kbc.IsKeyDown(Key.L) ||
+               kbc.IsKeyDown(Key.U) ||
+               kbc.IsKeyDown(Key.O))
             {
                 var translateVector = new System.Numerics.Vector3(
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.W) ? 1 : 0) - (Keyboard.IsKeyDown(Key.S) ? 1 : 0)),
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.D) ? 1 : 0) - (Keyboard.IsKeyDown(Key.A) ? 1 : 0)),
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((Keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((Keyboard.IsKeyDown(Key.C) || Keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
+                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
                 Renderer.ActiveView.Camera.Translate(translateVector);
 
-                float pitchd = 0.05f * ((Keyboard.IsKeyDown(Key.I) ? 1 : 0) - (Keyboard.IsKeyDown(Key.K) ? 1 : 0));
-                float yawd = 0.05f * ((Keyboard.IsKeyDown(Key.J) ? 1 : 0) - (Keyboard.IsKeyDown(Key.L) ? 1 : 0));
-                float rolld = 0.05f * ((Keyboard.IsKeyDown(Key.O) ? 1 : 0) - (Keyboard.IsKeyDown(Key.U) ? 1 : 0));
+                float pitchd = 0.05f * ((kbc.IsKeyDown(Key.I) ? 1 : 0) - (kbc.IsKeyDown(Key.K) ? 1 : 0));
+                float yawd = 0.05f * ((kbc.IsKeyDown(Key.J) ? 1 : 0) - (kbc.IsKeyDown(Key.L) ? 1 : 0));
+                float rolld = 0.05f * ((kbc.IsKeyDown(Key.O) ? 1 : 0) - (kbc.IsKeyDown(Key.U) ? 1 : 0));
                 (Renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
 
                 Renderer.ActiveView.Camera.UpdateCamera();//szinten a Mutate-es sztori..

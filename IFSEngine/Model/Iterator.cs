@@ -40,7 +40,7 @@ namespace IFSEngine.Model
                     Transform = r1,
                     //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
                     ci = RandHelper.NextDouble(),
-                    cs = 0.5+(RandHelper.NextDouble() * 2.0f - 1.0f) * 0.1f,
+                    cs = 1.0f - RandHelper.NextDouble() * 2.0f,
                     op = RandHelper.NextDouble(),
                     baseWeight = RandHelper.NextDouble()
                 };
