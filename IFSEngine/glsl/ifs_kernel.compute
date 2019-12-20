@@ -354,7 +354,7 @@ void main() {
 
 		if (settings.framestep == 0)
 		{//first iteration
-			p_shader.x = its[r_index].ci;//TODO: set color to what? chosen Iterator's color index / random / ?
+			p_shader.x = randhash(next++);
 		}
 	
 		p = Apply(its[r_index], p);//transform here
