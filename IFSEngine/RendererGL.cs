@@ -362,7 +362,7 @@ namespace IFSEngine
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
             var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.vert")).ReadToEnd());
+            GL.ShaderSource(vertexShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.vert.shader")).ReadToEnd());
             GL.CompileShader(vertexShader);
             GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
@@ -374,7 +374,7 @@ namespace IFSEngine
             var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             string elo = $"#version 450 \n #extension GL_ARB_explicit_attrib_location : enable \n";
             elo += $"uniform int width={Width}; \n uniform int height={Height};\n";
-            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag")).ReadToEnd());
+            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag.shader")).ReadToEnd());
             GL.CompileShader(fragmentShader);
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
             if (status == 0)
@@ -421,7 +421,7 @@ namespace IFSEngine
 
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicRead);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy);
 
         }
 

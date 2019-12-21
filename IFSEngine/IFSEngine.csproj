@@ -5,14 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="glsl\Display.frag" />
-    <None Remove="glsl\Display.vert" />
+    <None Remove="glsl\Display.frag.shader" />
+    <None Remove="glsl\Display.vert.shader" />
     <None Remove="glsl\ifs_kernel.compute" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="glsl\Display.frag" />
-    <EmbeddedResource Include="glsl\Display.vert" />
+    <EmbeddedResource Include="glsl\Display.frag.shader" />
+    <EmbeddedResource Include="glsl\Display.vert.shader" />
     <EmbeddedResource Include="glsl\ifs_kernel.compute" />
   </ItemGroup>
 

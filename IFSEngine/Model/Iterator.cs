@@ -21,7 +21,7 @@ namespace IFSEngine.Model
             {
                 //TODO: remove switch, randomize transforms
                 ITransformFunction r1 = null;
-                switch (RandHelper.Next(3))
+                switch (RandHelper.Next(4))
                 {
                     case 0:
                         r1 = Affine.RandomAffine;
@@ -32,6 +32,9 @@ namespace IFSEngine.Model
                     case 2:
                         r1 = Waves.RandomWaves;
                         break;
+                    case 3:
+                        r1 = new Foci();
+                        break;
                     default:
                         break;
                 };
@@ -41,7 +44,7 @@ namespace IFSEngine.Model
                     //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
                     ci = RandHelper.NextDouble(),
                     cs = 1.0f - RandHelper.NextDouble() * 2.0f,
-                    op = RandHelper.NextDouble(),
+                    op = (RandHelper.Next(3)==0) ? 0 : RandHelper.NextDouble(),
                     baseWeight = RandHelper.NextDouble()
                 };
             }

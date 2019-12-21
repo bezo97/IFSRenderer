@@ -224,7 +224,7 @@ vec3 Apply(Iterator iter, vec3 input)
 		else if (iter.tfId == 1)
 		{//spherical
 			float r = length(p);
-			p = p / (r * r);
+			p = 0.5f/*weight*/ * p / (r * r);
 		}
 		else if (iter.tfId == 2)
 		{//waves
@@ -235,7 +235,7 @@ vec3 Apply(Iterator iter, vec3 input)
 			vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
 			*/
 			vec3 o;
-			float waves2_w = 0.999f;
+			float waves2_w = 0.5f;/*weight*/
 			float sx = 0.02f;
 			float sy = 0.01f;
 			float sz = -0.04f;
@@ -248,6 +248,19 @@ vec3 Apply(Iterator iter, vec3 input)
 			o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
 
 			p = o;
+		}
+		else if (iter.tfId == 3)
+		{//foci
+			float exp_x = exp(p.x);
+			float exp_x_2 = exp_x * 0.5;
+			float exp_nz = 0.5 / exp_x;
+			float cos_y = cos(p.y);
+			float sin_y = sin(p.y);
+			float cos_z = cos(p.z);
+			float sin_z = sin(p.z);
+			float r = 0.5/*weight*/ / (exp_x_2 + exp_nz - cos_y - cos_z);
+			float fx = (exp_x_2 - exp_nz);
+			p = vec3(fx, sin_y, sin_z) * r;
 		}
 	}
 
@@ -308,6 +321,7 @@ void main() {
 	if (settings.framestep == 0)
 	{//first iteration
 		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
+		p_shader.x = randhash(next++);
 	}
 
 
@@ -351,11 +365,6 @@ void main() {
 			p_shader.x = pointsstate[(gid + 1)].w;
 			last_tf_index[gid] = last_tf_index[gid+1];
 		}
-
-		if (settings.framestep == 0)
-		{//first iteration
-			p_shader.x = randhash(next++);
-		}
 	
 		p = Apply(its[r_index], p);//transform here
 		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
@@ -367,7 +376,7 @@ void main() {
 
 	
 		
-		vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);//TODO: calc by Palette(p_shader.color)
+		vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
 	
 		//optional fog effect
 		if (settings.fog_effect>0.0f)
