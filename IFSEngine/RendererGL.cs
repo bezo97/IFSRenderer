@@ -14,6 +14,7 @@ using System.ComponentModel;
 using IFSEngine.Model.GpuStructs;
 using OpenTK.Graphics;
 using OpenTK.Platform;
+using System.Threading.Tasks;
 
 namespace IFSEngine
 {
@@ -320,7 +321,7 @@ namespace IFSEngine
         /// Pixel format: rgba
         /// </summary>
         /// <returns></returns>
-        public double[,][] GenerateImage()
+        public async Task<double[,][]> GenerateImage(bool fillAlpha = true)
         {
             float[] d = new float[Width * Height * 4];//rgba
 
@@ -339,15 +340,18 @@ namespace IFSEngine
             ctx.MakeCurrent(null);
 
             double[,][] o = new double[Width, Height][];
-            for (int x = 0; x < Width; x++)
-                for (int y = 0; y < Height; y++)
-                {
-                    o[x, y] = new double[4];
-                    o[x, y][0] = d[x * 4 + y * 4 * Width + 0];
-                    o[x, y][1] = d[x * 4 + y * 4 * Width + 1];
-                    o[x, y][2] = d[x * 4 + y * 4 * Width + 2];
-                    o[x, y][3] = d[x * 4 + y * 4 * Width + 3];
-                }
+            await Task.Run(() =>
+            {
+                for (int x = 0; x < Width; x++)
+                    for (int y = 0; y < Height; y++)
+                    {
+                        o[x, y] = new double[4];
+                        o[x, y][0] = d[x * 4 + y * 4 * Width + 0];
+                        o[x, y][1] = d[x * 4 + y * 4 * Width + 1];
+                        o[x, y][2] = d[x * 4 + y * 4 * Width + 2];
+                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * Width + 3];
+                    }
+            });
 
             //TODO: image save in netstandard?
 

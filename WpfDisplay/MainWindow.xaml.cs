@@ -3,6 +3,7 @@ using IFSEngine.Model;
 using IFSEngine.Util;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 namespace WpfDisplay
 {
@@ -75,16 +76,19 @@ namespace WpfDisplay
             renderer.InvalidateParams();
         }
 
-        private void Button_Click_8(object sender, RoutedEventArgs e)
+        private async void Button_Click_8(object sender, RoutedEventArgs e)
         {
-            var p = renderer.GenerateImage();
+            var p = await renderer.GenerateImage();
             Bitmap b = new Bitmap(renderer.Width, renderer.Height);
-            for (int y = 0; y < renderer.Height; y++)
-                for (int x = 0; x < renderer.Width; x++)
-                {
-                    b.SetPixel(x, renderer.Height - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
-                }
-            b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
+            await Task.Run(() =>
+            {
+                for (int y = 0; y < renderer.Height; y++)
+                    for (int x = 0; x < renderer.Width; x++)
+                    {
+                        b.SetPixel(x, renderer.Height - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
+                    }
+                b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
+            });
         }
 
     }
