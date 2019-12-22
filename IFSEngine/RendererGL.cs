@@ -197,7 +197,10 @@ namespace IFSEngine
                     {
                         foreach (var toIt in CurrentParams.Iterators)
                         {
-                            xaosm.Add((float)(it.WeightTo[toIt] * toIt.baseWeight));
+                            if(it.WeightTo.ContainsKey(toIt))
+                                xaosm.Add((float)(it.WeightTo[toIt] * toIt.baseWeight));
+                            else
+                                xaosm.Add(0);
                         }
                     }
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, xaosbufH);

@@ -48,16 +48,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Cloo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cloo.clSharp.1.0.0\lib\netstandard2.0\Cloo.dll</HintPath>
+      <HintPath>..\..\..\.nuget\Cloo.clSharp.1.0.0\lib\netstandard2.0\Cloo.dll</HintPath>
     </Reference>
     <Reference Include="LeapCSharp.NET4.5">
       <HintPath>E:\DocsZoli\prog\LeapSDK\lib\LeapCSharp.NET4.5.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
+      <HintPath>..\..\..\.nuget\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK.GLControl, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.GLControl.3.0.1\lib\net20\OpenTK.GLControl.dll</HintPath>
+      <HintPath>..\..\..\.nuget\OpenTK.GLControl.3.0.1\lib\net20\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

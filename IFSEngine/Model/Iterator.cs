@@ -1,9 +1,9 @@
 ﻿using IFSEngine.Helper;
 using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace IFSEngine.Model
 {
@@ -14,9 +14,13 @@ namespace IFSEngine.Model
         public double cs;
         public double ci;//color index, 0 - 1
         public double op;
+
+        /// <remarks>Custom serialization logic implemented in <see cref="IFS.JsonHelperXaos"/></remarks>
+        [JsonIgnore]
         public Dictionary<Iterator, double> WeightTo = new Dictionary<Iterator, double>();
 
-        public static Iterator RandomIterator {
+        public static Iterator RandomIterator
+        {
             get
             {
                 //TODO: remove switch, randomize transforms
@@ -44,7 +48,7 @@ namespace IFSEngine.Model
                     //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
                     ci = RandHelper.NextDouble(),
                     cs = 1.0f - RandHelper.NextDouble() * 2.0f,
-                    op = (RandHelper.Next(3)==0) ? 0 : RandHelper.NextDouble(),
+                    op = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
                     baseWeight = RandHelper.NextDouble()
                 };
             }

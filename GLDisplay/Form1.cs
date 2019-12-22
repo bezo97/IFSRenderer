@@ -198,7 +198,7 @@ namespace GLDisplay
 
         private void SaveImage_Click(object sender, EventArgs e)
         {
-            var p = renderer.GenerateImage();
+            var p = renderer.GenerateImage().Result;
             Bitmap b = new Bitmap(renderer.Width, renderer.Height);
             for(int y = 0;y<renderer.Height;y++)
                 for (int x = 0; x < renderer.Width; x++)

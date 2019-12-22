@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using IFSEngine.Helper;
-using IFSEngine.Model.Camera;
-using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
@@ -18,9 +15,9 @@ namespace IFSEngine.Model
         public List<IFSView> Views { get; set; } = new List<IFSView>();
         public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
 
-        public IFS(bool random=true)
+        public IFS(bool random = true)
         {
-            RandomizeParams();
+            //RandomizeParams();
             //hd final render
             Views.Add(new IFSView());
             //small preview render
@@ -35,10 +32,10 @@ namespace IFSEngine.Model
             Iterators.Add(it1);
             if (connect)
             {//connect to/from each existing Iterator
-                foreach(var it in Iterators)
+                foreach (var it in Iterators)
                 {
-                    it1.WeightTo[it]=1.0;
-                    it.WeightTo[it1]=1.0;
+                    it1.WeightTo[it] = 1.0;
+                    it.WeightTo[it1] = 1.0;
                 }
             }
             NormalizeBaseWeights();
@@ -118,12 +115,44 @@ namespace IFSEngine.Model
 
         public static IFS LoadJson(string path)
         {
-            return JsonSerializer.Deserialize<IFS>(File.ReadAllText(path));
+            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path), new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto //heterogen collection
+            });
         }
 
         public void SaveJson(string path)
         {
-            File.WriteAllText(path, JsonSerializer.Serialize(this));
+            File.WriteAllText(path, JsonConvert.SerializeObject(this, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto, //heterogen collection
+            }));
+        }
+
+        /// <summary>
+        /// helper property to serilaize xaos weights
+        /// hack: relies on hashset's implementation: preserves order
+        /// </summary>
+        [JsonProperty]
+        private List<List<double>> JsonHelperXaos
+        {
+            get
+            {
+                List<List<double>> o = new List<List<double>>();
+                foreach (Iterator iterator in Iterators)
+                {
+                    o.Add(iterator.WeightTo.Values.ToList());
+                }
+                return o;
+            }
+            set
+            {
+                var tmpl = Iterators.ToList();
+                for (int iX = 0; iX < value.Count; iX++)
+                {
+                    tmpl[iX].WeightTo = tmpl.ToDictionary(k => k, v => value[iX][tmpl.IndexOf(v)]);
+                }
+            }
         }
 
     }
