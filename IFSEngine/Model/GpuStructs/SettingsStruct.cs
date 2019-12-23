@@ -17,7 +17,7 @@ namespace IFSEngine.Model.GpuStructs
         //current frame:
         internal int itnum;//length of iterators - 1 (last one is finalit)
         internal int pass_iters;//iterations per pass
-        internal int framestep;
+        internal int dispatchCnt;//number of dispatches since accumulation reset
         internal int palettecnt;//how many colors in the palette
     }
 }

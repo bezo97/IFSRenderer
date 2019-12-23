@@ -24,7 +24,7 @@ struct Settings
 	//current frame:
 	int itnum;//length of iterators
 	int pass_iters;//iterations per pass
-	int framestep;
+	int dispatchCnt;
 	int palettecnt;
 	//padding
 };
@@ -161,7 +161,7 @@ float random(float f1, float f2, uint nextSample) {
 
 float randhash(uint nextSample)
 {
-	return random(gl_GlobalInvocationID.x, settings.framestep, nextSample);
+	return random(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample);
 }
 
 ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
@@ -315,12 +315,15 @@ void main() {
 
 	int next = 34567;//TODO: option to change this seed by animation frame number
 
+	//TODO: randomize here?
 	vec3 p = pointsstate[gid].xyz;
 	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
 
-	if (settings.framestep == 0)
-	{//first iteration
+	if (settings.dispatchCnt == 0)
+	{//reset on first dispatch
+		//randomize starting iterator
 		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
+		//randomize starting color
 		p_shader.x = randhash(next++);
 	}
 
@@ -389,8 +392,8 @@ void main() {
 		color.xyz *= color.w;
 	
 		//lands on the histogram && initial skipping
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.framestep == 0))
-		{//point lands on picture
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.dispatchCnt == 0))
+		{//accumulate hit
 			int ipx = proj.x + proj.y * width;//pixel index
 			histogram[ipx].xyz += color.xyz;//r,g,b
 			histogram[ipx].w += color.w;//db

@@ -10,8 +10,10 @@ namespace IFSEngine.Model.Camera
     {
         internal CameraBaseParameters Params = new CameraBaseParameters();
         public event Action OnManipulate;
-        public int RenderWidth { get; set; } = 1920;
-        public int RenderHeight { get; set; } = 1080;
+
+        //?
+        public float AspectRatio { get; set; } = 1.0f;
+
         public float MovementSpeed { get; set; } = 2.5f;
         public float Sensitivity { get; set; } = 0.2f;
         public float FOV
@@ -20,7 +22,8 @@ namespace IFSEngine.Model.Camera
             set
             {
                 fov = value;
-                projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), (float)RenderWidth / (float)RenderHeight, 0.2f, 100.0f);
+                //TODO: this should be in UpdateCamera (?)
+                projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), AspectRatio, 0.2f, 100.0f);
             }
         }
         private float fov = 30;
@@ -65,7 +68,6 @@ namespace IFSEngine.Model.Camera
         // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
         public abstract void ProcessMouseMovement(float xoffset, float yoffset);
 
-        // Calculates the front vector from the Camera's (updated) Euler Angles
         public void UpdateCamera()
         {
             RefreshCameraValues();
@@ -75,7 +77,6 @@ namespace IFSEngine.Model.Camera
 
         protected abstract void RefreshCameraValues();
 
-        // Returns the view matrix
         protected abstract void SetViewProjMatrix();
     }
 }

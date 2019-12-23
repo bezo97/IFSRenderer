@@ -28,13 +28,15 @@ namespace IFSEngine.Model
         private double focusArea = 0.25;
         private CameraBase camera;
         private Color bgColor = Color.Black;
+        private Size imageResolution = new Size(1920,1080);
 
         public IFSView()
         {
             Camera = new QuatCamera();
         }
 
-        public CameraBase Camera {
+        public CameraBase Camera
+        {
             get => camera;
             set
             {
@@ -42,9 +44,16 @@ namespace IFSEngine.Model
                 camera.OnManipulate += () => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
-    }
-        //public float Width { get; set; } = 1920;
-        //public float Height { get; set; } = 1080; //stays in camera for now because of fov
+        }
+        public Size ImageResolution
+        {
+            get => imageResolution;
+            set
+            {
+                imageResolution = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
+            }
+        }
         public double Brightness
         {
             get => brightness;
@@ -132,14 +141,7 @@ namespace IFSEngine.Model
 
         public void ResetCamera()
         {
-            //HACK: remember resolution
-            int w = Camera.RenderWidth;
-            int h = Camera.RenderHeight;
-
             Camera = new QuatCamera();
-
-            Camera.RenderWidth = w;
-            Camera.RenderHeight = h;
         }
     }
 }

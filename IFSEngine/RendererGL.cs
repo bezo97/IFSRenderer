@@ -24,9 +24,16 @@ namespace IFSEngine
         //public event EventHandler RenderFrameCompleted;
 
         public bool UpdateDisplayOnRender { get; set; } = true;
-        public int Framestep { get; private set; } = 0;
-        public int Width => ActiveView.Camera.RenderWidth;
-        public int Height => ActiveView.Camera.RenderHeight;
+
+        /// <summary>
+        /// Number of dispatches since accumulation reset.
+        /// This is needed for random generation and 0. dispatch reset
+        /// </summary>
+        private int dispatchCnt = 0;
+
+        public float RenderScale { get; private set; } = 1.0f;
+        public int RenderWidth => (int)(ActiveView.ImageResolution.Width * RenderScale);
+        public int RenderHeight => (int)(ActiveView.ImageResolution.Height * RenderScale);
 
         public IFS CurrentParams { get; set; }
         public IFSView ActiveView
@@ -43,16 +50,41 @@ namespace IFSEngine
 
         public AnimationManager AnimationManager { get; set; }
 
+        private bool invalidAccumulation = false;
+        private bool invalidParams = false;
+
         private int _threadcnt = 1500;
+        /// <summary>
+        /// Performance setting: number of gpu threads
+        /// TODO: autofind best fit based on hardware?
+        /// </summary>
         public int ThreadCount { get => _threadcnt; set {
                 _threadcnt = value;
                 InvalidateAccumulation();
             } 
-        }//TODO: adaptive threadcnt?
+        }
 
-        private bool invalidAccumulation = false;
-        private bool invalidParams = false;
-        private int pass_iters;
+        /// <summary>
+        /// Performance setting: Number of iterations per dispatch.
+        /// TODO: adaptive? depends on hardware.
+        /// </summary>
+        public int PassIters { get; set; } = 500;
+
+        /// <summary>
+        /// Number of iterations between resetting points.
+        /// TODO: adaptive possible? Reset earlier if ... ?
+        /// Gradually increase MaxIters?
+        /// TODO: move reset to compute shader? adaptive for each thread
+        /// </summary>
+        private int MaxIters { get; set; } = 1000;
+
+        private int PassItersCnt = 0;
+
+        /// <summary>
+        /// Total iterations since accumulation reset
+        /// </summary>
+        private int IterAcc = 0;
+
         private bool updateDisplayNow = false;
         private bool rendering = false;
 
@@ -123,6 +155,24 @@ namespace IFSEngine
             invalidParams = true;
         }
 
+        public void SetRenderScale(float scale)
+        {
+            RenderScale = scale;
+
+            //wait to stop
+
+            //set uniforms
+            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), RenderWidth);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), RenderHeight);
+
+            GL.Viewport(0, 0, RenderWidth, RenderHeight);
+
+            InvalidateAccumulation();
+
+            //restart if needed
+
+        }
+
         public void SetDisplayResolution(int displayWidth, int displayHeight)
         {
             this.displayWidth = displayWidth;
@@ -156,8 +206,8 @@ namespace IFSEngine
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
                 GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
-                pass_iters = 500;//increases by each frame
-                Framestep = 0;
+                dispatchCnt = 0;
+                IterAcc = 0;
 
                 if (invalidParams)
                 {
@@ -218,8 +268,9 @@ namespace IFSEngine
                 }
             }
 
-            if (Framestep % (10000 / pass_iters) == 5)//TODO: fix condition
+            if (PassItersCnt>=MaxIters)
             {
+                PassItersCnt = 0;
                 UpdatePointsState();
                 //idea: place new random points along the most dense area?
                 //idea: place new random points along the least dense area?
@@ -229,8 +280,8 @@ namespace IFSEngine
             {
                 CameraBase = ActiveView.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
-                pass_iters = pass_iters,
-                framestep = Framestep,
+                pass_iters = PassIters,
+                dispatchCnt = dispatchCnt,
                 fog_effect = (float)ActiveView.FogEffect,
                 dof = (float)ActiveView.Dof,
                 focusdistance = (float)ActiveView.FocusDistance,
@@ -244,8 +295,9 @@ namespace IFSEngine
             GL.Finish();
             GL.DispatchCompute(ThreadCount, 1, 1);
 
-            pass_iters = Math.Min((int)(pass_iters * 1.5), 1000);
-            Framestep++;
+            IterAcc += PassIters*ThreadCount;
+            PassItersCnt += PassIters;
+            dispatchCnt++;
 
             //GL.Finish();
 
@@ -254,7 +306,9 @@ namespace IFSEngine
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
                 //TODO:  only update if needed
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "framestep"), Framestep/*/(float)ThreadCount*/);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), (float)RenderWidth);//displaywidth?
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), (float)RenderHeight);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "IterAcc"), IterAcc);//?
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ActiveView.Gamma));
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)ActiveView.GammaThreshold);
@@ -269,15 +323,15 @@ namespace IFSEngine
                 GL.Vertex2(1, 0);
                 GL.End();
 
-                float rw = displayWidth / (float)Width;
-                float rh = displayHeight / (float)Height;
+                float rw = displayWidth / (float)RenderWidth;
+                float rh = displayHeight / (float)RenderHeight;
                 float rr = (rw < rh ? rw : rh)*.98f;
                 GL.BlitNamedFramebuffer(fboH,
-                    0, 0, 0, Width, Height, 
-                    (int)(displayWidth / 2 - Width / 2 * rr), 
-                    (int)(displayHeight / 2 - Height / 2 * rr), 
-                    (int)(displayWidth / 2 + Width / 2 * rr), 
-                    (int)(displayHeight / 2 + Height / 2 * rr),
+                    0, 0, 0, RenderWidth, RenderHeight, 
+                    (int)(displayWidth / 2 - RenderWidth / 2 * rr), 
+                    (int)(displayHeight / 2 - RenderHeight / 2 * rr), 
+                    (int)(displayWidth / 2 + RenderWidth / 2 * rr), 
+                    (int)(displayHeight / 2 + RenderHeight / 2 * rr),
                     ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
                 //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -326,7 +380,7 @@ namespace IFSEngine
         /// <returns></returns>
         public async Task<double[,][]> GenerateImage(bool fillAlpha = true)
         {
-            float[] d = new float[Width * Height * 4];//rgba
+            float[] d = new float[RenderWidth * RenderHeight * 4];//rgba
 
             bool continueRendering = false;
             if (rendering)
@@ -339,20 +393,20 @@ namespace IFSEngine
 
             ctx.MakeCurrent(wInfo);//lend context from render thread
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);
-            GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.Float, d);
+            GL.ReadPixels(0, 0, RenderWidth, RenderHeight, PixelFormat.Rgba, PixelType.Float, d);
             ctx.MakeCurrent(null);
 
-            double[,][] o = new double[Width, Height][];
+            double[,][] o = new double[RenderWidth, RenderHeight][];
             await Task.Run(() =>
             {
-                for (int x = 0; x < Width; x++)
-                    for (int y = 0; y < Height; y++)
+                for (int x = 0; x < RenderWidth; x++)
+                    for (int y = 0; y < RenderHeight; y++)
                     {
                         o[x, y] = new double[4];
-                        o[x, y][0] = d[x * 4 + y * 4 * Width + 0];
-                        o[x, y][1] = d[x * 4 + y * 4 * Width + 1];
-                        o[x, y][2] = d[x * 4 + y * 4 * Width + 2];
-                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * Width + 3];
+                        o[x, y][0] = d[x * 4 + y * 4 * RenderWidth + 0];
+                        o[x, y][1] = d[x * 4 + y * 4 * RenderWidth + 1];
+                        o[x, y][2] = d[x * 4 + y * 4 * RenderWidth + 2];
+                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * RenderWidth + 3];
                     }
             });
 
@@ -379,9 +433,7 @@ namespace IFSEngine
             }
 
             var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            string elo = $"#version 450 \n #extension GL_ARB_explicit_attrib_location : enable \n";
-            elo += $"uniform int width={Width}; \n uniform int height={Height};\n";
-            GL.ShaderSource(fragmentShader, elo + new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag.shader")).ReadToEnd());
+            GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag.shader")).ReadToEnd());
             GL.CompileShader(fragmentShader);
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
             if (status == 0)
@@ -399,7 +451,8 @@ namespace IFSEngine
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, Width, Height, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            //TODO: display resolution?
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, RenderWidth, RenderHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
             fboH = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//offscreen
@@ -428,7 +481,7 @@ namespace IFSEngine
 
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, Width * Height * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, RenderWidth * RenderHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicCopy);
 
         }
 
@@ -437,8 +490,7 @@ namespace IFSEngine
 
             //assemble source string
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.compute");
-            string computeShaderSource = "";//TODO: add consts here
-            computeShaderSource += new StreamReader(resource).ReadToEnd();
+            string computeShaderSource = new StreamReader(resource).ReadToEnd();
 
             //compile compute shader
             int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
@@ -474,11 +526,7 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 8, last_tf_index_bufH);
 
 
-            //set uniforms
-            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), Width);
-            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), Height);
-
-            GL.Viewport(0, 0, Width, Height);
+            SetRenderScale(1.0f);
         }
 
         public void Dispose()

@@ -1,8 +1,7 @@
-﻿//ezt compile elott beirjuk:
-//#version 450
-//#extension GL_ARB_explicit_attrib_location : enable
-//uniform int width=...;
-//uniform int height=...;
+﻿#version 450
+#extension GL_ARB_explicit_attrib_location : enable
+uniform int width = 1920;
+uniform int height = 1080;
 
 layout(location = 0) out vec4 color;
 layout(std140, binding = 1) buffer histogrambuf
@@ -10,7 +9,7 @@ layout(std140, binding = 1) buffer histogrambuf
 	vec4 histogram[];
 };
 
-uniform int framestep = 0;
+uniform int IterAcc = 0;
 uniform float Brightness = 1.0;
 uniform float InvGamma = 1.0;
 uniform float GammaThreshold = 0.0;
@@ -31,7 +30,7 @@ vec4 Tonemap(vec4 histogram)
 	if(acc_h < 1.0)
 		return vec4(BackgroundColor, 1.0);//TODO: transparent bg
 
-	float act_density = framestep;//apo:0.001
+	float act_density = float(IterAcc)*0.0000001;//apo:0.001
 
 	float ls = Brightness * log10(1.0 + acc_h / act_density) / acc_h;
 
