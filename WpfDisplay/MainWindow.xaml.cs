@@ -33,7 +33,7 @@ namespace WpfDisplay
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            renderer.Reset();
+            renderer.LoadParams(new IFS(true));
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -43,15 +43,9 @@ namespace WpfDisplay
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            renderer.CurrentParams = IFS.LoadJson("tmp.json");
-            renderer.ActiveView = renderer.CurrentParams.Views.First();
-            //renderer.ActiveView.Camera.OnManipulate += renderer.InvalidateAccumulation;//ez igy bena
-            renderer.InvalidateParams();
-            //szebb lenne pl.
-            //renderer.LoadParams(IFS.LoadJson("tmp.json"), [ActiveView=0]);
+            renderer.LoadParams(IFS.LoadJson("tmp.json"));
         }
 
-        int nextviewcnt = 1;
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
             renderer.SetRenderScale(0.1f);

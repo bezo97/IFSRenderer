@@ -12,15 +12,13 @@ namespace IFSEngine.Model
         //TODO: IFS: Palette + Iterators + Views (+ Animations?)
 
         public UFPalette Palette { get; set; } = UFPalette.Default;
-        public List<IFSView> Views { get; set; } = new List<IFSView>();
+        public IFSView ViewSettings { get; set; } = new IFSView();
         public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
 
-        public IFS(bool random = true)
+        public IFS(bool random = false)
         {
-            //RandomizeParams();
-            //hd final render
-            Views.Add(new IFSView());
-
+            if(random)
+                RandomizeParams();
         }
 
         public void AddIterator(Iterator it1, bool connect)
@@ -77,7 +75,7 @@ namespace IFSEngine.Model
             NormalizeBaseWeights();
         }
 
-        public void RandomizeParams()
+        private void RandomizeParams()
         {
             Iterators.Clear();
             var itnum = RandHelper.Next(5) + 2;

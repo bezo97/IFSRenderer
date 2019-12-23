@@ -32,20 +32,11 @@ namespace IFSEngine
         private int dispatchCnt = 0;
 
         public float RenderScale { get; private set; } = 1.0f;
-        public int RenderWidth => (int)(ActiveView.ImageResolution.Width * RenderScale);
-        public int RenderHeight => (int)(ActiveView.ImageResolution.Height * RenderScale);
+        public int RenderWidth => (int)(CurrentParams.ViewSettings.ImageResolution.Width * RenderScale);
+        public int RenderHeight => (int)(CurrentParams.ViewSettings.ImageResolution.Height * RenderScale);
 
-        public IFS CurrentParams { get; set; }
-        public IFSView ActiveView
-        {
-            get => activeView;
-            set
-            {
-                //activeView.PropertyChanged -= HandleInvalidation;
-                activeView = value;
-                activeView.PropertyChanged += HandleInvalidation;
-            }
-        }
+        public IFS CurrentParams { get; private set; }
+
         private int displayWidth = 1280, displayHeight = 720;
 
         public AnimationManager AnimationManager { get; set; }
@@ -72,8 +63,11 @@ namespace IFSEngine
 
         /// <summary>
         /// Number of iterations between resetting points.
+        /// Apo/Chaotica: const 10000
+        /// Zueuk: max 500 enough
         /// TODO: adaptive possible? Reset earlier if ... ?
-        /// Gradually increase MaxIters?
+        /// Gradually increase MaxIters? x
+        /// Make it an option for high quality renders?
         /// TODO: move reset to compute shader? adaptive for each thread
         /// </summary>
         private int MaxIters { get; set; } = 1000;
@@ -106,8 +100,7 @@ namespace IFSEngine
         private int fboH;
         private int dispTexH;
         private int displayProgramH;
-
-        private IFSView activeView;
+        
 
         public RendererGL(IGraphicsContext ctx, IWindowInfo wInfo)
         {
@@ -115,14 +108,22 @@ namespace IFSEngine
             this.wInfo = wInfo;
 
             AnimationManager = new AnimationManager();
-            CurrentParams = new IFS();
-            ActiveView = CurrentParams.Views.First();
-            invalidParams = true;
-            invalidAccumulation = true;
+
+            LoadParams(new IFS(true));
+
             //TODO: separate opengl initialization from ctor
             initDisplay();
             initRenderer();
 
+        }
+
+        public void LoadParams(IFS p)
+        {
+            if(CurrentParams!=null)
+                CurrentParams.ViewSettings.PropertyChanged -= HandleInvalidation;
+            CurrentParams = p;
+            CurrentParams.ViewSettings.PropertyChanged += HandleInvalidation;
+            InvalidateParams();
         }
 
         private void HandleInvalidation(object sender, PropertyChangedEventArgs e)
@@ -177,17 +178,6 @@ namespace IFSEngine
         {
             this.displayWidth = displayWidth;
             this.displayHeight = displayHeight;
-        }
-
-        //TODO: remove this
-        public void Reset()
-        {
-            CurrentParams.RandomizeParams();
-            ActiveView = CurrentParams.Views.First();
-            ActiveView.ResetCamera();
-            //ActiveView.Camera.OnManipulate += InvalidateAccumulation;
-            invalidParams = true;
-            invalidAccumulation = true;
         }
 
         private void UpdatePointsState()
@@ -278,15 +268,15 @@ namespace IFSEngine
 
             var settings = new SettingsStruct
             {
-                CameraBase = ActiveView.Camera.Params,
+                CameraBase = CurrentParams.ViewSettings.Camera.Params,
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
-                fog_effect = (float)ActiveView.FogEffect,
-                dof = (float)ActiveView.Dof,
-                focusdistance = (float)ActiveView.FocusDistance,
-                focusarea = (float)ActiveView.FocusArea,
-                focuspoint = ActiveView.Camera.Params.position + (float)ActiveView.FocusDistance * ActiveView.Camera.Params.forward,
+                fog_effect = (float)CurrentParams.ViewSettings.FogEffect,
+                dof = (float)CurrentParams.ViewSettings.Dof,
+                focusdistance = (float)CurrentParams.ViewSettings.FocusDistance,
+                focusarea = (float)CurrentParams.ViewSettings.FocusArea,
+                focuspoint = CurrentParams.ViewSettings.Camera.Params.position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.Params.forward,
                 palettecnt = CurrentParams.Palette.Colors.Count
             };
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
@@ -309,11 +299,11 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), (float)RenderWidth);//displaywidth?
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), (float)RenderHeight);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "IterAcc"), IterAcc);//?
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)ActiveView.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ActiveView.Gamma));
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)ActiveView.GammaThreshold);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)ActiveView.Vibrancy);
-                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), ActiveView.BackgroundColor.R / 255.0f, ActiveView.BackgroundColor.G / 255.0f, ActiveView.BackgroundColor.B / 255.0f);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ CurrentParams.ViewSettings.Gamma));
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
+                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);

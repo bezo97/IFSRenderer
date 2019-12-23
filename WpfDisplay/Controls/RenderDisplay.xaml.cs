@@ -75,7 +75,7 @@ namespace WpfDisplay.Controls
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            Renderer.ActiveView.FocusDistance += e.Delta * Renderer.ActiveView.FocusDistance * 0.001;
+            Renderer.CurrentParams.ViewSettings.FocusDistance += e.Delta * Renderer.CurrentParams.ViewSettings.FocusDistance * 0.001;
         }
 
         public Size GetElementPixelSize(UIElement element)
@@ -111,7 +111,7 @@ namespace WpfDisplay.Controls
         {
             if (e.Button == MouseButtons.Left)
             {
-                Renderer.ActiveView.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
+                Renderer.CurrentParams.ViewSettings.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             lastX = e.X;
             lastY = e.Y;
@@ -120,7 +120,7 @@ namespace WpfDisplay.Controls
         private void KeydownHandler(object sender, EventArgs e)
         {
             if (kbc.IsKeyDown(Key.R))
-                Renderer.Reset();
+                Renderer.LoadParams(new IFS());
             if (kbc.IsKeyDown(Key.Space))
                 Renderer.StartRendering();
 
@@ -142,18 +142,18 @@ namespace WpfDisplay.Controls
                kbc.IsKeyDown(Key.O))
             {
                 var translateVector = new System.Numerics.Vector3(
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
-                    (float)Renderer.ActiveView.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
-                Renderer.ActiveView.Camera.Translate(translateVector);
+                Renderer.CurrentParams.ViewSettings.Camera.Translate(translateVector);
 
                 float pitchd = 0.05f * ((kbc.IsKeyDown(Key.I) ? 1 : 0) - (kbc.IsKeyDown(Key.K) ? 1 : 0));
                 float yawd = 0.05f * ((kbc.IsKeyDown(Key.J) ? 1 : 0) - (kbc.IsKeyDown(Key.L) ? 1 : 0));
                 float rolld = 0.05f * ((kbc.IsKeyDown(Key.O) ? 1 : 0) - (kbc.IsKeyDown(Key.U) ? 1 : 0));
-                (Renderer.ActiveView.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
+                (Renderer.CurrentParams.ViewSettings.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
 
-                Renderer.ActiveView.Camera.UpdateCamera();//szinten a Mutate-es sztori..
+                Renderer.CurrentParams.ViewSettings.Camera.UpdateCamera();//szinten a Mutate-es sztori..
             }
         }
 
