@@ -120,7 +120,7 @@ namespace WpfDisplay.Controls
         private void KeydownHandler(object sender, EventArgs e)
         {
             if (kbc.IsKeyDown(Key.R))
-                Renderer.LoadParams(new IFS());
+                Renderer.LoadParams(new IFS(true));
             if (kbc.IsKeyDown(Key.Space))
                 Renderer.StartRendering();
 

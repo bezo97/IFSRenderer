@@ -66,6 +66,8 @@ namespace IFSEngine.Model
 
         public void RemoveIterator(Iterator it1)
         {
+            if (!Iterators.Contains(it1))
+                return;
             foreach (var it in Iterators)
             {
                 it1.WeightTo.Remove(it);
