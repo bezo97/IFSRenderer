@@ -109,10 +109,12 @@ namespace IFSEngine.Model
 
         public static IFS LoadJson(string path)
         {
-            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path), new JsonSerializerSettings
+            var ifs = JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path), new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto //heterogen collection
             });
+            ifs.ViewSettings.Camera.UpdateCamera();//hack
+            return ifs;
         }
 
         public void SaveJson(string path)

@@ -11,7 +11,7 @@ namespace IFSEngine.Model.Camera
 
     public class QuatCamera : CameraBase
     {
-        Quaternion orientation;
+        public Quaternion orientation { get; set; }
 
         public QuatCamera()
         {

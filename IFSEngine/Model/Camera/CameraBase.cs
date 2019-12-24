@@ -29,7 +29,7 @@ namespace IFSEngine.Model.Camera
         private float fov = 30;
 
         // Camera 3D Attributes
-        protected Vector3 position
+        public Vector3 position
         {
             get => new Vector3(Params.position.X, Params.position.Y, Params.position.Z);
             set => Params.position = new Vector4(value, 1.0f);
