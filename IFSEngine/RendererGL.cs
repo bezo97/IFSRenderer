@@ -77,7 +77,7 @@ namespace IFSEngine
         /// <summary>
         /// Total iterations since accumulation reset
         /// </summary>
-        private int IterAcc = 0;
+        private ulong IterAcc = 0;
 
         private bool updateDisplayNow = false;
         private bool rendering = false;
@@ -285,7 +285,7 @@ namespace IFSEngine
             GL.Finish();
             GL.DispatchCompute(ThreadCount, 1, 1);
 
-            IterAcc += PassIters*ThreadCount;
+            IterAcc += Convert.ToUInt64(PassIters *ThreadCount);
             PassItersCnt += PassIters;
             dispatchCnt++;
 
@@ -298,7 +298,7 @@ namespace IFSEngine
                 //TODO:  only update if needed
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), (float)RenderWidth);//displaywidth?
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), (float)RenderHeight);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "IterAcc"), IterAcc);//?
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "ActualDensity"), 1+(uint)(IterAcc/1000000));//apo:*0.001
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ CurrentParams.ViewSettings.Gamma));
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);

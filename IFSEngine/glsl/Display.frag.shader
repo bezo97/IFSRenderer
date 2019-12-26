@@ -9,7 +9,7 @@ layout(std140, binding = 1) buffer histogrambuf
 	vec4 histogram[];
 };
 
-uniform int IterAcc = 0;
+uniform uint ActualDensity = 1;
 uniform float Brightness = 1.0;
 uniform float InvGamma = 1.0;
 uniform float GammaThreshold = 0.0;
@@ -30,9 +30,7 @@ vec4 Tonemap(vec4 histogram)
 	if(acc_h < 1.0)
 		return vec4(BackgroundColor, 1.0);//TODO: transparent bg
 
-	float act_density = float(IterAcc)*0.0000001;//apo:0.001
-
-	float ls = Brightness * log10(1.0 + acc_h / act_density) / acc_h;
+	float ls = Brightness * log10(1.0 + acc_h / ActualDensity) / acc_h;
 
 	vec4 fp = histogram*ls;
 
