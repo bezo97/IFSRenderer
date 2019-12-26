@@ -1,11 +1,14 @@
 ﻿using IFSEngine;
 using IFSEngine.Model;
 using IFSEngine.Util;
+using System;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-namespace WpfDisplay
+using WpfDisplay.ViewModels;
+
+namespace WpfDisplay.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -13,6 +16,8 @@ namespace WpfDisplay
     public partial class MainWindow : Window
     {
         private RendererGL renderer;
+
+        private EditorWindow editorWindow;
 
         public MainWindow()
         {
@@ -84,5 +89,24 @@ namespace WpfDisplay
             });
         }
 
+        private void EditorButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(editorWindow!=null)
+            {
+                editorWindow.DataContext = new IFSViewModel(renderer.CurrentParams);
+                return;
+            }
+
+            editorWindow = new EditorWindow { DataContext = new IFSViewModel(renderer.CurrentParams) };
+            editorWindow.Show();
+
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (editorWindow != null)
+                editorWindow.Close();
+            base.OnClosed(e);
+        }
     }
 }

@@ -17,7 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using IFSEngine;
 
-namespace WpfDisplay.Controls
+namespace WpfDisplay.Views
 {
     /// <summary>
     /// Interaction logic for ValueSlider.xaml

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using IFSEngine.Util;
@@ -7,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
-    public class IFS
+    public class IFS : INotifyPropertyChanged
     {
         //TODO: IFS: Palette + Iterators + Views (+ Animations?)
 
@@ -15,11 +16,13 @@ namespace IFSEngine.Model
         public IFSView ViewSettings { get; set; } = new IFSView();
         public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
 
+        public event PropertyChangedEventHandler PropertyChanged;
         public IFS(bool random = false)
         {
             if(random)
                 RandomizeParams();
         }
+
 
         public void AddIterator(Iterator it1, bool connect)
         {
@@ -33,6 +36,12 @@ namespace IFSEngine.Model
                 }
             }
             NormalizeBaseWeights();
+            RaiseIteratorsChanged();
+        }
+
+        private void RaiseIteratorsChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Iterators"));
         }
 
         //TODO: duplicate
@@ -75,6 +84,7 @@ namespace IFSEngine.Model
             }
             Iterators.Remove(it1);
             NormalizeBaseWeights();
+            RaiseIteratorsChanged();
         }
 
         private void RandomizeParams()
@@ -94,6 +104,7 @@ namespace IFSEngine.Model
                     it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
                 }
             }
+            RaiseIteratorsChanged();
         }
 
         public void NormalizeBaseWeights()

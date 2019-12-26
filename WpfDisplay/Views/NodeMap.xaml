@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="WpfDisplay.Views.NodeMap"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
+    <xc:Zoombox
+        x:Name="ZoomBorder"
+        IsAnimated="True"
+        KeepContentInBounds="False" 
+        DragModifiers="None"
+        RelativeZoomModifiers="None"
+        Background="#FF1D1D1D" 
+        ZoomOnPreview="False"
+        Cursor="SizeAll"
+        Position="0,0"
+        Scale="1"
+        >
+        <Canvas x:Name="MapCanvas"
+            Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+            Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"
+            >
+            <!--Connection Arrows-->
+
+            <ItemsControl ItemsSource="{Binding IteratorViewModels}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas                     
+                                    Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+                                    Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <!--<ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>-->
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ItemsControl ItemsSource="{Binding ConnectionViewModels}" >
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas                     
+                        Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+                        Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <!--<ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
+                                    <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>-->
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Path Data="{Binding ArrowBody}" Stroke="White" StrokeThickness="2"/>
+                                        <Path Data="{Binding ArrowHeadLeft}" Stroke="White" StrokeThickness="2"/>
+                                        <Path Data="{Binding ArrowHeadRight}" Stroke="White" StrokeThickness="2"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+
+            <!--Nodes-->
+            <ItemsControl ItemsSource="{Binding IteratorViewModels}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas                     
+                        Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+                        Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:Node DataContext="{Binding}">
+                            <!--<Style TargetType="local:Node">
+                                <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
+                            </Style>-->
+                        </local:Node>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Canvas>
+    </xc:Zoombox>
+</UserControl>

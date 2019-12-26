@@ -22,7 +22,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfDisplay.Helper;
 
-namespace WpfDisplay.Controls
+namespace WpfDisplay.Views
 {
     /// <summary>
     /// Interaction logic for RenderDisplay.xaml
