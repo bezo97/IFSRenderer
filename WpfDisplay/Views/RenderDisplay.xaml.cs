@@ -68,7 +68,6 @@ namespace WpfDisplay.Views
             ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
             Renderer = new RendererGL(ctx, display1.WindowInfo);
             Renderer.SetDisplayResolution(display1.Width, display1.Height);
-            display1.Context.MakeCurrent(null);//
 
             Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
         }

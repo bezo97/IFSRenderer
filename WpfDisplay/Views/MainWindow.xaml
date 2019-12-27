@@ -67,7 +67,17 @@
                     <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
                     <Label>Background color</Label>
                     <xctk:ColorPicker SelectedColor="{Binding DataContext.CurrentParams.ViewSettings.BackgroundColor, ElementName=mainWindow, Converter={StaticResource ColorTypeConverter}}"/>
-                    <Button Content="resolution test" Click="Button_Click_4" Margin="0 10 0 0"/>
+                    <Label>Render Resolution</Label>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Preview" Click="Button_Preview" Margin="0 0 5 0"/>
+                        <Button Grid.Column="1" Content="Final" Click="Button_Final" Margin="5 0 5 0"/>
+                        <Button Grid.Column="2" Content="2x" Click="Button_2x" Margin="5 0 0 0"/>
+                    </Grid>
                 </StackPanel>
             </md:Card>
             <!-- Render -->

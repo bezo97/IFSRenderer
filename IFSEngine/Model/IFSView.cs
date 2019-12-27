@@ -51,6 +51,7 @@ namespace IFSEngine.Model
             set
             {
                 imageResolution = value;
+                Camera.AspectRatio = imageResolution.Width / (float)imageResolution.Height;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
         }
