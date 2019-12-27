@@ -46,9 +46,20 @@ namespace WpfDisplay
             renderer.LoadParams(IFS.LoadJson("tmp.json"));
         }
 
-        private void Button_Click_4(object sender, RoutedEventArgs e)
+        private void Button_Preview(object sender, RoutedEventArgs e)
         {
-            renderer.SetRenderScale(0.1f);
+            double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
+            renderer.SetHistogramScale(fitToDisplayRatio);
+        }
+
+        private void Button_Final(object sender, RoutedEventArgs e)
+        {
+            renderer.SetHistogramScale(1.0);
+        }
+
+        private void Button_2x(object sender, RoutedEventArgs e)
+        {
+            renderer.SetHistogramScale(2.0);
         }
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
@@ -72,13 +83,13 @@ namespace WpfDisplay
         private async void Button_Click_8(object sender, RoutedEventArgs e)
         {
             var p = await renderer.GenerateImage();
-            Bitmap b = new Bitmap(renderer.RenderWidth, renderer.RenderHeight);
+            Bitmap b = new Bitmap(renderer.HistogramWidth, renderer.HistogramHeight);
             await Task.Run(() =>
             {
-                for (int y = 0; y < renderer.RenderHeight; y++)
-                    for (int x = 0; x < renderer.RenderWidth; x++)
+                for (int y = 0; y < renderer.HistogramHeight; y++)
+                    for (int x = 0; x < renderer.HistogramWidth; x++)
                     {
-                        b.SetPixel(x, renderer.RenderHeight - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
+                        b.SetPixel(x, renderer.HistogramHeight - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
                     }
                 b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
             });

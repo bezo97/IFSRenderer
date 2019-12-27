@@ -31,13 +31,14 @@ namespace IFSEngine
         /// </summary>
         private int dispatchCnt = 0;
 
-        public float RenderScale { get; private set; } = 1.0f;
-        public int RenderWidth => (int)(CurrentParams.ViewSettings.ImageResolution.Width * RenderScale);
-        public int RenderHeight => (int)(CurrentParams.ViewSettings.ImageResolution.Height * RenderScale);
+        public int HistogramWidth { get; private set; } = 1920;
+        public int HistogramHeight { get; private set; } = 1080;
+        public int DisplayWidth { get; private set; } = 1280;
+        public int DisplayHeight { get; private set; } = 720;
+
 
         public IFS CurrentParams { get; private set; }
 
-        private int displayWidth = 1280, displayHeight = 720;
 
         public AnimationManager AnimationManager { get; set; }
 
@@ -77,7 +78,7 @@ namespace IFSEngine
         /// <summary>
         /// Total iterations since accumulation reset
         /// </summary>
-        private ulong IterAcc = 0;
+        public ulong TotalIterations { get; private set; } = 0;
 
         private bool updateDisplayNow = false;
         private bool rendering = false;
@@ -156,28 +157,33 @@ namespace IFSEngine
             invalidParams = true;
         }
 
-        public void SetRenderScale(float scale)
+        public void SetHistogramScale(double scale)
         {
-            RenderScale = scale;
+            WithContext(() =>
+            {
+                HistogramWidth = (int)(CurrentParams.ViewSettings.ImageResolution.Width * scale);
+                HistogramHeight = (int)(CurrentParams.ViewSettings.ImageResolution.Height * scale);
+                GL.UseProgram(computeProgramH);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+                GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), HistogramHeight);
 
-            //wait to stop
+                //resize display texture. TODO: separate & use display resolution
+                GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+                //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
 
-            //set uniforms
-            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), RenderWidth);
-            GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), RenderHeight);
-
-            GL.Viewport(0, 0, RenderWidth, RenderHeight);
-
-            InvalidateAccumulation();
-
-            //restart if needed
+                GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
+                InvalidateAccumulation();
+            }).Wait();
 
         }
 
         public void SetDisplayResolution(int displayWidth, int displayHeight)
         {
-            this.displayWidth = displayWidth;
-            this.displayHeight = displayHeight;
+            this.DisplayWidth = displayWidth;
+            this.DisplayHeight = displayHeight;
         }
 
         private void UpdatePointsState()
@@ -189,7 +195,6 @@ namespace IFSEngine
         public void RenderFrame()
         {
             GL.UseProgram(computeProgramH);
-
             if (invalidAccumulation)
             {
                 //reset accumulation
@@ -197,7 +202,7 @@ namespace IFSEngine
                 GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 dispatchCnt = 0;
-                IterAcc = 0;
+                TotalIterations = 0;
 
                 if (invalidParams)
                 {
@@ -285,7 +290,7 @@ namespace IFSEngine
             GL.Finish();
             GL.DispatchCompute(ThreadCount, 1, 1);
 
-            IterAcc += Convert.ToUInt64(PassIters *ThreadCount);
+            TotalIterations += Convert.ToUInt64(PassIters * ThreadCount);
             PassItersCnt += PassIters;
             dispatchCnt++;
 
@@ -296,9 +301,9 @@ namespace IFSEngine
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
                 //TODO:  only update if needed
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), (float)RenderWidth);//displaywidth?
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), (float)RenderHeight);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "ActualDensity"), 1+(uint)(IterAcc/1000000));//apo:*0.001
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), HistogramHeight);
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "ActualDensity"), 1+(uint)(TotalIterations/(uint)(HistogramWidth*HistogramHeight)));//apo:*0.001
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f/ CurrentParams.ViewSettings.Gamma));
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
@@ -313,15 +318,16 @@ namespace IFSEngine
                 GL.Vertex2(1, 0);
                 GL.End();
 
-                float rw = displayWidth / (float)RenderWidth;
-                float rh = displayHeight / (float)RenderHeight;
+
+                float rw = DisplayWidth / (float)HistogramWidth;
+                float rh = DisplayHeight / (float)HistogramHeight;
                 float rr = (rw < rh ? rw : rh)*.98f;
                 GL.BlitNamedFramebuffer(fboH,
-                    0, 0, 0, RenderWidth, RenderHeight, 
-                    (int)(displayWidth / 2 - RenderWidth / 2 * rr), 
-                    (int)(displayHeight / 2 - RenderHeight / 2 * rr), 
-                    (int)(displayWidth / 2 + RenderWidth / 2 * rr), 
-                    (int)(displayHeight / 2 + RenderHeight / 2 * rr),
+                    0, 0, 0, HistogramWidth, HistogramHeight,
+                    (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr), 
+                    (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr), 
+                    (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr), 
+                    (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
                     ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
                 //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -343,6 +349,7 @@ namespace IFSEngine
                     ctx.MakeCurrent(wInfo);
                     while (rendering)
                         RenderFrame();
+                    GL.Finish();
                     ctx.MakeCurrent(null);
                     stopRender.Set();
                 }).Start();
@@ -351,11 +358,17 @@ namespace IFSEngine
 
         System.Threading.AutoResetEvent stopRender = new System.Threading.AutoResetEvent(false);
 
-        public void StopRendering()
+        /// <summary>
+        /// Wait for render thread to stop
+        /// TODO: async waitone ? http://msdn.microsoft.com/en-us/library/hh873178.aspx#WaitHandles
+        /// </summary>
+        public async Task StopRendering()
         {
-            rendering = false;
-            
-            GL.Finish();
+            if (rendering)
+            {
+                rendering = false;
+                stopRender.WaitOne();
+            }
         }
 
         public void UpdateDisplay()
@@ -365,45 +378,51 @@ namespace IFSEngine
         }
 
         /// <summary>
+        /// Helper to call opengl from current thread with context. Stops the render thread.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        private async Task WithContext(Action action)
+        {
+            bool continueRendering = rendering;
+            await StopRendering();
+            ctx.MakeCurrent(wInfo);//lend context from render thread
+            action();
+            ctx.MakeCurrent(null);
+            if (continueRendering)
+                StartRendering();//restart render thread if it was running
+        }
+
+        /// <summary>
         /// Pixel format: rgba
         /// </summary>
         /// <returns></returns>
         public async Task<double[,][]> GenerateImage(bool fillAlpha = true)
         {
-            float[] d = new float[RenderWidth * RenderHeight * 4];//rgba
+            float[] d = new float[HistogramWidth * HistogramHeight * 4];//rgba
 
-            bool continueRendering = false;
-            if (rendering)
-            {
-                UpdateDisplay();//RenderFrame() if needed
-                StopRendering();
-                continueRendering = true;
-            }
-            stopRender.WaitOne();//wait for render thread to stop
+            UpdateDisplay();//TODO: await 1 display frame
 
-            ctx.MakeCurrent(wInfo);//lend context from render thread
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);
-            GL.ReadPixels(0, 0, RenderWidth, RenderHeight, PixelFormat.Rgba, PixelType.Float, d);
-            ctx.MakeCurrent(null);
+            await WithContext(() => {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);
+                GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, d);
+            });
 
-            double[,][] o = new double[RenderWidth, RenderHeight][];
+            double[,][] o = new double[HistogramWidth, HistogramHeight][];
             await Task.Run(() =>
             {
-                for (int x = 0; x < RenderWidth; x++)
-                    for (int y = 0; y < RenderHeight; y++)
+                for (int x = 0; x < HistogramWidth; x++)
+                    for (int y = 0; y < HistogramHeight; y++)
                     {
                         o[x, y] = new double[4];
-                        o[x, y][0] = d[x * 4 + y * 4 * RenderWidth + 0];
-                        o[x, y][1] = d[x * 4 + y * 4 * RenderWidth + 1];
-                        o[x, y][2] = d[x * 4 + y * 4 * RenderWidth + 2];
-                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * RenderWidth + 3];
+                        o[x, y][0] = d[x * 4 + y * 4 * HistogramWidth + 0];
+                        o[x, y][1] = d[x * 4 + y * 4 * HistogramWidth + 1];
+                        o[x, y][2] = d[x * 4 + y * 4 * HistogramWidth + 2];
+                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * HistogramWidth + 3];
                     }
             });
 
             //TODO: image save in netstandard?
-
-            if (continueRendering)
-                StartRendering();//restart render thread if it was running
 
             return o;
         }
@@ -442,7 +461,7 @@ namespace IFSEngine
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
 
             //TODO: display resolution?
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, RenderWidth, RenderHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
             fboH = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//offscreen
@@ -467,12 +486,11 @@ namespace IFSEngine
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
 
-            GL.UseProgram(displayProgramH);
+            GL.UseProgram(displayProgramH); 
 
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, RenderWidth * RenderHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
-
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy); 
         }
 
         private void initRenderer()
@@ -515,14 +533,13 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 7, xaosbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 8, last_tf_index_bufH);
 
-
-            SetRenderScale(1.0f);
+            SetHistogramScale(1.0);
         }
 
         public void Dispose()
         {
             DisplayFrameCompleted = null;
-            StopRendering();
+            StopRendering().Wait();
             //TOOD: dispose
         }
 
