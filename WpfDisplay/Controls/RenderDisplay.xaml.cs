@@ -31,8 +31,6 @@ namespace WpfDisplay.Controls
     {
         public RendererGL Renderer { get; private set; }
 
-        public int FPS { get; set; }
-
         private GLControl display1;
         private KeyboardController kbc;
 
@@ -93,15 +91,10 @@ namespace WpfDisplay.Controls
             return (Size)transformToDevice.Transform((Vector)element.DesiredSize);
         }
         
-        Stopwatch fpsCounter = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            ctx.MakeCurrent(display1.WindowInfo);
+            //ctx.MakeCurrent(display1.WindowInfo);
             ctx.SwapBuffers();
-            FPS = (int)(fpsCounter.ElapsedMilliseconds > 0 ? 1000 / (fpsCounter.ElapsedMilliseconds) : 0);
-            fpsCounter.Stop();
-            fpsCounter.Restart();
-            //TODO: update fps view: NotifyPropertyChanged mashol, vagy itt Dispatcher.Invoke(()=>{ ... });
         }
 
         float lastX;
