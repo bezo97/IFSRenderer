@@ -342,6 +342,7 @@ void main() {
 			}
 			else
 				break;
+		last_tf_index[gid] = r_index;
 
 		if (w_acc == 0.0f)
 		{
