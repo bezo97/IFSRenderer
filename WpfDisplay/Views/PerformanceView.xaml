@@ -26,6 +26,7 @@
                     <Button Command="{Binding X2Command}" Grid.Column="2" Content="2x" Margin="5 0 0 0"/>
                 </Grid>
                 <local:ValueSlider ValueName="Threads" MinValue="64" MaxValue="4096" Increment="64" Value="{Binding DataContext.ThreadCount, ElementName=performanceView}"/>
+                <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
                 <TextBlock Foreground="White" FontSize="16">
                     Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/>fps
                     <LineBreak/>

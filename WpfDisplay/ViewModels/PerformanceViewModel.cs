@@ -33,6 +33,16 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public bool UpdateDisplay
+        {
+            get => renderer.UpdateDisplayOnRender;
+            set
+            {
+                renderer.UpdateDisplayOnRender = value;
+                RaisePropertyChanged(() => UpdateDisplay);
+            }
+        }
+
         public PerformanceViewModel(RendererGL renderer)
         {
             this.renderer = renderer;
