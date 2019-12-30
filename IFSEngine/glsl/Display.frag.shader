@@ -8,6 +8,8 @@ layout(std140, binding = 1) buffer histogrambuf
 {
 	vec4 histogram[];
 };
+//yout(binding = 2, rgba32f) uniform image2D lastframe;
+uniform sampler2D lastframe;
 
 uniform uint ActualDensity = 1;
 uniform float Brightness = 1.0;
@@ -28,7 +30,7 @@ vec4 Tonemap(vec4 histogram)
 	float acc_h = histogram.w;//how many times this pixel was hit
 
 	if(acc_h < 1.0)
-		return vec4(BackgroundColor, 1.0);//TODO: transparent bg
+		return vec4(BackgroundColor, 0.0);//TODO: transparent bg
 
 	float ls = Brightness * log10(1.0 + acc_h / ActualDensity) / acc_h;
 
@@ -67,5 +69,23 @@ void main(void)
 	vec2 uv = vec2(gl_FragCoord.x/float(width),gl_FragCoord.y/float(height));
 	int pxi = px+py*width;
 
-	color = Tonemap(histogram[pxi]);
+	//color = Tonemap(histogram[pxi]) * 0.2 + texture(lastframe, uv) * 0.8;//imageLoad(lastframe, ivec2(px,py)) * 0.8;
+	vec4 newColor = Tonemap(histogram[pxi]);
+	vec2 size = vec2(width, height);
+	float filterR = 1.0;
+	vec4 oldColor = (/*texture(lastframe, gl_FragCoord.xy / size) +*/
+		texture(lastframe, (vec2(filterR,0.0) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(-filterR,0.0) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(0.0, filterR) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(0.0,-filterR) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(filterR, filterR) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(-filterR,-filterR) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(-filterR, filterR) + gl_FragCoord.xy) / size) +
+		texture(lastframe, (vec2(filterR,-filterR) + gl_FragCoord.xy) / size)) / 8.0;
+	if (uv.x > 0.5 && newColor.w>0.0)
+		color = mix(oldColor, newColor, newColor.w);
+	else
+		color = newColor;
+	if (abs(uv.x - 0.5) < 0.001)
+		color = vec4(0.0, 0.0, 0.0, 1.0);
 }

@@ -99,7 +99,9 @@ namespace IFSEngine
         private int last_tf_index_bufH;
         //display handlers
         private int fboH;
-        private int dispTexH;
+        //private int dispTexH;
+        private int[] pingpongH = new int[2];//2 display textures
+        private bool pingpong = false;
         private int displayProgramH;
         
 
@@ -170,8 +172,8 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), HistogramHeight);
 
                 //resize display texture. TODO: separate & use display resolution
-                GL.BindTexture(TextureTarget.Texture2D, dispTexH);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+                //GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+                //GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
                 //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
 
                 GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
@@ -298,8 +300,13 @@ namespace IFSEngine
 
             if (updateDisplayNow || UpdateDisplayOnRender)
             {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
                 GL.UseProgram(displayProgramH);
+                //GL.BindTexture(TextureTarget.Texture2D, pingpong ? pingpongH[1] : pingpongH[0]);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//
+                //GL.DrawBuffer(pingpong ? DrawBufferMode.ColorAttachment0 : DrawBufferMode.ColorAttachment1);
+                //GL.DrawBuffers(2, new DrawBuffersEnum[] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, pingpong ? pingpongH[0] : pingpongH[1], 0);
+
                 //TODO:  only update if needed
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), HistogramWidth);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), HistogramHeight);
@@ -309,6 +316,7 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
                 GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                //GL.Uniform1(GL.GetUniformLocation(displayProgramH, "lastframe"), pingpong ? pingpongH[1] : pingpongH[0]);
 
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
@@ -330,8 +338,11 @@ namespace IFSEngine
                     (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
                     ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
                 //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
+
+                //GL.BindTexture(TextureTarget.Texture2D, pingpong ? pingpongH[0] : pingpongH[1]);
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
+                pingpong = !pingpong;
                 DisplayFrameCompleted?.Invoke(this, null);
                 updateDisplayNow = false;
             }
@@ -451,21 +462,30 @@ namespace IFSEngine
                     String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
             }
             
-            //init display image texture
-            dispTexH = GL.GenTexture();
+            //init display image textures
+
+            //ping
+            pingpongH[0] = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+            GL.BindTexture(TextureTarget.Texture2D, pingpongH[0]);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-
+            //TODO: display resolution?
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+            
+            //pong
+            pingpongH[1] = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, pingpongH[1]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             //TODO: display resolution?
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
             fboH = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboH);//offscreen
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, dispTexH, 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, pingpongH[0], 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment1, TextureTarget.Texture2D, pingpongH[1], 0);
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new GraphicsException("Frame Buffer Error");
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
@@ -490,7 +510,11 @@ namespace IFSEngine
 
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy); 
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+
+            //bind previous frame
+            //GL.BindImageTexture(0, pingpongH[0], 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
+            //GL.BindImageTexture(0, pingpongH[1], 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
         }
 
         private void initRenderer()
@@ -523,7 +547,7 @@ namespace IFSEngine
             last_tf_index_bufH = GL.GenBuffer();
 
             //bind layout:
-            GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
+            //GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, histogramH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
