@@ -401,7 +401,7 @@ void main() {
 		}
 	
 	}
-
+	
 	pointsstate[gid] = vec4(p, p_shader.x);
 
 }

@@ -23,7 +23,7 @@
             </Ellipse.Fill>
             <!-- UniformToFill is lehet ^ -->
             <Ellipse.Effect>
-                <DropShadowEffect x:Name="MyDropShadowEffect" BlurRadius="20" Opacity="0.0"/>
+                <DropShadowEffect BlurRadius="20" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
         </Ellipse>
         <Label x:Name ="NameLabel" Content="{Binding TransformId, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>

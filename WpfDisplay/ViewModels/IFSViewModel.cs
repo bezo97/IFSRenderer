@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace WpfDisplay.ViewModels
 {
     public class IFSViewModel : ObservableObject
     {
-        private readonly IFS ifs;
+        public readonly IFS ifs;
 
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; }
         
@@ -21,7 +22,8 @@ namespace WpfDisplay.ViewModels
         {
             get => selectedIterator; set
             {
-                selectedIterator.IsSelected = false;
+                if(selectedIterator!=null)
+                    selectedIterator.IsSelected = false;
                 Set(ref selectedIterator, value);
                 selectedIterator.IsSelected = true;
             }
@@ -30,7 +32,7 @@ namespace WpfDisplay.ViewModels
         public IFSViewModel(IFS ifs)
         {
             this.ifs = ifs;
-            IteratorViewModels = new ObservableCollection<IteratorViewModel>(ifs.Iterators.Select(i => new IteratorViewModel(i)));
+            IteratorViewModels = new ObservableCollection<IteratorViewModel>(ifs.Iterators.Select(i => new IteratorViewModel(this, i)));
             ifs.PropertyChanged += Ifs_PropertyChanged;
             HandleIteratorsChanged();
         }
@@ -40,12 +42,12 @@ namespace WpfDisplay.ViewModels
             var newIterators = ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
             var removedIteratorVMs = IteratorViewModels.Where(vm => !ifs.Iterators.Any(i => vm.iterator == i));
             removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
-            newIterators.ToList().ForEach(i => IteratorViewModels.Add(new IteratorViewModel(i)));
+            newIterators.ToList().ForEach(i => IteratorViewModels.Add(new IteratorViewModel(this, i)));
 
             //update connections vms:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
         }
-        private void HandleConnectionsChanged(IteratorViewModel vm)
+        public void HandleConnectionsChanged(IteratorViewModel vm)
         {
             var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key));
             var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key));
@@ -64,5 +66,17 @@ namespace WpfDisplay.ViewModels
                     break;
             }
         }
+
+        //TODO: remove, this is a test
+        private RelayCommand _cycleSelectionCommand;
+        public RelayCommand CycleSelectionCommand
+        {
+            get => _cycleSelectionCommand ?? (
+                _cycleSelectionCommand = new RelayCommand(() =>
+                {
+                    SelectedIterator = IteratorViewModels[(IteratorViewModels.IndexOf(SelectedIterator) + 1) % IteratorViewModels.Count];
+                }));
+        }
+
     }
 }

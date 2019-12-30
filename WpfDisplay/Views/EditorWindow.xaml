@@ -5,10 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Background="{DynamicResource MaterialDesignPaper}"
         mc:Ignorable="d"
         Title="EditorWindow" Height="450" Width="800" Topmost="True"
         d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
     <Grid>
-        <local:NodeMap DataContext="{Binding}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <Button Command="{Binding CycleSelectionCommand}">Select Next ></Button>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+        <local:NodeMap DataContext="{Binding}" Grid.Column="0"/>
+            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch">
+                <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
+            </md:Card>
+        </Grid>
     </Grid>
 </Window>

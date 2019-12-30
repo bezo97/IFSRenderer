@@ -13,16 +13,17 @@ namespace WpfDisplay.ViewModels
 {
     public class IteratorViewModel : ObservableObject
     {
+        private readonly IFSViewModel ifsvm;
         public readonly Iterator iterator;
 
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
         public static double BaseSize = 100;
 
-        public IteratorViewModel(Iterator iterator)
+        public IteratorViewModel(IFSViewModel ifsvm, Iterator iterator)
         {
+            this.ifsvm = ifsvm;
             this.iterator = iterator;
-            //ConnectionViewModels = new ObservableCollection<ConnectionViewModel>(iterator.WeightTo.Select(p => new ConnectionViewModel(this, p.)));
         }
 
         private bool isselected;
@@ -32,6 +33,18 @@ namespace WpfDisplay.ViewModels
         {
             get => (float)iterator.op;
             set { Set(ref iterator.op, value); RaisePropertyChanged(() => OpacityColor); }
+        }
+
+        public float ColorIndex
+        {
+            get => (float)iterator.ci;
+            set { Set(ref iterator.ci, value); }
+        }
+
+        public float ColorSpeed
+        {
+            get => (float)iterator.cs;
+            set { Set(ref iterator.cs, value); }
         }
 
         public Color OpacityColor
@@ -46,7 +59,13 @@ namespace WpfDisplay.ViewModels
         public float BaseWeight
         {
             get => (float)iterator.baseWeight;
-            set { Set(ref iterator.baseWeight, value); RaisePropertyChanged(() => WeightedSize); }
+            set {
+                iterator.baseWeight = value;
+                ifsvm.ifs.NormalizeBaseWeights();
+                ifsvm.HandleConnectionsChanged(this);
+                RaisePropertyChanged(() => BaseWeight);
+                RaisePropertyChanged(() => WeightedSize);
+            }
         }
 
         public double WeightedSize
