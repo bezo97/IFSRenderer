@@ -52,6 +52,7 @@ namespace WpfDisplay.Controls
             //Init GL Control
             OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
+            display1.VSync = false;
             var displayedResolution = GetElementPixelSize(this);
             display1.Width = (int)displayedResolution.Width;
             display1.Height = (int)displayedResolution.Height;

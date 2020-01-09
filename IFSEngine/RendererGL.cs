@@ -288,7 +288,7 @@ namespace IFSEngine
             GL.BufferData(BufferTarget.ShaderStorageBuffer, 4 * sizeof(int) + (24 + 8) * sizeof(float), ref settings, BufferUsageHint.StreamDraw);
 
             GL.Finish();
-            GL.DispatchCompute(ThreadCount, 1, 1);
+            GL.DispatchCompute(/*ThreadCount*/4, 1, 1);
 
             TotalIterations += Convert.ToUInt64(PassIters * ThreadCount);
             PassItersCnt += PassIters;
