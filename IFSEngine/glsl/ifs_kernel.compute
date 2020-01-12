@@ -263,6 +263,18 @@ vec3 Apply(Iterator iter, vec3 input)
 			float fx = (exp_x_2 - exp_nz);
 			p = vec3(fx, sin_y, sin_z) * r;
 		}
+		else if (iter.tfId == 4)
+		{//loonie
+			float weight = 0.5;
+			float w2 = weight * weight;
+			float r2 = dot(p, p);
+			float r;
+			if (r2 < w2)
+				r = weight * sqrt(w2 / r2 - 1.0);
+			else
+				r = weight;
+			p = r * p;
+		}
 	}
 
 
