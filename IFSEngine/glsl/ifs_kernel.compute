@@ -4,6 +4,8 @@
 //#extension GL_ARB_shader_storage_buffer_object : enable
 #extension GL_NV_shader_atomic_float : enable
 
+//precision highp float;
+
 //%4=0 db float kell
 struct CameraParameters
 {
