@@ -1,8 +1,10 @@
 ﻿using IFSEngine;
 using IFSEngine.Model;
 using IFSEngine.Util;
+using System;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 namespace WpfDisplay
@@ -26,9 +28,40 @@ namespace WpfDisplay
             this.Closing += (s2, e2) => renderer.Dispose();
         }
 
+        Vector3 lastacc = new Vector3();
+        Vector3 vel = new Vector3();
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             renderer.StartRendering();
+            IFSControllerPipeServer.Instance.OrientationDataReceived += (s, quat) =>
+            {
+                Quaternion initial = new Quaternion(-0.5f, -0.5f, -0.5f, -0.5f);
+                (renderer.CurrentParams.ViewSettings.Camera as IFSEngine.Model.Camera.QuatCamera).orientation = Quaternion.Multiply(quat, Quaternion.Inverse(initial));
+                renderer.CurrentParams.ViewSettings.Camera.UpdateCamera();
+            };
+            IFSControllerPipeServer.Instance.AccelerationDataReceived += (s, acc) =>
+            {
+            
+                acc.X = Math.Abs(acc.X) > 0.1f ? acc.X : 0.0f;
+                acc.Y = Math.Abs(acc.Y) > 0.1f ? acc.Y : 0.0f;
+                acc.Z = Math.Abs(acc.Z) > 0.1f ? acc.Z : 0.0f;
+            
+                (renderer.CurrentParams.ViewSettings.Camera as IFSEngine.Model.Camera.QuatCamera).Translate(Vector3.Multiply(0.05f,vel));
+                //renderer.CurrentParams.ViewSettings.Camera.UpdateCamera();
+            
+                //dt
+                //vel += (lastacc + acc) / 2 * 0.05f;
+                vel += acc * 0.05f;
+            
+                vel *= 0.9f;
+            
+                vel.X = Math.Abs(vel.X) < 0.01f ? 0.0f : vel.X;
+                vel.Y = Math.Abs(vel.Y) < 0.01f ? 0.0f : vel.Y;
+                vel.Z = Math.Abs(vel.Z) < 0.01f ? 0.0f : vel.Z;
+            
+                lastacc = acc;
+            
+            };
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)

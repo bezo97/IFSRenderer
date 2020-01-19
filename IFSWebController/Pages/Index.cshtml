@@ -1,0 +1,72 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script>
+
+    const connection = new signalR.HubConnectionBuilder().withUrl("/ControllerHub").build();
+    let subjectOrientation;
+    let subjectAcceleration;
+
+    connection.start().then(() => {
+        subjectOrientation = new signalR.Subject();
+        connection.send("UploadStreamOrientation", subjectOrientation).then(() => {
+            //testSensor();
+            Promise.all([navigator.permissions.query({ name: "accelerometer" }),
+                navigator.permissions.query({ name: "magnetometer" }),
+                navigator.permissions.query({ name: "gyroscope" })])
+                    .then(results => {
+                        if (results.every(result => result.state === "granted"))
+                          initOrientationSensor();
+                    })
+        });
+        subjectAcceleration = new signalR.Subject();
+        connection.send("UploadStreamAcceleration", subjectAcceleration).then(() => {
+            //testSensor();
+            Promise.all([navigator.permissions.query({ name: "accelerometer" }),
+                navigator.permissions.query({ name: "magnetometer" }),
+                navigator.permissions.query({ name: "gyroscope" })])
+                    .then(results => {
+                        if (results.every(result => result.state === "granted"))
+                          initAccelerationSensor();
+                    })
+        });
+
+    });
+
+    function initOrientationSensor() {
+        const options = { frequency: 60 };
+        let sensor = new RelativeOrientationSensor(options);
+        sensor.onreading = () => sendOrientationData(sensor.quaternion);
+        sensor.start();
+    }
+
+    function initAccelerationSensor() {
+        const options = { frequency: 60 };
+        let sensor = new LinearAccelerationSensor(options);
+        sensor.onreading = () => sendAccelerationData([sensor.x,sensor.y,sensor.z]);
+        sensor.start();
+    }
+
+    function sendOrientationData(q) {
+        subjectOrientation.next(q);
+    }
+    function sendAccelerationData(a) {
+        subjectAcceleration.next(a);
+    }
+
+    function testSensor() {
+        console.log('test sensor sending');
+        subject.next([0,-1,0,1]);
+        setTimeout(testSensor, 500);
+    }
+
+</script>
