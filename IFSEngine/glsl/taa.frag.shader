@@ -85,62 +85,9 @@ vec4 TemporalAA()
 	return vec4(antialiased, mixRate);
 }
 
-//based on https://www.shadertoy.com/view/4tVSDm
-float grayscale(vec3 image) {
-	return dot(image, vec3(0.3, 0.59, 0.11));
-}
-float normpdf(in float x, in float sigma)
-{
-	return 0.39894 * exp(-0.5 * x * x / (sigma * sigma)) / sigma;
-}
-vec4 temporalResolve()
-{
-	vec2 uv = gl_FragCoord.xy / vec2(float(width), float(height));
-
-	vec3 imageacc = max(texture(t2, uv).rgb, vec3(0.0));
-	vec3 image = max(texture(t1, uv).rgb, vec3(0.0));
-
-	const int mSize = 7;//param
-	const int kSize = (mSize - 1) / 2;
-	float kernel[mSize];
-	vec3 imageblurred = vec3(0.0);
-
-	//create the 1-D kernel
-	float sigma = 2.;
-	float Z = 0.0;
-	for (int j = 0; j <= kSize; ++j)
-	{
-		kernel[kSize + j] = kernel[kSize - j] = normpdf(float(j), sigma);
-	}
-
-	//get the normalization factor (as the gaussian has been clamped)
-	for (int j = 0; j < mSize; ++j)
-	{
-		Z += kernel[j];
-	}
-
-	//read out the texels
-	for (int i = -kSize; i <= kSize; ++i)
-	{
-		for (int j = -kSize; j <= kSize; ++j)
-		{
-			imageblurred += kernel[kSize + j] * kernel[kSize + i] * texture(t1, (gl_FragCoord.xy + vec2(float(i), float(j))) / vec2(float(width), float(height))).rgb;
-		}
-	}
-	imageblurred = imageblurred / (Z * Z);
-
-	image = min(image, imageblurred * 1.25); // reduce fireflies 
-	image = max(image, imageblurred * 0.75); // reduce darkflies
-
-	imageacc = image;
-
-	return vec4(imageacc, 1.0);
-}
-
 void main(void)
 {
 	vec2 uv = gl_FragCoord.xy / vec2(float(width), float(height));
 	vec4 taa = TemporalAA();
-	vec4 tr = temporalResolve();
-	gl_FragColor = /*uv.x < 0.5 ? texture(t1, uv) : */vec4(max(taa.xyz, tr.xyz), taa.w);
+	gl_FragColor =/* uv.x < 0.5 ? texture(t1, uv) : */vec4(max(taa.xyz, texture(t1, uv).rgb), taa.w);
 }
