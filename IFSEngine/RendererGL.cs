@@ -44,7 +44,7 @@ namespace IFSEngine
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
 
-        private int _threadcnt = 1500;
+        private int _threadcnt = 256;
         /// <summary>
         /// Performance setting: number of gpu threads
         /// TODO: autofind best fit based on hardware?

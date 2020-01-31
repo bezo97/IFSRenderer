@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 430
 #extension GL_ARB_explicit_attrib_location : enable
 uniform int width = 1920;
 uniform int height = 1080;
