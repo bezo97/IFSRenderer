@@ -89,5 +89,5 @@ void main(void)
 {
 	vec2 uv = gl_FragCoord.xy / vec2(float(width), float(height));
 	vec4 taa = TemporalAA();
-	gl_FragColor =/* uv.x < 0.5 ? texture(t1, uv) : */vec4(max(taa.xyz, texture(t1, uv).rgb), taa.w);
+	gl_FragColor = vec4(max(taa.xyz, texture(t1, uv).rgb), taa.w);
 }

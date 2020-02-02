@@ -391,25 +391,21 @@ void main() {
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, p, ra1, ra2);
-
-	
-		
-		vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
-	
-		//optional fog effect
-		if (settings.fog_effect>0.0f)
-		{
-			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
-			pr1 = clamp(pr1, 0.0f, 1.0f);
-			color.w *= pr1;
-		}
-
-		color.xyz *= color.w;
+		ivec2 proj = Project(settings.camera, p, ra1, ra2);		
 	
 		//lands on the histogram && initial skipping
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.dispatchCnt == 0))
-		{//accumulate hit
+		{
+			vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
+			if (settings.fog_effect > 0.0f)
+			{//optional fog effect
+				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
+				pr1 = clamp(pr1, 0.0f, 1.0f);
+				color.w *= pr1;
+			}
+			color.xyz *= color.w;
+
+			//accumulate hit
 			int ipx = proj.x + proj.y * width;//pixel index
 			//histogram[ipx].xyz += color.xyz;//r,g,b
 			//histogram[ipx].w += color.w;//db

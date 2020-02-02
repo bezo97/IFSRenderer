@@ -46,7 +46,7 @@ namespace IFSEngine
         private bool invalidParams = false;
 
 
-        private const int workgroupCount = 4;//TODO: adaptive
+        private const int workgroupCount = 15;//TODO: adaptive
         private const int workgroupSize = 1000;//TODO: depends on gpu, must compile into shader
 
         public int InvocationCount => workgroupCount * workgroupSize;
@@ -300,7 +300,7 @@ namespace IFSEngine
 
             //GL.Finish();
 
-            if (updateDisplayNow || UpdateDisplayOnRender)
+            if (updateDisplayNow || (UpdateDisplayOnRender && Helper.MathExtensions.IsPow2(dispatchCnt)))
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboDispH);//
                 GL.UseProgram(displayProgramH);

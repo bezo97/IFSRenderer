@@ -104,8 +104,11 @@ namespace WpfDisplay.Controls
         {
             if (e.Button == MouseButtons.Left)
             {
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
                 Renderer.CurrentParams.ViewSettings.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
+            else
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
             lastX = e.X;
             lastY = e.Y;
         }
