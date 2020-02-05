@@ -46,8 +46,8 @@ namespace IFSEngine
         private bool invalidParams = false;
 
 
-        private const int workgroupCount = 15;//TODO: adaptive
-        private const int workgroupSize = 1000;//TODO: depends on gpu, must compile into shader
+        private const int workgroupCount = 100;//TODO: adaptive
+        private const int workgroupSize = 64;//nv:32, amd:64. Optimal is 64.
 
         public int InvocationCount => workgroupCount * workgroupSize;
 

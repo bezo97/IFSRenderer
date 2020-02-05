@@ -6,6 +6,8 @@
 
 //precision highp float;
 
+layout(local_size_x = 64) in;
+
 //%4=0 db float kell
 struct CameraParameters
 {
@@ -63,8 +65,6 @@ struct Iterator
 	int padding2;
 	int padding3;
 };
-
-layout(local_size_x = 1000, local_size_y = 1) in;
 
 layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
 //layout(rgba32f, binding = 1) uniform image2D histogram;
