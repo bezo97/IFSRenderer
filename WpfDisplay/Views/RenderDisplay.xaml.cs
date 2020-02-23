@@ -31,8 +31,6 @@ namespace WpfDisplay.Views
     {
         public RendererGL Renderer { get; private set; }
 
-        public int FPS { get; set; }
-
         private GLControl display1;
         private KeyboardController kbc;
 
@@ -54,6 +52,7 @@ namespace WpfDisplay.Views
             //Init GL Control
             OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
+            display1.VSync = false;
             var displayedResolution = GetElementPixelSize(this);
             display1.Width = (int)displayedResolution.Width;
             display1.Height = (int)displayedResolution.Height;
@@ -93,15 +92,10 @@ namespace WpfDisplay.Views
             return (Size)transformToDevice.Transform((Vector)element.DesiredSize);
         }
         
-        Stopwatch fpsCounter = new Stopwatch();
         private void R_DisplayFrameCompleted(object sender, EventArgs e)
         {
-            ctx.MakeCurrent(display1.WindowInfo);
+            //ctx.MakeCurrent(display1.WindowInfo);
             ctx.SwapBuffers();
-            FPS = (int)(fpsCounter.ElapsedMilliseconds > 0 ? 1000 / (fpsCounter.ElapsedMilliseconds) : 0);
-            fpsCounter.Stop();
-            fpsCounter.Restart();
-            //TODO: update fps view: NotifyPropertyChanged mashol, vagy itt Dispatcher.Invoke(()=>{ ... });
         }
 
         float lastX;
@@ -110,8 +104,11 @@ namespace WpfDisplay.Views
         {
             if (e.Button == MouseButtons.Left)
             {
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
                 Renderer.CurrentParams.ViewSettings.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
+            else
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
             lastX = e.X;
             lastY = e.Y;
         }

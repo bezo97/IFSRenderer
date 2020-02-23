@@ -52,17 +52,6 @@ namespace WpfDisplay.Views
             renderer.LoadParams(IFS.LoadJson("tmp.json"));
         }
 
-        private void Button_Preview(object sender, RoutedEventArgs e)
-        {
-            double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
-            renderer.SetHistogramScale(fitToDisplayRatio);
-        }
-
-        private void Button_Final(object sender, RoutedEventArgs e)
-        {
-            renderer.SetHistogramScale(1.0);
-        }
-
         private void Button_2x(object sender, RoutedEventArgs e)
         {
             renderer.SetHistogramScale(2.0);
@@ -99,6 +88,24 @@ namespace WpfDisplay.Views
                     }
                 b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
             });
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (ExplorationCheckBox.IsChecked ?? false)
+            {
+                renderer.EnablePerceptualUpdates = false;
+                renderer.EnableTAA = true;
+
+                double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
+                renderer.SetHistogramScale(fitToDisplayRatio);
+
+            }
+            else
+            {
+                renderer.EnablePerceptualUpdates = true;
+                renderer.EnableTAA = false; renderer.SetHistogramScale(1.0);
+            }
         }
 
         private void EditorButton_Click(object sender, RoutedEventArgs e)

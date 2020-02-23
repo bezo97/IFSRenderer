@@ -41,6 +41,9 @@
                 <Button Margin="10" Content="+" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_6" />
                 <Button Margin="10" Content="-" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_7" />
                 <Button Margin="10" Content="Save output.bmp" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
+                <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
+                <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+
                 <Button Margin="10" x:Name="EditorButton" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="EditorButton_Click">Editor</Button>
             </StackPanel>
         </md:Card>
@@ -67,6 +70,8 @@
                     <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
                     <Label>Background color</Label>
                     <xctk:ColorPicker SelectedColor="{Binding DataContext.CurrentParams.ViewSettings.BackgroundColor, ElementName=mainWindow, Converter={StaticResource ColorTypeConverter}}"/>
+                    <Label>Render Resolution</Label>
+                    <Button Grid.Column="2" Content="2x" Click="Button_2x" Margin="5 0 0 0"/>
                 </StackPanel>
             </md:Card>
             <!-- Render -->

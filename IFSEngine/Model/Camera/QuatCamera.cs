@@ -15,7 +15,7 @@ namespace IFSEngine.Model.Camera
 
         public QuatCamera()
         {
-            orientation = Quaternion.CreateFromYawPitchRoll(-3.141592f / 2.0f, -3.141592f/2.0f,0);//no rotation
+            orientation = Quaternion.CreateFromYawPitchRoll(-3.141592f / 2.0f, -3.141592f/2.0f,0.00001f);//no rotation
             UpdateCamera();
         }
 

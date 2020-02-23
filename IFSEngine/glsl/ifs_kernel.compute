@@ -2,6 +2,11 @@
 //#version 430 compatibility
 //#extension GL_ARB_compute_shader : enable
 //#extension GL_ARB_shader_storage_buffer_object : enable
+#extension GL_NV_shader_atomic_float : enable
+
+//precision highp float;
+
+layout(local_size_x = 64) in;
 
 //%4=0 db float kell
 struct CameraParameters
@@ -60,8 +65,6 @@ struct Iterator
 	int padding2;
 	int padding3;
 };
-
-layout(local_size_x = 1, local_size_y = 1) in;
 
 layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
 //layout(rgba32f, binding = 1) uniform image2D histogram;
@@ -177,11 +180,11 @@ ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 	//dof
 	float ratio = width / float(height);
 	float dof = settings.dof * max(0, abs(dot(p - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
-	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f)* ratio);
+	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * 6.28318530718f), sin(ra * 6.28318530718f));
 
 	ivec2 o = ivec2(//image center
 		int((normalizedPoint.x + 1) * width / 2.0f),
-		int((normalizedPoint.y + 1) * height / 2.0f)
+		int((normalizedPoint.y * ratio + 1) * height / 2.0f)
 	);
 	
 	return o;
@@ -261,6 +264,18 @@ vec3 Apply(Iterator iter, vec3 input)
 			float r = 0.9/*weight*/ / (exp_x_2 + exp_nz - cos_y - cos_z);
 			float fx = (exp_x_2 - exp_nz);
 			p = vec3(fx, sin_y, sin_z) * r;
+		}
+		else if (iter.tfId == 4)
+		{//loonie
+			float weight = 0.5;
+			float w2 = weight * weight;
+			float r2 = dot(p, p);
+			float r;
+			if (r2 < w2)
+				r = weight * sqrt(w2 / r2 - 1.0);
+			else
+				r = weight;
+			p = r * p;
 		}
 	}
 
@@ -342,6 +357,7 @@ void main() {
 			}
 			else
 				break;
+		last_tf_index[gid] = r_index;
 
 		if (w_acc == 0.0f)
 		{
@@ -375,29 +391,34 @@ void main() {
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, p, ra1, ra2);
-
-	
-		
-		vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
-	
-		//optional fog effect
-		if (settings.fog_effect>0.0f)
-		{
-			float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
-			pr1 = clamp(pr1, 0.0f, 1.0f);
-			color.w *= pr1;
-		}
-
-		color.xyz *= color.w;
+		ivec2 proj = Project(settings.camera, p, ra1, ra2);		
 	
 		//lands on the histogram && initial skipping
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.dispatchCnt == 0))
-		{//accumulate hit
+		{
+			vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
+			if (settings.fog_effect > 0.0f)
+			{//optional fog effect
+				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
+				pr1 = clamp(pr1, 0.0f, 1.0f);
+				color.w *= pr1;
+			}
+			color.xyz *= color.w;
+
+			//accumulate hit
 			int ipx = proj.x + proj.y * width;//pixel index
-			histogram[ipx].xyz += color.xyz;//r,g,b
-			histogram[ipx].w += color.w;//db
-			//accepted_iters++;
+
+			//Use atomic float add if available. Slower but more accurate.
+			#ifdef bgkl//GL_NV_shader_atomic_float
+				atomicAdd(histogram[ipx].r, color.r);
+				atomicAdd(histogram[ipx].g, color.g);
+				atomicAdd(histogram[ipx].b, color.b);
+				atomicAdd(histogram[ipx].w, color.w);//db
+			#else
+				histogram[ipx].rgb += color.rgb;
+				histogram[ipx].w += color.w;//db
+			#endif
+
 		}
 	
 	}

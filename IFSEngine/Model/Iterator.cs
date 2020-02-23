@@ -25,7 +25,7 @@ namespace IFSEngine.Model
             {
                 //TODO: remove switch, randomize transforms
                 ITransformFunction r1 = null;
-                switch (RandHelper.Next(4))
+                switch (RandHelper.Next(5))
                 {
                     case 0:
                         r1 = Affine.RandomAffine;
@@ -38,6 +38,9 @@ namespace IFSEngine.Model
                         break;
                     case 3:
                         r1 = new Foci();
+                        break;
+                    case 4:
+                        r1 = new Loonie();
                         break;
                     default:
                         break;
