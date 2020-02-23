@@ -23,12 +23,12 @@ namespace WpfDisplay.ViewModels
         public int Fps { get; private set; }
         public string IterationSpeed { get; private set; }
         public string TotalIterations { get; private set; }
-        public int WorkgroupCount
+        public double WorkgroupCount
         {
             get => renderer.workgroupCount;
             set
             {
-                renderer.workgroupCount = value;
+                renderer.workgroupCount = (int)value;
                 RaisePropertyChanged(() => WorkgroupCount);
             }
         }
