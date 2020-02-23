@@ -26,6 +26,16 @@ namespace IFSEngine
         public bool UpdateDisplayOnRender { get; set; } = true;
 
         /// <summary>
+        /// Enable perceptually equal difference between updates.
+        /// </summary>
+        public bool EnablePerceptualUpdates { get; set; } = true;
+
+        /// <summary>
+        /// Enable Epic's Temporal Anti-Aliasing.
+        /// </summary>
+        public bool EnableTAA { get; set; } = false;
+
+        /// <summary>
         /// Number of dispatches since accumulation reset.
         /// This is needed for random generation and 0. dispatch reset
         /// </summary>
@@ -299,9 +309,11 @@ namespace IFSEngine
             dispatchCnt++;
 
             //GL.Finish();
-
-            if (updateDisplayNow || (UpdateDisplayOnRender && Helper.MathExtensions.IsPow2(dispatchCnt)))
+            bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
+            if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
             {
+                int lastFboH = fboDispH;
+
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboDispH);//
                 GL.UseProgram(displayProgramH);
                 //TODO:  only update if needed
@@ -313,7 +325,6 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
                 GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
-
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
                 GL.Vertex2(0, 0);
@@ -322,22 +333,26 @@ namespace IFSEngine
                 GL.Vertex2(1, 0);
                 GL.End();
 
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboTaaH);//
-                GL.UseProgram(taaProgramH);
-                GL.Uniform1(GL.GetUniformLocation(taaProgramH, "width"), HistogramWidth);
-                GL.Uniform1(GL.GetUniformLocation(taaProgramH, "height"), HistogramHeight);
-                //draw quad
-                GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);
-                GL.Vertex2(0, 1);
-                GL.Vertex2(1, 1);
-                GL.Vertex2(1, 0);
-                GL.End();
+                if (EnableTAA)
+                {
+                    lastFboH = fboTaaH;
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboTaaH);//
+                    GL.UseProgram(taaProgramH);
+                    GL.Uniform1(GL.GetUniformLocation(taaProgramH, "width"), HistogramWidth);
+                    GL.Uniform1(GL.GetUniformLocation(taaProgramH, "height"), HistogramHeight);
+                    //draw quad
+                    GL.Begin(PrimitiveType.Quads);
+                    GL.Vertex2(0, 0);
+                    GL.Vertex2(0, 1);
+                    GL.Vertex2(1, 1);
+                    GL.Vertex2(1, 0);
+                    GL.End();
+                }
 
                 float rw = DisplayWidth / (float)HistogramWidth;
                 float rh = DisplayHeight / (float)HistogramHeight;
                 float rr = (rw < rh ? rw : rh) * .98f;
-                GL.BlitNamedFramebuffer(fboTaaH,
+                GL.BlitNamedFramebuffer(lastFboH,
                     0, 0, 0, HistogramWidth, HistogramHeight,
                     (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
                     (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr),

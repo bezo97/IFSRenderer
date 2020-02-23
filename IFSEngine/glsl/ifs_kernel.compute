@@ -407,12 +407,18 @@ void main() {
 
 			//accumulate hit
 			int ipx = proj.x + proj.y * width;//pixel index
-			//histogram[ipx].xyz += color.xyz;//r,g,b
-			//histogram[ipx].w += color.w;//db
-			atomicAdd(histogram[ipx].x, color.x);
-			atomicAdd(histogram[ipx].y, color.y);
-			atomicAdd(histogram[ipx].z, color.z);
-			atomicAdd(histogram[ipx].w, color.w);
+
+			//Use atomic float add if available. Slower but more accurate.
+			#ifdef bgkl//GL_NV_shader_atomic_float
+				atomicAdd(histogram[ipx].r, color.r);
+				atomicAdd(histogram[ipx].g, color.g);
+				atomicAdd(histogram[ipx].b, color.b);
+				atomicAdd(histogram[ipx].w, color.w);//db
+			#else
+				histogram[ipx].rgb += color.rgb;
+				histogram[ipx].w += color.w;//db
+			#endif
+
 		}
 	
 	}
