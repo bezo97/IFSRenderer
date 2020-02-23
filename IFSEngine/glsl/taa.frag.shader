@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 400
 
 uniform sampler2D t1;//new render frame
 uniform sampler2D t2;//last aa frame
