@@ -14,18 +14,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <TextBlock Text="Performance" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                <Label>Render Resolution</Label>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Command="{Binding PreviewCommand}" Grid.Column="0" Content="Preview" Margin="0 0 5 0"/>
-                    <Button Command="{Binding FinalCommand}" Grid.Column="1" Content="Final" Margin="5 0 5 0"/>
-                    <Button Command="{Binding X2Command}" Grid.Column="2" Content="2x" Margin="5 0 0 0"/>
-                </Grid>
-                <local:ValueSlider ValueName="Threads" MinValue="64" MaxValue="4096" Increment="64" Value="{Binding DataContext.ThreadCount, ElementName=performanceView}"/>
+                <local:ValueSlider ValueName="Workgroup count" MinValue="10" MaxValue="300" Increment="10" Value="{Binding DataContext.WorkgroupCount, ElementName=performanceView}"/>
                 <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
                 <TextBlock Foreground="White" FontSize="16">
                     Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/>fps

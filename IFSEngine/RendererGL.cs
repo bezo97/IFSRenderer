@@ -60,8 +60,11 @@ namespace IFSEngine
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
 
+        /// <summary>
+        /// TODO: make this adaptive
+        /// </summary>
+        public int workgroupCount { get; set; } = 100;
 
-        private const int workgroupCount = 100;//TODO: adaptive
         private const int workgroupSize = 64;//nv:32, amd:64. Optimal is 64.
 
         public int InvocationCount => workgroupCount * workgroupSize;
