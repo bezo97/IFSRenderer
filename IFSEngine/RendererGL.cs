@@ -31,6 +31,11 @@ namespace IFSEngine
         public bool EnablePerceptualUpdates { get; set; } = true;
 
         /// <summary>
+        /// Enable Density Estimation.
+        /// </summary>
+        public bool EnableDE { get; set; } = false;
+
+        /// <summary>
         /// Enable Epic's Temporal Anti-Aliasing.
         /// </summary>
         public bool EnableTAA { get; set; } = false;
@@ -325,6 +330,8 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
                 GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
                 GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                //tmp
+                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "EnableDE"), EnableDE?1:0);
                 //draw quad
                 GL.Begin(PrimitiveType.Quads);
                 GL.Vertex2(0, 0);

@@ -42,6 +42,8 @@
                 <Button Margin="10" Content="-" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_7" />
                 <Button Margin="10" Content="Save output.bmp" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
                 <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
+                <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+
             </StackPanel>
         </md:Card>
         <Grid Grid.Row="1">

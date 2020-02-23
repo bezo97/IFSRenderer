@@ -16,6 +16,9 @@ uniform float GammaThreshold = 0.0;
 uniform float Vibrancy = 1.0;
 uniform vec3 BackgroundColor = vec3(0.0,0.0,0.0);
 
+//tmp option to enable wip density estimation
+uniform bool EnableDE = false;
+
 float log10(float x)
 {
 	return 0.30102999565 * log(x);
@@ -112,7 +115,12 @@ void main(void)
 	vec2 uv = vec2(gl_FragCoord.x/float(width),gl_FragCoord.y/float(height));
 	int pxi = px+py*width;
 
-	float de = DensityEstimation();
-	vec3 c = (histogram[pxi].rgb / histogram[pxi].w)* de;
-	color = Tonemap(vec4(c, de));
+	if (EnableDE)
+	{
+		float de = DensityEstimation();
+		vec3 c = (histogram[pxi].rgb / histogram[pxi].w) * de;
+		color = Tonemap(vec4(c, de));
+	}
+	else
+		color = Tonemap(histogram[pxi]);
 }
