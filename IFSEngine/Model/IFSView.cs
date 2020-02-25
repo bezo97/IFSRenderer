@@ -16,7 +16,7 @@ namespace IFSEngine.Model
     /// 1 - invalidate accumulation
     /// 2 - invalidate params (& accumulation)
     /// </remarks>
-    public class IFSView : INotifyPropertyChanged
+    public class IFSView// : INotifyPropertyChanged
     {
         private double brightness = 1.0;
         private double gamma = 1.0;

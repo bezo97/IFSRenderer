@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:dc="clr-namespace:IFSEngine.Model;assembly=IFSEngine"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
@@ -17,6 +18,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
         x:Name="mainWindow"
+        d:DataContext="{d:DesignInstance Type=dc:IFS, IsDesignTimeCreatable=False}"
         >
     <Window.Resources>
         <conv:ColorTypeConverter x:Key="ColorTypeConverter"/>

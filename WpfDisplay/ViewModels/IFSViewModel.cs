@@ -12,10 +12,12 @@ namespace WpfDisplay.ViewModels
 {
     public class IFSViewModel : ObservableObject
     {
+        public IFSEngine.RendererGL renderer;//TODO: replace with main vm
+
         public readonly IFS ifs;
 
-        public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; }
-        
+        public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; } = new ObservableCollection<IteratorViewModel>();
+
 
         private IteratorViewModel selectedIterator;
         public IteratorViewModel SelectedIterator
@@ -32,9 +34,17 @@ namespace WpfDisplay.ViewModels
         public IFSViewModel(IFS ifs)
         {
             this.ifs = ifs;
-            IteratorViewModels = new ObservableCollection<IteratorViewModel>(ifs.Iterators.Select(i => new IteratorViewModel(this, i)));
+            ifs.Iterators.ToList().ForEach(i => addNewIteratorVM(i));
             ifs.PropertyChanged += Ifs_PropertyChanged;
             HandleIteratorsChanged();
+        }
+
+        private IteratorViewModel addNewIteratorVM(Iterator i)
+        {
+            var ivm = new IteratorViewModel(this, i);
+            ivm.PropertyChanged += (s, e) => renderer.InvalidateParams();
+            IteratorViewModels.Add(ivm);
+            return ivm;
         }
 
         private void HandleIteratorsChanged()
@@ -42,7 +52,7 @@ namespace WpfDisplay.ViewModels
             var newIterators = ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
             var removedIteratorVMs = IteratorViewModels.Where(vm => !ifs.Iterators.Any(i => vm.iterator == i));
             removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
-            newIterators.ToList().ForEach(i => IteratorViewModels.Add(new IteratorViewModel(this, i)));
+            newIterators.ToList().ForEach(i => addNewIteratorVM(i));
 
             //update connections vms:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
@@ -65,6 +75,7 @@ namespace WpfDisplay.ViewModels
                 default:
                     break;
             }
+            renderer.InvalidateParams();//
         }
 
         //TODO: remove, this is a test

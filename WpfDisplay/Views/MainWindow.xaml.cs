@@ -110,14 +110,18 @@ namespace WpfDisplay.Views
 
         private void EditorButton_Click(object sender, RoutedEventArgs e)
         {
-            if(editorWindow!=null)
-            {
-                editorWindow.DataContext = new IFSViewModel(renderer.CurrentParams);
-                return;
-            }
+            var ifsvm = new IFSViewModel(renderer.CurrentParams) { renderer = renderer/*hack. pass main vm*/ };
 
-            editorWindow = new EditorWindow { DataContext = new IFSViewModel(renderer.CurrentParams) };
-            editorWindow.Show();
+            if (editorWindow==null || !editorWindow.IsLoaded)
+                editorWindow = new EditorWindow();
+
+            if (editorWindow.ShowActivated)
+                editorWindow.Show();
+
+            if(!editorWindow.IsActive)
+                editorWindow.Activate();
+
+            editorWindow.DataContext = ifsvm;
 
         }
 

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
-    public class IFS : INotifyPropertyChanged
+    public class IFS// : INotifyPropertyChanged //fun mystery: implementing inpc breaks bindings to value sliders??
     {
         //TODO: IFS: Palette + Iterators + Views (+ Animations?)
 
