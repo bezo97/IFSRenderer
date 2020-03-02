@@ -26,8 +26,6 @@ namespace WpfDisplay.Views
     {
         //TODO: implement optional Min and Max properties
 
-        [DllImport("User32.dll")]
-        private static extern bool SetCursorPos(int X, int Y);
 
         public string ValueName
         {
@@ -118,8 +116,16 @@ namespace WpfDisplay.Views
 
         private void ValueEditor_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key==Key.Enter)
+            if (e.Key == Key.Enter)
+            {
                 Editing = false;
+                ValueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                Value = lastv;//restore
+                Editing = false;
+            }
         }
 
         private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
@@ -128,7 +134,7 @@ namespace WpfDisplay.Views
             dragging = false;
         }
 
-        bool dragging = false;
+        private bool dragging = false;
         Point dragp;
         double lastv;//value before editing
 
@@ -137,7 +143,8 @@ namespace WpfDisplay.Views
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 dragging = true;
-                dragp = e.GetPosition(App.Current.MainWindow);
+                //Mouse.Capture(this);
+                dragp = e.GetPosition(Window.GetWindow(this));
                 lastv = Value;
                 Mouse.OverrideCursor = Cursors.None;
             }
@@ -148,17 +155,21 @@ namespace WpfDisplay.Views
         {
             if (dragging && !cursorReset)
             {
-                double delta = (e.GetPosition(App.Current.MainWindow).X - dragp.X);
+                double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
                 Value = lastv + delta * Increment;
             }
-            else if (cursorReset)
-                cursorReset = false;
+            
+            if(!dragging)//hack
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+            if (cursorReset)
+                cursorReset = false;//Mouse.Capture(null);
         }
 
         private void Button_MouseUp(object sender, MouseButtonEventArgs e)
         {
             dragging = false;
-            double delta = (e.GetPosition(App.Current.MainWindow).X - dragp.X);
+            double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
 
             if (Math.Abs(delta)<1)
             {//click
@@ -166,8 +177,9 @@ namespace WpfDisplay.Views
                 ValueEditor.Focus();
                 ValueEditor.SelectAll();
             }
-
             Mouse.OverrideCursor = Cursors.Arrow;
+            //Mouse.Capture(null);
+            //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
         }
 
         private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -181,7 +193,10 @@ namespace WpfDisplay.Views
             {
                 cursorReset = true;
                 lastv = Value;
-                SetCursorPos((int)(App.Current.MainWindow.Left + dragp.X), (int)(App.Current.MainWindow.Top + dragp.Y + 25));
+                var pos = valueSlider.PointToScreen(new Point(valueSlider.ActualWidth / 2, valueSlider.ActualHeight / 2));
+                System.Windows.Forms.Cursor.Position = new System.Drawing.Point((int)pos.X, (int)pos.Y+10);
+                //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle(new System.Drawing.Point((int)(System.Windows.Forms.Cursor.Position.X - ActualWidth / 4), (int)System.Windows.Forms.Cursor.Position.Y-5), new System.Drawing.Size(/*(int)ActualWidth, (int)ActualHeight)*/(int)ActualWidth / 2, 10));
+
             }
         }
     }

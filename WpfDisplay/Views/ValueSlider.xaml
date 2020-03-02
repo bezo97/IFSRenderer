@@ -32,7 +32,7 @@
                     </ContextMenu>
                 </Label.ContextMenu>
             </Label>
-            <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Background="#606060" Style="{DynamicResource MaterialDesignTextBox}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
+            <TextBox Grid.Column="1" Text="{Binding Value}" Background="#606060" Style="{DynamicResource MaterialDesignTextBox}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Copy" />

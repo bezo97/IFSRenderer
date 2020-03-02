@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views
@@ -44,12 +45,14 @@ namespace WpfDisplay.Views
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            renderer.CurrentParams.SaveJson("tmp.json");
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
+                renderer.CurrentParams.SaveJson(path);
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            renderer.LoadParams(IFS.LoadJson("tmp.json"));
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
+                renderer.LoadParams(IFS.LoadJson(path));
         }
 
         private void Button_2x(object sender, RoutedEventArgs e)
@@ -59,8 +62,11 @@ namespace WpfDisplay.Views
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            renderer.CurrentParams.Palette = UFPalette.FromFile(@"Resources\example.gradient")[RandHelper.Next(8)];
-            renderer.InvalidateParams();
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
+            {
+                renderer.CurrentParams.Palette = UFPalette.FromFile(path)[RandHelper.Next(8)];//TODO: gradient picker
+                renderer.InvalidateParams();
+            }
         }
 
         private void Button_Click_6(object sender, RoutedEventArgs e)
@@ -77,17 +83,27 @@ namespace WpfDisplay.Views
 
         private async void Button_Click_8(object sender, RoutedEventArgs e)
         {
-            var p = await renderer.GenerateImage();
-            Bitmap b = new Bitmap(renderer.HistogramWidth, renderer.HistogramHeight);
-            await Task.Run(() =>
-            {
-                for (int y = 0; y < renderer.HistogramHeight; y++)
-                    for (int x = 0; x < renderer.HistogramWidth; x++)
-                    {
-                        b.SetPixel(x, renderer.HistogramHeight - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
-                    }
-                b.Save("Output.png", System.Drawing.Imaging.ImageFormat.Png);
+            Bitmap b = null;
+
+            Task genTask = Task.Run(async () => {
+                b = new Bitmap(renderer.HistogramWidth, renderer.HistogramHeight);
+                var p = await renderer.GenerateImage();
+                await Task.Run(() =>
+                {
+                    for (int y = 0; y < renderer.HistogramHeight; y++)
+                        for (int x = 0; x < renderer.HistogramWidth; x++)
+                        {
+                            b.SetPixel(x, renderer.HistogramHeight - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
+                        }
+                });
             });
+
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
+            {
+                await genTask;
+                b.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+            }
+            b.Dispose();
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
