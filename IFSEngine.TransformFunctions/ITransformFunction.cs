@@ -10,7 +10,6 @@ namespace IFSEngine.TransformFunctions
         [JsonIgnore]
         string ShaderCode { get; }
         int Id { get; }//TODO: replace
-        List<double> GetListOfParams();
 
     }
 }

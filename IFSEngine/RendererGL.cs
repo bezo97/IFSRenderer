@@ -15,6 +15,7 @@ using IFSEngine.Model.GpuStructs;
 using OpenTK.Graphics;
 using OpenTK.Platform;
 using System.Threading.Tasks;
+using IFSEngine.TransformFunctions;
 
 namespace IFSEngine
 {
@@ -247,7 +248,7 @@ namespace IFSEngine
                             op = (float)it.op,
                         });
                         //transform params
-                        List<double> tfiparams = it.Transform.GetListOfParams();
+                        IEnumerable<double> tfiparams = it.Transform.GetFunctionVariables().Select(p => it.Transform.GetVar<double>(p));// GetListOfParams();
                         tfsparams.AddRange(tfiparams.Select(p => (float)p));
                     }
                     //TODO: tfparamstart pop last value

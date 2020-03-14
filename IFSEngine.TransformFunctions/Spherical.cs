@@ -8,9 +8,5 @@ namespace IFSEngine.TransformFunctions
         public string ShaderCode => throw new NotImplementedException();
         public int Id => 1;
 
-        public List<double> GetListOfParams()
-        {
-            return new List<double>();//0
-        }
     }
 }

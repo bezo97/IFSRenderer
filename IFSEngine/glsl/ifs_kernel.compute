@@ -198,88 +198,102 @@ vec3 affine(Affine aff, vec3 input) {
 	return vec3(px, py, pz);
 }
 
+//TODO: Compile this based on TransformFunction.ShaderCode, alphabetical order, add iterator hash
+//Affine
+#define OX (tfParams[p_cnt+0])
+#define OY (tfParams[p_cnt+1])
+#define OZ (tfParams[p_cnt+2])
+#define XX (tfParams[p_cnt+3])
+#define XY (tfParams[p_cnt+4])
+#define XZ (tfParams[p_cnt+5])
+#define YX (tfParams[p_cnt+6])
+#define YY (tfParams[p_cnt+7])
+#define YZ (tfParams[p_cnt+8])
+#define ZX (tfParams[p_cnt+9])
+#define ZY (tfParams[p_cnt+10])
+#define ZZ (tfParams[p_cnt+11])
+
+//Waves
+#define Waves_Weight (tfParams[p_cnt+6]) //remove?
+#define FreqX (tfParams[p_cnt+0])
+#define FreqY (tfParams[p_cnt+1])
+#define FreqZ (tfParams[p_cnt+2])
+#define ScaleX (tfParams[p_cnt+3])
+#define ScaleY (tfParams[p_cnt+4])
+#define ScaleZ (tfParams[p_cnt+5])
+
 vec3 Apply(Iterator iter, vec3 input)
 {
 	vec3 p = input;
-	//for (int itf = iter.TfFirst; itf < iter.TfFirst + iter.TfNum; itf++)//transforms of iterator
-	{
-		if (iter.tfId == 0)
-		{//affine
+	int p_cnt = iter.tfParamsStart;
 
-			//get affine transform parameters
-			int p_cnt = iter.tfParamsStart;
-			Affine aff;
-			aff.ox = tfParams[p_cnt++];
-			aff.oy = tfParams[p_cnt++];
-			aff.oz = tfParams[p_cnt++];
-			aff.xx = tfParams[p_cnt++];
-			aff.xy = tfParams[p_cnt++];//TODO: find better way?
-			aff.xz = tfParams[p_cnt++];
-			aff.yx = tfParams[p_cnt++];
-			aff.yy = tfParams[p_cnt++];
-			aff.yz = tfParams[p_cnt++];
-			aff.zx = tfParams[p_cnt++];
-			aff.zy = tfParams[p_cnt++];
-			aff.zz = tfParams[p_cnt++];
+	if (iter.tfId == 0)
+	{//affine
 
-			p = affine(aff, p.xyz);		
-		}
-		else if (iter.tfId == 1)
-		{//spherical
-			float r = length(p);
-			p = 0.9f/*weight*/ * p / (r * r);
-		}
-		else if (iter.tfId == 2)
-		{//waves
+		//get affine transform parameters
+		int p_cnt = iter.tfParamsStart;
+		Affine aff;
+		aff.ox = OX;
+		aff.oy = OY;
+		aff.oz = OZ;
+		aff.xx = XX;
+		aff.xy = XY;
+		aff.xz = XZ;
+		aff.yx = YX;
+		aff.yy = YY;
+		aff.yz = YZ;
+		aff.zx = ZX;
+		aff.zy = ZY;
+		aff.zz = ZZ;
 
-			/*
-			vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
-			vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
-			vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
-			*/
-			vec3 o;
-			float waves2_w = 0.5f;/*weight*/
-			float sx = 0.02f;
-			float sy = 0.01f;
-			float sz = -0.04f;
-			float fx = 20.0f;
-			float fy = 10.0f;
-			float fz = 10.0f;
-
-			o.x = waves2_w * fma(sx, sin(p.y * fx), p.x);
-			o.y = waves2_w * fma(sy, sin(p.z * fy), p.y);
-			o.z = waves2_w * fma(sz, sin(p.x * fz), p.z);
-
-			p = o;
-		}
-		else if (iter.tfId == 3)
-		{//foci
-			float exp_x = exp(p.x);
-			float exp_x_2 = exp_x * 0.5;
-			float exp_nz = 0.5 / exp_x;
-			float cos_y = cos(p.y);
-			float sin_y = sin(p.y);
-			float cos_z = cos(p.z);
-			float sin_z = sin(p.z);
-			float r = 0.9/*weight*/ / (exp_x_2 + exp_nz - cos_y - cos_z);
-			float fx = (exp_x_2 - exp_nz);
-			p = vec3(fx, sin_y, sin_z) * r;
-		}
-		else if (iter.tfId == 4)
-		{//loonie
-			float weight = 0.5;
-			float w2 = weight * weight;
-			float r2 = dot(p, p);
-			float r;
-			if (r2 < w2)
-				r = weight * sqrt(w2 / r2 - 1.0);
-			else
-				r = weight;
-			p = r * p;
-		}
+		p = affine(aff, p.xyz);
 	}
+	else if (iter.tfId == 1)
+	{//spherical
+		float r = length(p);
+		p = 0.9f/*weight*/ * p / (r * r);
+	}
+	else if (iter.tfId == 2)
+	{//waves
 
+		/*
+		vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
+		vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
+		vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
+		*/
+		vec3 o;
 
+		o.x = Waves_Weight * fma(ScaleX, sin(p.y * FreqX), p.x);
+		o.y = Waves_Weight * fma(ScaleY, sin(p.z * FreqY), p.y);
+		o.z = Waves_Weight * fma(ScaleZ, sin(p.x * FreqZ), p.z);
+
+		p = o;
+	}
+	else if (iter.tfId == 3)
+	{//foci
+		float exp_x = exp(p.x);
+		float exp_x_2 = exp_x * 0.5;
+		float exp_nz = 0.5 / exp_x;
+		float cos_y = cos(p.y);
+		float sin_y = sin(p.y);
+		float cos_z = cos(p.z);
+		float sin_z = sin(p.z);
+		float r = 0.9/*weight*/ / (exp_x_2 + exp_nz - cos_y - cos_z);
+		float fx = (exp_x_2 - exp_nz);
+		p = vec3(fx, sin_y, sin_z) * r;
+	}
+	else if (iter.tfId == 4)
+	{//loonie
+		float weight = 0.5;
+		float w2 = weight * weight;
+		float r2 = dot(p, p);
+		float r;
+		if (r2 < w2)
+			r = weight * sqrt(w2 / r2 - 1.0);
+		else
+			r = weight;
+		p = r * p;
+	}
 
 	return p;
 }

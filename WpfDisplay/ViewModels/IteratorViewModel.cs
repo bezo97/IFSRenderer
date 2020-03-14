@@ -5,9 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels
 {
@@ -24,6 +23,16 @@ namespace WpfDisplay.ViewModels
         {
             this.ifsvm = ifsvm;
             this.iterator = iterator;
+
+            Variables = iterator.Transform.GetType().GetProperties()                    
+                    //.Where(prop => Attribute.IsDefined(prop, typeof(FunctionVariable)))
+                    .Where(prop => prop.PropertyType == typeof(double))
+                    .Select(pi => new InstanceProperty(iterator.Transform, pi)).ToList();
+
+            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) => { 
+                ifsvm.renderer.InvalidateParams(); 
+            });
+            
         }
 
         private bool isselected;
@@ -102,6 +111,8 @@ namespace WpfDisplay.ViewModels
             get => yCoord;
             set { Set(ref yCoord, value); }
         }
+
+        public IEnumerable<InstanceProperty> Variables { get; set; }
 
     }
 }

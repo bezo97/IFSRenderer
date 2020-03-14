@@ -10,29 +10,21 @@ namespace IFSEngine.TransformFunctions
         public string ShaderCode => throw new NotImplementedException();
         public int Id => 0;
 
-        public double ox;
-        public double oy;
-        public double oz;
-               
-        public double xx = 1;
-        public double xy;
-        public double xz;
-               
-        public double yx;
-        public double yy = 1;
-        public double yz;
-               
-        public double zx;
-        public double zy;
-        public double zz = 1;
+        public double OX { get; set; }
+        public double OY { get; set; }
+        public double OZ { get; set; }
 
-        public List<double> GetListOfParams()
-        {
-            return new List<double>
-            {
-                ox,oy,oz,xx,xy,xz,yx,yy,yz,zx,zy,zz
-            };
-        }
+        public double XX { get; set; } = 1;
+        public double XY { get; set; }
+        public double XZ { get; set; }
+
+        public double YX { get; set; }
+        public double YY { get; set; } = 1;
+        public double YZ { get; set; }
+
+        public double ZX { get; set; }
+        public double ZY { get; set; }
+        public double ZZ { get; set; } = 1;
 
         public static Affine RandomAffine
         {
@@ -40,21 +32,21 @@ namespace IFSEngine.TransformFunctions
             {
                 return new Affine
                 {
-                    ox = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    oy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    oz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    xx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    xy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    xz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    yx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    yy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    yz = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    zx = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    zy = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    zz = (RandHelper.NextDouble() * 2 - 1) * 1.1
-                };
-            }
-        }
+                    OX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    OY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    OZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    XX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    XY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    XZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    YX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    YY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    YZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    ZX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    ZY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                    ZZ = (RandHelper.NextDouble() * 2 - 1) * 1.1
+                };  
+            }       
+        }           
 
     }
 }

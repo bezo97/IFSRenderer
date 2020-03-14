@@ -10,9 +10,5 @@ namespace IFSEngine.TransformFunctions
 
         public int Id => 3;
 
-        public List<double> GetListOfParams()
-        {
-            return new List<double>();//0
-        }
-    }
+     }
 }

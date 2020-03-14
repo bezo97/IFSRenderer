@@ -62,7 +62,7 @@ namespace WpfDisplay.Views
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
             {
                 renderer.CurrentParams.Palette = UFPalette.FromFile(path)[RandHelper.Next(8)];//TODO: gradient picker
                 renderer.InvalidateParams();
