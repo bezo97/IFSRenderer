@@ -68,20 +68,24 @@ float normpdf(in float x, in float sigma)
 {
 	return exp(-0.5 * x * x / sigma) / 1.0;
 }
-float DensityEstimation()
+vec4 DensityEstimation()
 {
 	int px = int(gl_FragCoord.x);
 	int py = int(gl_FragCoord.y);
 	vec2 uv = vec2(gl_FragCoord.x / float(width), gl_FragCoord.y / float(height));
 	int pxi = px + py * width;
 
-	const int mSize = 21;//TODO: param
+	vec4 w = clamp(max(vec4(0.0), vec4(ActualDensity) - pow(histogram[pxi],vec4(3.0/*TODO: param*/))) / vec4(ActualDensity), vec4(0.0), vec4(1.0));
+
+	const int mSize = int(w*20.0) + 1;//TODO: param
+	if (mSize < 3)
+		return histogram[pxi];
 	const int kSize = (mSize - 1) / 2;
-	float kernel[mSize];
-	float de = 0.0;
+	float kernel[/*mSize*/21];
+	vec4 de = vec4(0.0);
 
 	//create the 1-D kernel
-	float sigma = clamp((ActualDensity - histogram[pxi].w) / ActualDensity,0.0,1.0) * kSize / 2.0;
+	float sigma = float(kSize)*2.0;
 	float Z = 0.0;
 	for (int j = 0; j <= kSize; ++j)
 	{
@@ -98,9 +102,9 @@ float DensityEstimation()
 	{
 		for (int j = -kSize; j <= kSize; ++j)
 		{
-			if (px + i<0 || px + i>width - 1 || py + j < 0 || py + j>height - 1)
-				break;//TODO: Z-=
-			de += kernel[kSize + j] * kernel[kSize + i] * histogram[(px+i) + (py+j) * width].w;
+			//if (px + i<0 || px + i>width - 1 || py + j < 0 || py + j>height - 1)
+			//	break;//TODO: Z-=
+			de += kernel[kSize + j] * kernel[kSize + i] * histogram[(px+i) + (py+j) * width];
 		}
 	}
 	de /= Z * Z;
@@ -117,9 +121,10 @@ void main(void)
 
 	if (EnableDE)
 	{
-		float de = DensityEstimation();
-		vec3 c = (histogram[pxi].rgb / histogram[pxi].w) * de;
-		color = Tonemap(vec4(c, de));
+		//float de = DensityEstimation();
+		//vec3 c = (histogram[pxi].rgb / histogram[pxi].w) * de;
+		vec4 de = DensityEstimation();
+		color = Tonemap(de);// Tonemap(vec4(c, de));
 	}
 	else
 		color = Tonemap(histogram[pxi]);

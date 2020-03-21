@@ -373,8 +373,9 @@ void main() {
 				break;
 		last_tf_index[gid] = r_index;
 
+		//TODO: option: reset position if no change for n iterations
 		if (w_acc == 0.0f)
-		{
+		{//reset position if no weight out
 			/*p.x = randhash(next++)-0.5f;
 			p.y = randhash(next++)-0.5f;
 			p.z = randhash(next++)-0.5f;*/
@@ -384,12 +385,11 @@ void main() {
 			last_tf_index[gid] = int(randhash(next++) * settings.itnum);
 			return;
 		}
-	
-		//reset position if too far or no weight out
-		//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
-		//TODO: make this optional?
+		
 		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
-		{
+		{//reset position if too far
+			//TODO: make this optional?
+			//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
 			/*p.x = randhash(next++)-0.5f;
 			p.y = randhash(next++)-0.5f;
 			p.z = randhash(next++)-0.5f;*/
