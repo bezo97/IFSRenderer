@@ -12,8 +12,6 @@ namespace WpfDisplay.ViewModels
 {
     public class IFSViewModel : ObservableObject
     {
-        public IFSEngine.RendererGL renderer;//TODO: replace with main vm
-
         public readonly IFS ifs;
 
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; } = new ObservableCollection<IteratorViewModel>();
@@ -24,10 +22,13 @@ namespace WpfDisplay.ViewModels
         {
             get => selectedIterator; set
             {
-                if(selectedIterator!=null)
+                if(selectedIterator != null)
                     selectedIterator.IsSelected = false;
+
                 Set(ref selectedIterator, value);
-                selectedIterator.IsSelected = true;
+
+                if (selectedIterator != null)
+                    selectedIterator.IsSelected = true;
             }
         }
 
@@ -41,9 +42,15 @@ namespace WpfDisplay.ViewModels
 
         private IteratorViewModel addNewIteratorVM(Iterator i)
         {
-            var ivm = new IteratorViewModel(this, i);
-            ivm.PropertyChanged += (s, e) => renderer.InvalidateParams();
+            var ivm = new IteratorViewModel(i);
+            ivm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "BaseWeight")
+                    ifs.NormalizeBaseWeights();
+                RaisePropertyChanged("InvalidateParams");
+            };
             IteratorViewModels.Add(ivm);
+            SelectedIterator = ivm;
             return ivm;
         }
 
@@ -75,7 +82,7 @@ namespace WpfDisplay.ViewModels
                 default:
                     break;
             }
-            renderer.InvalidateParams();//
+            RaisePropertyChanged("InvalidateParams");
         }
 
         //TODO: remove, this is a test
@@ -86,6 +93,39 @@ namespace WpfDisplay.ViewModels
                 _cycleSelectionCommand = new RelayCommand(() =>
                 {
                     SelectedIterator = IteratorViewModels[(IteratorViewModels.IndexOf(SelectedIterator) + 1) % IteratorViewModels.Count];
+                }));
+        }
+
+        private RelayCommand _addIteratorCommand;
+        public RelayCommand AddIteratorCommand
+        {
+            get => _addIteratorCommand ?? (
+                _addIteratorCommand = new RelayCommand(() =>
+                {
+                    ifs.AddIterator(Iterator.RandomIterator, true);
+                }));
+        }
+
+        private RelayCommand _removeSelectedCommand;
+        public RelayCommand RemoveSelectedCommand
+        {
+            get => _removeSelectedCommand ?? (
+                _removeSelectedCommand = new RelayCommand(() =>
+                {
+                    ifs.RemoveIterator(SelectedIterator.iterator);
+                    SelectedIterator = null;
+                }));
+        }
+
+        //renderer.LoadParams(new IFS(true));
+        private RelayCommand _randomizeIfsCommand;
+        public RelayCommand RandomizeIfsCommand
+        {
+            get => _randomizeIfsCommand ?? (
+                _randomizeIfsCommand = new RelayCommand(() =>
+                {
+                    //TODO: 
+                    SelectedIterator = null;
                 }));
         }
 

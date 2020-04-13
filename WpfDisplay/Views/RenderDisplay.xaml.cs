@@ -116,7 +116,7 @@ namespace WpfDisplay.Views
         private void KeydownHandler(object sender, EventArgs e)
         {
             if (kbc.IsKeyDown(Key.R))
-                Renderer.LoadParams(new IFS(true));
+                Renderer.LoadParams(IFS.GenerateRandom());
             if (kbc.IsKeyDown(Key.Space))
                 Renderer.StartRendering();
 

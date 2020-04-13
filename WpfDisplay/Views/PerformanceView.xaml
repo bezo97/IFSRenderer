@@ -11,19 +11,17 @@
              x:Name="performanceView"
              d:DataContext="{d:DesignInstance Type=vm:PerformanceViewModel}">
     <md:Card Padding="10" Margin="8" >
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <TextBlock Text="Performance" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                <local:ValueSlider ValueName="Workgroup count" MinValue="10" MaxValue="300" Increment="10" Value="{Binding DataContext.WorkgroupCount, ElementName=performanceView}"/>
-                <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
-                <TextBlock Foreground="White" FontSize="16">
+        <StackPanel>
+            <TextBlock Text="Performance" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+            <local:ValueSlider ValueName="Workgroup count" MinValue="10" MaxValue="300" Increment="10" Value="{Binding DataContext.WorkgroupCount, ElementName=performanceView}"/>
+            <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
+            <TextBlock Foreground="White" FontSize="16">
                     Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/>fps
                     <LineBreak/>
                     Iteration speed: <Run Text="{Binding IterationSpeed, Mode=OneWay}"/>
                     <LineBreak/>
                     Total iterations: <Run Text="{Binding TotalIterations, Mode=OneWay}"/>
-                </TextBlock>
-            </StackPanel>
-        </ScrollViewer>
+            </TextBlock>
+        </StackPanel>
     </md:Card>
 </UserControl>

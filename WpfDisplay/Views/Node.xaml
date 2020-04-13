@@ -26,7 +26,7 @@
                 <DropShadowEffect BlurRadius="20" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
         </Ellipse>
-        <Label x:Name ="NameLabel" Content="{Binding TransformId, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Label x:Name ="NameLabel" Content="{Binding TransformName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
 
     </Grid>
 </UserControl>

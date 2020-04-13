@@ -10,7 +10,7 @@ namespace IFSEngine.Model
     public class Iterator
     {
         public ITransformFunction Transform;// = new Affine();
-        public double baseWeight;//baseweight
+        public double baseWeight;//baseweight. use ifs.NormalizeBaseWeights()
         public double cs;
         public double ci;//color index, 0 - 1
         public double op;

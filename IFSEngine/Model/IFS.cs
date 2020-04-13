@@ -10,18 +10,15 @@ namespace IFSEngine.Model
 {
     public class IFS// : INotifyPropertyChanged //fun mystery: implementing inpc breaks bindings to value sliders??
     {
-        //TODO: IFS: Palette + Iterators + Views (+ Animations?)
+        //TODO: IFS: Palette + Iterators + View (+ Animations?)
 
         public UFPalette Palette { get; set; } = UFPalette.Default;
         public IFSView ViewSettings { get; set; } = new IFSView();
         public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public IFS(bool random = false)
-        {
-            if(random)
-                RandomizeParams();
-        }
+
+        public IFS(bool random=false){ }
 
 
         public void AddIterator(Iterator it1, bool connect)
@@ -87,24 +84,24 @@ namespace IFSEngine.Model
             RaiseIteratorsChanged();
         }
 
-        private void RandomizeParams()
+        public static IFS GenerateRandom()
         {
-            Iterators.Clear();
+            IFS rifs = new IFS();
             var itnum = RandHelper.Next(5) + 2;
             for (var ii = 0; ii < itnum; ii++)
             {
-                AddIterator(Iterator.RandomIterator, true);
+                rifs.AddIterator(Iterator.RandomIterator, true);
             }
-            NormalizeBaseWeights();
+            rifs.NormalizeBaseWeights();
             //randomize xaos weights
-            foreach (var it in Iterators)
+            foreach (var it in rifs.Iterators)
             {
-                foreach (var itTo in Iterators)
+                foreach (var itTo in rifs.Iterators)
                 {
                     it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
                 }
             }
-            RaiseIteratorsChanged();
+            return rifs;
         }
 
         public void NormalizeBaseWeights()

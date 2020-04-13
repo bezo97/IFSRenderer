@@ -124,7 +124,7 @@ namespace IFSEngine
 
             AnimationManager = new AnimationManager();
 
-            LoadParams(new IFS(true));
+            LoadParams(IFS.GenerateRandom());
 
             //TODO: separate opengl initialization from ctor
             initDisplay();

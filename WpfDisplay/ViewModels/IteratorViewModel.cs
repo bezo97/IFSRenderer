@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using IFSEngine.Model;
+using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
 using System;
 using System.Collections.Generic;
@@ -12,16 +13,14 @@ namespace WpfDisplay.ViewModels
 {
     public class IteratorViewModel : ObservableObject
     {
-        private readonly IFSViewModel ifsvm;
         public readonly Iterator iterator;
 
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
         public static double BaseSize = 100;
 
-        public IteratorViewModel(IFSViewModel ifsvm, Iterator iterator)
+        public IteratorViewModel(Iterator iterator)
         {
-            this.ifsvm = ifsvm;
             this.iterator = iterator;
 
             Variables = iterator.Transform.GetType().GetProperties()                    
@@ -29,8 +28,8 @@ namespace WpfDisplay.ViewModels
                     .Where(prop => prop.PropertyType == typeof(double))
                     .Select(pi => new InstanceProperty(iterator.Transform, pi)).ToList();
 
-            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) => { 
-                ifsvm.renderer.InvalidateParams(); 
+            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) => {
+                RaisePropertyChanged();
             });
             
         }
@@ -70,8 +69,8 @@ namespace WpfDisplay.ViewModels
             get => (float)iterator.baseWeight;
             set {
                 iterator.baseWeight = value;
-                ifsvm.ifs.NormalizeBaseWeights();
-                ifsvm.HandleConnectionsChanged(this);
+                //ifsvm.ifs.NormalizeBaseWeights();
+                //ifsvm.HandleConnectionsChanged(this);
                 RaisePropertyChanged(() => BaseWeight);
                 RaisePropertyChanged(() => WeightedSize);
             }
@@ -89,9 +88,9 @@ namespace WpfDisplay.ViewModels
 
         //TODO: remove reference from TransformFunctions project
 
-        public int TransformId
+        public string TransformName
         {
-            get => iterator.Transform.Id;
+            get => iterator.Transform.GetName();
             //set { Set(ref iterator.Transform.Id, value); }
         }
 

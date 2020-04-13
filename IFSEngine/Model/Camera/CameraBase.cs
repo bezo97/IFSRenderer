@@ -11,25 +11,24 @@ namespace IFSEngine.Model.Camera
         internal CameraBaseParameters Params = new CameraBaseParameters();
         public event Action OnManipulate;
 
-        //?
-        public float AspectRatio { get; set; } = 1.0f;
-
-        public float MovementSpeed { get; set; } = 2.5f;
+        public float MovementSpeed { get; set; } = 2.0f;
         public float Sensitivity { get; set; } = 0.2f;
+
+        private float fov = 60;
         public float FOV
         {
             get => fov;
             set
             {
                 fov = value;
-                //TODO: this should be in UpdateCamera (?)
-                projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), AspectRatio, 0.2f, 100.0f);
+                fov = fov <= 0 ? 1 : fov;
+                fov = fov >= 180 ? 179 : fov;
+                UpdateCamera();
             }
         }
-        private float fov = 30;
 
         // Camera 3D Attributes
-        public Vector3 position
+        protected Vector3 position
         {
             get => new Vector3(Params.position.X, Params.position.Y, Params.position.Z);
             set => Params.position = new Vector4(value, 1.0f);
@@ -71,6 +70,7 @@ namespace IFSEngine.Model.Camera
         public void UpdateCamera()
         {
             RefreshCameraValues();
+            projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(FOV), 1.0f, 0.2f, 100.0f);
             SetViewProjMatrix();
             OnManipulate?.Invoke();
         }

@@ -18,11 +18,10 @@
                 <local:ValueSlider ValueName="Opacity" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"/>
                 <local:ValueSlider ValueName="Color Index (TODO: replace with palette)" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"/>
                 <local:ValueSlider ValueName="Color Speed" Increment="0.01" Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"/>
-                <Label>TODO: tranform editor</Label>
             </StackPanel>
             <TextBlock Text="Function" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
             <StackPanel>
-                <TextBlock Text="{Binding TransformId}"/>
+                <TextBlock Text="{Binding TransformName}"/>
                 <ItemsControl ItemsSource="{Binding Variables}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

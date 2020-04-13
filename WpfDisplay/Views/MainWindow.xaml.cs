@@ -40,7 +40,7 @@ namespace WpfDisplay.Views
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            renderer.LoadParams(new IFS(true));
+            renderer.LoadParams(IFS.GenerateRandom());
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -67,18 +67,6 @@ namespace WpfDisplay.Views
                 renderer.CurrentParams.Palette = UFPalette.FromFile(path)[RandHelper.Next(8)];//TODO: gradient picker
                 renderer.InvalidateParams();
             }
-        }
-
-        private void Button_Click_6(object sender, RoutedEventArgs e)
-        {
-            renderer.CurrentParams.AddIterator(Iterator.RandomIterator, true);
-            renderer.InvalidateParams();
-        }
-
-        private void Button_Click_7(object sender, RoutedEventArgs e)
-        {
-            renderer.CurrentParams.RemoveIterator(renderer.CurrentParams.Iterators.Last());
-            renderer.InvalidateParams();
         }
 
         private async void Button_Click_8(object sender, RoutedEventArgs e)
@@ -112,21 +100,33 @@ namespace WpfDisplay.Views
             {
                 renderer.EnablePerceptualUpdates = false;
                 renderer.EnableTAA = true;
-
-                double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
-                renderer.SetHistogramScale(fitToDisplayRatio);
-
             }
             else
             {
                 renderer.EnablePerceptualUpdates = true;
-                renderer.EnableTAA = false; renderer.SetHistogramScale(1.0);
+                renderer.EnableTAA = false;
             }
+        }
+
+        private void PreviewResolutionCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (PreviewResolutionCheckBox.IsChecked ?? false)
+            {
+                double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
+                renderer.SetHistogramScale(fitToDisplayRatio);
+            }
+            else
+                renderer.SetHistogramScale(1.0);
         }
 
         private void EditorButton_Click(object sender, RoutedEventArgs e)
         {
-            var ifsvm = new IFSViewModel(renderer.CurrentParams) { renderer = renderer/*hack. pass main vm*/ };
+            var ifsvm = new IFSViewModel(renderer.CurrentParams);
+            ifsvm.PropertyChanged += (s, e2) =>
+            {
+                if (e2.PropertyName == "InvalidateParams")
+                    renderer.InvalidateParams();
+            };
 
             if (editorWindow==null || !editorWindow.IsLoaded)
                 editorWindow = new EditorWindow();

@@ -182,10 +182,10 @@ namespace WpfDisplay.Views
             //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
         }
 
-        private void Button_MouseWheel(object sender, MouseWheelEventArgs e)
+        /*private void Label_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             Value = Math.Round(Value + (double)e.Delta/Math.Abs(e.Delta)*Increment, 3);
-        }
+        }*/
 
         private void ValueSlider_MouseLeave(object sender, MouseEventArgs e)
         {

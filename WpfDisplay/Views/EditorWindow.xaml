@@ -15,15 +15,30 @@
             <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <Button Command="{Binding CycleSelectionCommand}">Select Next ></Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="8">
+            <Button Command="{Binding RandomIfsCommand}">Random</Button>
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-        <local:NodeMap DataContext="{Binding}" Grid.Column="0"/>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Button Margin="6" Command="{Binding CycleSelectionCommand}">></Button>
+                        <Button Margin="6" Command="{Binding AddIteratorCommand}">+</Button>
+                        <Button Margin="6" Command="{Binding RemoveSelectedCommand}">-</Button>
+                    </StackPanel>
+                </ScrollViewer>
+                <md:Card Grid.Column="1" Margin="4" VerticalAlignment="Stretch">
+                    <local:NodeMap DataContext="{Binding}"/>
+                </md:Card>
+            </Grid>
             <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch">
                 <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
             </md:Card>

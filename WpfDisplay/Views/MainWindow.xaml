@@ -32,17 +32,14 @@
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
 
-        <md:Card Grid.Row="0" Padding="32" Margin="8">
+        <md:Card Grid.Row="0" Margin="8">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="10" Style="{DynamicResource MaterialDesignTitleTextBlock}">TODO: replace, add gui</TextBlock>
-                <Button Margin="10" Content="Start" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click"/>
                 <Button Margin="10" Content="Reset" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_1" />
                 <Button Margin="10" Content="Save JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_2" />
                 <Button Margin="10" Content="Load JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_3" />
-                <Button Margin="10" Content="Apply example.gradient" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_5" />
-                <Button Margin="10" Content="+" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_6" />
-                <Button Margin="10" Content="-" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_7" />
-                <Button Margin="10" Content="Save output.bmp" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
+                <Button Margin="10" Content="Load palette" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_5" />
+                <Button Margin="10" Content="Save image" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
                 <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
                 <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
 
@@ -53,36 +50,59 @@
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="175"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
             <!-- Effects -->
-            <md:Card Grid.Column="0" Padding="6" Margin="8" VerticalAlignment="Stretch">
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <!--TODO: separate xaml for this panel-->
-                    <TextBlock Text="View Settings" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                    <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Brightness, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Gamma, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Gamma threshold" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.GammaThreshold, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Vibrancy" Increment="0.05" Value="{Binding DataContext.CurrentParams.ViewSettings.Vibrancy, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Fog" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FogEffect, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="DOF" MinValue="0" Increment="0.0001" Value="{Binding DataContext.CurrentParams.ViewSettings.Dof, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusDistance, ElementName=mainWindow}"/>
-                    <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
-                    <Label>Background color</Label>
-                    <xctk:ColorPicker SelectedColor="{Binding DataContext.CurrentParams.ViewSettings.BackgroundColor, ElementName=mainWindow, Converter={StaticResource ColorTypeConverter}}"/>
-                    <Label>Render Resolution</Label>
-                    <Button Grid.Column="2" Content="2x" Click="Button_2x" Margin="5 0 0 0"/>
+                    <md:Card Padding="6" Margin="8">
+                        <StackPanel>
+                            <!--TODO: separate xaml for this panel-->
+                            <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+                            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Brightness, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Gamma, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Gamma threshold" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.GammaThreshold, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Vibrancy" Increment="0.05" Value="{Binding DataContext.CurrentParams.ViewSettings.Vibrancy, ElementName=mainWindow}"/>
+                            <Label>Background color</Label>
+                            <xctk:ColorPicker SelectedColor="{Binding DataContext.CurrentParams.ViewSettings.BackgroundColor, ElementName=mainWindow, Converter={StaticResource ColorTypeConverter}}"/>
+                        </StackPanel>
+                    </md:Card>
+                    <md:Card Padding="6" Margin="8">
+                        <StackPanel>
+                            <!--TODO: separate xaml for this panel-->
+                            <!--TODO: add pictograms and tooltips-->
+                            <TextBlock Text="Camera" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+                            <local:ValueSlider ValueName="Field Of View" MinValue="1" MaxValue="179" Increment="1" Value="{Binding DataContext.CurrentParams.ViewSettings.Camera.FOV, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Depth Of Field" MinValue="0" Increment="0.0001" Value="{Binding DataContext.CurrentParams.ViewSettings.Dof, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusDistance, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
+                            <local:ValueSlider ValueName="Fog effect" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FogEffect, ElementName=mainWindow}"/>
+                            <Label>Render Resolution</Label>
+                            <Button Grid.Column="2" Content="debug" Click="Button_2x" Margin="5 0 0 0"/>
+                            <CheckBox x:Name="PreviewResolutionCheckBox" Checked="PreviewResolutionCheckBox_Checked" Unchecked="PreviewResolutionCheckBox_Checked">Fit to display</CheckBox>
+                        </StackPanel>
+                    </md:Card>
                 </StackPanel>
-            </md:Card>
+            </ScrollViewer>
             <!-- Render -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <DockPanel Name="Docker" >
                     <local:RenderDisplay x:Name="Host" Height="{Binding ElementName=Docker, Path=ActualHeight}" Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
                 </DockPanel>
             </md:Card>
-            <local:PerformanceView x:Name="performanceView" Grid.Column="2"/>
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <md:Card Padding="6" Margin="8">
+                        <StackPanel Orientation="Horizontal" Margin="8">
+                            <Button Content="Start" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click"/>
+                            <Label>TODO: render presets</Label>
+                        </StackPanel>
+                    </md:Card>
+                    <local:PerformanceView x:Name="performanceView" />
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
         <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">
             <StackPanel>

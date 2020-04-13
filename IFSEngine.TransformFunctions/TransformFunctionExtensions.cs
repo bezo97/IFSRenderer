@@ -14,6 +14,11 @@ namespace IFSEngine.TransformFunctions
         //tf -> var name -> var prop
         private static readonly Dictionary<int, SortedDictionary<string, PropertyInfo>> tfs = new Dictionary<int, SortedDictionary<string, PropertyInfo>>();
 
+        public static string GetName(this ITransformFunction tf)
+        {
+            return tf.GetType().Name;
+        }
+
         public static IEnumerable<string> GetFunctionVariables(this ITransformFunction tf)
         {
             if (tfs.TryGetValue(tf.Id, out var o))

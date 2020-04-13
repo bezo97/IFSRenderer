@@ -24,15 +24,15 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Padding="10,5,10,5" Click="Down_Click">-</Button>
-            <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" MouseLeave="ValueSlider_MouseLeave" Background="#303030" Style="{DynamicResource MaterialDesignLabel}" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" MouseWheel="Button_MouseWheel">
+            <Button Grid.Column="0" Padding="10,0,10,0" Click="Down_Click">-</Button>
+            <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" MouseLeave="ValueSlider_MouseLeave" Background="#303030" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp">
                 <Label.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Animate" Click="Animate_Click"/>
                     </ContextMenu>
                 </Label.ContextMenu>
             </Label>
-            <TextBox Grid.Column="1" Text="{Binding Value}" Background="#606060" Style="{DynamicResource MaterialDesignTextBox}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
+            <TextBox Grid.Column="1" Text="{Binding Value}" Background="#606060" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Copy" />
@@ -42,7 +42,7 @@
                     </ContextMenu>
                 </TextBox.ContextMenu>
             </TextBox>
-            <Button Grid.Column="2" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Padding="10,5,10,5" Click="Up_Click">+</Button>
+            <Button Grid.Column="2" Padding="10,0,10,0" Click="Up_Click">+</Button>
         </Grid>
         
     </StackPanel>
