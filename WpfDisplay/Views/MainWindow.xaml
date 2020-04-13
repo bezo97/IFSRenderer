@@ -34,16 +34,14 @@
 
         <md:Card Grid.Row="0" Margin="8">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="10" Style="{DynamicResource MaterialDesignTitleTextBlock}">TODO: replace, add gui</TextBlock>
-                <Button Margin="10" Content="Reset" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_1" />
-                <Button Margin="10" Content="Save JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_2" />
-                <Button Margin="10" Content="Load JSON" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_3" />
-                <Button Margin="10" Content="Load palette" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_5" />
-                <Button Margin="10" Content="Save image" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click_8" />
-                <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
-                <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
-
-                <Button Margin="10" x:Name="EditorButton" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="EditorButton_Click">Editor</Button>
+                <Button Margin="10" Content="📑 New" Click="Button_Click_4" />
+                <Button Margin="10" Content="📂 Load" Click="Button_Click_3" />
+                <Button Margin="10" Content="💾 Save" Click="Button_Click_2" />
+                <Button Margin="10" Content="🖼️ Save" Click="Button_Click_8" />
+                <Button Margin="10" Content="🎨 Palette" Click="Button_Click_5" />
+                <Separator Margin="25"></Separator>
+                <Button Margin="10" Content="🏗️ Editor" x:Name="EditorButton" Click="EditorButton_Click"/>
+                <Button Margin="10" Content="🎲 Random" Click="Button_Click_1" />
             </StackPanel>
         </md:Card>
         <Grid Grid.Row="1">
@@ -95,9 +93,11 @@
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <md:Card Padding="6" Margin="8">
-                        <StackPanel Orientation="Horizontal" Margin="8">
-                            <Button Content="Start" Style="{DynamicResource MaterialDesignRaisedDarkButton}" Click="Button_Click"/>
+                        <StackPanel Margin="8">
+                            <Button Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
                             <Label>TODO: render presets</Label>
+                            <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
+                            <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
                         </StackPanel>
                     </md:Card>
                     <local:PerformanceView x:Name="performanceView" />

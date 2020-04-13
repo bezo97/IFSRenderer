@@ -147,5 +147,10 @@ namespace WpfDisplay.Views
                 editorWindow.Close();
             base.OnClosed(e);
         }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            renderer.LoadParams(new IFS());
+        }
     }
 }

@@ -111,10 +111,22 @@ namespace IFSEngine
         private int tfparamsbufH;
         private int xaosbufH;
         private int last_tf_index_bufH;
-        //display handlers
-        private int fboDispH;
-        private int dispTexH;
-        private int displayProgramH;
+
+        int vertexShaderH;
+        //logscale handlers
+        private int logscaleProgramH;
+        private int logscaleFboH;
+        private int logscaleTexH;
+        //taa handlers
+        private int deProgramH;
+        private int deFboH;
+        private int deTexH;
+        //taa handlers
+        private int taaProgramH;
+        private int taaFboH;
+        private int taaTexH;
+
+        System.Threading.AutoResetEvent stopRender = new System.Threading.AutoResetEvent(false);
 
 
         public RendererGL(IGraphicsContext ctx, IWindowInfo wInfo)
@@ -127,7 +139,8 @@ namespace IFSEngine
             LoadParams(IFS.GenerateRandom());
 
             //TODO: separate opengl initialization from ctor
-            initDisplay();
+            initLogscale();
+            initDE();
             initRenderer();
             initTAA();
 
@@ -187,11 +200,17 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), HistogramHeight);
 
                 //resize display texture. TODO: separate & use display resolution
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, dispTexH);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
                 //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
+
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, logscaleTexH);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+
                 GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture2D, deTexH);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+
+                GL.ActiveTexture(TextureUnit.Texture2);
                 GL.BindTexture(TextureTarget.Texture2D, taaTexH);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
@@ -321,22 +340,14 @@ namespace IFSEngine
             bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
             if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
             {
-                int lastFboH = fboDispH;
+                int lastFboH = logscaleFboH;
 
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboDispH);//
-                GL.UseProgram(displayProgramH);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, logscaleFboH);//
+                GL.UseProgram(logscaleProgramH);
                 //TODO:  only update if needed
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "width"), HistogramWidth);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "height"), HistogramHeight);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "ActualDensity"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "InvGamma"), (float)(1.0f / CurrentParams.ViewSettings.Gamma));
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
-                GL.Uniform3(GL.GetUniformLocation(displayProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
-                //tmp
-                GL.Uniform1(GL.GetUniformLocation(displayProgramH, "EnableDE"), EnableDE?1:0);
-                //draw quad
+                GL.Uniform1(GL.GetUniformLocation(logscaleProgramH, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(logscaleProgramH, "height"), HistogramHeight);
+                GL.Uniform1(GL.GetUniformLocation(logscaleProgramH, "ActualDensity"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
                 GL.Begin(PrimitiveType.Quads);
                 GL.Vertex2(0, 0);
                 GL.Vertex2(0, 1);
@@ -344,13 +355,38 @@ namespace IFSEngine
                 GL.Vertex2(1, 0);
                 GL.End();
 
+                //if(EnableDE)
+                {
+                    lastFboH = deFboH;
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, deFboH);//
+                    GL.UseProgram(deProgramH);
+                    //update uniforms..
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "width"), HistogramWidth);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "height"), HistogramHeight);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "InvGamma"), (float)(1.0f / CurrentParams.ViewSettings.Gamma));
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
+                    GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                    //tmp
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "EnableDE"), EnableDE?1:0);
+                    //draw quad
+                    GL.Begin(PrimitiveType.Quads);
+                    GL.Vertex2(0, 0);
+                    GL.Vertex2(0, 1);
+                    GL.Vertex2(1, 1);
+                    GL.Vertex2(1, 0);
+                    GL.End();
+                }
+
                 if (EnableTAA)
                 {
-                    lastFboH = fboTaaH;
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboTaaH);//
+                    lastFboH = taaFboH;
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, taaFboH);//
                     GL.UseProgram(taaProgramH);
                     GL.Uniform1(GL.GetUniformLocation(taaProgramH, "width"), HistogramWidth);
                     GL.Uniform1(GL.GetUniformLocation(taaProgramH, "height"), HistogramHeight);
+                    GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t1"), /*EnableDE?1:0*/1);//use last pass. TODO: nicer //tmp
                     //draw quad
                     GL.Begin(PrimitiveType.Quads);
                     GL.Vertex2(0, 0);
@@ -396,10 +432,6 @@ namespace IFSEngine
                 }).Start();
             }
         }
-
-        System.Threading.AutoResetEvent stopRender = new System.Threading.AutoResetEvent(false);
-        private int taaProgramH;
-        private int taaTexH;
 
         /// <summary>
         /// Wait for render thread to stop
@@ -447,7 +479,10 @@ namespace IFSEngine
             UpdateDisplay();//TODO: await 1 display frame
 
             await WithContext(() => {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboDispH);
+                int lastFboH = logscaleFboH;
+                if(EnableDE)
+                    lastFboH = deFboH;
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, lastFboH);
                 GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, d);
             });
 
@@ -470,9 +505,6 @@ namespace IFSEngine
             return o;
         }
 
-        int vertexShaderH;
-        private int fboTaaH;
-
         private void initTAA()
         {
 
@@ -491,7 +523,7 @@ namespace IFSEngine
 
             //init taa image texture
             taaTexH = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, taaTexH);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -501,8 +533,8 @@ namespace IFSEngine
             //TODO: display resolution?
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
-            fboTaaH = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboTaaH);//offscreen
+            taaFboH = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, taaFboH);//offscreen
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, taaTexH, 0);
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new GraphicsException("Frame Buffer Error");
@@ -529,16 +561,77 @@ namespace IFSEngine
             //bind layout:
             //GL.BindImageTexture(0, taaTexH, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
             //GL.BindImageTexture(1, dispTexH, 0, false, 0, TextureAccess.ReadOnly, SizedInternalFormat.Rgba32f);
-            GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t1"), 0);
-            GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t2"), 1);
+            //GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t1"), 0);//previous pass. Set before dispatch
+            GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t2"), 2);//self
         }
 
-        private void initDisplay()
+        private void initDE()
+        {
+
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.de.frag.shader");
+            string deShaderSource = new StreamReader(resource).ReadToEnd();
+            //compile de shader
+            int deShaderH = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(deShaderH, deShaderSource);
+            GL.CompileShader(deShaderH);
+            GL.GetShader(deShaderH, ShaderParameter.CompileStatus, out int status);
+            if (status == 0)
+            {
+                throw new GraphicsException(
+                    String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(deShaderH)));
+            }
+
+            //init de image texture
+            deTexH = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, deTexH);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+
+            //TODO: display resolution?
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+
+            deFboH = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, deFboH);//offscreen
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, deTexH, 0);
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+                throw new GraphicsException("Frame Buffer Error");
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
+
+            deProgramH = GL.CreateProgram();
+            GL.AttachShader(deProgramH, vertexShaderH);
+            GL.AttachShader(deProgramH, deShaderH);
+            GL.LinkProgram(deProgramH);
+            GL.GetProgram(deProgramH, GetProgramParameterName.LinkStatus, out status);
+            if (status == 0)
+            {
+                throw new GraphicsException(
+                    String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(deProgramH)));
+            }
+
+            GL.DetachShader(deProgramH, vertexShaderH);
+            GL.DetachShader(deProgramH, deShaderH);
+            //GL.DeleteShader(vertexShaderH);
+            GL.DeleteShader(deShaderH);
+
+            GL.UseProgram(deProgramH);
+
+            //bind layout:
+            //GL.BindImageTexture(0, taaTexH, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
+            //GL.BindImageTexture(1, dispTexH, 0, false, 0, TextureAccess.ReadOnly, SizedInternalFormat.Rgba32f);
+
+            GL.Uniform1(GL.GetUniformLocation(deProgramH, "t1"), 0);
+            //GL.Uniform1(GL.GetUniformLocation(deProgramH, "t2"), 1);
+        }
+
+        private void initLogscale()
         {
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
             vertexShaderH = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShaderH, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.vert.shader")).ReadToEnd());
+            GL.ShaderSource(vertexShaderH, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.quad.vert.shader")).ReadToEnd());
             GL.CompileShader(vertexShaderH);
             GL.GetShader(vertexShaderH, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
@@ -548,7 +641,7 @@ namespace IFSEngine
             }
 
             var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.Display.frag.shader")).ReadToEnd());
+            GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.logscale.frag.shader")).ReadToEnd());
             GL.CompileShader(fragmentShader);
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
             if (status == 0)
@@ -558,9 +651,9 @@ namespace IFSEngine
             }
             
             //init display image texture
-            dispTexH = GL.GenTexture();
+            logscaleTexH = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, dispTexH);
+            GL.BindTexture(TextureTarget.Texture2D, logscaleTexH);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
@@ -569,30 +662,30 @@ namespace IFSEngine
             //TODO: display resolution?
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
-            fboDispH = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fboDispH);//offscreen
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, dispTexH, 0);
+            logscaleFboH = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, logscaleFboH);//offscreen
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, logscaleTexH, 0);
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new GraphicsException("Frame Buffer Error");
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
 
-            displayProgramH = GL.CreateProgram();
-            GL.AttachShader(displayProgramH, vertexShaderH);
-            GL.AttachShader(displayProgramH, fragmentShader);
-            GL.LinkProgram(displayProgramH);
-            GL.GetProgram(displayProgramH, GetProgramParameterName.LinkStatus, out status);
+            logscaleProgramH = GL.CreateProgram();
+            GL.AttachShader(logscaleProgramH, vertexShaderH);
+            GL.AttachShader(logscaleProgramH, fragmentShader);
+            GL.LinkProgram(logscaleProgramH);
+            GL.GetProgram(logscaleProgramH, GetProgramParameterName.LinkStatus, out status);
             if (status == 0)
             {
                 throw new GraphicsException(
-                    String.Format("Error linking program: {0}", GL.GetProgramInfoLog(displayProgramH)));
+                    String.Format("Error linking program: {0}", GL.GetProgramInfoLog(logscaleProgramH)));
             }
 
-            GL.DetachShader(displayProgramH, vertexShaderH);
-            GL.DetachShader(displayProgramH, fragmentShader);
+            GL.DetachShader(logscaleProgramH, vertexShaderH);
+            GL.DetachShader(logscaleProgramH, fragmentShader);
             //GL.DeleteShader(vertexShaderH);
             GL.DeleteShader(fragmentShader);
 
-            GL.UseProgram(displayProgramH); 
+            GL.UseProgram(logscaleProgramH); 
 
             histogramH = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
@@ -634,7 +727,7 @@ namespace IFSEngine
             last_tf_index_bufH = GL.GenBuffer();
 
             //bind layout:
-            GL.BindImageTexture(0, dispTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
+            GL.BindImageTexture(0, logscaleTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, histogramH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);

@@ -5,15 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="glsl\Display.frag.shader" />
-    <None Remove="glsl\Display.vert.shader" />
+    <None Remove="glsl\de.frag.shader" />
     <None Remove="glsl\ifs_kernel.compute" />
+    <None Remove="glsl\logscale.frag.shader" />
+    <None Remove="glsl\quad.vert.shader" />
     <None Remove="glsl\taa.frag.shader" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="glsl\Display.frag.shader" />
-    <EmbeddedResource Include="glsl\Display.vert.shader" />
+    <EmbeddedResource Include="glsl\de.frag.shader" />
+    <EmbeddedResource Include="glsl\logscale.frag.shader" />
+    <EmbeddedResource Include="glsl\quad.vert.shader" />
     <EmbeddedResource Include="glsl\ifs_kernel.compute" />
     <EmbeddedResource Include="glsl\taa.frag.shader" />
   </ItemGroup>
