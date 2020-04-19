@@ -19,5 +19,11 @@ namespace IFSEngine.Model.GpuStructs
         internal int pass_iters;//iterations per pass
         internal int dispatchCnt;//number of dispatches since accumulation reset
         internal int palettecnt;//how many colors in the palette
+
+        internal int resetPointsState;//0/1
+        //padding
+        internal int dummy0;
+        internal int dummy1;
+        internal int dummy2;
     }
 }

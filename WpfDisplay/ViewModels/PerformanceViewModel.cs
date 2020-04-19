@@ -25,10 +25,10 @@ namespace WpfDisplay.ViewModels
         public string TotalIterations { get; private set; }
         public double WorkgroupCount
         {
-            get => renderer.workgroupCount;
+            get => renderer.WorkgroupCount;
             set
             {
-                renderer.workgroupCount = (int)value;
+                renderer.setWorkgroupCount((int)value).Wait();
                 RaisePropertyChanged(() => WorkgroupCount);
             }
         }

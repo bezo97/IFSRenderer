@@ -31,7 +31,12 @@ struct Settings
 	int pass_iters;//iterations per pass
 	int dispatchCnt;
 	int palettecnt;
+
+	int resetPointsState;
 	//padding
+	int dummy0;
+	int dummy1;
+	int dummy2;
 };
 
 //TODO: remove
@@ -305,29 +310,7 @@ vec2 ApplyShader(Iterator it, vec2 input/*(color,opacity)*/)
 	float o = it.op;//opacity
 	return vec2(c - floor(c), o);//(color,opacity)
 }
-/*
-vec3 getPaletteColor(float pos)
-{
-	//define two constant colors, like red and blue
-	vec3 red = vec3(1.0f, 0.0f, 0.0f);
-	vec3 green = vec3(0.0f, 1.0f, 0.0f);
-	vec3 blue = vec3(0.0f, 0.0f, 1.0f);
-	//interpolate linearly between the two, according to pos
-	vec3 result; //= (1.0f-pos) * red + pos * blue;//mix(red, blue, pos);
 
-	if (pos <= 0.5f)
-	{
-		result = (green * pos * 2.0f) + red * (0.5f - pos) * 2.0f;
-	}
-	else
-	{
-		result = blue * (pos - 0.5f) * 2.0f + green * (1.0f - pos) * 2.0f;
-	}
-
-	//return that color
-	return result;
-}
-*/
 vec3 getPaletteColor(float pos)
 {
 	float palettepos = pos * (settings.palettecnt - 1);
@@ -344,17 +327,16 @@ void main() {
 
 	int next = 34567;//TODO: option to change this seed by animation frame number
 
-	//TODO: randomize here?
-	vec3 p = pointsstate[gid].xyz;
-	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
-
-	if (settings.dispatchCnt == 0)
-	{//reset on first dispatch
+	if (settings.resetPointsState==1)
+	{//usually on first dispatch, or when number of threads changes
 		//randomize starting iterator
 		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
-		//randomize starting color
-		p_shader.x = randhash(next++);
+		//randomize starting point and color
+		pointsstate[gid] = vec4(randhash(next++), randhash(next++), randhash(next++), randhash(next++));
 	}
+
+	vec3 p = pointsstate[gid].xyz;
+	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
 
 
 	for (int i = 0; i < settings.pass_iters; i++)
@@ -408,7 +390,7 @@ void main() {
 		ivec2 proj = Project(settings.camera, p, ra1, ra2);		
 	
 		//lands on the histogram && initial skipping
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.dispatchCnt == 0))
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.resetPointsState == 1))
 		{
 			vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
 			if (settings.fog_effect > 0.0f)
@@ -423,7 +405,7 @@ void main() {
 			int ipx = proj.x + proj.y * width;//pixel index
 
 			//Use atomic float add if available. Slower but more accurate.
-			#ifdef bgkl//GL_NV_shader_atomic_float
+			#ifdef GL_NV_shader_atomic_float
 				atomicAdd(histogram[ipx].r, color.r);
 				atomicAdd(histogram[ipx].g, color.g);
 				atomicAdd(histogram[ipx].b, color.b);

@@ -26,8 +26,8 @@ namespace WpfDisplay.Views
             Host.Loaded += (s, e) =>
             {
                 renderer = Host.Renderer;
-                this.DataContext = renderer;
                 performanceView.DataContext = new PerformanceViewModel(renderer);
+                this.DataContext = renderer;
 
             };
             this.Closing += (s2, e2) => renderer.Dispose();
