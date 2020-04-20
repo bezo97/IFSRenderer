@@ -170,6 +170,7 @@ namespace IFSEngine
             CurrentParams = p;
             CurrentParams.ViewSettings.PropertyChanged += HandleInvalidation;
             InvalidateParams();
+            Task.Run(()=>SetHistogramScale(1.0));
         }
 
         private void HandleInvalidation(object sender, PropertyChangedEventArgs e)

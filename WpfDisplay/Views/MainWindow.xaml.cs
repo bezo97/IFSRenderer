@@ -55,11 +55,6 @@ namespace WpfDisplay.Views
                 renderer.LoadParams(IFS.LoadJson(path));
         }
 
-        private void Button_2x(object sender, RoutedEventArgs e)
-        {
-            renderer.SetHistogramScale(2.0);
-        }
-
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
@@ -94,31 +89,6 @@ namespace WpfDisplay.Views
             b.Dispose();
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (ExplorationCheckBox.IsChecked ?? false)
-            {
-                renderer.EnablePerceptualUpdates = false;
-                renderer.EnableTAA = true;
-            }
-            else
-            {
-                renderer.EnablePerceptualUpdates = true;
-                renderer.EnableTAA = false;
-            }
-        }
-
-        private void PreviewResolutionCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (PreviewResolutionCheckBox.IsChecked ?? false)
-            {
-                double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
-                renderer.SetHistogramScale(fitToDisplayRatio);
-            }
-            else
-                renderer.SetHistogramScale(1.0);
-        }
-
         private void EditorButton_Click(object sender, RoutedEventArgs e)
         {
             var ifsvm = new IFSViewModel(renderer.CurrentParams);
@@ -151,6 +121,24 @@ namespace WpfDisplay.Views
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
             renderer.LoadParams(new IFS());
+        }
+
+        private async void PreviewButton_Click(object sender, RoutedEventArgs e)
+        {
+            double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
+            await renderer.SetHistogramScale(fitToDisplayRatio);
+            renderer.EnableDE = true;
+            renderer.EnableTAA = true;
+            //renderer.EnablePerceptualUpdates = false;
+        }
+
+        private async void FinalButton_Click(object sender, RoutedEventArgs e)
+        {
+            renderer.EnablePerceptualUpdates = true;
+            renderer.EnableTAA = false;
+            renderer.EnableDE = false;
+            double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
+            await renderer.SetHistogramScale(2.0);
         }
     }
 }

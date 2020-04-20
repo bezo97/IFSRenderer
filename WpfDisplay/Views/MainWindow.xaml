@@ -37,7 +37,7 @@
                 <Button Margin="10" Content="📑 New" Click="Button_Click_4" />
                 <Button Margin="10" Content="📂 Load" Click="Button_Click_3" />
                 <Button Margin="10" Content="💾 Save" Click="Button_Click_2" />
-                <Button Margin="10" Content="🖼️ Save" Click="Button_Click_8" />
+                <Button Margin="10" Content="🖼 Save" Click="Button_Click_8" />
                 <Button Margin="10" Content="🎨 Palette" Click="Button_Click_5" />
                 <Separator Margin="25"></Separator>
                 <Button Margin="10" Content="🏗️ Editor" x:Name="EditorButton" Click="EditorButton_Click"/>
@@ -77,9 +77,7 @@
                             <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusDistance, ElementName=mainWindow}"/>
                             <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
                             <local:ValueSlider ValueName="Fog effect" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FogEffect, ElementName=mainWindow}"/>
-                            <Label>Render Resolution</Label>
-                            <Button Grid.Column="2" Content="debug" Click="Button_2x" Margin="5 0 0 0"/>
-                            <CheckBox x:Name="PreviewResolutionCheckBox" Checked="PreviewResolutionCheckBox_Checked" Unchecked="PreviewResolutionCheckBox_Checked">Fit to display</CheckBox>
+                            <Label>TODO: Render Resolution</Label>
                         </StackPanel>
                     </md:Card>
                 </StackPanel>
@@ -93,10 +91,17 @@
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <md:Card Padding="6" Margin="8">
-                        <StackPanel Margin="8">
-                            <Button Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
-                            <Label>TODO: render presets</Label>
-                            <CheckBox x:Name="ExplorationCheckBox" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Exploration mode</CheckBox>
+                        <StackPanel >
+                            <Button Margin="12" Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
+                            <Label>Render presets</Label>
+                            <Grid >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Margin="8" x:Name="PreviewButton" Content="📷 Preview" Grid.Column="0" Click="PreviewButton_Click"/>
+                                <Button Margin="8" x:Name="FinalButton" Content="📸 Final" Grid.Column="1" Click="FinalButton_Click"/>
+                            </Grid>
                             <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
                         </StackPanel>
                     </md:Card>
