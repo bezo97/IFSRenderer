@@ -21,7 +21,8 @@ namespace IFSEngine.Model.Camera
 
         public override void ProcessMouseMovement(float xoffset, float yoffset)
         {
-            RotateBy(-xoffset/100, yoffset/100, 0.0f);
+            float rotSpeed = 0.01f - 0.0099f * (180.0f - FOV) / 180.0f;
+            RotateBy(-xoffset * rotSpeed, yoffset * rotSpeed, 0.0f);
             
             UpdateCamera();
         }
