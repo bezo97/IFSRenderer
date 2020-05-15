@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfDisplay.ViewModels
 {
@@ -49,6 +47,8 @@ namespace WpfDisplay.ViewModels
                     ifs.NormalizeBaseWeights();
                 RaisePropertyChanged("InvalidateParams");
             };
+            ivm.ViewChanged += (s, e) => RedrawConnections();
+            ivm.Selected += (s, e) => SelectedIterator = ivm;
             IteratorViewModels.Add(ivm);
             SelectedIterator = ivm;
             return ivm;
@@ -70,6 +70,17 @@ namespace WpfDisplay.ViewModels
             var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key));
             removedConnections.ToList().ForEach(vm2 => vm.ConnectionViewModels.Remove(vm2));
             newConnections.ToList().ForEach(c => vm.ConnectionViewModels.Add(new ConnectionViewModel(vm, IteratorViewModels.First(vm2=>vm2.iterator == c.Key))));
+        }
+
+        public void RedrawConnections()
+        {
+            foreach (var i in IteratorViewModels)
+            {
+                foreach (var con in i.ConnectionViewModels)
+                {
+                    con.UpdateGeometry();
+                }
+            }
         }
 
         private void Ifs_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

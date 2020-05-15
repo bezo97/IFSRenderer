@@ -11,7 +11,7 @@
              Width="{Binding WeightedSize}" Height="{Binding WeightedSize}"
              >
     <UserControl.RenderTransform>
-        <TranslateTransform X="-50" Y="-50"/>
+        <TranslateTransform X="{Binding RenderTranslateValue}" Y="{Binding RenderTranslateValue}"/>
     </UserControl.RenderTransform>
     <Grid>
         <Ellipse Stretch="Fill" StrokeThickness="2" Cursor="Hand">

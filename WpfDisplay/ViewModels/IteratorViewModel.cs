@@ -15,6 +15,8 @@ namespace WpfDisplay.ViewModels
     {
         public readonly Iterator iterator;
 
+        public event EventHandler ViewChanged;
+        public event EventHandler Selected;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
         public static double BaseSize = 100;
@@ -34,8 +36,20 @@ namespace WpfDisplay.ViewModels
             
         }
 
+        public void RefreshView()
+        {
+            ViewChanged?.Invoke(this, null);
+        }
+
         private bool isselected;
-        public bool IsSelected { get => isselected; set { Set(ref isselected, value); } }
+        public bool IsSelected { get => isselected; set { 
+                Set(ref isselected, value);
+            }
+        }
+        public void SelectNode()
+        {
+            Selected?.Invoke(this, null);
+        }
 
         public float Opacity
         {
@@ -73,6 +87,8 @@ namespace WpfDisplay.ViewModels
                 //ifsvm.HandleConnectionsChanged(this);
                 RaisePropertyChanged(() => BaseWeight);
                 RaisePropertyChanged(() => WeightedSize);
+                RaisePropertyChanged(() => RenderTranslateValue);
+                RefreshView();
             }
         }
 
@@ -85,6 +101,8 @@ namespace WpfDisplay.ViewModels
                 return (0.5f + Math.Sqrt(BaseWeight < 10 ? BaseWeight : 10)) * BaseSize;
             }
         }
+
+        public double RenderTranslateValue => -0.5*WeightedSize;
 
         //TODO: remove reference from TransformFunctions project
 
