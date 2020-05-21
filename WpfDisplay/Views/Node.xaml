@@ -17,13 +17,13 @@
         <Ellipse Stretch="Fill" StrokeThickness="2" Cursor="Hand">
             <Ellipse.Fill>
                 <RadialGradientBrush>
-                    <GradientStop Color="{Binding OpacityColor, UpdateSourceTrigger=PropertyChanged}" Offset="0.75"/>
-                    <GradientStop Color="Gray" Offset="1"/>
+                    <GradientStop Color="{Binding OpacityColor, UpdateSourceTrigger=PropertyChanged}" Offset="0.98"/>
+                    <GradientStop Color="LightGray" Offset="1"/>
                 </RadialGradientBrush>
             </Ellipse.Fill>
             <!-- UniformToFill is lehet ^ -->
             <Ellipse.Effect>
-                <DropShadowEffect BlurRadius="20" Opacity="{Binding IsSelected}"/>
+                <DropShadowEffect ShadowDepth="15" BlurRadius="30" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
         </Ellipse>
         <Label x:Name ="NameLabel" Content="{Binding TransformName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>

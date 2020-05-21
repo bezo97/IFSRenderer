@@ -26,7 +26,7 @@ namespace WpfDisplay.Views
             InitializeComponent();
         }
 
-        private int tx, ty;
+        private float tx, ty;
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
@@ -36,16 +36,14 @@ namespace WpfDisplay.Views
             var vm = (IteratorViewModel)DataContext;
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                //vm.IsSelected = true;
+                tx = vm.XCoord - (float)e.GetPosition(null).X;//vm.XCoord - e.GetPosition(Map).X;
+                ty = vm.YCoord - (float)e.GetPosition(null).Y;//vm.YCoord - e.GetPosition(Map).Y;
                 vm.SelectNode();
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
-                tx = vm.XCoord - (int)e.GetPosition(null).X;//vm.XCoord - e.GetPosition(Map).X;
-                ty = vm.YCoord - (int)e.GetPosition(null).Y;//vm.YCoord - e.GetPosition(Map).Y;
+                //TODO: start dragging new connection
             }
-
-
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -60,13 +58,13 @@ namespace WpfDisplay.Views
             base.OnMouseMove(e);
             e.Handled = true;
 
-            if (e.RightButton == MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
                 var vm = (IteratorViewModel)DataContext;
                 e.Handled = true;
-                vm.XCoord = /*e.GetPosition(Map).X + */tx + (int)e.GetPosition(null).X;
-                vm.YCoord = /*e.GetPosition(Map).Y + */ty + (int)e.GetPosition(null).Y;
-                vm.RefreshView();
+                vm.XCoord = /*e.GetPosition(Map).X + */tx + (float)e.GetPosition(null).X;
+                vm.YCoord = /*e.GetPosition(Map).Y + */ty + (float)e.GetPosition(null).Y;
+                vm.Redraw();//TODO: should call ifsvm.Redraw()
             }
         }
 

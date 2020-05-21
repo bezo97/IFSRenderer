@@ -36,9 +36,11 @@ namespace WpfDisplay.ViewModels
             
         }
 
-        public void RefreshView()
+        public void Redraw()
         {
-            ViewChanged?.Invoke(this, null);
+            RaisePropertyChanged(() => BaseWeight);
+            RaisePropertyChanged(() => WeightedSize);
+            RaisePropertyChanged(() => RenderTranslateValue);
         }
 
         private bool isselected;
@@ -53,20 +55,20 @@ namespace WpfDisplay.ViewModels
 
         public float Opacity
         {
-            get => (float)iterator.op;
-            set { Set(ref iterator.op, value); RaisePropertyChanged(() => OpacityColor); }
+            get => (float)iterator.Opacity;
+            set { Set(ref iterator.Opacity, value); RaisePropertyChanged(() => OpacityColor); }
         }
 
         public float ColorIndex
         {
-            get => (float)iterator.ci;
-            set { Set(ref iterator.ci, value); }
+            get => (float)iterator.ColorIndex;
+            set { Set(ref iterator.ColorIndex, value); }
         }
 
         public float ColorSpeed
         {
-            get => (float)iterator.cs;
-            set { Set(ref iterator.cs, value); }
+            get => (float)iterator.ColorSpeed;
+            set { Set(ref iterator.ColorSpeed, value); }
         }
 
         public Color OpacityColor
@@ -80,15 +82,12 @@ namespace WpfDisplay.ViewModels
 
         public float BaseWeight
         {
-            get => (float)iterator.baseWeight;
+            get => (float)iterator.BaseWeight;
             set {
-                iterator.baseWeight = value;
+                iterator.BaseWeight = value;
                 //ifsvm.ifs.NormalizeBaseWeights();
                 //ifsvm.HandleConnectionsChanged(this);
-                RaisePropertyChanged(() => BaseWeight);
-                RaisePropertyChanged(() => WeightedSize);
-                RaisePropertyChanged(() => RenderTranslateValue);
-                RefreshView();
+                ViewChanged?.Invoke(this, null);//refresh
             }
         }
 
@@ -115,15 +114,15 @@ namespace WpfDisplay.ViewModels
         //TODO: string TransformName
         //TODO: string IteratorName
 
-        private int xCoord = RandHelper.Next(500);
-        public int XCoord
+        private float xCoord = RandHelper.Next(500);
+        public float XCoord
         {
             get => xCoord;
             set { Set(ref xCoord, value); }
         }
 
-        private int yCoord = RandHelper.Next(500);
-        public int YCoord
+        private float yCoord = RandHelper.Next(500);
+        public float YCoord
         {
             get => yCoord;
             set { Set(ref yCoord, value); }

@@ -64,7 +64,7 @@ namespace WpfDisplay.ViewModels
                 new Point((p1.X + p2.X * 2) / 3 + 30*Math.Cos(angle), (p1.Y + p2.Y * 2) / 3 + 30*Math.Sin(angle)), p2 }, true));
 
             ArrowBody = new PathGeometry(new PathFigureCollection { new PathFigure(p1, seg, false) });
-
+            
             //Find middle of the arrow body. TODO: find better way
             PathGeometry flattened = ArrowBody.GetFlattenedPathGeometry();//bezier -> line path
             double minL = 9999;

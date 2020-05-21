@@ -286,10 +286,10 @@ namespace IFSEngine
                         {
                             tfId = it.Transform.Id,
                             tfParamsStart = tfsparams.Count,
-                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * xw.Key.baseWeight),
-                            cs = (float)it.cs,
-                            ci = (float)it.ci,
-                            op = (float)it.op,
+                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * xw.Key.BaseWeight),
+                            cs = (float)it.ColorSpeed,
+                            ci = (float)it.ColorIndex,
+                            op = (float)it.Opacity,
                         });
                         //transform params
                         IEnumerable<double> tfiparams = it.Transform.GetFunctionVariables().Select(p => it.Transform.GetVar<double>(p));// GetListOfParams();
@@ -310,7 +310,7 @@ namespace IFSEngine
                         foreach (var toIt in CurrentParams.Iterators)
                         {
                             if (it.WeightTo.ContainsKey(toIt))
-                                xaosm.Add((float)(it.WeightTo[toIt] * toIt.baseWeight));
+                                xaosm.Add((float)(it.WeightTo[toIt] * toIt.BaseWeight));
                             else
                                 xaosm.Add(0);
                         }

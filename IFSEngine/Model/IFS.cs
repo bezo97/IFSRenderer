@@ -109,11 +109,11 @@ namespace IFSEngine.Model
             double SummWeights = 0.0f;
             foreach (var it in Iterators)
             {
-                SummWeights += it.baseWeight;
+                SummWeights += it.BaseWeight;
             }
             foreach (var it in Iterators)
             {
-                it.baseWeight /= SummWeights;
+                it.BaseWeight /= SummWeights;
             }
         }
 

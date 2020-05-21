@@ -9,11 +9,11 @@ namespace IFSEngine.Model
 {
     public class Iterator
     {
-        public ITransformFunction Transform;// = new Affine();
-        public double baseWeight;//baseweight. use ifs.NormalizeBaseWeights()
-        public double cs;
-        public double ci;//color index, 0 - 1
-        public double op;
+        public ITransformFunction Transform = new Affine();
+        public double BaseWeight = 1.0;//use ifs.NormalizeBaseWeights()
+        public double ColorSpeed = 0.0;
+        public double ColorIndex = 0.0;//0 - 1
+        public double Opacity = 1.0;
 
         /// <remarks>Custom serialization logic implemented in <see cref="IFS.JsonHelperXaos"/></remarks>
         [JsonIgnore]
@@ -49,10 +49,10 @@ namespace IFSEngine.Model
                 {
                     Transform = r1,
                     //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
-                    ci = RandHelper.NextDouble(),
-                    cs = 1.0f - RandHelper.NextDouble() * 2.0f,
-                    op = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
-                    baseWeight = RandHelper.NextDouble()
+                    ColorIndex = RandHelper.NextDouble(),
+                    ColorSpeed = 1.0f - RandHelper.NextDouble() * 2.0f,
+                    Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
+                    BaseWeight = RandHelper.NextDouble()
                 };
             }
         }
