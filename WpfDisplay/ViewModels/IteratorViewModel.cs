@@ -71,6 +71,12 @@ namespace WpfDisplay.ViewModels
             set { Set(ref iterator.ColorSpeed, value); }
         }
 
+        public bool DeltaColoring
+        {
+            get => iterator.ShadingMode == ShadingMode.DeltaPSpeed;
+            set { Set(ref iterator.ShadingMode, value ? ShadingMode.DeltaPSpeed : ShadingMode.Default); }
+        }
+
         public Color OpacityColor
         {
             get

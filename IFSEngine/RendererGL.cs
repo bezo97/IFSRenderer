@@ -188,6 +188,7 @@ namespace IFSEngine
                     break;
 
             }
+            UpdateDisplay();
         }
 
         public void InvalidateAccumulation()
@@ -287,9 +288,10 @@ namespace IFSEngine
                             tfId = it.Transform.Id,
                             tfParamsStart = tfsparams.Count,
                             wsum = (float)it.WeightTo.Sum(xw => xw.Value * xw.Key.BaseWeight),
-                            cs = (float)it.ColorSpeed,
-                            ci = (float)it.ColorIndex,
-                            op = (float)it.Opacity,
+                            color_speed = (float)it.ColorSpeed,
+                            color_index = (float)it.ColorIndex,
+                            opacity = (float)it.Opacity,
+                            shading_mode = (int)it.ShadingMode
                         });
                         //transform params
                         IEnumerable<double> tfiparams = it.Transform.GetFunctionVariables().Select(p => it.Transform.GetVar<double>(p));// GetListOfParams();

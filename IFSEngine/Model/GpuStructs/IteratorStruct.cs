@@ -7,12 +7,12 @@ namespace IFSEngine.Model.GpuStructs
     internal struct IteratorStruct
     {
         internal float wsum;//outgoing xaos weights sum
-        internal float cs;
-        internal float ci;//color index, 0 - 1
-        internal float op;
+        internal float color_speed;
+        internal float color_index;//color index, 0 - 1
+        internal float opacity;
         internal int tfId;
         internal int tfParamsStart;
-        internal int padding2;
-        internal int padding3;
+        internal int shading_mode;//0: default, 1: delta_p
+        internal int padding0;
     }
 }

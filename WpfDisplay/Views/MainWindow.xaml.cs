@@ -137,7 +137,6 @@ namespace WpfDisplay.Views
             renderer.EnablePerceptualUpdates = true;
             renderer.EnableTAA = false;
             renderer.EnableDE = false;
-            double fitToDisplayRatio = renderer.DisplayWidth / (double)renderer.CurrentParams.ViewSettings.ImageResolution.Width;
             await renderer.SetHistogramScale(2.0);
         }
     }

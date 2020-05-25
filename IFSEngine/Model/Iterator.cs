@@ -1,5 +1,4 @@
-﻿using IFSEngine.Helper;
-using IFSEngine.TransformFunctions;
+﻿using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
 using Newtonsoft.Json;
 using System;
@@ -14,6 +13,7 @@ namespace IFSEngine.Model
         public double ColorSpeed = 0.0;
         public double ColorIndex = 0.0;//0 - 1
         public double Opacity = 1.0;
+        public ShadingMode ShadingMode = ShadingMode.Default;
 
         /// <remarks>Custom serialization logic implemented in <see cref="IFS.JsonHelperXaos"/></remarks>
         [JsonIgnore]

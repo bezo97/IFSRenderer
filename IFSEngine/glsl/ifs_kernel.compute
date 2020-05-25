@@ -62,13 +62,13 @@ struct Affine
 struct Iterator
 {
 	float wsum;//outgoing xaos weights sum
-	float cs;
-	float ci;//color index, 0 - 1
-	float op;
+	float color_speed;
+	float color_index;//color index, 0 - 1
+	float opacity;
 	int tfId;
 	int tfParamsStart;
-	int padding2;
-	int padding3;
+	int shading_mode;//0: default, 1: delta_p
+	int padding0;
 };
 
 layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
@@ -303,12 +303,19 @@ vec3 Apply(Iterator iter, vec3 input)
 	return p;
 }
 
-vec2 ApplyShader(Iterator it, vec2 input/*(color,opacity)*/)
+void ApplyShader(inout vec2 p_shader, Iterator it, vec3 p0, vec3 p)
 {
-	//float c = (input.x + it.ci) / it.cs;//color//ez hibas a paperben
-	float c = it.cs * it.ci + (1.0f - it.cs) * input.x;
-	float o = it.op;//opacity
-	return vec2(c - floor(c), o);//(color,opacity)
+	float in_color = p_shader.x;
+	float in_opacity = p_shader.y;
+	float speed = it.color_speed;
+	if (it.shading_mode == 1)
+	{
+		float p_delta = length(p - p0);
+		speed *= (1.0 - 1.0 / (1.0 + p_delta));
+	}
+	float out_color = fract ( speed * it.color_index + (1.0f - speed) * in_color );
+	float out_opacity = it.opacity;
+	p_shader = vec2(out_color, out_opacity);
 }
 
 vec3 getPaletteColor(float pos)
@@ -384,14 +391,14 @@ void main() {
 			p_shader.x = pointsstate[(gid + 1)].w;
 			last_tf_index[gid] = last_tf_index[gid+1];
 		}
-	
+		vec3 p0 = p;
 		p = Apply(its[r_index], p);//transform here
-		p_shader = ApplyShader(its[r_index], p_shader);/*color,opacity*/
-	
+		ApplyShader(p_shader, its[r_index], p0, p);
+
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, p, ra1, ra2);		
+		ivec2 proj = Project(settings.camera, p, ra1, ra2);
 	
 		//lands on the histogram && initial skipping
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.resetPointsState == 1))
