@@ -3,9 +3,14 @@ using IFSEngine.Model;
 using IFSEngine.Util;
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
@@ -59,34 +64,61 @@ namespace WpfDisplay.Views
         {
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
             {
-                renderer.CurrentParams.Palette = UFPalette.FromFile(path)[RandHelper.Next(8)];//TODO: gradient picker
+                renderer.CurrentParams.Palette = UFPalette.FromFile(path)[0];//TODO: gradient picker
                 renderer.InvalidateParams();
             }
         }
 
-        private async void Button_Click_8(object sender, RoutedEventArgs e)
+        private async Task SaveImageWithGDI()
         {
             Bitmap b = null;
-
             Task genTask = Task.Run(async () => {
                 b = new Bitmap(renderer.HistogramWidth, renderer.HistogramHeight);
-                var p = await renderer.GenerateImage();
-                await Task.Run(() =>
-                {
-                    for (int y = 0; y < renderer.HistogramHeight; y++)
-                        for (int x = 0; x < renderer.HistogramWidth; x++)
-                        {
-                            b.SetPixel(x, renderer.HistogramHeight - y - 1, System.Drawing.Color.FromArgb((int)(255.0 * p[x, y][3]), (int)(255.0 * p[x, y][0]), (int)(255.0 * p[x, y][1]), (int)(255.0 * p[x, y][2])));
-                        }
-                });
+
+                var bits = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                await renderer.CopyPixelDataToBitmap(bits.Scan0);
+                b.UnlockBits(bits);
+
+                b.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                //TODO: option to remove alpha channel
+
             });
 
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
             {
                 await genTask;
-                b.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                b.Save(path, ImageFormat.Png);
             }
             b.Dispose();
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+        }
+
+        private async void Button_Click_8(object sender, RoutedEventArgs e)
+        {
+            WriteableBitmap wbm = null;
+            PngBitmapEncoder enc = new PngBitmapEncoder();
+            Task copyTask = Task.Run(async () =>
+            {
+                wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+                await renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
+                //TODO: option to remove alpha channel
+                //TODO: flip y
+                wbm.Freeze();
+            });
+
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
+            {
+                await copyTask;
+                enc.Frames.Add(BitmapFrame.Create(wbm));
+                using (FileStream stream = new FileStream(path, FileMode.Create))
+                    enc.Save(stream);
+            }
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+
         }
 
         private void EditorButton_Click(object sender, RoutedEventArgs e)
@@ -137,7 +169,7 @@ namespace WpfDisplay.Views
             renderer.EnablePerceptualUpdates = true;
             renderer.EnableTAA = false;
             renderer.EnableDE = false;
-            await renderer.SetHistogramScale(2.0);
+            await renderer.SetHistogramScale(6.0);
         }
     }
 }

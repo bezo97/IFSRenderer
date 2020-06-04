@@ -494,35 +494,53 @@ namespace IFSEngine
         }
 
         /// <summary>
-        /// Pixel format: rgba
+        /// Writes the pixel data to the specified pointer.
+        /// The format is ubyte, bgra, which is ideal for filling a bitmap buffer quickly.
         /// </summary>
-        /// <returns></returns>
-        public async Task<double[,][]> GenerateImage(bool fillAlpha = true)
+        /// <param name="ptr">BitmapData.Scan0 or WriteableBitmap.BackBuffer</param>
+        /// <remarks>        
+        /// The resulting bitmap requires further transformations: 
+        /// <list type="bullet">
+        /// <item> Y coordinates must be flipped </item>
+        /// <item> Alpha channel may be removed </item>
+        /// </list>
+        /// </remarks>
+        public async Task CopyPixelDataToBitmap(IntPtr ptr)
         {
-            float[] d = new float[HistogramWidth * HistogramHeight * 4];//rgba
-
-            UpdateDisplay();//TODO: await 1 display frame
-
+            UpdateDisplay();
             await WithContext(() => {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, deFboH);
-                GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, d);
+                GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Bgra, PixelType.UnsignedByte, ptr);
             });
+        }
 
-            double[,][] o = new double[HistogramWidth, HistogramHeight][];
-            await Task.Run(() =>
-            {
-                for (int x = 0; x < HistogramWidth; x++)
-                    for (int y = 0; y < HistogramHeight; y++)
-                    {
-                        o[x, y] = new double[4];
-                        o[x, y][0] = d[x * 4 + y * 4 * HistogramWidth + 0];
-                        o[x, y][1] = d[x * 4 + y * 4 * HistogramWidth + 1];
-                        o[x, y][2] = d[x * 4 + y * 4 * HistogramWidth + 2];
-                        o[x, y][3] = fillAlpha ? 1.0 : d[x * 4 + y * 4 * HistogramWidth + 3];
-                    }
+        /// <summary>
+        /// Format: float[y, x, rgba]
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// For large images, GC configuration is required in App.config to avoid <see cref="OutOfMemoryException"/>:
+        /// <code>gcAllowVeryLargeObjects</code>
+        /// The LargeObjectHeap may be collected manually:
+        /// <code>
+        /// GCSettings.LargeObjectHeapCompactionMode = CompactOnce;
+        /// GC.Collect();
+        /// </code>
+        /// 
+        /// The resulting bitmap requires further transformations: 
+        /// <list type="bullet">
+        /// <item> Y coordinates must be flipped </item>
+        /// <item> Alpha channel may be removed </item>
+        /// </list>
+        /// </remarks>
+        public async Task<float[,,]> ReadPixelData()
+        {
+            UpdateDisplay();
+            float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
+            await WithContext(() => {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, deFboH);
+                GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, o);
             });
-
-            //TODO: image save in netstandard?
 
             return o;
         }
