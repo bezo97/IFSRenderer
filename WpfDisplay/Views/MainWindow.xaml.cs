@@ -169,7 +169,7 @@ namespace WpfDisplay.Views
             renderer.EnablePerceptualUpdates = true;
             renderer.EnableTAA = false;
             renderer.EnableDE = false;
-            await renderer.SetHistogramScale(6.0);
+            await renderer.SetHistogramScale(1.0);
         }
     }
 }

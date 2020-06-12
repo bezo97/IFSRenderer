@@ -68,16 +68,25 @@ namespace WpfDisplay.Views
             }
         }
 
-        /*
-        public ICommand ClickCommand
+        //start/finish connecting nodes
+
+        private void Ellipse_MouseLeave(object sender, MouseEventArgs e)
         {
-            get { return (ICommand)GetValue(ClickCommandProperty); }
-            set { SetValue(ClickCommandProperty, value); }
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                var vm = (IteratorViewModel)DataContext;
+                vm.StartConnecting();
+            }
         }
-        // Using a DependencyProperty as the backing store for ClickCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ClickCommandProperty =
-            DependencyProperty.Register("ClickCommand", typeof(ICommand), typeof(IteratorViewModel), new PropertyMetadata(default(ICommand)));
-        */
+
+        private void Ellipse_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                var vm = (IteratorViewModel)DataContext;
+                vm.FinishConnecting();
+            }
+        }
 
 
     }

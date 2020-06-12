@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
 using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
@@ -17,6 +18,7 @@ namespace WpfDisplay.ViewModels
 
         public event EventHandler ViewChanged;
         public event EventHandler Selected;
+        public event EventHandler<bool> ConnectEvent;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
         public static double BaseSize = 100;
@@ -25,7 +27,7 @@ namespace WpfDisplay.ViewModels
         {
             this.iterator = iterator;
 
-            Variables = iterator.Transform.GetType().GetProperties()                    
+            Variables = iterator.Transform.GetType().GetProperties()
                     //.Where(prop => Attribute.IsDefined(prop, typeof(FunctionVariable)))
                     .Where(prop => prop.PropertyType == typeof(double))
                     .Select(pi => new InstanceProperty(iterator.Transform, pi)).ToList();
@@ -33,7 +35,7 @@ namespace WpfDisplay.ViewModels
             Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) => {
                 RaisePropertyChanged();
             });
-            
+
         }
 
         public void Redraw()
@@ -44,7 +46,7 @@ namespace WpfDisplay.ViewModels
         }
 
         private bool isselected;
-        public bool IsSelected { get => isselected; set { 
+        public bool IsSelected { get => isselected; set {
                 Set(ref isselected, value);
             }
         }
@@ -107,7 +109,7 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public double RenderTranslateValue => -0.5*WeightedSize;
+        public double RenderTranslateValue => -0.5 * WeightedSize;
 
         //TODO: remove reference from TransformFunctions project
 
@@ -135,6 +137,30 @@ namespace WpfDisplay.ViewModels
         }
 
         public IEnumerable<InstanceProperty> Variables { get; set; }
+
+
+
+        //private RelayCommand _startConnectingCommand;
+        //public RelayCommand StartConnectingCommand
+        //{
+        //    get => _startConnectingCommand ?? (_startConnectingCommand = new RelayCommand(StartConnecting));
+        //}
+        public void StartConnecting()
+        {
+            //
+            ConnectEvent?.Invoke(this, false);
+        }
+
+        //private RelayCommand _finishConnectingCommand;
+        //public RelayCommand FinishConnectingCommand
+        //{
+        //    get => _finishConnectingCommand ?? (_finishConnectingCommand = new RelayCommand(FinishConnecting));
+        //}
+        public void FinishConnecting()
+        {
+            //
+            ConnectEvent?.Invoke(this, true);
+        }
 
     }
 }

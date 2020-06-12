@@ -16,6 +16,8 @@ namespace WpfDisplay.ViewModels
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; } = new ObservableCollection<IteratorViewModel>();
 
 
+        private IteratorViewModel connectingIterator;
+
         private IteratorViewModel selectedIterator;
         public IteratorViewModel SelectedIterator
         {
@@ -50,6 +52,21 @@ namespace WpfDisplay.ViewModels
             };
             ivm.ViewChanged += (s, e) => { Redraw(); };
             ivm.Selected += (s, e) => SelectedIterator = ivm;
+            ivm.ConnectEvent += (s, finish) =>
+            {
+                if (!finish)
+                    connectingIterator = ivm;
+                else if(connectingIterator != null)
+                {
+                    if (connectingIterator.iterator.WeightTo.ContainsKey(ivm.iterator))
+                        connectingIterator.iterator.WeightTo.Remove(ivm.iterator);
+                    else
+                        connectingIterator.iterator.WeightTo[ivm.iterator] = 0.5;//
+                    HandleConnectionsChanged(connectingIterator);
+                    connectingIterator = null;
+
+                }
+            };
             if (SelectedIterator != null)
             {
                 ivm.XCoord = SelectedIterator.XCoord+(float)SelectedIterator.WeightedSize+(float)ivm.WeightedSize;
@@ -110,7 +127,7 @@ namespace WpfDisplay.ViewModels
             get => _addIteratorCommand ?? (
                 _addIteratorCommand = new RelayCommand<string>((name) =>
                 {
-                    Iterator preaffine = new Iterator { Transform = new Affine() };
+                    Iterator preaffine = new Iterator { Transform = new Affine(), Opacity = 0.0 };
                     Iterator newIterator;
                     switch (name)
                     {//TODO: tmp solution

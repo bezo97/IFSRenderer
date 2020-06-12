@@ -138,9 +138,9 @@ namespace WpfDisplay.Views
                kbc.IsKeyDown(Key.O))
             {
                 var translateVector = new System.Numerics.Vector3(
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.01f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
+                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
                 Renderer.CurrentParams.ViewSettings.Camera.Translate(translateVector);
 

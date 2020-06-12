@@ -16,7 +16,7 @@
             <local:ValueSlider ValueName="Workgroup count" MinValue="10" MaxValue="300" Increment="10" Value="{Binding DataContext.WorkgroupCount, ElementName=performanceView}"/>
             <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
             <TextBlock Foreground="White" FontSize="16">
-                    Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/>fps
+                    Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/> fps
                     <LineBreak/>
                     Iteration speed: <Run Text="{Binding IterationSpeed, Mode=OneWay}"/>
                     <LineBreak/>

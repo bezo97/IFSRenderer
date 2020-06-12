@@ -15,7 +15,7 @@ namespace WpfDisplay.ViewModels
     {
 
         public readonly IteratorViewModel from;
-        public readonly IteratorViewModel to;
+        public readonly IteratorViewModel to;//TODO: replace with toPoint
 
         public Geometry ArrowBody { get; private set; }
         public Geometry ArrowHeadLeft { get; private set; }
