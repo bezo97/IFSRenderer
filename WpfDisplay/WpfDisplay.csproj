@@ -117,6 +117,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ConnectionGeometryConverter.cs" />
     <Compile Include="Helper\GeneralHelpers.cs" />
     <Compile Include="Helper\InstanceProperty.cs" />
     <Compile Include="Helper\NativeDialogHelper.cs" />
@@ -124,6 +125,9 @@
     <Compile Include="ViewModels\IFSViewModel.cs" />
     <Compile Include="ViewModels\IteratorViewModel.cs" />
     <Compile Include="ViewModels\PerformanceViewModel.cs" />
+    <Compile Include="Views\ConnectionArrow.xaml.cs">
+      <DependentUpon>ConnectionArrow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
     </Compile>
@@ -142,6 +146,10 @@
     <Compile Include="Views\RenderDisplay.xaml.cs">
       <DependentUpon>RenderDisplay.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\ConnectionArrow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

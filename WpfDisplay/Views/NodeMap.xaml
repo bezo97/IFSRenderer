@@ -59,11 +59,7 @@
                             </ItemsControl.ItemContainerStyle>-->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Path Data="{Binding ArrowBody}" Stroke="White" StrokeThickness="2"/>
-                                        <Path Data="{Binding ArrowHeadLeft}" Stroke="White" StrokeThickness="2"/>
-                                        <Path Data="{Binding ArrowHeadRight}" Stroke="White" StrokeThickness="2"/>
-                                    </Grid>
+                                    <local:ConnectionArrow DataContext="{Binding}"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

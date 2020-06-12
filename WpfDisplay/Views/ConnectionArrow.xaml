@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="WpfDisplay.Views.ConnectionArrow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:conv="clr-namespace:WpfDisplay.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=vm:ConnectionViewModel}"
+             >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <conv:ConnectionGeometryConverter x:Key="connectionGeometryConverter"/>
+            <PathGeometry x:Key="pathGeometry">
+                <PathFigure StartPoint="{Binding StartPoint}" IsClosed="False">
+                    <PolyBezierSegment Points="{Binding BodyPoints}" IsStroked="True"/>
+                </PathFigure>
+            </PathGeometry>
+            <EllipseGeometry x:Key="ellipseGeometry" Center="{Binding EllipseMid}" RadiusX="{Binding EllipseRadius}" RadiusY="{Binding EllipseRadius}"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Path Stroke="White" StrokeThickness="2">
+            <Path.Data>
+                <MultiBinding Converter="{StaticResource connectionGeometryConverter}">
+                    <Binding Source="{StaticResource pathGeometry}" />
+                    <Binding Source="{StaticResource ellipseGeometry}" />
+                    <Binding Path="IsLoopback"/><!--Actually a ConverterParameter-->
+                </MultiBinding>
+            </Path.Data>
+        </Path>
+        <Path Stroke="White" StrokeThickness="2">
+            <Path.Data>
+                <LineGeometry StartPoint="{Binding ArrowHeadMid}" EndPoint="{Binding ArrowHeadLeft}"/>
+            </Path.Data>
+        </Path>
+        <Path Stroke="White" StrokeThickness="2">
+            <Path.Data>
+                <LineGeometry StartPoint="{Binding ArrowHeadMid}" EndPoint="{Binding ArrowHeadRight}"/>
+            </Path.Data>
+        </Path>
+    </Grid>
+</UserControl>
