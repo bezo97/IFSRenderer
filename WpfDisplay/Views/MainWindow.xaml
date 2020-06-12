@@ -22,6 +22,7 @@
         >
     <Window.Resources>
         <conv:ColorTypeConverter x:Key="ColorTypeConverter"/>
+        <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -91,18 +92,29 @@
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <md:Card Padding="6" Margin="8">
-                        <StackPanel >
-                            <Button Margin="12" Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
-                            <Label>Render presets</Label>
-                            <Grid >
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Margin="8" x:Name="PreviewButton" Content="📷 Preview" Grid.Column="0" Click="PreviewButton_Click"/>
-                                <Button Margin="8" x:Name="FinalButton" Content="📸 Final" Grid.Column="1" Click="FinalButton_Click"/>
-                            </Grid>
-                            <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+                        <StackPanel>
+                            <md:Card Padding="3" Margin="4">
+                                <StackPanel>
+                                    <Button Margin="12" Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
+                                    <Label>Render presets</Label>
+                                    <Grid >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Margin="8" x:Name="PreviewButton" Content="📷 Preview" Grid.Column="0" Click="PreviewButton_Click"/>
+                                        <Button Margin="8" x:Name="FinalButton" Content="📸 Final" Grid.Column="1" Click="FinalButton_Click"/>
+                                    </Grid>
+                                </StackPanel>
+                            </md:Card>
+                            <md:Card Padding="3" Margin="4">
+                                <StackPanel>
+                                    <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Radius" MinValue="0" MaxValue="20" Increment="1" Value="{Binding DataContext.DEMaxRadius, ElementName=mainWindow}"/>
+                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Power" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.DEPower, ElementName=mainWindow}"/>
+                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Threshold" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.DEThreshold, ElementName=mainWindow}"/>
+                                </StackPanel>
+                            </md:Card>
                         </StackPanel>
                     </md:Card>
                     <local:PerformanceView x:Name="performanceView" />

@@ -14,33 +14,53 @@ uniform float Vibrancy = 1.0;
 uniform vec3 BackgroundColor = vec3(0.0, 0.0, 0.0);
 //tmp option to enable wip density estimation
 uniform bool EnableDE = false;
+uniform float de_max_radius = 9.0;
+uniform float de_power = 0.2;
+uniform float de_threshold = 0.4;
+
+uniform uint ActualDensity = 1;
 
 //TODO: maybe do Brightness before DE, so zooming in on low density areas wont be blurry. Or use the focus distance??
 
-//uses cone filter
+//similar to flame, but uses cone filter
+//ref: https://github.com/scottdraves/flam3/wiki/Density-Estimation
 vec4 DensityEstimation()
 {
 	int px = int(gl_FragCoord.x);
 	int py = int(gl_FragCoord.y);
 	vec2 uv = vec2(gl_FragCoord.x / float(width), gl_FragCoord.y / float(height));
 
-	float de_threshold = 0.25;//TODO: param
-	float w = clamp(de_threshold - texture(t1, uv).w, 0.0, 1.0);
 
-	vec4 de = vec4(0.0);
-	const int kSize = int(w * 20.0);//TODO: param
+	float w = de_max_radius / de_threshold * clamp(de_threshold - texture(t1, uv).w, 0.0, 1.0);
+
+	//experiment:
+	//float w = de_max_radius / de_threshold * clamp(de_threshold - texture(t1, uv).w, 0.0, 1.0);
+	//float w = de_max_radius * clamp(1.0 / pow(texture(t1, uv).w*ActualDensity, de_power), 0.0, 1.0);
+	//experiment:
+	//float d = texture(t1, uv).w;//actual density
+	//if (d > de_threshold)
+	//	return texture(t1, uv);//do not estimate dense enough areas
+	//float mult = de_max_radius / pow(de_threshold, 1.0 / de_power);//TODO: calc on cpu
+	//float w = mult * pow(de_threshold - d, 1.0 / de_power);
+
+	w = clamp(w, 0.0, de_max_radius);
+	const int kSize = int(w);
 	if (kSize == 0)
 		return texture(t1, uv);
 
+	vec4 de = vec4(0.0);
 	float wnorm = 0.0;
 	for (int i = -kSize; i <= kSize; i++)
 	{
+		if (px + i < 0 || px + i > width - 1)
+			continue;
+
 		for (int j = -kSize; j <= kSize; j++)
 		{
-			float cw = clamp(1.0 - sqrt(float(i * i + j * j)) / float(kSize), 0.0, 1.0);
-			if (px + i<0 || px + i>width - 1 || py + j < 0 || py + j>height - 1)
-				break;
+			if (py + j < 0 || py + j > height - 1)
+				continue;
 
+			float cw = clamp(1.0 - sqrt(float(i * i + j * j)) / float(kSize), 0.0, 1.0);
 			de += cw * texture(t1, uv + vec2(float(i), float(j)) / vec2(float(width), float(height)));
 			wnorm += cw;
 		}

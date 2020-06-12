@@ -35,6 +35,9 @@ namespace IFSEngine
         /// Enable Density Estimation.
         /// </summary>
         public bool EnableDE { get; set; } = false;
+        public int DEMaxRadius { get; set; } = 9;
+        public double DEPower { get; set; } = 0.2;
+        public double DEThreshold { get; set; } = 0.4;
 
         /// <summary>
         /// Enable Epic's Temporal Anti-Aliasing.
@@ -280,7 +283,8 @@ namespace IFSEngine
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
-                    foreach (var it in CurrentParams.Iterators)
+                    HashSet<Iterator> currentIterators = new HashSet<Iterator>(CurrentParams.Iterators);
+                    foreach (var it in currentIterators)
                     {
                         //iterators
                         its.Add(new IteratorStruct
@@ -387,6 +391,10 @@ namespace IFSEngine
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
                     GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_max_radius"), (float)DEMaxRadius);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_power"), (float)DEPower);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_threshold"), (float)DEThreshold);//////////////////////
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "ActualDensity"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
                     //tmp
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "EnableDE"), EnableDE?1:0);
                     //draw quad
