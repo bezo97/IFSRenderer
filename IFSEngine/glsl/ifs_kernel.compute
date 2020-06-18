@@ -332,12 +332,12 @@ vec3 getPaletteColor(float pos)
 	return mix(c1, c2, a);//lerp
 }
 
+//from [0,1] uniform to [0,inf] ln
 float startingDistribution(float uniformR)
 {
-	//TODO: parameter?
-	float curve = 0.6931;//0.6931: half of the values are < 0.5
-	//from [0,1] uniform to [0,inf] ln
-	return -1.0 / curve * log(1.0 - uniformR);
+	float a = pow(uniformR, 1.0/3.0);//avoid center of sphere
+	float curve = 1.578425;//1.578425: half of the values are < 0.5	//TODO: parameter?
+	return -1.0 / curve * log(1.0 - a);
 }
 
 void main() {
@@ -351,17 +351,16 @@ void main() {
 		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
 		
 		//init points into a starting distribution
-		float theta = PI * randhash(next++);
-		float phi = TWOPI * randhash(next++);
+		float theta = TWOPI * randhash(next++);
+		float phi = acos(2.0 * randhash(next++) - 1.0);
 		float rho = startingDistribution(randhash(next++));//[0,inf] ln
-		float sin_theta = sin(theta);
+		float sin_phi = sin(phi);
 		pointsstate[gid] = vec4(
-			rho * sin_theta * cos(phi),
-			rho * sin_theta * sin(phi),
-			rho * cos(theta),
+			rho * sin_phi * cos(theta),
+			rho * sin_phi * sin(theta),
+			rho * cos(phi),
 			randhash(next++)
 		);
-
 	}
 
 	vec3 p = pointsstate[gid].xyz;
@@ -383,13 +382,10 @@ void main() {
 			else
 				break;
 		last_tf_index[gid] = r_index;
-
+		
 		//TODO: option: reset position if no change for n iterations
 		if (w_acc == 0.0f)
 		{//reset position if no weight out
-			/*p.x = randhash(next++)-0.5f;
-			p.y = randhash(next++)-0.5f;
-			p.z = randhash(next++)-0.5f;*/
 			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
@@ -401,9 +397,6 @@ void main() {
 		{//reset position if too far
 			//TODO: make this optional?
 			//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
-			/*p.x = randhash(next++)-0.5f;
-			p.y = randhash(next++)-0.5f;
-			p.z = randhash(next++)-0.5f;*/
 			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
@@ -430,11 +423,11 @@ void main() {
 			}
 			color.xyz *= color.w;
 
-			//accumulate hit
 			int ipx = proj.x + proj.y * width;//pixel index
 
-			//Use atomic float add if available. Slower but more accurate.
+			//accumulate hit
 			#ifdef GL_NV_shader_atomic_float
+				//Use atomic float add if available. Slower but more accurate.
 				atomicAdd(histogram[ipx].r, color.r);
 				atomicAdd(histogram[ipx].g, color.g);
 				atomicAdd(histogram[ipx].b, color.b);
