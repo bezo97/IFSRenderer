@@ -46,8 +46,6 @@ namespace WpfDisplay.ViewModels
             var ivm = new IteratorViewModel(i);
             ivm.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == "BaseWeight")
-                    ifs.NormalizeBaseWeights();
                 RaisePropertyChanged("InvalidateParams");
             };
             ivm.ViewChanged += (s, e) => { Redraw(); };

@@ -279,7 +279,9 @@ namespace IFSEngine
 
                 if (invalidParams)
                 {
-                    //update iterators
+                    //normalize base weights
+                    double SumWeights = CurrentParams.Iterators.Sum(i => i.BaseWeight);
+                    var normalizedBaseWeights = CurrentParams.Iterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
@@ -291,7 +293,7 @@ namespace IFSEngine
                         {
                             tfId = it.Transform.Id,
                             tfParamsStart = tfsparams.Count,
-                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * xw.Key.BaseWeight),
+                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * normalizedBaseWeights[xw.Key]),
                             color_speed = (float)it.ColorSpeed,
                             color_index = (float)it.ColorIndex,
                             opacity = (float)it.Opacity,
@@ -316,7 +318,7 @@ namespace IFSEngine
                         foreach (var toIt in CurrentParams.Iterators)
                         {
                             if (it.WeightTo.ContainsKey(toIt))
-                                xaosm.Add((float)(it.WeightTo[toIt] * toIt.BaseWeight));
+                                xaosm.Add((float)(it.WeightTo[toIt] * normalizedBaseWeights[toIt]));
                             else
                                 xaosm.Add(0);
                         }

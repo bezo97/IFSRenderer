@@ -9,7 +9,7 @@ namespace IFSEngine.Model
     public class Iterator
     {
         public ITransformFunction Transform = new Affine();
-        public double BaseWeight = 1.0;//use ifs.NormalizeBaseWeights()
+        public double BaseWeight = 1.0;//not normalized
         public double ColorSpeed = 0.0;
         public double ColorIndex = 0.0;//0 - 1
         public double Opacity = 1.0;

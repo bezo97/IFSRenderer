@@ -32,7 +32,6 @@ namespace IFSEngine.Model
                     it.WeightTo[it1] = 1.0;
                 }
             }
-            NormalizeBaseWeights();
             RaiseIteratorsChanged();
         }
 
@@ -80,7 +79,6 @@ namespace IFSEngine.Model
                 it.WeightTo.Remove(it1);
             }
             Iterators.Remove(it1);
-            NormalizeBaseWeights();
             RaiseIteratorsChanged();
         }
 
@@ -92,7 +90,6 @@ namespace IFSEngine.Model
             {
                 rifs.AddIterator(Iterator.RandomIterator, true);
             }
-            rifs.NormalizeBaseWeights();
             //randomize xaos weights
             foreach (var it in rifs.Iterators)
             {
@@ -102,19 +99,6 @@ namespace IFSEngine.Model
                 }
             }
             return rifs;
-        }
-
-        public void NormalizeBaseWeights()
-        {
-            double SummWeights = 0.0f;
-            foreach (var it in Iterators)
-            {
-                SummWeights += it.BaseWeight;
-            }
-            foreach (var it in Iterators)
-            {
-                it.BaseWeight /= SummWeights;
-            }
         }
 
         public static IFS LoadJson(string path)
