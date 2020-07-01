@@ -66,9 +66,15 @@ namespace WpfDisplay.Views
             display1.MakeCurrent();
             ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
             Renderer = new RendererGL(ctx, display1.WindowInfo);
-            Renderer.SetDisplayResolution(display1.Width, display1.Height);
 
             Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
+            display1.Resize += (s, e2) =>
+            {
+                Renderer.SetDisplayResolution(display1.Width, display1.Height);
+                Renderer.InvalidateAccumulation();
+            };
+            Renderer.SetDisplayResolution(display1.Width, display1.Height);
+
         }
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
