@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="WpfDisplay.Views.ToneMappingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="250"
+             x:Name="toneMappingView"
+             d:DataContext="{d:DesignInstance Type=vm:ToneMappingViewModel, IsDesignTimeCreatable=False}">
+    <md:Card Padding="6" Margin="8">
+        <StackPanel>
+            <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" 
+                               Value="{Binding DataContext.Brightness, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.01" 
+                               Value="{Binding DataContext.Gamma, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="Gamma threshold" Increment="0.01" 
+                               Value="{Binding DataContext.GammaThreshold, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="Vibrancy" Increment="0.05" 
+                               Value="{Binding DataContext.Vibrancy, ElementName=toneMappingView}"/>
+        </StackPanel>
+    </md:Card>
+</UserControl>

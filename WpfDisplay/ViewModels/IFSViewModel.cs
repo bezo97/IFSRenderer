@@ -6,14 +6,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Media;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IFSViewModel : ObservableObject
+    public class IFSViewModel : ViewModelBase
     {
+        //TODO: private
         public readonly IFS ifs;
 
-        public ObservableCollection<IteratorViewModel> IteratorViewModels { get; set; } = new ObservableCollection<IteratorViewModel>();
+        public ToneMappingViewModel ToneMappingViewModel { get; }
+        public CameraSettingsViewModel CameraSettingsViewModel { get; }
+        public ObservableCollection<IteratorViewModel> IteratorViewModels { get; private set; } = new ObservableCollection<IteratorViewModel>();
 
 
         private IteratorViewModel connectingIterator;
@@ -33,9 +38,24 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public Color BackgroundColor
+        {
+            get 
+            {
+                var c = ifs.ViewSettings.BackgroundColor;
+                return Color.FromRgb(c.R, c.G, c.B);
+            }
+            set
+            {
+                ifs.ViewSettings.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+            }
+        }
+
         public IFSViewModel(IFS ifs)
         {
             this.ifs = ifs;
+            CameraSettingsViewModel = new CameraSettingsViewModel(ifs);
+            ToneMappingViewModel = new ToneMappingViewModel(ifs);
             ifs.Iterators.ToList().ForEach(i => addNewIteratorVM(i));
             ifs.PropertyChanged += Ifs_PropertyChanged;
             HandleIteratorsChanged();
@@ -167,6 +187,23 @@ namespace WpfDisplay.ViewModels
                 {
                     ifs.RemoveIterator(SelectedIterator.iterator);
                     SelectedIterator = null;
+                }));
+        }
+
+        private RelayCommand _loadPaletteCommand;
+        public RelayCommand LoadPaletteCommand
+        {
+            get => _loadPaletteCommand ?? (
+                _loadPaletteCommand = new RelayCommand(() =>
+                {
+                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
+                    {
+                        var palettes = UFPalette.FromFile(path);
+                        //TODO: Replace random choice with a palette picker here
+                        //var palette = PalettePicker.ShowDialog(palettes);
+                        ifs.Palette = palettes[new Random().Next(palettes.Count)];
+                        RaisePropertyChanged("InvalidateParams");
+                    }
                 }));
         }
 

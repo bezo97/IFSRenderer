@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="WpfDisplay.Views.CameraSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="200"
+             x:Name="cameraSettingsView"
+             d:DataContext="{d:DesignInstance Type=vm:CameraSettingsViewModel, IsDesignTimeCreatable=False}">
+    <!--TODO: add pictograms and tooltips-->
+    <md:Card Padding="6" Margin="8">
+        <StackPanel>
+            <TextBlock Text="Camera" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+            <!--TODO: Orthogrpahic, Stereographic, 360 Equirectangular etc. modes-->
+            <local:ValueSlider ValueName="Field Of View"
+                               MinValue="1" MaxValue="179" Increment="1"
+                               Value="{Binding DataContext.FieldOfView, ElementName=cameraSettingsView}"/>
+            <local:ValueSlider ValueName="Depth Of Field"
+                               MinValue="0" Increment="0.0001"
+                               Value="{Binding DataContext.DepthOfField, ElementName=cameraSettingsView}"/>
+            <local:ValueSlider ValueName="Focus Distance"
+                               Value="{Binding DataContext.FocusDistance, ElementName=cameraSettingsView}"/>
+            <!--TODO: Ability to lock focus on current focus point-->
+            <CheckBox IsEnabled="False" Foreground="White">🔒 Lock focus point</CheckBox>
+            <local:ValueSlider ValueName="Focus Area" 
+                               MinValue="0" 
+                               Value="{Binding DataContext.FocusArea, ElementName=cameraSettingsView}"/>
+            <local:ValueSlider ValueName="Fog effect"
+                               MinValue="0"
+                               Value="{Binding DataContext.FogEffect, ElementName=cameraSettingsView}"/>
+        </StackPanel>
+    </md:Card>
+</UserControl>

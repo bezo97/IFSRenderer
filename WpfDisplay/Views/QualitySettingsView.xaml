@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="WpfDisplay.Views.QualitySettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:conv="clr-namespace:WpfDisplay.Converters"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             mc:Ignorable="d" 
+             x:Name="qualitySettingsView"
+             d:DesignHeight="500" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+    </UserControl.Resources>
+    <md:Card Padding="6" Margin="8">
+        <StackPanel>
+            <md:Card Padding="3" Margin="4">
+                <StackPanel>
+                    <Button 
+                        Command="{Binding StartRenderingCommand}"
+                        Margin="12" HorizontalContentAlignment="Center">▶️ Start</Button>
+                    <Label>Quality presets</Label>
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Command="{Binding PreviewPresetCommand}"
+                            Margin="8" Grid.Column="0">📷 Preview</Button>
+                        <Button
+                            Command="{Binding FinalPresetCommand}"
+                            Margin="8" Grid.Column="1">📸 Final</Button>
+                    </Grid>
+                </StackPanel>
+            </md:Card>
+            <md:Card Padding="3" Margin="4">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+                    <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
+                        <local:ValueSlider ValueName="Radius"
+                                           MinValue="0" MaxValue="20" Increment="1"
+                                           Value="{Binding DataContext.DEMaxRadius, ElementName=qualitySettingsView}"/>
+                        <local:ValueSlider ValueName="Power" 
+                                           MinValue="0" MaxValue="1" Increment="0.01" 
+                                           Value="{Binding DataContext.DEPower, ElementName=qualitySettingsView}"/>
+                        <local:ValueSlider ValueName="Threshold"
+                                           MinValue="0" MaxValue="1" Increment="0.01" 
+                                           Value="{Binding DataContext.DEThreshold, ElementName=qualitySettingsView}"/>
+                    </StackPanel>
+                    <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
+                    <CheckBox IsChecked="{Binding EnablePerceptualUpdates}">Perceptually Equal Updates</CheckBox>
+                    <local:ValueSlider ValueName="Iteration Depth"
+                                       MinValue="100" MaxValue="100000" Increment="1000"
+                                       Value="{Binding DataContext.IterationDepth, ElementName=qualitySettingsView}"/>
+                    <!--TODO: This is not too user friendly.-->
+                    <local:ValueSlider ValueName="Iterations / Dispatch"
+                                       MinValue="20" MaxValue="{Binding DataContext.IterationDepth, ElementName=qualitySettingsView}" Increment="100" 
+                                       Value="{Binding DataContext.PassIters, ElementName=qualitySettingsView}"/>
+                </StackPanel>
+            </md:Card>
+        </StackPanel>
+    </md:Card>
+</UserControl>

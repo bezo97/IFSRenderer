@@ -1,7 +1,4 @@
-﻿using IFSEngine;
-using IFSEngine.Model;
-using OpenTK;
-using OpenTK.Graphics;
+﻿using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,18 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WpfDisplay.Helper;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views
 {
@@ -29,12 +21,10 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class RenderDisplay : WindowsFormsHost
     {
-        public RendererGL Renderer { get; private set; }
-
-        private GLControl display1;
+        //TODO: Viewmodel
+        public GLControl display1;
+        public MainViewModel MainViewModel;
         private KeyboardController kbc;
-
-        IGraphicsContext ctx;
 
         public RenderDisplay()
         {
@@ -43,14 +33,11 @@ namespace WpfDisplay.Views
             Loaded += me_Loaded;
             kbc = new KeyboardController(this);
             kbc.KeyboardTick += KeydownHandler;
-            //me_Loaded();
-
         }
 
         private void me_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
             //Init GL Control
-            OpenTK.Toolkit.Init();
             display1 = new OpenTK.GLControl();
             display1.VSync = false;
             var displayedResolution = GetElementPixelSize(this);
@@ -64,22 +51,11 @@ namespace WpfDisplay.Views
             this.Child = display1;
 
             display1.MakeCurrent();
-            ctx = new GraphicsContext(GraphicsMode.Default, display1.WindowInfo);
-            Renderer = new RendererGL(ctx, display1.WindowInfo);
-
-            Renderer.DisplayFrameCompleted += R_DisplayFrameCompleted;
-            display1.Resize += (s, e2) =>
-            {
-                Renderer.SetDisplayResolution(display1.Width, display1.Height);
-                Renderer.InvalidateAccumulation();
-            };
-            Renderer.SetDisplayResolution(display1.Width, display1.Height);
-
         }
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            Renderer.CurrentParams.ViewSettings.FocusDistance += e.Delta * Renderer.CurrentParams.ViewSettings.FocusDistance * 0.001;
+            MainViewModel.IFSViewModel.ifs.ViewSettings.FocusDistance += e.Delta * MainViewModel.IFSViewModel.ifs.ViewSettings.FocusDistance * 0.001;
         }
 
         public Size GetElementPixelSize(UIElement element)
@@ -97,12 +73,6 @@ namespace WpfDisplay.Views
 
             return (Size)transformToDevice.Transform((Vector)element.DesiredSize);
         }
-        
-        private void R_DisplayFrameCompleted(object sender, EventArgs e)
-        {
-            //ctx.MakeCurrent(display1.WindowInfo);
-            ctx.SwapBuffers();
-        }
 
         float lastX;
         float lastY;
@@ -111,7 +81,7 @@ namespace WpfDisplay.Views
             if (e.Button == MouseButtons.Left)
             {
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
-                Renderer.CurrentParams.ViewSettings.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
+                MainViewModel.IFSViewModel.ifs.ViewSettings.Camera.ProcessMouseMovement((e.X - lastX), (lastY - e.Y));
             }
             else
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
@@ -122,10 +92,9 @@ namespace WpfDisplay.Views
         private void KeydownHandler(object sender, EventArgs e)
         {
             if (kbc.IsKeyDown(Key.R))
-                Renderer.LoadParams(IFS.GenerateRandom());
+                MainViewModel.LoadRandomCommand.Execute(null);
             if (kbc.IsKeyDown(Key.Space))
-                Renderer.StartRendering();
-
+                MainViewModel.QualitySettingsViewModel.StartRenderingCommand.Execute(null);
             if (
                //translate
                kbc.IsKeyDown(Key.W) ||
@@ -144,18 +113,18 @@ namespace WpfDisplay.Views
                kbc.IsKeyDown(Key.O))
             {
                 var translateVector = new System.Numerics.Vector3(
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
-                    (float)Renderer.CurrentParams.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
+                    (float)MainViewModel.IFSViewModel.ifs.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.W) ? 1 : 0) - (kbc.IsKeyDown(Key.S) ? 1 : 0)),
+                    (float)MainViewModel.IFSViewModel.ifs.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.D) ? 1 : 0) - (kbc.IsKeyDown(Key.A) ? 1 : 0)),
+                    (float)MainViewModel.IFSViewModel.ifs.ViewSettings.FocusDistance * 0.005f * ((kbc.IsKeyDown(Key.E) ? 1 : 0) - ((kbc.IsKeyDown(Key.C) || kbc.IsKeyDown(Key.Q)) ? 1 : 0))
                 );
-                Renderer.CurrentParams.ViewSettings.Camera.Translate(translateVector);
+                MainViewModel.IFSViewModel.ifs.ViewSettings.Camera.Translate(translateVector);
 
                 float pitchd = 0.05f * ((kbc.IsKeyDown(Key.I) ? 1 : 0) - (kbc.IsKeyDown(Key.K) ? 1 : 0));
                 float yawd = 0.05f * ((kbc.IsKeyDown(Key.J) ? 1 : 0) - (kbc.IsKeyDown(Key.L) ? 1 : 0));
                 float rolld = 0.05f * ((kbc.IsKeyDown(Key.O) ? 1 : 0) - (kbc.IsKeyDown(Key.U) ? 1 : 0));
-                (Renderer.CurrentParams.ViewSettings.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: Camera api tervezni (baseclass / interfacek / ..)
+                (MainViewModel.IFSViewModel.ifs.ViewSettings.Camera as IFSEngine.Model.Camera.QuatCamera)?.RotateBy(yawd,pitchd,rolld);//HACK: review camera interface
 
-                Renderer.CurrentParams.ViewSettings.Camera.UpdateCamera();//szinten a Mutate-es sztori..
+                MainViewModel.IFSViewModel.ifs.ViewSettings.Camera.UpdateCamera();
             }
         }
 

@@ -77,13 +77,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\ConnectionGeometryConverter.cs" />
+    <Compile Include="Helper\GDIHelper.cs" />
     <Compile Include="Helper\GeneralHelpers.cs" />
     <Compile Include="Helper\InstanceProperty.cs" />
     <Compile Include="Helper\NativeDialogHelper.cs" />
+    <Compile Include="ViewModels\CameraSettingsViewModel.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
     <Compile Include="ViewModels\IFSViewModel.cs" />
     <Compile Include="ViewModels\IteratorViewModel.cs" />
     <Compile Include="ViewModels\PerformanceViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\QualitySettingsViewModel.cs" />
+    <Compile Include="ViewModels\ToneMappingViewModel.cs" />
+    <Compile Include="Views\CameraSettingsView.xaml.cs">
+      <DependentUpon>CameraSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ConnectionArrow.xaml.cs">
       <DependentUpon>ConnectionArrow.xaml</DependentUpon>
     </Compile>
@@ -102,9 +110,16 @@
     <Compile Include="Views\PerformanceView.xaml.cs">
       <DependentUpon>PerformanceView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\QualitySettingsView.xaml.cs">
+      <DependentUpon>QualitySettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RenderDisplay.xaml.cs">
       <DependentUpon>RenderDisplay.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\CameraSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ConnectionArrow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -129,6 +144,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\QualitySettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ToneMappingView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ValueSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -141,12 +164,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\ToneMappingView.xaml.cs">
+      <DependentUpon>ToneMappingView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ValueSlider.xaml.cs">
       <DependentUpon>ValueSlider.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BetterBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
-    <Compile Include="Converters\ColorTypeConverter.cs" />
     <Compile Include="Converters\DoubleStringFormatConverter.cs" />
     <Compile Include="Helper\KeyboardController.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">

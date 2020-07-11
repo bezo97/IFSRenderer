@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:dc="clr-namespace:IFSEngine.Model;assembly=IFSEngine"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -15,15 +17,9 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}" WindowState="Maximized"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:conv="clr-namespace:WpfDisplay.Converters"
         x:Name="mainWindow"
-        d:DataContext="{d:DesignInstance Type=dc:IFS, IsDesignTimeCreatable=False}"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
         >
-    <Window.Resources>
-        <conv:ColorTypeConverter x:Key="ColorTypeConverter"/>
-        <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -35,14 +31,13 @@
 
         <md:Card Grid.Row="0" Margin="8">
             <StackPanel Orientation="Horizontal">
-                <Button Margin="10" Content="📑 New" Click="Button_Click_4" />
-                <Button Margin="10" Content="📂 Load" Click="Button_Click_3" />
-                <Button Margin="10" Content="💾 Save" Click="Button_Click_2" />
-                <Button Margin="10" Content="🖼 Save" Click="Button_Click_8" />
-                <Button Margin="10" Content="🎨 Palette" Click="Button_Click_5" />
+                <Button Command="{Binding NewCommand}" Margin="10">📑 New</Button>
+                <Button Command="{Binding LoadParamsCommand}" Margin="10">📂 Load</Button>
+                <Button Command="{Binding SaveParamsCommand}" Margin="10">💾 Save</Button>
+                <Button Command="{Binding SaveImageCommand}" Margin="10">🖼 Save</Button>
                 <Separator Margin="25"></Separator>
-                <Button Margin="10" Content="🏗️ Editor" x:Name="EditorButton" Click="EditorButton_Click"/>
-                <Button Margin="10" Content="🎲 Random" Click="Button_Click_1" />
+                <Button Click="EditorButton_Click" Margin="10" >🏗️ Editor</Button>
+                <Button Command="{Binding LoadRandomCommand}" Margin="10">🎲 Random</Button>
             </StackPanel>
         </md:Card>
         <Grid Grid.Row="1">
@@ -56,68 +51,23 @@
             <!-- Effects -->
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <md:Card Padding="6" Margin="8">
-                        <StackPanel>
-                            <!--TODO: separate xaml for this panel-->
-                            <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Brightness, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.Gamma, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Gamma threshold" Increment="0.01" Value="{Binding DataContext.CurrentParams.ViewSettings.GammaThreshold, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Vibrancy" Increment="0.05" Value="{Binding DataContext.CurrentParams.ViewSettings.Vibrancy, ElementName=mainWindow}"/>
-                            <Label>Background color</Label>
-                            <xctk:ColorPicker SelectedColor="{Binding DataContext.CurrentParams.ViewSettings.BackgroundColor, ElementName=mainWindow, Converter={StaticResource ColorTypeConverter}}"/>
-                        </StackPanel>
-                    </md:Card>
-                    <md:Card Padding="6" Margin="8">
-                        <StackPanel>
-                            <!--TODO: separate xaml for this panel-->
-                            <!--TODO: add pictograms and tooltips-->
-                            <TextBlock Text="Camera" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                            <local:ValueSlider ValueName="Field Of View" MinValue="1" MaxValue="179" Increment="1" Value="{Binding DataContext.CurrentParams.ViewSettings.Camera.FOV, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Depth Of Field" MinValue="0" Increment="0.0001" Value="{Binding DataContext.CurrentParams.ViewSettings.Dof, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Focus distance" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusDistance, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Focus area" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FocusArea, ElementName=mainWindow}"/>
-                            <local:ValueSlider ValueName="Fog effect" MinValue="0" Value="{Binding DataContext.CurrentParams.ViewSettings.FogEffect, ElementName=mainWindow}"/>
-                            <Label>TODO: Render Resolution</Label>
-                        </StackPanel>
-                    </md:Card>
+                    <local:ToneMappingView DataContext="{Binding IFSViewModel.ToneMappingViewModel}"/>
+                    <Label>Background color</Label>
+                    <xctk:ColorPicker SelectedColor="{Binding IFSViewModel.BackgroundColor}"/>
+                    <local:CameraSettingsView DataContext="{Binding IFSViewModel.CameraSettingsViewModel}"/>
                 </StackPanel>
             </ScrollViewer>
-            <!-- Render -->
+            <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <DockPanel Name="Docker" >
                     <local:RenderDisplay x:Name="Host" Height="{Binding ElementName=Docker, Path=ActualHeight}" Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
                 </DockPanel>
             </md:Card>
+            <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <md:Card Padding="6" Margin="8">
-                        <StackPanel>
-                            <md:Card Padding="3" Margin="4">
-                                <StackPanel>
-                                    <Button Margin="12" Content="▶️ Start" Click="Button_Click" HorizontalContentAlignment="Center"/>
-                                    <Label>Render presets</Label>
-                                    <Grid >
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button Margin="8" x:Name="PreviewButton" Content="📷 Preview" Grid.Column="0" Click="PreviewButton_Click"/>
-                                        <Button Margin="8" x:Name="FinalButton" Content="📸 Final" Grid.Column="1" Click="FinalButton_Click"/>
-                                    </Grid>
-                                </StackPanel>
-                            </md:Card>
-                            <md:Card Padding="3" Margin="4">
-                                <StackPanel>
-                                    <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
-                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Radius" MinValue="0" MaxValue="20" Increment="1" Value="{Binding DataContext.DEMaxRadius, ElementName=mainWindow}"/>
-                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Power" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.DEPower, ElementName=mainWindow}"/>
-                                    <local:ValueSlider Visibility="{Binding DataContext.EnableDE, Converter={StaticResource BoolToVisConv}, ElementName=mainWindow}" ValueName="Threshold" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.DEThreshold, ElementName=mainWindow}"/>
-                                </StackPanel>
-                            </md:Card>
-                        </StackPanel>
-                    </md:Card>
-                    <local:PerformanceView x:Name="performanceView" />
+                    <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
+                    <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

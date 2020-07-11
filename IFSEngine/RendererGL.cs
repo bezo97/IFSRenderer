@@ -56,7 +56,7 @@ namespace IFSEngine
         public int DisplayHeight { get; private set; } = 720;
 
 
-        public IFS CurrentParams { get; private set; }
+        private IFS CurrentParams { get; set; }
 
 
         public AnimationManager AnimationManager { get; set; }
@@ -98,11 +98,11 @@ namespace IFSEngine
         /// Apo/Chaotica: const 10000
         /// Zueuk: max 500 enough
         /// TODO: adaptive possible? Reset earlier if ... ?
-        /// Gradually increase MaxIters? x
+        /// Gradually increase IterationDepth? x
         /// Make it an option for high quality renders?
         /// TODO: move reset to compute shader? adaptive for each thread
         /// </summary>
-        private int MaxIters { get; set; } = 1000;
+        public int IterationDepth { get; set; } = 1000;
 
         private int PassItersCnt = 0;
 
@@ -145,10 +145,10 @@ namespace IFSEngine
 
         System.Threading.AutoResetEvent stopRender = new System.Threading.AutoResetEvent(false);
 
-        public RendererGL(IGraphicsContext ctx, IWindowInfo wInfo)
+        public RendererGL(IWindowInfo wInfo)
         {
-            this.ctx = ctx;
             this.wInfo = wInfo;
+            ctx = new GraphicsContext(GraphicsMode.Default, wInfo);
 
             AnimationManager = new AnimationManager();
 
@@ -243,10 +243,17 @@ namespace IFSEngine
 
         }
 
+        public async Task SetHistogramScaleToDisplay()
+        {
+            double fitToDisplayRatio = DisplayWidth / (double)CurrentParams.ViewSettings.ImageResolution.Width;
+            await SetHistogramScale(fitToDisplayRatio);
+        }
+
         public void SetDisplayResolution(int displayWidth, int displayHeight)
         {
             this.DisplayWidth = displayWidth;
             this.DisplayHeight = displayHeight;
+            UpdateDisplay();
         }
 
         private void InvalidatePointsState()
@@ -259,7 +266,7 @@ namespace IFSEngine
             GL.UseProgram(computeProgramH);
 
             //reset points periodically
-            if (PassItersCnt >= MaxIters)
+            if (PassItersCnt >= IterationDepth)
             {
                 PassItersCnt = 0;
                 InvalidatePointsState();
@@ -438,6 +445,7 @@ namespace IFSEngine
                 //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
+                ctx.SwapBuffers();
                 DisplayFrameCompleted?.Invoke(this, null);
                 updateDisplayNow = false;
             }
@@ -793,6 +801,7 @@ namespace IFSEngine
         {
             DisplayFrameCompleted = null;
             StopRendering().Wait();
+            ctx.Dispose();
             //TOOD: dispose
         }
 
