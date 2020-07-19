@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using IFSEngine.Helper;
 using System.Numerics;
+using IFSEngine.Model.GpuStructs;
 
 namespace IFSEngine.Model.Camera
 {
     public abstract class CameraBase
     {
-        internal CameraBaseParameters Params = new CameraBaseParameters();
+        internal CameraStruct Params = new CameraStruct();
         public event Action OnManipulate;
 
-        public float MovementSpeed { get; set; } = 2.0f;
-        public float Sensitivity { get; set; } = 0.2f;
+        public float TranslationSensitivity { get; set; } = 0.005f;
+        public float RotationSensitivity { get; set; } = 0.01f;
 
         private float fov = 60;
         public float FOV
@@ -56,16 +57,18 @@ namespace IFSEngine.Model.Camera
             this.FOV = FOV;
         }
 
-        public void Translate(Vector3 translateVector)
+        /// <summary>
+        /// Moves camera position by a translate vector given in camera space.
+        /// The vector is multiplied by <see cref="TranslationSensitivity"/>
+        /// </summary>
+        /// <param name="translateVector"></param>
+        public void TranslateWithSensitivity(Vector3 translateVector)
         {
-            translateVector *= MovementSpeed;
+            translateVector *= TranslationSensitivity;
             position += forward * translateVector.X;
             position += right * translateVector.Y;
             position += up * translateVector.Z;
         }
-
-        // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-        public abstract void ProcessMouseMovement(float xoffset, float yoffset);
 
         public void UpdateCamera()
         {
@@ -78,5 +81,10 @@ namespace IFSEngine.Model.Camera
         protected abstract void RefreshCameraValues();
 
         protected abstract void SetViewProjMatrix();
+
+        public abstract void RotateBy(Vector3 rotVector);
+
+        public abstract void RotateWithSensitivity(Vector3 rotVector);
+
     }
 }

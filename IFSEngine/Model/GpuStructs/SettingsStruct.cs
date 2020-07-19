@@ -8,7 +8,7 @@ namespace IFSEngine.Model.GpuStructs
     internal struct SettingsStruct
     {
         //current view:
-        internal CameraBaseParameters CameraBase;
+        internal CameraStruct CameraBase;
         internal Vector4 focuspoint;
         internal float fog_effect;
         internal float dof;

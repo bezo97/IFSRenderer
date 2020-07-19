@@ -11,27 +11,33 @@ namespace IFSEngine.Model.Camera
 
     public class QuatCamera : CameraBase
     {
-        public Quaternion orientation { get; set; }
+        public Quaternion Orientation { get; set; }
 
         public QuatCamera()
         {
-            orientation = Quaternion.CreateFromYawPitchRoll(-3.141592f / 2.0f, -3.141592f/2.0f,0.00001f);//no rotation
+            Orientation = Quaternion.CreateFromYawPitchRoll((float)-Math.PI / 2.0f, (float)-Math.PI / 2.0f, 0.00001f);//no rotation
             UpdateCamera();
         }
 
-        public override void ProcessMouseMovement(float xoffset, float yoffset)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rotVector">Yaw, pitch and roll delta values relative to <see cref="CameraBase.RotationSensitivity"/></param>
+        public override void RotateWithSensitivity(Vector3 rotVector)
         {
-            float rotSpeed = 0.01f - 0.0099f * (180.0f - FOV) / 180.0f;
-            RotateBy(-xoffset * rotSpeed, yoffset * rotSpeed, 0.0f);
-            
-            UpdateCamera();
+            float rotSpeed = RotationSensitivity * FOV / 180.0f;
+            RotateBy(rotSpeed * rotVector);
         }
 
-        public void RotateBy(float YawDelta, float PitchDelta, float RollDelta)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rotVector">Yaw, pitch and roll delta in radians</param>
+        public override void RotateBy(Vector3 rotVector)
         {
-            Quaternion rotq = Quaternion.CreateFromYawPitchRoll(YawDelta, PitchDelta, RollDelta);//order matters
-            orientation = rotq * orientation;//order matters
-            orientation =  Quaternion.Normalize(orientation);
+            Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X, rotVector.Y, rotVector.Z);
+            Orientation = rotq * Orientation;//order matters
+            Orientation = Quaternion.Normalize(Orientation);
         }
 
         //https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -60,7 +66,7 @@ namespace IFSEngine.Model.Camera
 
         protected override void RefreshCameraValues()
         {
-            (double yaw, double pitch, double roll) = ToEulerAngles(orientation);
+            (double yaw, double pitch, double roll) = ToEulerAngles(Orientation);
 
             float a = (float)yaw;
             float c = (float)pitch;

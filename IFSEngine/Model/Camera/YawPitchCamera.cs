@@ -8,7 +8,10 @@ using System.Numerics;
 
 namespace IFSEngine.Model.Camera
 {
-
+    /// <summary>
+    /// This class is not maintained. TODO: consider delete / archive.
+    /// Works without quaternions but does not support rotation around the roll axis.
+    /// </summary>
     public class YawPitchCamera : CameraBase
     {
 
@@ -34,11 +37,13 @@ namespace IFSEngine.Model.Camera
             UpdateCamera();
         }        
 
-        // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-        public override void ProcessMouseMovement(float xoffset, float yoffset)
+        public override void RotateWithSensitivity(Vector3 rotVector)
         {
-            xoffset *= Sensitivity;
-            yoffset *= Sensitivity;
+            float xoffset = rotVector.X;
+            float yoffset = rotVector.Y;
+
+            xoffset *= RotationSensitivity;
+            yoffset *= RotationSensitivity;
 
             yaw += xoffset;
             pitch += yoffset;
@@ -70,5 +75,11 @@ namespace IFSEngine.Model.Camera
         {
             Params.viewProjMatrix = Matrix4x4.CreateLookAt(position, position + forward, worldUp) * projectionMatrix;
         }
+
+        public override void RotateBy(Vector3 rotVector)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

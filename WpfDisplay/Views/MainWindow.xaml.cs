@@ -30,14 +30,13 @@ namespace WpfDisplay.Views
         {
             InitializeComponent();
             OpenTK.Toolkit.Init();
-            Host.Loaded += (s, e) =>
+            renderDisplay.Loaded += (s, e) =>
             {
-                renderer = new RendererGL(Host.display1.WindowInfo);
-                renderer.SetDisplayResolution(Host.display1.Width, Host.display1.Height);
-                Host.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(Host.display1.Width, Host.display1.Height);
+                renderer = new RendererGL(renderDisplay.display1.WindowInfo);
+                renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
+                renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 var mainViewModel = new MainViewModel(renderer);
                 this.DataContext = mainViewModel;
-                Host.MainViewModel = mainViewModel;//hack
             };
         }
 

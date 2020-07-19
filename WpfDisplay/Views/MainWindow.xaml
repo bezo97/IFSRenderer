@@ -60,7 +60,11 @@
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <DockPanel Name="Docker" >
-                    <local:RenderDisplay x:Name="Host" Height="{Binding ElementName=Docker, Path=ActualHeight}" Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
+                    <local:RenderDisplay
+                        x:Name="renderDisplay"
+                        DataContext="{Binding IFSViewModel}"
+                        Height="{Binding ElementName=Docker, Path=ActualHeight}" 
+                        Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
                 </DockPanel>
             </md:Card>
             <!-- Render Settings -->
