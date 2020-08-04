@@ -18,10 +18,10 @@ namespace WpfDisplay.ViewModels
         }
 
         public float FieldOfView {
-            get => ifs.ViewSettings.Camera.FOV;
+            get => ifs.ViewSettings.Camera.FieldOfView;
             set
             {
-                ifs.ViewSettings.Camera.FOV = value;
+                ifs.ViewSettings.Camera.FieldOfView = value;
                 RaisePropertyChanged();
             }
         }

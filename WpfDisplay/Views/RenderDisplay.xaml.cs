@@ -58,7 +58,7 @@ namespace WpfDisplay.Views
                 float yawDelta = lastX - e.X;
                 float pitchDelta = lastY - e.Y;
                 IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
-                IFSViewModel.ifs.ViewSettings.Camera.UpdateCamera();
+                IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
             else
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
@@ -73,12 +73,12 @@ namespace WpfDisplay.Views
                 //Experiment: camera speed relates to focus distance
                 float magnitude = (float)IFSViewModel.ifs.ViewSettings.FocusDistance;
                 var direction = new Vector3(
-                    ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0)),
-                    ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((keyboard.IsKeyDown(Key.C) || keyboard.IsKeyDown(Key.Q)) ? 1 : 0))
+                    ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((keyboard.IsKeyDown(Key.C) || keyboard.IsKeyDown(Key.Q)) ? 1 : 0)),
+                    ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
                 );
                 IFSViewModel.ifs.ViewSettings.Camera.TranslateWithSensitivity(magnitude * direction);
-                IFSViewModel.ifs.ViewSettings.Camera.UpdateCamera();//
+                IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
 
             if (rotateKeys.Any(k => keyboard.IsKeyDown(k)))
@@ -90,7 +90,7 @@ namespace WpfDisplay.Views
                     ((keyboard.IsKeyDown(Key.O) ? 1 : 0) - (keyboard.IsKeyDown(Key.U) ? 1 : 0))
                 );
                 IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(magnitude * direction);
-                IFSViewModel.ifs.ViewSettings.Camera.UpdateCamera();//
+                IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
 
         }

@@ -1,4 +1,4 @@
-﻿using IFSEngine.Model.Camera;
+﻿using IFSEngine.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,22 +26,21 @@ namespace IFSEngine.Model
         private double dof = 0.0;
         private double focusDistance = 2.0;
         private double focusArea = 0.25;
-        private CameraBase camera;
+        private Camera camera;
         private Color bgColor = Color.Black;
         private Size imageResolution = new Size(1920,1080);
 
         public IFSView()
         {
-            Camera = new QuatCamera();
+            Camera = new Camera();
         }
 
-        public CameraBase Camera
+        public Camera Camera
         {
             get => camera;
             set
             {
                 camera = value;
-                camera.OnManipulate += () => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("1"));
             }
         }
@@ -141,7 +140,7 @@ namespace IFSEngine.Model
 
         public void ResetCamera()
         {
-            Camera = new QuatCamera();
+            Camera = new Camera();
         }
     }
 }

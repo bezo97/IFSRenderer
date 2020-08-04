@@ -107,7 +107,6 @@ namespace IFSEngine.Model
             {
                 TypeNameHandling = TypeNameHandling.Auto //heterogen collection
             });
-            ifs.ViewSettings.Camera.UpdateCamera();//hack
             return ifs;
         }
 

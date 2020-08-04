@@ -30,9 +30,11 @@ namespace WpfDisplay.ViewModels
             set {
                 Set(ref _ifsViewModel, value);
                 _ifsViewModel.PropertyChanged += (s, e) =>
-                {
+                {//
                     if (e.PropertyName == "InvalidateParams")
                         renderer.InvalidateParams();
+                    if (e.PropertyName == "InvalidateAccumulation")
+                        renderer.InvalidateAccumulation();
                 };
             }
         }

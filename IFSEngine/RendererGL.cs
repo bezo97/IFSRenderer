@@ -345,7 +345,7 @@ namespace IFSEngine
 
             var settings = new SettingsStruct
             {
-                CameraBase = CurrentParams.ViewSettings.Camera.Params,
+                CameraBase = CurrentParams.ViewSettings.Camera.GetCameraParameters(),
                 itnum = CurrentParams.Iterators.Count,
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
@@ -353,7 +353,7 @@ namespace IFSEngine
                 dof = (float)CurrentParams.ViewSettings.Dof,
                 focusdistance = (float)CurrentParams.ViewSettings.FocusDistance,
                 focusarea = (float)CurrentParams.ViewSettings.FocusArea,
-                focuspoint = CurrentParams.ViewSettings.Camera.Params.position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.Params.forward,
+                focuspoint = new System.Numerics.Vector4(CurrentParams.ViewSettings.Camera.Position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.forwardDirection, 0.0f),
                 palettecnt = CurrentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };
