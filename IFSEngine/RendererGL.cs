@@ -74,10 +74,10 @@ namespace IFSEngine
             WorkgroupCount = s;
             await WithContext(() =>
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsbufH);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferHandle);
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, InvocationCount * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
             
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, last_tf_index_bufH);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, lastTransformIndexBufferHandle);
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, InvocationCount * sizeof(int), IntPtr.Zero, BufferUsageHint.StaticCopy);
             });
             InvalidatePointsState();
@@ -118,16 +118,16 @@ namespace IFSEngine
         private IGraphicsContext ctx;//add public setter?
         private IWindowInfo wInfo;//add public setter?
 
-        //compute handlers
-        private int computeProgramH;
-        private int histogramH;
-        private int settingsbufH;
-        private int itersbufH;
-        private int pointsbufH;
-        private int palettebufH;
-        private int tfparamsbufH;
-        private int xaosbufH;
-        private int last_tf_index_bufH;
+        //compute handles
+        private int computeProgramHandle;
+        private int histogramBufferHandle;
+        private int settingsBufferHandle;
+        private int iteratorsBufferHandle;
+        private int pointsBufferHandle;
+        private int paletteBufferHandle;
+        private int transformParametersBufferHandle;
+        private int xaosBufferHandle;
+        private int lastTransformIndexBufferHandle;
 
         int vertexShaderH;
         //logscale handlers
@@ -214,11 +214,11 @@ namespace IFSEngine
             {
                 HistogramWidth = (int)(CurrentParams.ViewSettings.ImageResolution.Width * scale);
                 HistogramHeight = (int)(CurrentParams.ViewSettings.ImageResolution.Height * scale);
-                GL.UseProgram(computeProgramH);
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+                GL.UseProgram(computeProgramHandle);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
-                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "width"), HistogramWidth);
-                GL.Uniform1(GL.GetUniformLocation(computeProgramH, "height"), HistogramHeight);
+                GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "height"), HistogramHeight);
 
                 //resize display texture. TODO: separate & use display resolution
                 //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
@@ -263,7 +263,7 @@ namespace IFSEngine
 
         public void RenderFrame()
         {
-            GL.UseProgram(computeProgramH);
+            GL.UseProgram(computeProgramHandle);
 
             //reset points periodically
             if (PassItersCnt >= IterationDepth)
@@ -278,8 +278,8 @@ namespace IFSEngine
             if (invalidAccumulation)
             {
                 //reset accumulation
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
-                GL.ClearNamedBufferData(histogramH, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
+                GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 dispatchCnt = 0;
                 TotalIterations = 0;
@@ -312,11 +312,11 @@ namespace IFSEngine
                     }
                     //TODO: tfparamstart pop last value
 
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
 
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamsbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
 
                     //generate flattened xaos weight matrix
                     List<float> xaosm = new List<float>(CurrentParams.Iterators.Count * CurrentParams.Iterators.Count);
@@ -330,14 +330,14 @@ namespace IFSEngine
                                 xaosm.Add(0);
                         }
                     }
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, xaosbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, xaosm.Capacity * sizeof(float), xaosm.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BindBuffer(BufferTarget.UniformBuffer, xaosBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, xaosm.Capacity * sizeof(float), xaosm.ToArray(), BufferUsageHint.DynamicDraw);
 
                     InvalidatePointsState();
 
                     //update palette
-                    GL.BindBuffer(BufferTarget.ShaderStorageBuffer, palettebufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, CurrentParams.Palette.Colors.Count * sizeof(float) * 4, CurrentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, CurrentParams.Palette.Colors.Count * sizeof(float) * 4, CurrentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
 
                     invalidParams = false;
                 }
@@ -357,7 +357,7 @@ namespace IFSEngine
                 palettecnt = CurrentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };
-            GL.BindBuffer(BufferTarget.UniformBuffer, settingsbufH);
+            GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
             GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
 
             GL.Finish();
@@ -745,8 +745,8 @@ namespace IFSEngine
 
             GL.UseProgram(logscaleProgramH); 
 
-            histogramH = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramH);
+            histogramBufferHandle = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
         }
 
@@ -769,31 +769,30 @@ namespace IFSEngine
             }
 
             //build shader program
-            computeProgramH = GL.CreateProgram();
-            GL.AttachShader(computeProgramH, computeShaderH);
-            GL.LinkProgram(computeProgramH);
-            Console.WriteLine(GL.GetProgramInfoLog(computeProgramH));
-            GL.UseProgram(computeProgramH);
+            computeProgramHandle = GL.CreateProgram();
+            GL.AttachShader(computeProgramHandle, computeShaderH);
+            GL.LinkProgram(computeProgramHandle);
+            Console.WriteLine(GL.GetProgramInfoLog(computeProgramHandle));
+            GL.UseProgram(computeProgramHandle);
 
             //create buffers
-            pointsbufH = GL.GenBuffer();
-            settingsbufH = GL.GenBuffer();
-            itersbufH = GL.GenBuffer();
-            palettebufH = GL.GenBuffer();
-            tfparamsbufH = GL.GenBuffer();
-            xaosbufH = GL.GenBuffer();
-            last_tf_index_bufH = GL.GenBuffer();
+            pointsBufferHandle = GL.GenBuffer();
+            settingsBufferHandle = GL.GenBuffer();
+            iteratorsBufferHandle = GL.GenBuffer();
+            paletteBufferHandle = GL.GenBuffer();
+            transformParametersBufferHandle = GL.GenBuffer();
+            xaosBufferHandle = GL.GenBuffer();
+            lastTransformIndexBufferHandle = GL.GenBuffer();
 
             //bind layout:
-            GL.BindImageTexture(0, logscaleTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, histogramH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, settingsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, palettebufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 6, tfparamsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 7, xaosbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 8, last_tf_index_bufH);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, histogramBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, lastTransformIndexBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, settingsBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, iteratorsBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, paletteBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, transformParametersBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 7, xaosBufferHandle);
 
         }
 

@@ -11,6 +11,11 @@ layout(local_size_x = 64) in;
 #define PI		3.14159265358f
 #define TWOPI	6.28318530718f
 
+#define MAX_ITERATORS 100
+#define MAX_PALETTE_COLORS 150
+#define MAX_PARAMS (2 * MAX_ITERATORS)
+#define MAX_XAOS (MAX_ITERATORS * MAX_ITERATORS)
+
 struct CameraParameters
 {
 	mat4 viewProjectionMatrix;
@@ -50,24 +55,27 @@ struct Iterator
 	int padding0;
 };
 
-layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
-//layout(rgba32f, binding = 1) uniform image2D histogram;
-
 //Shader Storage Buffer Objects
-//biggest difference between uniform buffers and shader storage buffers is that you can write to shader storage buffers from your shader programs.
+//read and write, dynamic size
 
-layout(std140, binding = 1) buffer histogrambuf
+layout(std140, binding = 0) buffer histogram_buffer
 {
 	vec4 histogram[];
 };
-layout(std140, binding = 2) buffer pointsbuf
+layout(std140, binding = 1) buffer points_buffer
 {
 	vec4 pointsstate[];//for each thread
 };
 
-//Uniforms
+layout(std430, binding = 2) buffer last_transform_index_buffer
+{
+	int last_tf_index[];//remember previous tranform index for each thread, needed for xaos
+};
 
-layout(std140, binding = 3) uniform Settings
+//Uniform Buffer Objects
+//read-only, fixed size
+
+layout(std140, binding = 3) uniform settings_ubo
 {
 	//current view:
 	CameraParameters camera;
@@ -89,41 +97,28 @@ layout(std140, binding = 3) uniform Settings
 	int dummy2;
 } settings;
 
-//uniformba
-layout(std430, binding = 4) buffer iterbuf
+layout(std140, binding = 4) uniform iterators_ubo
 {
-	Iterator its[];
+	Iterator iterators[MAX_ITERATORS];
 };
 
-layout(std140, binding = 5) buffer palettebuf
+layout(std140, binding = 5) uniform palette_ubo
 {
-	vec4 palette[];
+	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(std430, binding = 6) buffer tfparamsbuf
+layout(binding = 6) uniform transform_params_ubo
 {
-	float tfParams[];//parameters of all transforms
+	float tfParams[MAX_PARAMS];//parameters of all transforms
 };
 
-layout(std430, binding = 7) buffer xaosbuf
+layout(binding = 7) uniform xaos_ubo
 {
-	float xaos[];//xaos matrix: weights to Iterators
-};
-
-layout(std430, binding = 8) buffer last_tf_index_buf
-{
-	int last_tf_index[];//remember previous tranform index for each thread, needed for xaos
+	float xaos[MAX_XAOS];//xaos matrix: weights to Iterators
 };
 
 uniform int width;
 uniform int height;
-
-//Default input vars:
-//in uvec3 gl_NumWorkGroups;
-//in uvec3 gl_WorkGroupID;
-//in uvec3 gl_LocalInvocationID; //within workgroup
-//in uvec3 gl_GlobalInvocationID; //within dispatch
-//in uint  gl_LocalInvocationIndex; //1d local id
 
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
 uint hash(uint x) {
@@ -370,7 +365,7 @@ void main() {
 		//pick a random xaos weighted Transform index
 		int r_index = 0;
 		float r = randhash(next++);
-		r *= its[last_tf_index[gid]].wsum;//sum outgoing xaos weight
+		r *= iterators[last_tf_index[gid]].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
 			if (w_acc < r) {
@@ -401,8 +396,8 @@ void main() {
 			last_tf_index[gid] = last_tf_index[gid+1];
 		}
 		vec3 p0 = p;
-		p = Apply(its[r_index], p);//transform here
-		ApplyShader(p_shader, its[r_index], p0, p);
+		p = Apply(iterators[r_index], p);//transform here
+		ApplyShader(p_shader, iterators[r_index], p0, p);
 
 		//perspective project
 		float ra1 = randhash(next++);

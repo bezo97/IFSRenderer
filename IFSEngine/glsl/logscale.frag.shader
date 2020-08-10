@@ -6,7 +6,7 @@ uniform int height = 1080;
 uniform uint ActualDensity = 1;
 
 layout(location = 0) out vec4 ls;
-layout(std140, binding = 1) buffer histogrambuf
+layout(std140, binding = 0) buffer histogram_buffer
 {
 	vec4 histogram[];
 };
