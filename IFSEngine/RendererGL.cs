@@ -353,7 +353,7 @@ namespace IFSEngine
                 dof = (float)CurrentParams.ViewSettings.Dof,
                 focusdistance = (float)CurrentParams.ViewSettings.FocusDistance,
                 focusarea = (float)CurrentParams.ViewSettings.FocusArea,
-                focuspoint = new System.Numerics.Vector4(CurrentParams.ViewSettings.Camera.Position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.forwardDirection, 0.0f),
+                focuspoint = new System.Numerics.Vector4(CurrentParams.ViewSettings.Camera.Position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.ForwardDirection, 0.0f),
                 palettecnt = CurrentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };

@@ -55,8 +55,8 @@ namespace WpfDisplay.Views
             if (e.Button == MouseButtons.Left)
             {
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
-                float yawDelta = lastX - e.X;
-                float pitchDelta = lastY - e.Y;
+                float yawDelta = e.X - lastX;
+                float pitchDelta = e.Y - lastY;
                 IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
                 IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
@@ -83,11 +83,11 @@ namespace WpfDisplay.Views
 
             if (rotateKeys.Any(k => keyboard.IsKeyDown(k)))
             {
-                float magnitude = 2.0f;
+                float magnitude = 3.0f;
                 var direction = new Vector3(
-                    ((keyboard.IsKeyDown(Key.J) ? 1 : 0) - (keyboard.IsKeyDown(Key.L) ? 1 : 0)),
-                    ((keyboard.IsKeyDown(Key.I) ? 1 : 0) - (keyboard.IsKeyDown(Key.K) ? 1 : 0)),
-                    ((keyboard.IsKeyDown(Key.O) ? 1 : 0) - (keyboard.IsKeyDown(Key.U) ? 1 : 0))
+                    ((keyboard.IsKeyDown(Key.L) ? 1 : 0) - (keyboard.IsKeyDown(Key.J) ? 1 : 0)),
+                    ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
+                    ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                 );
                 IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(magnitude * direction);
                 IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
