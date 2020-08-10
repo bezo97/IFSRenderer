@@ -313,7 +313,7 @@ namespace IFSEngine
                     //TODO: tfparamstart pop last value
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, itersbufH);
-                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (4 * sizeof(int) + 4 * sizeof(float)), its.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.ShaderStorageBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
 
                     GL.BindBuffer(BufferTarget.ShaderStorageBuffer, tfparamsbufH);
                     GL.BufferData(BufferTarget.ShaderStorageBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
@@ -357,8 +357,8 @@ namespace IFSEngine
                 palettecnt = CurrentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, settingsbufH);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, 8 * sizeof(int) + (24 + 8) * sizeof(float), ref settings, BufferUsageHint.StreamDraw);
+            GL.BindBuffer(BufferTarget.UniformBuffer, settingsbufH);
+            GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
 
             GL.Finish();
             GL.DispatchCompute(WorkgroupCount, 1, 1);
@@ -788,7 +788,7 @@ namespace IFSEngine
             GL.BindImageTexture(0, logscaleTexH, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba32f);//TODO: use this or remove
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, histogramH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsbufH);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, settingsbufH);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, settingsbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, itersbufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, palettebufH);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 6, tfparamsbufH);

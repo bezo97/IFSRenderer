@@ -11,35 +11,11 @@ layout(local_size_x = 64) in;
 #define PI		3.14159265358f
 #define TWOPI	6.28318530718f
 
-//%4=0 db float kell
 struct CameraParameters
 {
-	//vec4 position; ///VEC4
 	mat4 viewProjectionMatrix;
 	vec4 position;
 	vec4 forward;
-};
-
-struct Settings
-{
-	//current view:
-	CameraParameters camera;
-	vec4 focuspoint;//from camera,focusdistance
-	float fog_effect;
-	float dof;
-	float focusdistance;
-	float focusarea;//focal plane -> focal 'area'
-	//current frame:
-	int itnum;//length of iterators
-	int pass_iters;//iterations per pass
-	int dispatchCnt;
-	int palettecnt;
-
-	int resetPointsState;
-	//padding
-	int dummy0;
-	int dummy1;
-	int dummy2;
 };
 
 //TODO: remove
@@ -77,7 +53,9 @@ struct Iterator
 layout(binding = 0, rgba32f) uniform writeonly image2D img_output;
 //layout(rgba32f, binding = 1) uniform image2D histogram;
 
+//Shader Storage Buffer Objects
 //biggest difference between uniform buffers and shader storage buffers is that you can write to shader storage buffers from your shader programs.
+
 layout(std140, binding = 1) buffer histogrambuf
 {
 	vec4 histogram[];
@@ -86,12 +64,32 @@ layout(std140, binding = 2) buffer pointsbuf
 {
 	vec4 pointsstate[];//for each thread
 };
-//uniformba
-layout(std430, binding = 3) buffer settingsbuf
-{
-	Settings settings;
-};
 
+//Uniforms
+
+layout(std140, binding = 3) uniform Settings
+{
+	//current view:
+	CameraParameters camera;
+	vec4 focuspoint;//from camera,focusdistance
+	float fog_effect;
+	float dof;
+	float focusdistance;
+	float focusarea;//focal plane -> focal 'area'
+	//current frame:
+	int itnum;//length of iterators
+	int pass_iters;//iterations per pass
+	int dispatchCnt;
+	int palettecnt;
+
+	int resetPointsState;
+	//padding
+	int dummy0;
+	int dummy1;
+	int dummy2;
+} settings;
+
+//uniformba
 layout(std430, binding = 4) buffer iterbuf
 {
 	Iterator its[];
