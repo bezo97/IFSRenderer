@@ -25,7 +25,7 @@ namespace IFSEngine.Model
             {
                 //TODO: remove switch, randomize transforms
                 ITransformFunction r1 = null;
-                switch (RandHelper.Next(5))
+                switch (RandHelper.Next(6))
                 {
                     case 0:
                         r1 = Affine.RandomAffine;
@@ -41,6 +41,9 @@ namespace IFSEngine.Model
                         break;
                     case 4:
                         r1 = new Loonie();
+                        break;
+                    case 5:
+                        r1 = Moebius.RandomMoebius;
                         break;
                     default:
                         break;

@@ -164,6 +164,9 @@ namespace WpfDisplay.ViewModels
                         case "Waves":
                             newIterator = new Iterator { Transform = Waves.RandomWaves };
                             break;
+                        case "Moebius":
+                            newIterator = new Iterator { Transform = new Moebius() };
+                            break;
                         default:
                             newIterator = new Iterator { Transform = new Affine() };
                             break;

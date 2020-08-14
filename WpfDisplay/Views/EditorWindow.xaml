@@ -46,6 +46,7 @@
                             <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Loonie">Loonie</Button>
                             <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Spherical">Spherical</Button>
                             <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Waves">Waves</Button>
+                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Moebius">Möbius</Button>
                             <Label> . . . </Label>
                         </StackPanel>
                     </ScrollViewer>

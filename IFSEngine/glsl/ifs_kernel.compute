@@ -223,6 +223,27 @@ vec3 affine(Affine aff, vec3 input) {
 #define ScaleY (tfParams[p_cnt+4])
 #define ScaleZ (tfParams[p_cnt+5])
 
+//Moebius
+#define Alpha (tfParams[p_cnt+0])
+#define AX (tfParams[p_cnt+1])
+#define AY (tfParams[p_cnt+2])
+#define AZ (tfParams[p_cnt+3])
+#define BX (tfParams[p_cnt+4])
+#define BY (tfParams[p_cnt+5])
+#define BZ (tfParams[p_cnt+6])
+#define M11 (tfParams[p_cnt+7])
+#define M12 (tfParams[p_cnt+8])
+#define M13 (tfParams[p_cnt+9])
+#define M21 (tfParams[p_cnt+10])
+#define M22 (tfParams[p_cnt+11])
+#define M23 (tfParams[p_cnt+12])
+#define M31 (tfParams[p_cnt+13])
+#define M32 (tfParams[p_cnt+14])
+#define M33 (tfParams[p_cnt+15])
+#define Yaw (tfParams[p_cnt+16])
+#define Pitch (tfParams[p_cnt+17])
+#define Roll (tfParams[p_cnt+18])
+
 vec3 Apply(Iterator iter, vec3 input)
 {
 	vec3 p = input;
@@ -295,6 +316,18 @@ vec3 Apply(Iterator iter, vec3 input)
 			r = weight;
 		p = r * p;
 	}
+	else if (iter.tfId == 5)
+	{//moebius
+		vec3 a = vec3(AX, AY, AZ);
+		vec3 b = vec3(BX, BY, BZ);
+		mat3 m = mat3(
+			M11, M21, M31, // first column 
+			M12, M22, M32, // second column
+			M13, M23, M33  // third column
+		);
+		//https://en.wikipedia.org/wiki/M%C3%B6bius_transformation#Higher_dimensions
+		return b + (Alpha * m * (p - a))/* / pow(abs(p - a),vec3(2.0))*/;
+	}
 
 	return p;
 }
@@ -363,7 +396,7 @@ void main() {
 	for (int i = 0; i < settings.pass_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
-		int r_index = 0;
+		int r_index = -1;
 		float r = randhash(next++);
 		r *= iterators[last_tf_index[gid]].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
@@ -374,18 +407,16 @@ void main() {
 			}
 			else
 				break;
-		last_tf_index[gid] = r_index;
 		
 		//TODO: option: reset position if no change for n iterations
-		if (w_acc == 0.0f)
+		if (r_index == -1)
 		{//reset position if no weight out
 			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
-			last_tf_index[gid] = int(randhash(next++) * settings.itnum);
-			return;
+			p_shader.y = 1.0;
+			r_index = last_tf_index[(gid + 1)];
 		}
-		
 		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
 		{//reset position if too far
 			//TODO: make this optional?
@@ -393,8 +424,12 @@ void main() {
 			//idea: place next to another point instead of random reset
 			p = pointsstate[(gid + 1)].xyz;
 			p_shader.x = pointsstate[(gid + 1)].w;
-			last_tf_index[gid] = last_tf_index[gid+1];
+			p_shader.y = 1.0;
+			r_index = last_tf_index[(gid + 1)];
 		}
+		last_tf_index[gid] = r_index;
+
+
 		vec3 p0 = p;
 		p = Apply(iterators[r_index], p);//transform here
 		ApplyShader(p_shader, iterators[r_index], p0, p);
