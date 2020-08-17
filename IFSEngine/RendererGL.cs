@@ -22,7 +22,6 @@ namespace IFSEngine
     public class RendererGL
     {
         public event EventHandler DisplayFrameCompleted;
-        //public event EventHandler RenderFrameCompleted;
 
         public bool UpdateDisplayOnRender { get; set; } = true;
 
@@ -55,12 +54,9 @@ namespace IFSEngine
         public int DisplayWidth { get; private set; } = 1280;
         public int DisplayHeight { get; private set; } = 720;
 
+        public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
-        private IFS CurrentParams { get; set; }
-
-
-        public AnimationManager AnimationManager { get; set; }
-
+        private IFS currentParams;
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
         private bool invalidPointsState = false;
@@ -89,7 +85,7 @@ namespace IFSEngine
 
         /// <summary>
         /// Performance setting: Number of iterations per dispatch.
-        /// TODO: adaptive? depends on hardware.
+        /// TODO: adaptive, using a target fps. depends on hardware & params.
         /// </summary>
         public int PassIters { get; set; } = 500;
 
@@ -115,8 +111,8 @@ namespace IFSEngine
         private bool rendering = false;
 
 
-        private IGraphicsContext ctx;//add public setter?
-        private IWindowInfo wInfo;//add public setter?
+        private IGraphicsContext ctx;
+        private IWindowInfo wInfo;
 
         //compute handles
         private int computeProgramHandle;
@@ -168,10 +164,10 @@ namespace IFSEngine
 
         public void LoadParams(IFS p)
         {
-            if (CurrentParams != null)
-                CurrentParams.ViewSettings.PropertyChanged -= HandleInvalidation;
-            CurrentParams = p;
-            CurrentParams.ViewSettings.PropertyChanged += HandleInvalidation;
+            if (currentParams != null)
+                currentParams.ViewSettings.PropertyChanged -= HandleInvalidation;
+            currentParams = p;
+            currentParams.ViewSettings.PropertyChanged += HandleInvalidation;
             InvalidateParams();
             Task.Run(()=>SetHistogramScale(1.0));
         }
@@ -212,8 +208,8 @@ namespace IFSEngine
         {
             await WithContext(() =>
             {
-                HistogramWidth = (int)(CurrentParams.ViewSettings.ImageResolution.Width * scale);
-                HistogramHeight = (int)(CurrentParams.ViewSettings.ImageResolution.Height * scale);
+                HistogramWidth = (int)(currentParams.ViewSettings.ImageResolution.Width * scale);
+                HistogramHeight = (int)(currentParams.ViewSettings.ImageResolution.Height * scale);
                 GL.UseProgram(computeProgramHandle);
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
@@ -245,7 +241,7 @@ namespace IFSEngine
 
         public async Task SetHistogramScaleToDisplay()
         {
-            double fitToDisplayRatio = DisplayWidth / (double)CurrentParams.ViewSettings.ImageResolution.Width;
+            double fitToDisplayRatio = DisplayWidth / (double)currentParams.ViewSettings.ImageResolution.Width;
             await SetHistogramScale(fitToDisplayRatio);
         }
 
@@ -282,17 +278,18 @@ namespace IFSEngine
                 GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 dispatchCnt = 0;
+                PassItersCnt = 0;
                 TotalIterations = 0;
 
                 if (invalidParams)
                 {
                     //normalize base weights
-                    double SumWeights = CurrentParams.Iterators.Sum(i => i.BaseWeight);
-                    var normalizedBaseWeights = CurrentParams.Iterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
+                    double SumWeights = currentParams.Iterators.Sum(i => i.BaseWeight);
+                    var normalizedBaseWeights = currentParams.Iterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
-                    HashSet<Iterator> currentIterators = new HashSet<Iterator>(CurrentParams.Iterators);
+                    HashSet<Iterator> currentIterators = new HashSet<Iterator>(currentParams.Iterators);
                     foreach (var it in currentIterators)
                     {
                         //iterators
@@ -319,10 +316,10 @@ namespace IFSEngine
                     GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
 
                     //generate flattened xaos weight matrix
-                    List<float> xaosm = new List<float>(CurrentParams.Iterators.Count * CurrentParams.Iterators.Count);
-                    foreach (var it in CurrentParams.Iterators)
+                    List<float> xaosm = new List<float>(currentParams.Iterators.Count * currentParams.Iterators.Count);
+                    foreach (var it in currentParams.Iterators)
                     {
-                        foreach (var toIt in CurrentParams.Iterators)
+                        foreach (var toIt in currentParams.Iterators)
                         {
                             if (it.WeightTo.ContainsKey(toIt))
                                 xaosm.Add((float)(it.WeightTo[toIt] * normalizedBaseWeights[toIt]));
@@ -337,7 +334,7 @@ namespace IFSEngine
 
                     //update palette
                     GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, CurrentParams.Palette.Colors.Count * sizeof(float) * 4, CurrentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BufferData(BufferTarget.UniformBuffer, currentParams.Palette.Colors.Count * sizeof(float) * 4, currentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
 
                     invalidParams = false;
                 }
@@ -345,16 +342,16 @@ namespace IFSEngine
 
             var settings = new SettingsStruct
             {
-                CameraBase = CurrentParams.ViewSettings.Camera.GetCameraParameters(),
-                itnum = CurrentParams.Iterators.Count,
+                CameraBase = currentParams.ViewSettings.Camera.GetCameraParameters(),
+                itnum = currentParams.Iterators.Count,
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
-                fog_effect = (float)CurrentParams.ViewSettings.FogEffect,
-                dof = (float)CurrentParams.ViewSettings.Dof,
-                focusdistance = (float)CurrentParams.ViewSettings.FocusDistance,
-                focusarea = (float)CurrentParams.ViewSettings.FocusArea,
-                focuspoint = new System.Numerics.Vector4(CurrentParams.ViewSettings.Camera.Position + (float)CurrentParams.ViewSettings.FocusDistance * CurrentParams.ViewSettings.Camera.ForwardDirection, 0.0f),
-                palettecnt = CurrentParams.Palette.Colors.Count,
+                fog_effect = (float)currentParams.ViewSettings.FogEffect,
+                dof = (float)currentParams.ViewSettings.Dof,
+                focusdistance = (float)currentParams.ViewSettings.FocusDistance,
+                focusarea = (float)currentParams.ViewSettings.FocusArea,
+                focuspoint = new System.Numerics.Vector4(currentParams.ViewSettings.Camera.Position + (float)currentParams.ViewSettings.FocusDistance * currentParams.ViewSettings.Camera.ForwardDirection, 0.0f),
+                palettecnt = currentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };
             GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
@@ -395,11 +392,11 @@ namespace IFSEngine
                     //update uniforms..
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "width"), HistogramWidth);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "height"), HistogramHeight);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Brightness"), (float)CurrentParams.ViewSettings.Brightness);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "InvGamma"), (float)(1.0f / CurrentParams.ViewSettings.Gamma));
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)CurrentParams.ViewSettings.GammaThreshold);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)CurrentParams.ViewSettings.Vibrancy);
-                    GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), CurrentParams.ViewSettings.BackgroundColor.R / 255.0f, CurrentParams.ViewSettings.BackgroundColor.G / 255.0f, CurrentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Brightness"), (float)currentParams.ViewSettings.Brightness);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "InvGamma"), (float)(1.0f / currentParams.ViewSettings.Gamma));
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)currentParams.ViewSettings.GammaThreshold);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)currentParams.ViewSettings.Vibrancy);
+                    GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), currentParams.ViewSettings.BackgroundColor.R / 255.0f, currentParams.ViewSettings.BackgroundColor.G / 255.0f, currentParams.ViewSettings.BackgroundColor.B / 255.0f);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_max_radius"), (float)DEMaxRadius);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_power"), (float)DEPower);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_threshold"), (float)DEThreshold);//////////////////////
@@ -616,9 +613,6 @@ namespace IFSEngine
 
             GL.UseProgram(taaProgramH);
 
-            //bind layout:
-            //GL.BindImageTexture(0, taaTexH, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-            //GL.BindImageTexture(1, dispTexH, 0, false, 0, TextureAccess.ReadOnly, SizedInternalFormat.Rgba32f);
             //GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t1"), 0);//previous pass. Set before dispatch
             GL.Uniform1(GL.GetUniformLocation(taaProgramH, "t2"), 2);//self
         }
@@ -676,12 +670,7 @@ namespace IFSEngine
 
             GL.UseProgram(deProgramH);
 
-            //bind layout:
-            //GL.BindImageTexture(0, taaTexH, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-            //GL.BindImageTexture(1, dispTexH, 0, false, 0, TextureAccess.ReadOnly, SizedInternalFormat.Rgba32f);
-
-            GL.Uniform1(GL.GetUniformLocation(deProgramH, "t1"), 0);
-            //GL.Uniform1(GL.GetUniformLocation(deProgramH, "t2"), 1);
+            GL.Uniform1(GL.GetUniformLocation(deProgramH, "histogramTexture"), 0);
         }
 
         private void initLogscale()

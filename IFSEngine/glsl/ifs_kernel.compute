@@ -326,7 +326,7 @@ vec3 Apply(Iterator iter, vec3 input)
 			M13, M23, M33  // third column
 		);
 		//https://en.wikipedia.org/wiki/M%C3%B6bius_transformation#Higher_dimensions
-		return b + (Alpha * m * (p - a))/* / pow(abs(p - a),vec3(2.0))*/;
+		return b + (Alpha * m * (p - a)) / pow(length(p - a), 2.0);
 	}
 
 	return p;

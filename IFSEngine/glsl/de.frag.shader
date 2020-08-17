@@ -2,7 +2,7 @@
 
 layout(location = 0) out vec4 color;
 
-uniform sampler2D t1;//log hist
+uniform sampler2D histogramTexture;//in logarithmic scale
 
 uniform int width = 1920;
 uniform int height = 1080;
@@ -31,22 +31,22 @@ vec4 DensityEstimation()
 	vec2 uv = vec2(gl_FragCoord.x / float(width), gl_FragCoord.y / float(height));
 
 
-	float w = de_max_radius / de_threshold * clamp(de_threshold - texture(t1, uv).w, 0.0, 1.0);
+	float w = de_max_radius / de_threshold * clamp(de_threshold - texture(histogramTexture, uv).w, 0.0, 1.0);
 
 	//experiment:
-	//float w = de_max_radius / de_threshold * clamp(de_threshold - texture(t1, uv).w, 0.0, 1.0);
-	//float w = de_max_radius * clamp(1.0 / pow(texture(t1, uv).w*ActualDensity, de_power), 0.0, 1.0);
+	//float w = de_max_radius / de_threshold * clamp(de_threshold - texture(histogramTexture, uv).w, 0.0, 1.0);
+	//float w = de_max_radius * clamp(1.0 / pow(texture(histogramTexture, uv).w*ActualDensity, de_power), 0.0, 1.0);
 	//experiment:
-	//float d = texture(t1, uv).w;//actual density
+	//float d = texture(histogramTexture, uv).w;//actual density
 	//if (d > de_threshold)
-	//	return texture(t1, uv);//do not estimate dense enough areas
+	//	return texture(histogramTexture, uv);//do not estimate dense enough areas
 	//float mult = de_max_radius / pow(de_threshold, 1.0 / de_power);//TODO: calc on cpu
 	//float w = mult * pow(de_threshold - d, 1.0 / de_power);
 
 	w = clamp(w, 0.0, de_max_radius);
 	const int kSize = int(w);
 	if (kSize == 0)
-		return texture(t1, uv);
+		return texture(histogramTexture, uv);
 
 	vec4 de = vec4(0.0);
 	float wnorm = 0.0;
@@ -61,7 +61,7 @@ vec4 DensityEstimation()
 				continue;
 
 			float cw = clamp(1.0 - sqrt(float(i * i + j * j)) / float(kSize), 0.0, 1.0);
-			de += cw * texture(t1, uv + vec2(float(i), float(j)) / vec2(float(width), float(height)));
+			de += cw * texture(histogramTexture, uv + vec2(float(i), float(j)) / vec2(float(width), float(height)));
 			wnorm += cw;
 		}
 	}
@@ -121,7 +121,7 @@ void main(void)
 		logc = DensityEstimation();
 	}
 	else
-		logc = texture(t1, uv);
+		logc = texture(histogramTexture, uv);
 
 	color = Tonemap(logc);
 }

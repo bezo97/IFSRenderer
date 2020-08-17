@@ -40,15 +40,18 @@ namespace IFSEngine.TransformFunctions
         {
             get
             {
+                double tx = RandHelper.NextDouble() * 4 - 2;
+                double ty = RandHelper.NextDouble() * 4 - 2;
+                double tz = RandHelper.NextDouble() * 4 - 2;
                 return new Moebius
                 {
-                    Alpha = RandHelper.NextDouble()*4-2,
-                    AX = RandHelper.NextDouble()*4-2,
-                    AY = RandHelper.NextDouble()*4-2,
-                    AZ = RandHelper.NextDouble()*4-2,
-                    BX = RandHelper.NextDouble()*4-2,
-                    BY = RandHelper.NextDouble()*4-2,
-                    BZ = RandHelper.NextDouble() * 4 - 2,
+                    Alpha = 0.75 + RandHelper.NextDouble() * 0.5,
+                    AX = tx,
+                    AY = ty,
+                    AZ = tz,
+                    BX = tx + RandHelper.NextDouble()*0.1,
+                    BY = ty + RandHelper.NextDouble()*0.1,
+                    BZ = tz + RandHelper.NextDouble()*0.1,
                     Yaw = RandHelper.NextDouble() * Math.PI * 2,
                     Pitch = RandHelper.NextDouble() * Math.PI,
                     Roll = RandHelper.NextDouble() * Math.PI * 2
