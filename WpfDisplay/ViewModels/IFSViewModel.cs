@@ -201,7 +201,7 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
                     {
-                        var palettes = UFPalette.FromFile(path);
+                        var palettes = FlamePalette.FromFile(path);
                         //TODO: Replace random choice with a palette picker here
                         //var palette = PalettePicker.ShowDialog(palettes);
                         ifs.Palette = palettes[new Random().Next(palettes.Count)];

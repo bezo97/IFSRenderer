@@ -6,36 +6,33 @@ using System.IO;
 namespace IFSEngine.Model
 {
     /// <summary>
-    /// Traditional 1D Ultra Fractal color palette. *.ugr / *.gradient
+    /// Traditional 1D flame fractal color palette. *.ugr / *.gradient
     /// </summary>
-    public class UFPalette
+    public class FlamePalette
     {
         public string Name { get; set; } = "Empty Palette";
         public List<Vector4> Colors { get; set; } = new List<Vector4>();
 
-        public static UFPalette Default
+        public static FlamePalette Default { get; } = new FlamePalette
         {
-            get => new UFPalette
+            Name = "Default Palette",
+            Colors = new List<Vector4>
             {
-                Name = "Default Palette",
-                Colors = new List<Vector4>
-                {
-                    new Vector4(1,0,0,1),
-                    new Vector4(1,1,0,1),
-                    new Vector4(0,0,1,1),
-                    new Vector4(1,0,0,1)
-                }
-            };
-        }
+                new Vector4(1,0,0,1),
+                new Vector4(1,1,0,1),
+                new Vector4(0,0,1,1),
+                new Vector4(1,0,0,1)
+            }
+        };
 
         /// <summary>
         /// Parse *.gradient files. Compatible with ChaosHelper.
         /// </summary>
-        public static List<UFPalette> FromFile(string filePath)
+        public static List<FlamePalette> FromFile(string filePath)
         {
-            List<UFPalette> palettes = new List<UFPalette>();
+            List<FlamePalette> palettes = new List<FlamePalette>();
             int state = 0;
-            UFPalette tmp = new UFPalette();
+            FlamePalette tmp = new FlamePalette();
             using (StreamReader sr = new StreamReader(filePath))
             {
                 while (!sr.EndOfStream)
@@ -46,7 +43,7 @@ namespace IFSEngine.Model
                         case 0://new palette
                             if (sor.Contains("title"))
                             {
-                                tmp = new UFPalette
+                                tmp = new FlamePalette
                                 {
                                     Name = sor.Split('\"')[1]
                                 };
@@ -57,7 +54,7 @@ namespace IFSEngine.Model
                             if (sor.Contains("index"))
                             {
                                 int dec = int.Parse(sor.Split('=')[2]);
-                                Byte[] bytes = BitConverter.GetBytes(dec);
+                                byte[] bytes = BitConverter.GetBytes(dec);
                                 Vector4 s1 = new Vector4(bytes[0] / 255.0f, bytes[1] / 255.0f, bytes[2] / 255.0f, 1.0f);
                                 tmp.Colors.Add(s1);
                             }

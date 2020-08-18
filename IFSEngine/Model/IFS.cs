@@ -12,7 +12,7 @@ namespace IFSEngine.Model
     {
         //TODO: IFS: Palette + Iterators + View (+ Animations?)
 
-        public UFPalette Palette { get; set; } = UFPalette.Default;
+        public FlamePalette Palette { get; set; } = FlamePalette.Default;
         public IFSView ViewSettings { get; set; } = new IFSView();
         public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
 
