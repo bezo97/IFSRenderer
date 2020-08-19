@@ -15,13 +15,13 @@ namespace WpfDisplay.ViewModels
     public class IteratorViewModel : ObservableObject
     {
         public readonly Iterator iterator;
-
+        public static double BaseSize = 100;
         public event EventHandler ViewChanged;
         public event EventHandler Selected;
         public event EventHandler<bool> ConnectEvent;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
+        public IEnumerable<InstanceProperty> Variables { get; }
 
-        public static double BaseSize = 100;
 
         public IteratorViewModel(Iterator iterator)
         {
@@ -32,8 +32,10 @@ namespace WpfDisplay.ViewModels
                     .Where(prop => prop.PropertyType == typeof(double))
                     .Select(pi => new InstanceProperty(iterator.Transform, pi)).ToList();
 
-            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) => {
+            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) =>
+            {
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateParams");
             });
 
         }
@@ -46,7 +48,11 @@ namespace WpfDisplay.ViewModels
         }
 
         private bool isselected;
-        public bool IsSelected { get => isselected; set {
+        public bool IsSelected
+        {
+            get => isselected;
+            set
+            {
                 Set(ref isselected, value);
             }
         }
@@ -58,25 +64,42 @@ namespace WpfDisplay.ViewModels
         public float Opacity
         {
             get => (float)iterator.Opacity;
-            set { Set(ref iterator.Opacity, value); RaisePropertyChanged(() => OpacityColor); }
+            set
+            {
+                Set(ref iterator.Opacity, value);
+                RaisePropertyChanged(() => OpacityColor);
+                RaisePropertyChanged("InvalidateParams");
+            }
         }
 
         public float ColorIndex
         {
             get => (float)iterator.ColorIndex;
-            set { Set(ref iterator.ColorIndex, value); }
+            set
+            {
+                Set(ref iterator.ColorIndex, value);
+                RaisePropertyChanged("InvalidateParams");
+            }
         }
 
         public float ColorSpeed
         {
             get => (float)iterator.ColorSpeed;
-            set { Set(ref iterator.ColorSpeed, value); }
+            set
+            {
+                Set(ref iterator.ColorSpeed, value);
+                RaisePropertyChanged("InvalidateParams");
+            }
         }
 
         public bool DeltaColoring
         {
             get => iterator.ShadingMode == ShadingMode.DeltaPSpeed;
-            set { Set(ref iterator.ShadingMode, value ? ShadingMode.DeltaPSpeed : ShadingMode.Default); }
+            set
+            {
+                Set(ref iterator.ShadingMode, value ? ShadingMode.DeltaPSpeed : ShadingMode.Default);
+                RaisePropertyChanged("InvalidateParams");
+            }
         }
 
         public Color OpacityColor
@@ -91,11 +114,13 @@ namespace WpfDisplay.ViewModels
         public float BaseWeight
         {
             get => (float)iterator.BaseWeight;
-            set {
+            set
+            {
                 iterator.BaseWeight = value;
                 //ifsvm.ifs.NormalizeBaseWeights();
                 //ifsvm.HandleConnectionsChanged(this);
                 ViewChanged?.Invoke(this, null);//refresh
+                RaisePropertyChanged("InvalidateParams");
             }
         }
 
@@ -136,10 +161,6 @@ namespace WpfDisplay.ViewModels
             set { Set(ref yCoord, value); }
         }
 
-        public IEnumerable<InstanceProperty> Variables { get; set; }
-
-
-
         //private RelayCommand _startConnectingCommand;
         //public RelayCommand StartConnectingCommand
         //{
@@ -159,6 +180,7 @@ namespace WpfDisplay.ViewModels
         public void FinishConnecting()
         {
             //
+            RaisePropertyChanged("InvalidateParams");
             ConnectEvent?.Invoke(this, true);
         }
 

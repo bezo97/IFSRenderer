@@ -8,18 +8,11 @@ using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
-    public class IFS// : INotifyPropertyChanged //fun mystery: implementing inpc breaks bindings to value sliders??
+    public class IFS
     {
-        //TODO: IFS: Palette + Iterators + View (+ Animations?)
-
-        public FlamePalette Palette { get; set; } = FlamePalette.Default;
-        public IFSView ViewSettings { get; set; } = new IFSView();
-        public HashSet<Iterator> Iterators { get; } = new HashSet<Iterator>();
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public IFS(bool random=false){ }
-
+        public FlamePalette Palette = FlamePalette.Default;
+        public IFSView ViewSettings = new IFSView();
+        public HashSet<Iterator> Iterators = new HashSet<Iterator>();
 
         public void AddIterator(Iterator it1, bool connect)
         {
@@ -32,12 +25,6 @@ namespace IFSEngine.Model
                     it.WeightTo[it1] = 1.0;
                 }
             }
-            RaiseIteratorsChanged();
-        }
-
-        private void RaiseIteratorsChanged()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Iterators"));
         }
 
         //TODO: duplicate
@@ -79,7 +66,6 @@ namespace IFSEngine.Model
                 it.WeightTo.Remove(it1);
             }
             Iterators.Remove(it1);
-            RaiseIteratorsChanged();
         }
 
         public static IFS GenerateRandom()

@@ -48,6 +48,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 ifs.ViewSettings.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+                RaisePropertyChanged("InvalidateRender");
             }
         }
 
@@ -55,19 +56,18 @@ namespace WpfDisplay.ViewModels
         {
             this.ifs = ifs;
             CameraSettingsViewModel = new CameraSettingsViewModel(ifs);
+            CameraSettingsViewModel.PropertyChanged += (s,e) => RaisePropertyChanged(e.PropertyName);
             ToneMappingViewModel = new ToneMappingViewModel(ifs);
+            ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            IteratorViewModels.CollectionChanged += (s, e) => RaisePropertyChanged("InvalidateParams");
             ifs.Iterators.ToList().ForEach(i => addNewIteratorVM(i));
-            ifs.PropertyChanged += Ifs_PropertyChanged;
             HandleIteratorsChanged();
         }
 
         private IteratorViewModel addNewIteratorVM(Iterator i)
         {
             var ivm = new IteratorViewModel(i);
-            ivm.PropertyChanged += (s, e) =>
-            {
-                RaisePropertyChanged("InvalidateParams");
-            };
+            ivm.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
             ivm.ViewChanged += (s, e) => { Redraw(); };
             ivm.Selected += (s, e) => SelectedIterator = ivm;
             ivm.ConnectEvent += (s, finish) =>
@@ -105,7 +105,7 @@ namespace WpfDisplay.ViewModels
             //update connections vms:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
         }
-        public void HandleConnectionsChanged(IteratorViewModel vm)
+        private void HandleConnectionsChanged(IteratorViewModel vm)
         {
             var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key));
             var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key));
@@ -124,19 +124,6 @@ namespace WpfDisplay.ViewModels
                     con.UpdateGeometry();
                 }
             }
-        }
-
-        private void Ifs_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "Iterators":
-                    HandleIteratorsChanged();
-                    break;
-                default:
-                    break;
-            }
-            RaisePropertyChanged("InvalidateParams");
         }
 
         private RelayCommand<string> _addIteratorCommand;
@@ -178,6 +165,7 @@ namespace WpfDisplay.ViewModels
                     //
                     if (SelectedIterator != null)
                         SelectedIterator.iterator.WeightTo[preaffine] = 1.0;
+                    RaisePropertyChanged("InvalidateParams");
                     HandleIteratorsChanged();
                 }));
         }
@@ -190,6 +178,8 @@ namespace WpfDisplay.ViewModels
                 {
                     ifs.RemoveIterator(SelectedIterator.iterator);
                     SelectedIterator = null;
+                    RaisePropertyChanged("InvalidateParams");
+                    HandleIteratorsChanged();
                 }));
         }
 

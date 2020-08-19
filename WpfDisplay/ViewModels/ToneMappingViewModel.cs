@@ -24,6 +24,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.Brightness = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateRender");
             }
         }
         public double Gamma
@@ -33,6 +34,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.Gamma = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateRender");
             }
         }
         public double GammaThreshold
@@ -42,6 +44,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.GammaThreshold = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateRender");
             }
         }
         public double Vibrancy
@@ -51,6 +54,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.Vibrancy = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateRender");
             }
         }
 

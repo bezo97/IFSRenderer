@@ -31,6 +31,8 @@ namespace WpfDisplay.ViewModels
                 Set(ref _ifsViewModel, value);
                 _ifsViewModel.PropertyChanged += (s, e) =>
                 {//
+                    if (e.PropertyName == "InvalidateRender")
+                        renderer.UpdateDisplay();
                     if (e.PropertyName == "InvalidateParams")
                         renderer.InvalidateParams();
                     if (e.PropertyName == "InvalidateAccumulation")

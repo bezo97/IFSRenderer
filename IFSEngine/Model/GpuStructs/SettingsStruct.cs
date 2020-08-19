@@ -11,7 +11,7 @@ namespace IFSEngine.Model.GpuStructs
         internal CameraStruct CameraBase;
         internal Vector4 focuspoint;
         internal float fog_effect;
-        internal float dof;
+        internal float depth_of_field;
         internal float focusdistance;
         internal float focusarea;
         //current frame:

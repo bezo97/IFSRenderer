@@ -23,16 +23,18 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.Camera.FieldOfView = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateAccumulation");
             }
         }
 
         public double DepthOfField
         {
-            get => ifs.ViewSettings.Dof;
+            get => ifs.ViewSettings.DepthOfField;
             set
             {
-                ifs.ViewSettings.Dof = value;
+                ifs.ViewSettings.DepthOfField = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateAccumulation");
             }
         }
 
@@ -43,6 +45,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.FocusDistance = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateAccumulation");
             }
         }
 
@@ -53,6 +56,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.FocusArea = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateAccumulation");
             }
         }
 
@@ -63,6 +67,7 @@ namespace WpfDisplay.ViewModels
             {
                 ifs.ViewSettings.FogEffect = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged("InvalidateAccumulation");
             }
         }
 

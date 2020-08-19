@@ -164,30 +164,9 @@ namespace IFSEngine
 
         public void LoadParams(IFS p)
         {
-            if (currentParams != null)
-                currentParams.ViewSettings.PropertyChanged -= HandleInvalidation;
             currentParams = p;
-            currentParams.ViewSettings.PropertyChanged += HandleInvalidation;
             InvalidateParams();
             Task.Run(()=>SetHistogramScale(1.0));
-        }
-
-        private void HandleInvalidation(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "1":
-                    InvalidateAccumulation();
-                    break;
-                case "2":
-                    InvalidateParams();
-                    break;
-                case "0":
-                default:
-                    break;
-
-            }
-            UpdateDisplay();
         }
 
         public void InvalidateAccumulation()
@@ -347,7 +326,7 @@ namespace IFSEngine
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
                 fog_effect = (float)currentParams.ViewSettings.FogEffect,
-                dof = (float)currentParams.ViewSettings.Dof,
+                depth_of_field = (float)currentParams.ViewSettings.DepthOfField,
                 focusdistance = (float)currentParams.ViewSettings.FocusDistance,
                 focusarea = (float)currentParams.ViewSettings.FocusArea,
                 focuspoint = new System.Numerics.Vector4(currentParams.ViewSettings.Camera.Position + (float)currentParams.ViewSettings.FocusDistance * currentParams.ViewSettings.Camera.ForwardDirection, 0.0f),
