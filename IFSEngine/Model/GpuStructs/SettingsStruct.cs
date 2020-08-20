@@ -21,9 +21,8 @@ namespace IFSEngine.Model.GpuStructs
         internal int palettecnt;//how many colors in the palette
 
         internal int resetPointsState;//0/1
-        //padding
-        internal int dummy0;
-        internal int dummy1;
-        internal int dummy2;
+        internal int padding0;
+        internal int padding1;
+        internal int padding2;
     }
 }

@@ -36,29 +36,25 @@ namespace IFSEngine.TransformFunctions
 
         private System.Numerics.Matrix4x4 m => Matrix4x4.CreateFromYawPitchRoll((float)Yaw, (float)Pitch, (float)Roll);
 
-        public static Moebius RandomMoebius
+        public static Moebius RandomMoebius()
         {
-            get
+            double tx = RandHelper.NextDouble() * 4 - 2;
+            double ty = RandHelper.NextDouble() * 4 - 2;
+            double tz = RandHelper.NextDouble() * 4 - 2;
+            return new Moebius
             {
-                double tx = RandHelper.NextDouble() * 4 - 2;
-                double ty = RandHelper.NextDouble() * 4 - 2;
-                double tz = RandHelper.NextDouble() * 4 - 2;
-                return new Moebius
-                {
-                    Alpha = 0.75 + RandHelper.NextDouble() * 0.5,
-                    AX = tx,
-                    AY = ty,
-                    AZ = tz,
-                    BX = tx + RandHelper.NextDouble()*0.1,
-                    BY = ty + RandHelper.NextDouble()*0.1,
-                    BZ = tz + RandHelper.NextDouble()*0.1,
-                    Yaw = RandHelper.NextDouble() * Math.PI * 2,
-                    Pitch = RandHelper.NextDouble() * Math.PI,
-                    Roll = RandHelper.NextDouble() * Math.PI * 2
-                };
-            }
+                Alpha = 0.75 + RandHelper.NextDouble() * 0.5,
+                AX = tx,
+                AY = ty,
+                AZ = tz,
+                BX = tx + RandHelper.NextDouble() * 0.2 - 0.1,
+                BY = ty + RandHelper.NextDouble() * 0.2 - 0.1,
+                BZ = tz + RandHelper.NextDouble() * 0.2 - 0.1,
+                Yaw = RandHelper.NextDouble() * Math.PI * 2,
+                Pitch = RandHelper.NextDouble() * Math.PI,
+                Roll = RandHelper.NextDouble() * Math.PI * 2
+            };
         }
-
 
     }
 }

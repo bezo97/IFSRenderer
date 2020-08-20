@@ -91,10 +91,9 @@ layout(std140, binding = 3) uniform settings_ubo
 	int palettecnt;
 
 	int resetPointsState;
-	//padding
-	int dummy0;
-	int dummy1;
-	int dummy2;
+	int padding0;
+	int padding1;
+	int padding2;
 } settings;
 
 layout(std140, binding = 4) uniform iterators_ubo

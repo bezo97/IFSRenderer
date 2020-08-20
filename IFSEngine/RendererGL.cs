@@ -187,8 +187,8 @@ namespace IFSEngine
         {
             await WithContext(() =>
             {
-                HistogramWidth = (int)(currentParams.ViewSettings.ImageResolution.Width * scale);
-                HistogramHeight = (int)(currentParams.ViewSettings.ImageResolution.Height * scale);
+                HistogramWidth = (int)(currentParams.ImageResolution.Width * scale);
+                HistogramHeight = (int)(currentParams.ImageResolution.Height * scale);
                 GL.UseProgram(computeProgramHandle);
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
@@ -220,7 +220,7 @@ namespace IFSEngine
 
         public async Task SetHistogramScaleToDisplay()
         {
-            double fitToDisplayRatio = DisplayWidth / (double)currentParams.ViewSettings.ImageResolution.Width;
+            double fitToDisplayRatio = DisplayWidth / (double)currentParams.ImageResolution.Width;
             await SetHistogramScale(fitToDisplayRatio);
         }
 
@@ -321,15 +321,15 @@ namespace IFSEngine
 
             var settings = new SettingsStruct
             {
-                CameraBase = currentParams.ViewSettings.Camera.GetCameraParameters(),
+                CameraBase = currentParams.Camera.GetCameraParameters(),
                 itnum = currentParams.Iterators.Count,
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
-                fog_effect = (float)currentParams.ViewSettings.FogEffect,
-                depth_of_field = (float)currentParams.ViewSettings.DepthOfField,
-                focusdistance = (float)currentParams.ViewSettings.FocusDistance,
-                focusarea = (float)currentParams.ViewSettings.FocusArea,
-                focuspoint = new System.Numerics.Vector4(currentParams.ViewSettings.Camera.Position + (float)currentParams.ViewSettings.FocusDistance * currentParams.ViewSettings.Camera.ForwardDirection, 0.0f),
+                fog_effect = (float)currentParams.FogEffect,
+                depth_of_field = (float)currentParams.DepthOfField,
+                focusdistance = (float)currentParams.FocusDistance,
+                focusarea = (float)currentParams.FocusArea,
+                focuspoint = new System.Numerics.Vector4(currentParams.Camera.Position + (float)currentParams.FocusDistance * currentParams.Camera.ForwardDirection, 0.0f),
                 palettecnt = currentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0                
             };
@@ -371,11 +371,11 @@ namespace IFSEngine
                     //update uniforms..
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "width"), HistogramWidth);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "height"), HistogramHeight);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Brightness"), (float)currentParams.ViewSettings.Brightness);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "InvGamma"), (float)(1.0f / currentParams.ViewSettings.Gamma));
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)currentParams.ViewSettings.GammaThreshold);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)currentParams.ViewSettings.Vibrancy);
-                    GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), currentParams.ViewSettings.BackgroundColor.R / 255.0f, currentParams.ViewSettings.BackgroundColor.G / 255.0f, currentParams.ViewSettings.BackgroundColor.B / 255.0f);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Brightness"), (float)currentParams.Brightness);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "InvGamma"), (float)(1.0f / currentParams.Gamma));
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "GammaThreshold"), (float)currentParams.GammaThreshold);
+                    GL.Uniform1(GL.GetUniformLocation(deProgramH, "Vibrancy"), (float)currentParams.Vibrancy);
+                    GL.Uniform3(GL.GetUniformLocation(deProgramH, "BackgroundColor"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_max_radius"), (float)DEMaxRadius);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_power"), (float)DEPower);
                     GL.Uniform1(GL.GetUniformLocation(deProgramH, "de_threshold"), (float)DEThreshold);//////////////////////

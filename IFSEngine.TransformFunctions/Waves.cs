@@ -19,22 +19,19 @@ namespace IFSEngine.TransformFunctions
         public double Fy { get; set; } = 10.0;
         public double Fz { get; set; } = 10.0;
 
-
-        public static Waves RandomWaves
+        public static Waves RandomWaves()
         {
-            get
+            return new Waves
             {
-                return new Waves
-                {
-                    W = 0.999,
-                    Sx = RandHelper.NextDouble() * 0.1,
-                    Sy = RandHelper.NextDouble() * 0.1,
-                    Sz = RandHelper.NextDouble() * 0.1,
-                    Fx = RandHelper.NextDouble() * 20.0,
-                    Fy = RandHelper.NextDouble() * 20.0,
-                    Fz = RandHelper.NextDouble() * 20.0,
-                };
-            }
+                W = 0.999,
+                Sx = RandHelper.NextDouble() * 0.1,
+                Sy = RandHelper.NextDouble() * 0.1,
+                Sz = RandHelper.NextDouble() * 0.1,
+                Fx = RandHelper.NextDouble() * 20.0,
+                Fy = RandHelper.NextDouble() * 20.0,
+                Fz = RandHelper.NextDouble() * 20.0,
+            };
         }
+
     }
 }

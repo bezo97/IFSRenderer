@@ -19,47 +19,42 @@ namespace IFSEngine.Model
         [JsonIgnore]
         public Dictionary<Iterator, double> WeightTo = new Dictionary<Iterator, double>();
 
-        public static Iterator RandomIterator
+        public static Iterator RandomIterator()
         {
-            get
+            //TODO: remove switch, randomize transforms
+            ITransformFunction r1 = null;
+            switch (RandHelper.Next(6))
             {
-                //TODO: remove switch, randomize transforms
-                ITransformFunction r1 = null;
-                switch (RandHelper.Next(6))
-                {
-                    case 0:
-                        r1 = Affine.RandomAffine;
-                        break;
-                    case 1:
-                        r1 = new Spherical();
-                        break;
-                    case 2:
-                        r1 = Waves.RandomWaves;
-                        break;
-                    case 3:
-                        r1 = new Foci();
-                        break;
-                    case 4:
-                        r1 = new Loonie();
-                        break;
-                    case 5:
-                        r1 = Moebius.RandomMoebius;
-                        break;
-                    default:
-                        break;
-                };
-                return new Iterator
-                {
-                    Transform = r1,
-                    //Transforms = new List<ITransformFunction> { Affine.RandomAffine, r1 },
-                    ColorIndex = RandHelper.NextDouble(),
-                    ColorSpeed = 1.0f - RandHelper.NextDouble() * 2.0f,
-                    Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
-                    BaseWeight = RandHelper.NextDouble()
-                };
-            }
+                case 0:
+                    r1 = Affine.RandomAffine();
+                    break;
+                case 1:
+                    r1 = new Spherical();
+                    break;
+                case 2:
+                    r1 = Waves.RandomWaves();
+                    break;
+                case 3:
+                    r1 = new Foci();
+                    break;
+                case 4:
+                    r1 = new Loonie();
+                    break;
+                case 5:
+                    r1 = Moebius.RandomMoebius();
+                    break;
+                default:
+                    break;
+            };
+            return new Iterator
+            {
+                Transform = r1,
+                ColorIndex = RandHelper.NextDouble(),
+                ColorSpeed = RandHelper.NextDouble(),
+                Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
+                BaseWeight = RandHelper.NextDouble()
+            };
         }
 
     }
-
 }

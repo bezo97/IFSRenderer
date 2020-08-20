@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using IFSEngine.Util;
@@ -8,21 +8,38 @@ using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
+    /// <summary>
+    /// Iterated Function System.
+    /// The model is similar to flam3, with additional parameters like DepthOfField and FocusDistance.
+    /// </summary>
     public class IFS
     {
+        public IReadOnlyCollection<Iterator> Iterators => iterators;//TODO: use IReadOnlySet in .NET5
+        public double Brightness = 1.0;
+        public double Gamma = 1.0;
+        public double GammaThreshold = 0.0;
+        public double Vibrancy = 1.0;
+        public double FogEffect = 0.0;
+        public double DepthOfField = 0.0;
+        public double FocusDistance = 2.0;
+        public double FocusArea = 0.25;
+        public Camera Camera = new Camera();
+        public Color BackgroundColor = Color.Black;
+        public Size ImageResolution = new Size(1920, 1080);
         public FlamePalette Palette = FlamePalette.Default;
-        public IFSView ViewSettings = new IFSView();
-        public HashSet<Iterator> Iterators = new HashSet<Iterator>();
 
-        public void AddIterator(Iterator it1, bool connect)
+        protected HashSet<Iterator> iterators = new HashSet<Iterator>();
+
+        /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
+        public void AddIterator(Iterator newIterator, bool connect)
         {
-            Iterators.Add(it1);
+            iterators.Add(newIterator);
             if (connect)
-            {//connect to/from each existing Iterator
-                foreach (var it in Iterators)
+            {
+                foreach (var it in iterators)
                 {
-                    it1.WeightTo[it] = 1.0;
-                    it.WeightTo[it1] = 1.0;
+                    newIterator.WeightTo[it] = 1.0;
+                    it.WeightTo[newIterator] = 1.0;
                 }
             }
         }
@@ -58,33 +75,38 @@ namespace IFSEngine.Model
 
         public void RemoveIterator(Iterator it1)
         {
-            if (!Iterators.Contains(it1))
+            if (!iterators.Contains(it1))
                 return;
-            foreach (var it in Iterators)
+            foreach (var it in iterators)
             {
                 it1.WeightTo.Remove(it);
                 it.WeightTo.Remove(it1);
             }
-            Iterators.Remove(it1);
+            iterators.Remove(it1);
         }
 
         public static IFS GenerateRandom()
         {
-            IFS rifs = new IFS();
-            var itnum = RandHelper.Next(5) + 2;
+            IFS randomIFS = new IFS
+            {
+                Brightness = 4,
+                Gamma = 4
+            };
+            //add random iterators
+            var itnum = RandHelper.Next(3) + 2;
             for (var ii = 0; ii < itnum; ii++)
             {
-                rifs.AddIterator(Iterator.RandomIterator, true);
+                randomIFS.AddIterator(Iterator.RandomIterator(), true);
             }
             //randomize xaos weights
-            foreach (var it in rifs.Iterators)
+            foreach (var it in randomIFS.iterators)
             {
-                foreach (var itTo in rifs.Iterators)
+                foreach (var itTo in randomIFS.iterators)
                 {
                     it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
                 }
             }
-            return rifs;
+            return randomIFS;
         }
 
         public static IFS LoadJson(string path)
@@ -114,7 +136,7 @@ namespace IFSEngine.Model
             get
             {
                 List<List<double>> o = new List<List<double>>();
-                foreach (Iterator iterator in Iterators)
+                foreach (Iterator iterator in iterators)
                 {
                     o.Add(iterator.WeightTo.Values.ToList());
                 }
@@ -122,7 +144,7 @@ namespace IFSEngine.Model
             }
             set
             {
-                var tmpl = Iterators.ToList();
+                var tmpl = iterators.ToList();
                 for (int iX = 0; iX < value.Count; iX++)
                 {
                     tmpl[iX].WeightTo = tmpl.ToDictionary(k => k, v => value[iX][tmpl.IndexOf(v)]);

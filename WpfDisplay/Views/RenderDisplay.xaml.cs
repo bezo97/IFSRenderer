@@ -47,7 +47,8 @@ namespace WpfDisplay.Views
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            IFSViewModel.ifs.ViewSettings.FocusDistance += e.Delta * IFSViewModel.ifs.ViewSettings.FocusDistance * 0.001;
+            IFSViewModel.ifs.FocusDistance += e.Delta * IFSViewModel.ifs.FocusDistance * 0.001;
+            IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");
         }
 
         private void Display1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -57,7 +58,7 @@ namespace WpfDisplay.Views
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
                 float yawDelta = e.X - lastX;
                 float pitchDelta = e.Y - lastY;
-                IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
+                IFSViewModel.ifs.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
                 IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
             else
@@ -71,13 +72,13 @@ namespace WpfDisplay.Views
             if (translateKeys.Any(k => keyboard.IsKeyDown(k)))
             {
                 //Experiment: camera speed relates to focus distance
-                float magnitude = (float)IFSViewModel.ifs.ViewSettings.FocusDistance;
+                float magnitude = (float)IFSViewModel.ifs.FocusDistance;
                 var direction = new Vector3(
                     ((keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((keyboard.IsKeyDown(Key.C) || keyboard.IsKeyDown(Key.Q)) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
                 );
-                IFSViewModel.ifs.ViewSettings.Camera.TranslateWithSensitivity(magnitude * direction);
+                IFSViewModel.ifs.Camera.TranslateWithSensitivity(magnitude * direction);
                 IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
 
@@ -89,7 +90,7 @@ namespace WpfDisplay.Views
                     ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                 );
-                IFSViewModel.ifs.ViewSettings.Camera.RotateWithSensitivity(magnitude * direction);
+                IFSViewModel.ifs.Camera.RotateWithSensitivity(magnitude * direction);
                 IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");//
             }
 

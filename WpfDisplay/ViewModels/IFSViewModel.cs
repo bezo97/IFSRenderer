@@ -42,12 +42,12 @@ namespace WpfDisplay.ViewModels
         {
             get 
             {
-                var c = ifs.ViewSettings.BackgroundColor;
+                var c = ifs.BackgroundColor;
                 return Color.FromRgb(c.R, c.G, c.B);
             }
             set
             {
-                ifs.ViewSettings.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+                ifs.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
                 RaisePropertyChanged("InvalidateRender");
             }
         }
@@ -60,11 +60,11 @@ namespace WpfDisplay.ViewModels
             ToneMappingViewModel = new ToneMappingViewModel(ifs);
             ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
             IteratorViewModels.CollectionChanged += (s, e) => RaisePropertyChanged("InvalidateParams");
-            ifs.Iterators.ToList().ForEach(i => addNewIteratorVM(i));
+            ifs.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             HandleIteratorsChanged();
         }
 
-        private IteratorViewModel addNewIteratorVM(Iterator i)
+        private IteratorViewModel AddNewIteratorVM(Iterator i)
         {
             var ivm = new IteratorViewModel(i);
             ivm.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
@@ -87,7 +87,7 @@ namespace WpfDisplay.ViewModels
             };
             if (SelectedIterator != null)
             {
-                ivm.XCoord = SelectedIterator.XCoord+(float)SelectedIterator.WeightedSize+(float)ivm.WeightedSize;
+                ivm.XCoord = SelectedIterator.XCoord+(float)SelectedIterator.WeightedSize/1.5f+(float)ivm.WeightedSize/1.5f;
                 ivm.YCoord = SelectedIterator.YCoord;
             }
             IteratorViewModels.Add(ivm);
@@ -100,7 +100,7 @@ namespace WpfDisplay.ViewModels
             var newIterators = ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
             var removedIteratorVMs = IteratorViewModels.Where(vm => !ifs.Iterators.Any(i => vm.iterator == i));
             removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
-            newIterators.ToList().ForEach(i => addNewIteratorVM(i));
+            newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
 
             //update connections vms:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
@@ -132,7 +132,6 @@ namespace WpfDisplay.ViewModels
             get => _addIteratorCommand ?? (
                 _addIteratorCommand = new RelayCommand<string>((name) =>
                 {
-                    Iterator preaffine = new Iterator { Transform = new Affine(), Opacity = 0.0 };
                     Iterator newIterator;
                     switch (name)
                     {//TODO: tmp solution
@@ -149,7 +148,7 @@ namespace WpfDisplay.ViewModels
                             newIterator = new Iterator { Transform = new Spherical() };
                             break;
                         case "Waves":
-                            newIterator = new Iterator { Transform = Waves.RandomWaves };
+                            newIterator = new Iterator { Transform = Waves.RandomWaves() };
                             break;
                         case "Moebius":
                             newIterator = new Iterator { Transform = new Moebius() };
@@ -158,13 +157,12 @@ namespace WpfDisplay.ViewModels
                             newIterator = new Iterator { Transform = new Affine() };
                             break;
                     }
-                    ifs.AddIterator(preaffine, false);
                     ifs.AddIterator(newIterator, false);
-                    preaffine.WeightTo[newIterator] = 1.0;
-                    newIterator.WeightTo[preaffine] = 1.0;
-                    //
                     if (SelectedIterator != null)
-                        SelectedIterator.iterator.WeightTo[preaffine] = 1.0;
+                    {
+                        SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
+                        newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
+                    }
                     RaisePropertyChanged("InvalidateParams");
                     HandleIteratorsChanged();
                 }));

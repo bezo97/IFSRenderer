@@ -26,27 +26,27 @@ namespace IFSEngine.TransformFunctions
         public double ZY { get; set; }
         public double ZZ { get; set; } = 1;
 
-        public static Affine RandomAffine
+        public static Affine RandomAffine()
         {
-            get
+            double ox = (RandHelper.NextDouble() * 2 - 1) * 3.0;
+            double oy = (RandHelper.NextDouble() * 2 - 1) * 3.0;
+            double oz = (RandHelper.NextDouble() * 2 - 1) * 3.0;
+            return new Affine
             {
-                return new Affine
-                {
-                    OX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    OY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    OZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    XX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    XY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    XZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    YX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    YY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    YZ = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    ZX = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    ZY = (RandHelper.NextDouble() * 2 - 1) * 1.1,
-                    ZZ = (RandHelper.NextDouble() * 2 - 1) * 1.1
-                };  
-            }       
-        }           
+                OX = ox,
+                OY = oy,
+                OZ = oz,
+                XX = ox + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                XY = oy + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                XZ = oz + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                YX = ox + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                YY = oy + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                YZ = oz + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                ZX = ox + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                ZY = oy + (RandHelper.NextDouble() * 2 - 1) * 1.1,
+                ZZ = oz + (RandHelper.NextDouble() * 2 - 1) * 1.1
+            };
+        }
 
     }
 }

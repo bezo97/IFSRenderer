@@ -8,8 +8,6 @@ using IFSEngine.Model.GpuStructs;
 namespace IFSEngine.Model
 {
     //http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
-    //order: x pitch, y yaw, z roll
-
     public class Camera
     {
         public Quaternion Orientation { get; set; } = Quaternion.Identity;//no rotation

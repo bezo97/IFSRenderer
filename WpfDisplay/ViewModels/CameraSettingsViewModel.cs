@@ -18,10 +18,10 @@ namespace WpfDisplay.ViewModels
         }
 
         public float FieldOfView {
-            get => ifs.ViewSettings.Camera.FieldOfView;
+            get => ifs.Camera.FieldOfView;
             set
             {
-                ifs.ViewSettings.Camera.FieldOfView = value;
+                ifs.Camera.FieldOfView = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateAccumulation");
             }
@@ -29,10 +29,10 @@ namespace WpfDisplay.ViewModels
 
         public double DepthOfField
         {
-            get => ifs.ViewSettings.DepthOfField;
+            get => ifs.DepthOfField;
             set
             {
-                ifs.ViewSettings.DepthOfField = value;
+                ifs.DepthOfField = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateAccumulation");
             }
@@ -40,10 +40,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusDistance
         {
-            get => ifs.ViewSettings.FocusDistance;
+            get => ifs.FocusDistance;
             set
             {
-                ifs.ViewSettings.FocusDistance = value;
+                ifs.FocusDistance = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateAccumulation");
             }
@@ -51,10 +51,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusArea
         {
-            get => ifs.ViewSettings.FocusArea;
+            get => ifs.FocusArea;
             set
             {
-                ifs.ViewSettings.FocusArea = value;
+                ifs.FocusArea = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateAccumulation");
             }
@@ -62,10 +62,10 @@ namespace WpfDisplay.ViewModels
 
         public double FogEffect
         {
-            get => ifs.ViewSettings.FogEffect;
+            get => ifs.FogEffect;
             set
             {
-                ifs.ViewSettings.FogEffect = value;
+                ifs.FogEffect = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateAccumulation");
             }

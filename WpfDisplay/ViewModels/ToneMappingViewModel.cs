@@ -19,40 +19,40 @@ namespace WpfDisplay.ViewModels
 
         public double Brightness
         {
-            get => ifs.ViewSettings.Brightness;
+            get => ifs.Brightness;
             set
             {
-                ifs.ViewSettings.Brightness = value;
+                ifs.Brightness = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateRender");
             }
         }
         public double Gamma
         {
-            get => ifs.ViewSettings.Gamma;
+            get => ifs.Gamma;
             set
             {
-                ifs.ViewSettings.Gamma = value;
+                ifs.Gamma = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateRender");
             }
         }
         public double GammaThreshold
         {
-            get => ifs.ViewSettings.GammaThreshold;
+            get => ifs.GammaThreshold;
             set
             {
-                ifs.ViewSettings.GammaThreshold = value;
+                ifs.GammaThreshold = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateRender");
             }
         }
         public double Vibrancy
         {
-            get => ifs.ViewSettings.Vibrancy;
+            get => ifs.Vibrancy;
             set
             {
-                ifs.ViewSettings.Vibrancy = value;
+                ifs.Vibrancy = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged("InvalidateRender");
             }
