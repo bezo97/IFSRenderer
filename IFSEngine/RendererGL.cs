@@ -373,14 +373,9 @@ namespace IFSEngine
                 GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "gamma_threshold"), (float)currentParams.GammaThreshold);
                 GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "vibrancy"), (float)currentParams.Vibrancy);
                 GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.Vertex2(0, 0);
-                GL.Vertex2(0, 1);
-                GL.Vertex2(1, 1);
-                GL.Vertex2(1, 0);
-                GL.End();
+                GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-                if(EnableDE)
+                if (EnableDE)
                 {
                     GL.UseProgram(deProgramHandle);
                     //update uniforms..
@@ -390,13 +385,7 @@ namespace IFSEngine
                     GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_power"), (float)DEPower);
                     GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_threshold"), (float)DEThreshold);
                     GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
-                    //draw quad
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.Vertex2(0, 0);
-                    GL.Vertex2(0, 1);
-                    GL.Vertex2(1, 1);
-                    GL.Vertex2(1, 0);
-                    GL.End();
+                    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
                 }
 
                 if (EnableTAA)
@@ -405,13 +394,7 @@ namespace IFSEngine
                     GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "width"), HistogramWidth);
                     GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "height"), HistogramHeight);
                     GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
-                    //draw quad
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.Vertex2(0, 0);
-                    GL.Vertex2(0, 1);
-                    GL.Vertex2(1, 1);
-                    GL.Vertex2(1, 0);
-                    GL.End();
+                    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
                 }
 
                 float rw = DisplayWidth / (float)HistogramWidth;
@@ -443,7 +426,7 @@ namespace IFSEngine
                 if(ctx.IsCurrent)
                     ctx.MakeCurrent(null);
 
-                new System.Threading.Thread(() =>
+                new Thread(() =>
                 {
                     ctx.MakeCurrent(wInfo);
                     while (rendering)
