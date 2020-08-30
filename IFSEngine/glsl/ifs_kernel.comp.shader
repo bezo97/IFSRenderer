@@ -58,7 +58,7 @@ struct Iterator
 //Shader Storage Buffer Objects
 //read and write, dynamic size
 
-layout(std140, binding = 0) buffer histogram_buffer
+layout(std140, binding = 0) coherent buffer histogram_buffer
 {
 	vec4 histogram[];
 };

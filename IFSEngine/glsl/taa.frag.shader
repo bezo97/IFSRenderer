@@ -1,7 +1,9 @@
-﻿#version 400
+﻿#version 420
 
-uniform sampler2D t1;//new render frame
-uniform sampler2D t2;//last aa frame
+layout(location = 0) out vec4 color;
+
+uniform sampler2D new_frame_tex;//new render frame
+layout(rgba32f, binding = 0) uniform image2D last_frame_image;//last aa frame
 
 uniform int width = 1920;
 uniform int height = 1080;
@@ -32,22 +34,24 @@ vec3 decodePalYuv(vec3 yuv)
 vec4 TemporalAA()
 {
 	vec2 uv = gl_FragCoord.xy / vec2(float(width), float(height));
+	ivec2 fc = ivec2(gl_FragCoord.xy);
 	vec2 off = 1.0 / vec2(float(width), float(height));
 
 	//sample new render frame
-	vec3 in0 = texture(t1, uv).xyz;
-	vec3 in1 = texture(t1, uv + vec2(+off.x, 0.0), mip_blur).xyz;
-	vec3 in2 = texture(t1, uv + vec2(-off.x, 0.0), mip_blur).xyz;
-	vec3 in3 = texture(t1, uv + vec2(0.0, +off.y), mip_blur).xyz;
-	vec3 in4 = texture(t1, uv + vec2(0.0, -off.y), mip_blur).xyz;
-	vec3 in5 = texture(t1, uv + vec2(+off.x, +off.y), mip_blur).xyz;
-	vec3 in6 = texture(t1, uv + vec2(-off.x, +off.y), mip_blur).xyz;
-	vec3 in7 = texture(t1, uv + vec2(+off.x, -off.y), mip_blur).xyz;
-	vec3 in8 = texture(t1, uv + vec2(-off.x, -off.y), mip_blur).xyz;
+	vec3 in0 = texture(new_frame_tex, uv).xyz;
+	vec3 in1 = texture(new_frame_tex, uv + vec2(+off.x, 0.0), mip_blur).xyz;
+	vec3 in2 = texture(new_frame_tex, uv + vec2(-off.x, 0.0), mip_blur).xyz;
+	vec3 in3 = texture(new_frame_tex, uv + vec2(0.0, +off.y), mip_blur).xyz;
+	vec3 in4 = texture(new_frame_tex, uv + vec2(0.0, -off.y), mip_blur).xyz;
+	vec3 in5 = texture(new_frame_tex, uv + vec2(+off.x, +off.y), mip_blur).xyz;
+	vec3 in6 = texture(new_frame_tex, uv + vec2(-off.x, +off.y), mip_blur).xyz;
+	vec3 in7 = texture(new_frame_tex, uv + vec2(+off.x, -off.y), mip_blur).xyz;
+	vec3 in8 = texture(new_frame_tex, uv + vec2(-off.x, -off.y), mip_blur).xyz;
 
 	//sample last aa frame
-	vec3 lastColor = texture(t2, uv).xyz;
-	float lastMixRate = texture(t2, uv).w;
+	vec4 lastFrame = imageLoad(last_frame_image, fc);
+	vec3 lastColor = lastFrame.rgb;
+	float lastMixRate = lastFrame.w;
 
 	float mixRate = min(lastMixRate, 0.5);
 	vec3 antialiased = mix(lastColor * lastColor, in0 * in0, mixRate);
@@ -82,6 +86,8 @@ vec4 TemporalAA()
 
 	antialiased = decodePalYuv(antialiased);
 
+	imageStore(last_frame_image, fc, vec4(antialiased, mixRate));
+
 	return vec4(antialiased, mixRate);
 }
 
@@ -89,5 +95,5 @@ void main(void)
 {
 	vec2 uv = gl_FragCoord.xy / vec2(float(width), float(height));
 	vec4 taa = TemporalAA();
-	gl_FragColor = vec4(max(taa.xyz, texture(t1, uv).rgb), taa.w);
+	color = vec4(max(taa.xyz, texture(new_frame_tex, uv).rgb), taa.w);
 }

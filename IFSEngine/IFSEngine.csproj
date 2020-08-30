@@ -14,17 +14,17 @@
 
   <ItemGroup>
     <None Remove="glsl\de.frag.shader" />
-    <None Remove="glsl\ifs_kernel.compute" />
-    <None Remove="glsl\logscale.frag.shader" />
+    <None Remove="glsl\ifs_kernel.comp.shader" />
     <None Remove="glsl\quad.vert.shader" />
     <None Remove="glsl\taa.frag.shader" />
+    <None Remove="glsl\tonemap.frag.shader" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="glsl\de.frag.shader" />
-    <EmbeddedResource Include="glsl\logscale.frag.shader" />
+    <EmbeddedResource Include="glsl\tonemap.frag.shader" />
     <EmbeddedResource Include="glsl\quad.vert.shader" />
-    <EmbeddedResource Include="glsl\ifs_kernel.compute" />
+    <EmbeddedResource Include="glsl\ifs_kernel.comp.shader" />
     <EmbeddedResource Include="glsl\taa.frag.shader" />
   </ItemGroup>
 
