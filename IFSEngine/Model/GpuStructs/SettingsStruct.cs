@@ -21,8 +21,8 @@ namespace IFSEngine.Model.GpuStructs
         internal int palettecnt;//how many colors in the palette
 
         internal int resetPointsState;//0/1
+        internal int warmup;//initial skipping / fuse
         internal int padding0;
         internal int padding1;
-        internal int padding2;
     }
 }

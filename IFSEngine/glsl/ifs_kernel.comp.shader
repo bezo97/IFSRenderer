@@ -91,9 +91,9 @@ layout(std140, binding = 3) uniform settings_ubo
 	int palettecnt;
 
 	int resetPointsState;
+	int warmup;
 	int padding0;
 	int padding1;
-	int padding2;
 } settings;
 
 layout(std140, binding = 4) uniform iterators_ubo
@@ -438,8 +438,8 @@ void main() {
 		float ra2 = randhash(next++);
 		ivec2 proj = Project(settings.camera, p, ra1, ra2);
 	
-		//lands on the histogram && initial skipping
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < 16 && settings.resetPointsState == 1))
+		//lands on the histogram && warmup
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < settings.warmup && settings.resetPointsState == 1))
 		{
 			vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
 			if (settings.fog_effect > 0.0f)

@@ -103,6 +103,7 @@ namespace WpfDisplay.ViewModels
             {
                 renderer.IterationDepth = value;
                 RaisePropertyChanged();
+                renderer.InvalidateAccumulation();
             }
         }
 
@@ -113,6 +114,17 @@ namespace WpfDisplay.ViewModels
             {
                 renderer.PassIters = value;
                 RaisePropertyChanged();
+            }
+        }
+
+        public int Warmup
+        {
+            get => renderer.Warmup;
+            set
+            {
+                renderer.Warmup = value;
+                RaisePropertyChanged();
+                renderer.InvalidateAccumulation();
             }
         }
 
@@ -128,6 +140,7 @@ namespace WpfDisplay.ViewModels
                     //EnablePerceptualUpdates = false;
                     PassIters = 100;
                     IterationDepth = 100;
+                    Warmup = 0;
                 }));
         }
 
@@ -142,6 +155,7 @@ namespace WpfDisplay.ViewModels
                     EnableDE = false;
                     PassIters = 500;
                     IterationDepth = 10000;
+                    Warmup = 20;
                     await renderer.SetHistogramScale(1.0);
                 }));
         }

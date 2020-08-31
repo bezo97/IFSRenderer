@@ -58,6 +58,10 @@
                     <local:ValueSlider ValueName="Iterations / Dispatch"
                                        MinValue="20" MaxValue="{Binding DataContext.IterationDepth, ElementName=qualitySettingsView}" Increment="100" 
                                        Value="{Binding DataContext.PassIters, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider ValueName="Warmup"
+                                       MinValue="0" MaxValue="{Binding DataContext.PassIters, ElementName=qualitySettingsView}" Increment="10"
+                                       Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
+
                 </StackPanel>
             </md:Card>
         </StackPanel>

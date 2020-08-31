@@ -84,6 +84,13 @@ namespace IFSEngine
         public int InvocationCount => WorkgroupCount * workgroupSize;
 
         /// <summary>
+        /// Number of iterations to be skipped before starting to plot.
+        /// This is needed to avoid seeing the starting random points.
+        /// Also known as "fuse count". Defaults to 20, same as in flame.
+        /// </summary>
+        public int Warmup { get; set; } = 20;
+
+        /// <summary>
         /// Performance setting: Number of iterations per dispatch.
         /// TODO: adaptive, using a target fps. depends on hardware & params.
         /// </summary>
@@ -346,7 +353,8 @@ namespace IFSEngine
                 focusarea = (float)currentParams.FocusArea,
                 focuspoint = new System.Numerics.Vector4(currentParams.Camera.Position + (float)currentParams.FocusDistance * currentParams.Camera.ForwardDirection, 0.0f),
                 palettecnt = currentParams.Palette.Colors.Count,
-                resetPointsState = invalidPointsState ? 1 : 0                
+                resetPointsState = invalidPointsState ? 1 : 0,
+                warmup = Warmup
             };
             GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
             GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
