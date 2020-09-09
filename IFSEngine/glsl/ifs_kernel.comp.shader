@@ -23,26 +23,6 @@ struct CameraParameters
 	vec4 forward;
 };
 
-//TODO: remove
-struct Affine
-{
-	float ox;
-	float oy;
-	float oz;
-
-	float xx;
-	float xy;
-	float xz;
-
-	float yx;
-	float yy;
-	float yz;
-
-	float zx;
-	float zy;
-	float zz;
-};
-
 struct Iterator
 {
 	float wsum;//outgoing xaos weights sum
@@ -191,147 +171,18 @@ ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 
 }
 
-vec3 affine(Affine aff, vec3 input) {
-	float px = aff.xx * input.x + aff.xy * input.y + aff.xz * input.z + aff.ox;
-	float py = aff.yx * input.x + aff.yy * input.y + aff.yz * input.z + aff.oy;
-	float pz = aff.zx * input.x + aff.zy * input.y + aff.zz * input.z + aff.oz;
-	return vec3(px, py, pz);
-}
-
-//TODO: Compile this based on TransformFunction.ShaderCode, alphabetical order, add iterator hash
-//Affine
-#define OX (tfParams[p_cnt+0])
-#define OY (tfParams[p_cnt+1])
-#define OZ (tfParams[p_cnt+2])
-#define XX (tfParams[p_cnt+3])
-#define XY (tfParams[p_cnt+4])
-#define XZ (tfParams[p_cnt+5])
-#define YX (tfParams[p_cnt+6])
-#define YY (tfParams[p_cnt+7])
-#define YZ (tfParams[p_cnt+8])
-#define ZX (tfParams[p_cnt+9])
-#define ZY (tfParams[p_cnt+10])
-#define ZZ (tfParams[p_cnt+11])
-
-//Waves
-#define Waves_Weight (tfParams[p_cnt+6]) //remove?
-#define FreqX (tfParams[p_cnt+0])
-#define FreqY (tfParams[p_cnt+1])
-#define FreqZ (tfParams[p_cnt+2])
-#define ScaleX (tfParams[p_cnt+3])
-#define ScaleY (tfParams[p_cnt+4])
-#define ScaleZ (tfParams[p_cnt+5])
-
-//Moebius
-#define Alpha (tfParams[p_cnt+0])
-#define AX (tfParams[p_cnt+1])
-#define AY (tfParams[p_cnt+2])
-#define AZ (tfParams[p_cnt+3])
-#define BX (tfParams[p_cnt+4])
-#define BY (tfParams[p_cnt+5])
-#define BZ (tfParams[p_cnt+6])
-#define M11 (tfParams[p_cnt+7])
-#define M12 (tfParams[p_cnt+8])
-#define M13 (tfParams[p_cnt+9])
-#define M21 (tfParams[p_cnt+10])
-#define M22 (tfParams[p_cnt+11])
-#define M23 (tfParams[p_cnt+12])
-#define M31 (tfParams[p_cnt+13])
-#define M32 (tfParams[p_cnt+14])
-#define M33 (tfParams[p_cnt+15])
-#define Yaw (tfParams[p_cnt+16])
-#define Pitch (tfParams[p_cnt+17])
-#define Roll (tfParams[p_cnt+18])
-
-vec3 Apply(Iterator iter, vec3 input)
+vec3 apply_transform(Iterator iter, vec3 input)
 {
 	vec3 p = input;
 	int p_cnt = iter.tfParamsStart;
 
-	if (iter.tfId == 0)
-	{//affine
-
-		//get affine transform parameters
-		int p_cnt = iter.tfParamsStart;
-		Affine aff;
-		aff.ox = OX;
-		aff.oy = OY;
-		aff.oz = OZ;
-		aff.xx = XX;
-		aff.xy = XY;
-		aff.xz = XZ;
-		aff.yx = YX;
-		aff.yy = YY;
-		aff.yz = YZ;
-		aff.zx = ZX;
-		aff.zy = ZY;
-		aff.zz = ZZ;
-
-		p = affine(aff, p.xyz);
-	}
-	else if (iter.tfId == 1)
-	{//spherical
-		float r = length(p);
-		p = 1.0f/*weight*/ * p / (r * r);
-	}
-	else if (iter.tfId == 2)
-	{//waves
-
-		/*
-		vOut.x = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEX_0], sin(vIn.y * parVars[WAVES2_FREQX_0]), vIn.x);
-		vOut.y = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEY_0], sin(vIn.x * parVars[WAVES2_FREQY_0]), vIn.y);
-		vOut.z = parVars[WEIGHT_0_0] * fma(parVars[WAVES2_SCALEZ_0], sin(precalcSqrtSumSquares * parVars[WAVES2_FREQZ_0]), vIn.z);
-		*/
-		vec3 o;
-
-		o.x = Waves_Weight * fma(ScaleX, sin(p.y * FreqX), p.x);
-		o.y = Waves_Weight * fma(ScaleY, sin(p.z * FreqY), p.y);
-		o.z = Waves_Weight * fma(ScaleZ, sin(p.x * FreqZ), p.z);
-
-		p = o;
-	}
-	else if (iter.tfId == 3)
-	{//foci
-		float exp_x = exp(p.x);
-		float exp_x_2 = exp_x * 0.5;
-		float exp_nz = 0.5 / exp_x;
-		float cos_y = cos(p.y);
-		float sin_y = sin(p.y);
-		float cos_z = cos(p.z);
-		float sin_z = sin(p.z);
-		float r = 1.0/*weight*/ / (exp_x_2 + exp_nz - cos_y - cos_z);
-		float fx = (exp_x_2 - exp_nz);
-		p = vec3(fx, sin_y, sin_z) * r;
-	}
-	else if (iter.tfId == 4)
-	{//loonie
-		float weight = 1.0;
-		float w2 = weight * weight;
-		float r2 = dot(p, p);
-		float r;
-		if (r2 < w2)
-			r = weight * sqrt(w2 / r2 - 1.0);
-		else
-			r = weight;
-		p = r * p;
-	}
-	else if (iter.tfId == 5)
-	{//moebius
-		vec3 a = vec3(AX, AY, AZ);
-		vec3 b = vec3(BX, BY, BZ);
-		mat3 m = mat3(
-			M11, M21, M31, // first column 
-			M12, M22, M32, // second column
-			M13, M23, M33  // third column
-		);
-		//https://en.wikipedia.org/wiki/M%C3%B6bius_transformation#Higher_dimensions
-		return b + (Alpha * m * (p - a)) / pow(length(p - a), 2.0);
-	}
+	//snippets inserted on initialization
+	@transforms
 
 	return p;
 }
 
-void ApplyShader(inout vec2 p_shader, Iterator it, vec3 p0, vec3 p)
+void apply_coloring(inout vec2 p_shader, Iterator it, vec3 p0, vec3 p)
 {
 	float in_color = p_shader.x;
 	float in_opacity = p_shader.y;
@@ -362,6 +213,7 @@ float startingDistribution(float uniformR)
 {
 	float a = pow(uniformR, 1.0/3.0);//avoid center of sphere
 	float curve = 1.578425;//1.578425: half of the values are < 0.5	//TODO: parameter?
+	//float curve = 0.5 + 10.0 * pow(1.001, -settings.dispatchCnt);
 	return -1.0 / curve * log(1.0 - a);
 }
 
@@ -373,7 +225,7 @@ void main() {
 	if (settings.resetPointsState == 1)
 	{//usually on first dispatch, or when number of threads changes
 		//randomize starting iterator
-		last_tf_index[gid] = int(randhash(next++) * settings.itnum);
+		last_tf_index[gid] = int(/*randhash(next++)*/random(gl_WorkGroupID.x, settings.dispatchCnt, next++) * settings.itnum);
 		
 		//init points into a starting distribution
 		float theta = TWOPI * randhash(next++);
@@ -396,7 +248,7 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = randhash(next++);
+		float r = random(gl_WorkGroupID.x, settings.dispatchCnt, i);//randhash(next++);
 		r *= iterators[last_tf_index[gid]].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
@@ -427,11 +279,11 @@ void main() {
 			r_index = last_tf_index[(gid + 1)];
 		}
 		last_tf_index[gid] = r_index;
-
+		
 
 		vec3 p0 = p;
-		p = Apply(iterators[r_index], p);//transform here
-		ApplyShader(p_shader, iterators[r_index], p0, p);
+		p = apply_transform(iterators[r_index], p);//transform here
+		apply_coloring(p_shader, iterators[r_index], p0, p);
 
 		//perspective project
 		float ra1 = randhash(next++);

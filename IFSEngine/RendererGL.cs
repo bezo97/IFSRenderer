@@ -14,7 +14,6 @@ using OpenTK.Platform;
 
 using IFSEngine.Model;
 using IFSEngine.Model.GpuStructs;
-using IFSEngine.TransformFunctions;
 using IFSEngine.Animation;
 
 namespace IFSEngine
@@ -53,6 +52,9 @@ namespace IFSEngine
         public int HistogramHeight { get; private set; } = 1080;
         public int DisplayWidth { get; private set; } = 1280;
         public int DisplayHeight { get; private set; } = 720;
+
+        public List<TransformFunction> RegisteredTransforms { get; private set; }
+        private readonly Dictionary<TransformFunction, int> transformIds = new Dictionary<TransformFunction, int>();//name, id
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
@@ -178,10 +180,14 @@ namespace IFSEngine
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.DebugOutputSynchronous);
 
+        }
+
+        public void Initialize(IEnumerable<TransformFunction> transforms)
+        {
             //TODO: separate opengl initialization from ctor
             initTonemapPass();
             initDE();
-            initRenderer();
+            initRenderer(transforms);
             initTAA();
 
             SetHistogramScale(1.0).Wait();
@@ -292,13 +298,13 @@ namespace IFSEngine
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
-                    HashSet<Iterator> currentIterators = new HashSet<Iterator>(currentParams.Iterators);
+                    var currentIterators = currentParams.Iterators.ToList();
                     foreach (var it in currentIterators)
                     {
                         //iterators
                         its.Add(new IteratorStruct
                         {
-                            tfId = it.Transform.Id,
+                            tfId = transformIds[it.TransformFunction],
                             tfParamsStart = tfsparams.Count,
                             wsum = (float)it.WeightTo.Sum(xw => xw.Value * normalizedBaseWeights[xw.Key]),
                             color_speed = (float)it.ColorSpeed,
@@ -307,8 +313,8 @@ namespace IFSEngine
                             shading_mode = (int)it.ShadingMode
                         });
                         //transform params
-                        IEnumerable<double> tfiparams = it.Transform.GetFunctionVariables().Select(p => it.Transform.GetVar<double>(p));// GetListOfParams();
-                        tfsparams.AddRange(tfiparams.Select(p => (float)p));
+                        var varValues = it.TransformVariables.Values.ToArray();
+                        tfsparams.AddRange(varValues.Select(p => (float)p));
                     }
                     //TODO: tfparamstart pop last value
 
@@ -686,12 +692,30 @@ namespace IFSEngine
             GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
         }
 
-        private void initRenderer()
+        private void initRenderer(IEnumerable<TransformFunction> transformFunctions)
         {
+            //load functions
+            string transformsSource = "";
+            transformIds.Clear();
+            int cnt = 0;
+            foreach(var tf in transformFunctions)
+            {
+                transformIds[tf] = cnt++;
+                transformsSource += $@"
+if (iter.tfId == {transformIds[tf]})
+{{
+{tf.SourceCode}
+}}
+";
+            }
+            RegisteredTransforms = transformFunctions.ToList();
 
             //assemble source string
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.comp.shader");
             string computeShaderSource = new StreamReader(resource).ReadToEnd();
+
+            //insert transforms
+            computeShaderSource = computeShaderSource.Replace("@transforms", transformsSource);
 
             //compile compute shader
             int computeShaderH = GL.CreateShader(ShaderType.ComputeShader);
@@ -736,6 +760,8 @@ namespace IFSEngine
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 7, xaosBufferHandle);
 
         }
+
+        //TODO: reload plugins / recompile
 
         public void Dispose()
         {

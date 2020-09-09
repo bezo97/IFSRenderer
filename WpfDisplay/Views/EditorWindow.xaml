@@ -9,6 +9,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         mc:Ignorable="d"
         Title="EditorWindow" Height="450" Width="800" Topmost="True"
+        x:Name="editorWindow"
         d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
     <Grid>
         <Grid.RowDefinitions>
@@ -37,17 +38,23 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Label>Transforms</Label>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Button IsEnabled="False" Padding="2,0,3,0">🔄</Button>
+                        <Label>Transforms</Label>
+                    </StackPanel>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <!--TODO: bind ItemsSource-->
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Affine">Affine</Button>
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Foci">Foci</Button>
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Loonie">Loonie</Button>
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Spherical">Spherical</Button>
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Waves">Waves</Button>
-                            <Button Margin="6" Command="{Binding AddIteratorCommand}" CommandParameter="Moebius">Möbius</Button>
-                            <Label> . . . </Label>
+                            <ItemsControl ItemsSource="{Binding RegisteredTransforms}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="6" 
+                                                Command="{Binding DataContext.AddIteratorCommand, ElementName=editorWindow}" 
+                                                CommandParameter="{Binding}"
+                                                Content="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Separator/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

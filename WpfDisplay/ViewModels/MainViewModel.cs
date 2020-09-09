@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine;
 using IFSEngine.Model;
+using IFSEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +82,7 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
                     {
-                        IFSViewModel.ifs.SaveJson(path);
+                        IfsSerializer.SaveJson(IFSViewModel.ifs, path);
                     }
                 }));
         }
@@ -94,7 +95,7 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
                     {
-                        var ifs = IFS.LoadJson(path);
+                        var ifs = IfsSerializer.LoadJson(path);
                         IFSViewModel = new IFSViewModel(ifs);
                         renderer.LoadParams(ifs);
                     }

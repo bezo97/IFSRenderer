@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
-using IFSEngine.TransformFunctions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +14,9 @@ namespace WpfDisplay.ViewModels
     {
         //TODO: private
         public readonly IFS ifs;
+
+        //HACK: actully more related to the renderer than the ifs
+        public List<TransformFunction> RegisteredTransforms => TransformFunction.LoadedTransformFunctions;
 
         public ToneMappingViewModel ToneMappingViewModel { get; }
         public CameraSettingsViewModel CameraSettingsViewModel { get; }
@@ -126,37 +128,13 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand<string> _addIteratorCommand;
-        public RelayCommand<string> AddIteratorCommand
+        private RelayCommand<TransformFunction> _addIteratorCommand;
+        public RelayCommand<TransformFunction> AddIteratorCommand
         {
             get => _addIteratorCommand ?? (
-                _addIteratorCommand = new RelayCommand<string>((name) =>
+                _addIteratorCommand = new RelayCommand<TransformFunction>((tf) =>
                 {
-                    Iterator newIterator;
-                    switch (name)
-                    {//TODO: tmp solution
-                        case "Affine":
-                            newIterator = new Iterator { Transform = new Affine() };
-                            break;
-                        case "Foci":
-                            newIterator = new Iterator { Transform = new Foci() };
-                            break;
-                        case "Loonie":
-                            newIterator = new Iterator { Transform = new Loonie() };
-                            break;
-                        case "Spherical":
-                            newIterator = new Iterator { Transform = new Spherical() };
-                            break;
-                        case "Waves":
-                            newIterator = new Iterator { Transform = Waves.RandomWaves() };
-                            break;
-                        case "Moebius":
-                            newIterator = new Iterator { Transform = new Moebius() };
-                            break;
-                        default:
-                            newIterator = new Iterator { Transform = new Affine() };
-                            break;
-                    }
+                    Iterator newIterator = new Iterator(tf);
                     ifs.AddIterator(newIterator, false);
                     if (SelectedIterator != null)
                     {
@@ -195,6 +173,17 @@ namespace WpfDisplay.ViewModels
                         ifs.Palette = palettes[new Random().Next(palettes.Count)];
                         RaisePropertyChanged("InvalidateParams");
                     }
+                }));
+        }
+
+        private RelayCommand _reloadTransformsCommand;
+        public RelayCommand ReloadTransformsCommand
+        {
+            get => _reloadTransformsCommand ?? (
+                _reloadTransformsCommand = new RelayCommand(() =>
+                {
+                    //TODO
+                    RaisePropertyChanged(()=>RegisteredTransforms);
                 }));
         }
 

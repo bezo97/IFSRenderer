@@ -89,6 +89,7 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\QualitySettingsViewModel.cs" />
     <Compile Include="ViewModels\ToneMappingViewModel.cs" />
+    <Compile Include="ViewModels\VariableViewModel.cs" />
     <Compile Include="Views\CameraSettingsView.xaml.cs">
       <DependentUpon>CameraSettingsView.xaml</DependentUpon>
     </Compile>
@@ -213,10 +214,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IFSEngine.TransformFunctions\IFSEngine.TransformFunctions.csproj">
-      <Project>{5E7FE33C-F2C2-4494-8862-8B26F323C1BE}</Project>
-      <Name>IFSEngine.TransformFunctions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IFSEngine.Util\IFSEngine.Util.csproj">
       <Project>{52B72CB8-CA7E-4127-84EA-C80129931A5D}</Project>
       <Name>IFSEngine.Util</Name>

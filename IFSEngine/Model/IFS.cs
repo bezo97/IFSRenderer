@@ -96,7 +96,7 @@ namespace IFSEngine.Model
             var itnum = RandHelper.Next(3) + 2;
             for (var ii = 0; ii < itnum; ii++)
             {
-                randomIFS.AddIterator(Iterator.RandomIterator(), true);
+                randomIFS.AddIterator(Iterator.RandomIterator(TransformFunction.LoadedTransformFunctions), true);
             }
             //randomize xaos weights
             foreach (var it in randomIFS.iterators)
@@ -107,23 +107,6 @@ namespace IFSEngine.Model
                 }
             }
             return randomIFS;
-        }
-
-        public static IFS LoadJson(string path)
-        {
-            var ifs = JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path), new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto //heterogen collection
-            });
-            return ifs;
-        }
-
-        public void SaveJson(string path)
-        {
-            File.WriteAllText(path, JsonConvert.SerializeObject(this, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto, //heterogen collection
-            }));
         }
 
         /// <summary>

@@ -28,12 +28,11 @@
                 <ItemsControl ItemsSource="{Binding Variables}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid>
-                                <TextBlock DataContext="{Binding}" Text="{Binding}" x:Name="dummy" Visibility="Collapsed"/>
+                            <Grid DataContext="{Binding}" x:Name="dummy">
                                 <local:ValueSlider
                                     Increment="0.01"
-                                    ValueName="{Binding DataContext.PropertyName, ElementName=dummy}" 
-                                    Value="{Binding DataContext.PropertyValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"/>
+                                    ValueName="{Binding DataContext.Name, ElementName=dummy}" 
+                                    Value="{Binding DataContext.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

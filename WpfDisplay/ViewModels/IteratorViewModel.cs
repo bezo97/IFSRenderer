@@ -1,14 +1,11 @@
 ﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
-using IFSEngine.TransformFunctions;
 using IFSEngine.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
-using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels
 {
@@ -20,17 +17,17 @@ namespace WpfDisplay.ViewModels
         public event EventHandler Selected;
         public event EventHandler<bool> ConnectEvent;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
-        public IEnumerable<InstanceProperty> Variables { get; }
+
+        public List<VariableViewModel> Variables { get; }
 
 
         public IteratorViewModel(Iterator iterator)
         {
             this.iterator = iterator;
 
-            Variables = iterator.Transform.GetType().GetProperties()
-                    //.Where(prop => Attribute.IsDefined(prop, typeof(FunctionVariable)))
-                    .Where(prop => prop.PropertyType == typeof(double))
-                    .Select(pi => new InstanceProperty(iterator.Transform, pi)).ToList();
+            Variables = new List<VariableViewModel>(iterator.TransformVariables.Select(v=>new VariableViewModel(v.Key, iterator)));
+            foreach (var v in Variables)
+                v.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
 
             Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) =>
             {
@@ -136,15 +133,11 @@ namespace WpfDisplay.ViewModels
 
         public double RenderTranslateValue => -0.5 * WeightedSize;
 
-        //TODO: remove reference from TransformFunctions project
-
         public string TransformName
         {
-            get => iterator.Transform.GetName();
-            //set { Set(ref iterator.Transform.Id, value); }
+            get => iterator.TransformFunction.Name;
         }
 
-        //TODO: string TransformName
         //TODO: string IteratorName
 
         private float xCoord = RandHelper.Next(500);
