@@ -63,7 +63,8 @@ namespace WpfDisplay.ViewModels
             get => (float)iterator.Opacity;
             set
             {
-                Set(ref iterator.Opacity, value);
+                iterator.Opacity = value;
+                RaisePropertyChanged(() => Opacity);
                 RaisePropertyChanged(() => OpacityColor);
                 RaisePropertyChanged("InvalidateParams");
             }
@@ -74,7 +75,8 @@ namespace WpfDisplay.ViewModels
             get => (float)iterator.ColorIndex;
             set
             {
-                Set(ref iterator.ColorIndex, value);
+                iterator.ColorIndex = value;
+                RaisePropertyChanged(() => ColorIndex);
                 RaisePropertyChanged("InvalidateParams");
             }
         }
@@ -84,7 +86,8 @@ namespace WpfDisplay.ViewModels
             get => (float)iterator.ColorSpeed;
             set
             {
-                Set(ref iterator.ColorSpeed, value);
+                iterator.ColorSpeed = value;
+                RaisePropertyChanged(() => ColorSpeed);
                 RaisePropertyChanged("InvalidateParams");
             }
         }
@@ -94,7 +97,8 @@ namespace WpfDisplay.ViewModels
             get => iterator.ShadingMode == ShadingMode.DeltaPSpeed;
             set
             {
-                Set(ref iterator.ShadingMode, value ? ShadingMode.DeltaPSpeed : ShadingMode.Default);
+                iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
+                RaisePropertyChanged(() => DeltaColoring);
                 RaisePropertyChanged("InvalidateParams");
             }
         }

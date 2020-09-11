@@ -11,16 +11,17 @@ namespace IFSEngine.Model
         public TransformFunction TransformFunction { get; private set; }
         public Dictionary<string, double> TransformVariables { get; private set; }
 
-        public double BaseWeight = 1.0;//not normalized
-        public double ColorSpeed = 0.0;
-        public double ColorIndex = 0.0;//0 - 1
-        public double Opacity = 1.0;
-        public ShadingMode ShadingMode = ShadingMode.Default;
+        public double BaseWeight { get; set; } = 1.0;//not normalized
+        public double ColorSpeed { get; set; } = 0.0;
+        public double ColorIndex { get; set; } = 0.0;//0 - 1
+        public double Opacity { get; set; } = 1.0;
+        public ShadingMode ShadingMode { get; set; } = ShadingMode.Default;
 
         /// <remarks>Custom serialization logic implemented in <see cref="IFS.JsonHelperXaos"/></remarks>
         [JsonIgnore]
-        public Dictionary<Iterator, double> WeightTo = new Dictionary<Iterator, double>();
+        public Dictionary<Iterator, double> WeightTo { get; set; } = new Dictionary<Iterator, double>();
 
+        public Iterator() { }
         public Iterator(TransformFunction tf)
         {
             SetTransformFunction(tf);

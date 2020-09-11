@@ -15,19 +15,19 @@ namespace IFSEngine.Model
     public class IFS
     {
         public IReadOnlyCollection<Iterator> Iterators => iterators;//TODO: use IReadOnlySet in .NET5
-        public double Brightness = 1.0;
-        public double Gamma = 1.0;
-        public double GammaThreshold = 0.0;
-        public double Vibrancy = 1.0;
-        public double FogEffect = 0.0;
-        public double DepthOfField = 0.0;
-        public double FocusDistance = 2.0;
-        public double FocusArea = 0.25;
-        public Camera Camera = new Camera();
-        public Color BackgroundColor = Color.Black;
-        public Size ImageResolution = new Size(1920, 1080);
-        public FlamePalette Palette = FlamePalette.Default;
-
+        public double Brightness { get; set; } = 1.0;
+        public double Gamma { get; set; } = 1.0;
+        public double GammaThreshold { get; set; } = 0.0;
+        public double Vibrancy { get; set; } = 1.0;
+        public double FogEffect { get; set; } = 0.0;
+        public double DepthOfField { get; set; } = 0.0;
+        public double FocusDistance { get; set; } = 2.0;
+        public double FocusArea { get; set; } = 0.25;
+        public Camera Camera { get; set; } = new Camera();
+        public Color BackgroundColor { get; set; } = Color.Black;
+        public Size ImageResolution { get; set; } = new Size(1920, 1080);
+        public FlamePalette Palette { get; set; } = FlamePalette.Default;
+        
         protected HashSet<Iterator> iterators = new HashSet<Iterator>();
 
         /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>

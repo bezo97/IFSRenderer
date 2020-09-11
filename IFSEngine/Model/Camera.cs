@@ -57,7 +57,11 @@ namespace IFSEngine.Model
             Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X,rotVector.Y,rotVector.Z);
             Orientation *= rotq;
             Orientation = Quaternion.Normalize(Orientation);
+            updateDirectionVectors();
+        }
 
+        private void updateDirectionVectors()
+        {
             RightDirection = Vector3.Transform(new Vector3(1.0f, 0.0f, 0.0f), Orientation);
             UpDirection = Vector3.Transform(new Vector3(0.0f, 1.0f, 0.0f), Orientation);
             ForwardDirection = Vector3.Transform(new Vector3(0.0f, 0.0f, 1.0f), Orientation);
@@ -73,6 +77,7 @@ namespace IFSEngine.Model
 
         internal CameraStruct GetCameraParameters()
         {
+            updateDirectionVectors();
             return new CameraStruct
             {
                 position = new Vector4(Position, 1.0f),
