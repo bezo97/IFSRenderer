@@ -9,20 +9,18 @@ namespace IFSEngine.Serialization
 {
     public static class IfsSerializer
     {
-        private static JsonSerializerSettings defaultSettings = new JsonSerializerSettings 
-        { 
-            ContractResolver = new IfsContractResolver(false),
+        private static JsonSerializerSettings defaultSettings = new JsonSerializerSettings
+        {
+            Converters = new List<JsonConverter>
+            {
+                new TransformFunctionConverter(false),
+                new IteratorConverter(),
+                new IfsConverter()
+            },
             ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
             //TypeNameHandling = TypeNameHandling.Auto
         };
-
-        //TODO: with enum
-        //private static JsonSerializerSettings ignoreTransformVersionSettings = new JsonSerializerSettings
-        //{
-        //    ContractResolver = new IfsContractResolver(true),
-        //    ObjectCreationHandling = ObjectCreationHandling.Replace
-        //    //TypeNameHandling = TypeNameHandling.Auto
-        //};
+        //TODO: option for TransformFunctionConverter(true)
 
         public static IFS LoadJson(string path)
         {
@@ -34,6 +32,8 @@ namespace IFSEngine.Serialization
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(ifs, defaultSettings), Encoding.UTF8);
         }
+
+        public static void Save(this IFS ifs, string path) => SaveJson(ifs, path);
 
     }
 }

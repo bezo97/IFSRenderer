@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using IFSEngine.Util;
-using Newtonsoft.Json;
 
 namespace IFSEngine.Model
 {
@@ -107,32 +106,6 @@ namespace IFSEngine.Model
                 }
             }
             return randomIFS;
-        }
-
-        /// <summary>
-        /// helper property to serilaize xaos weights
-        /// hack: relies on hashset's implementation: preserves order
-        /// </summary>
-        [JsonProperty]
-        private List<List<double>> JsonHelperXaos
-        {
-            get
-            {
-                List<List<double>> o = new List<List<double>>();
-                foreach (Iterator iterator in iterators)
-                {
-                    o.Add(iterator.WeightTo.Values.ToList());
-                }
-                return o;
-            }
-            set
-            {
-                var tmpl = iterators.ToList();
-                for (int iX = 0; iX < value.Count; iX++)
-                {
-                    tmpl[iX].WeightTo = tmpl.ToDictionary(k => k, v => value[iX][tmpl.IndexOf(v)]);
-                }
-            }
         }
 
     }
