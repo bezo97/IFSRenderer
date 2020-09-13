@@ -280,12 +280,13 @@ void main() {
 		vec4 p0_pos = p.pos;
 		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz);//transform here
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
+		p.warmup_cnt++;
 
 		//perspective project
 		ivec2 proj = Project(settings.camera, p.pos, next);
 	
 		//lands on the histogram && warmup
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < settings.warmup && settings.resetPointsState == 1))
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 			if (settings.fog_effect > 0.0f)
