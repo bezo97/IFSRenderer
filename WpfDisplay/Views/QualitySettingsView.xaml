@@ -51,9 +51,9 @@
                     </StackPanel>
                     <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
                     <CheckBox IsChecked="{Binding EnablePerceptualUpdates}">Perceptually Equal Updates</CheckBox>
-                    <local:ValueSlider ValueName="Iteration Depth"
-                                       MinValue="100" MaxValue="100000" Increment="1000"
-                                       Value="{Binding DataContext.IterationDepth, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider ValueName="1 / Entropy"
+                                       MinValue="1" MaxValue="10000" Increment="10"
+                                       Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
                     <!--TODO: This is not too user friendly.-->
                     <local:ValueSlider ValueName="Iterations / Dispatch"
                                        MinValue="20" MaxValue="{Binding DataContext.IterationDepth, ElementName=qualitySettingsView}" Increment="100" 

@@ -84,10 +84,12 @@ namespace IFSEngine
         public int InvocationCount => WorkgroupCount * workgroupSize;
 
         /// <summary>
-        /// Number of iterations to be skipped before starting to plot.
+        /// Number of iterations to skip plotting after reset.
+        /// </summary>
+        /// <remarks>
         /// This is needed to avoid seeing the starting random points.
         /// Also known as "fuse count". Defaults to 20, same as in flame.
-        /// </summary>
+        /// </remarks>
         public int Warmup { get; set; } = 20;
 
         /// <summary>
@@ -96,18 +98,25 @@ namespace IFSEngine
         /// </summary>
         public int PassIters { get; set; } = 500;
 
-        /// <summary>
-        /// Number of iterations between resetting points.
-        /// Apo/Chaotica: const 10000
-        /// Zueuk: max 500 enough
-        /// TODO: adaptive possible? Reset earlier if ... ?
-        /// Gradually increase IterationDepth? x
-        /// Make it an option for high quality renders?
-        /// TODO: move reset to compute shader? adaptive for each thread
-        /// </summary>
-        public int IterationDepth { get; set; } = 1000;
+        // <summary>
+        // Number of iterations between resetting points.
+        // Apo/Chaotica: const 10000
+        // Zueuk: max 500 enough
+        // TODO: adaptive possible? Reset earlier if ... ?
+        // Gradually increase IterationDepth? x
+        // Make it an option for high quality renders?
+        // TODO: move reset to compute shader? adaptive for each thread
+        // </summary>
+        //public int IterationDepth { get; set; } = 1000;
 
-        private int PassItersCnt = 0;
+        /// <summary>
+        /// Entropy is the probability to reset on each iteration.
+        /// </summary>
+        /// <remarks>
+        /// Based on zy0rg's description.
+        /// The default 0.0001 value approximates flame's constant 10 000 iteration depth approach.
+        /// </remarks>
+        public double Entropy { get; set; } = 0.0001;
 
         /// <summary>
         /// Total iterations since accumulation reset
@@ -266,16 +275,6 @@ namespace IFSEngine
         {
             GL.UseProgram(computeProgramHandle);
 
-            //reset points periodically
-            if (PassItersCnt >= IterationDepth)
-            {
-                PassItersCnt = 0;
-                InvalidatePointsState();
-                //TODO: settings.reset = 1;
-                //idea: place new random points along the most dense area?
-                //idea: place new random points along the least dense area?
-            }
-
             if (invalidAccumulation)
             {
                 //reset accumulation
@@ -283,7 +282,6 @@ namespace IFSEngine
                 GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 dispatchCnt = 0;
-                PassItersCnt = 0;
                 TotalIterations = 0;
                 InvalidatePointsState();//needed when IterationDepth is high
 
@@ -357,6 +355,7 @@ namespace IFSEngine
                 focuspoint = new System.Numerics.Vector4(currentParams.Camera.Position + (float)currentParams.FocusDistance * currentParams.Camera.ForwardDirection, 0.0f),
                 palettecnt = currentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0,
+                entropy = (float)Entropy,
                 warmup = Warmup
             };
             GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
@@ -367,7 +366,6 @@ namespace IFSEngine
 
             invalidPointsState = false;
             TotalIterations += Convert.ToUInt64(PassIters * InvocationCount);
-            PassItersCnt += PassIters;
             dispatchCnt++;
 
             //GL.Finish();

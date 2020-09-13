@@ -77,7 +77,7 @@ layout(std140, binding = 2) uniform settings_ubo
 
 	int resetPointsState;
 	int warmup;
-	int padding0;
+	float entropy;
 	int padding1;
 } settings;
 
@@ -247,13 +247,18 @@ void main() {
 	uint next = 34567;//TODO: option to change this seed by animation frame number
 
 	p_state p;
-	if (settings.resetPointsState == 1)
+	if (settings.resetPointsState == 1)//after invalidation
 		p = reset_state(next);
 	else
 		p = state[gid];
 
 	for (int i = 0; i < settings.pass_iters; i++)
 	{
+
+		//chance to reset by entropy
+		if (random(next) < settings.entropy)
+			p = reset_state(next);
+
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
 		float r = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, i);//random(next);
@@ -271,7 +276,7 @@ void main() {
 		if (r_index == -1 || 
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
-			//TODO: idea: detect if the only next iterator is self, reset after x iterations if
+			//TODO: idea: detect if the only next iterator is self, reset after x iterations?
 			p = reset_state(next);
 		}
 

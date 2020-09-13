@@ -96,12 +96,12 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public int IterationDepth
+        public int EntropyInv
         {
-            get => renderer.IterationDepth;
+            get => (int)(1.0 / renderer.Entropy);
             set
             {
-                renderer.IterationDepth = value;
+                renderer.Entropy = 1.0 / value;
                 RaisePropertyChanged();
                 renderer.InvalidateAccumulation();
             }
@@ -136,11 +136,11 @@ namespace WpfDisplay.ViewModels
                 {
                     await renderer.SetHistogramScaleToDisplay();
                     //EnableDE = true;
-                    EnableTAA = true;
+                    //EnableTAA = true;
                     //EnablePerceptualUpdates = false;
-                    PassIters = 100;
-                    IterationDepth = 100;
-                    Warmup = 0;
+                    //PassIters = 100;
+                    //renderer.Entropy = ;
+                    Warmup = 10;
                 }));
         }
 
@@ -153,9 +153,9 @@ namespace WpfDisplay.ViewModels
                     EnablePerceptualUpdates = true;
                     EnableTAA = false;
                     EnableDE = false;
-                    PassIters = 500;
-                    IterationDepth = 10000;
-                    Warmup = 20;
+                    //PassIters = 500;
+                    //renderer.Entropy = ;
+                    Warmup = 30;
                     await renderer.SetHistogramScale(1.0);
                 }));
         }
