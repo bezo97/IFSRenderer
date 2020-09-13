@@ -35,6 +35,15 @@ struct Iterator
 	int padding0;
 };
 
+struct p_state
+{
+	vec4 pos;
+	float color_index;
+	float dummy0;
+	int last_tf_index;
+	int warmup_cnt;
+};
+
 //Shader Storage Buffer Objects
 //read and write, dynamic size
 
@@ -44,18 +53,14 @@ layout(std140, binding = 0) coherent buffer histogram_buffer
 };
 layout(std140, binding = 1) buffer points_buffer
 {
-	vec4 pointsstate[];//for each thread
-};
-
-layout(std430, binding = 2) buffer last_transform_index_buffer
-{
-	int last_tf_index[];//remember previous tranform index for each thread, needed for xaos
+	//per invocation
+	p_state state[];
 };
 
 //Uniform Buffer Objects
 //read-only, fixed size
 
-layout(std140, binding = 3) uniform settings_ubo
+layout(std140, binding = 2) uniform settings_ubo
 {
 	//current view:
 	CameraParameters camera;
@@ -76,22 +81,22 @@ layout(std140, binding = 3) uniform settings_ubo
 	int padding1;
 } settings;
 
-layout(std140, binding = 4) uniform iterators_ubo
+layout(std140, binding = 3) uniform iterators_ubo
 {
 	Iterator iterators[MAX_ITERATORS];
 };
 
-layout(std140, binding = 5) uniform palette_ubo
+layout(std140, binding = 4) uniform palette_ubo
 {
 	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(binding = 6) uniform transform_params_ubo
+layout(binding = 5) uniform transform_params_ubo
 {
 	float tfParams[MAX_PARAMS];//parameters of all transforms
 };
 
-layout(binding = 7) uniform xaos_ubo
+layout(binding = 6) uniform xaos_ubo
 {
 	float xaos[MAX_XAOS];//xaos matrix: weights to Iterators
 };
@@ -147,10 +152,10 @@ float randhash(uint nextSample)
 	return random(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample);
 }
 
-ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
+ivec2 Project(CameraParameters c, vec4 p, float ra, float rl)
 {
 
-	vec3 pointDir = normalize(p - c.position.xyz);
+	vec3 pointDir = normalize(p.xyz - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
 
@@ -159,7 +164,7 @@ ivec2 Project(CameraParameters c, vec3 p, float ra, float rl)
 
 	//dof
 	float ratio = width / float(height);
-	float dof = settings.depth_of_field * max(0, abs(dot(p - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
+	float dof = settings.depth_of_field * max(0, abs(dot(p.xyz - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
 	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
 	ivec2 o = ivec2(//image center
@@ -182,19 +187,19 @@ vec3 apply_transform(Iterator iter, vec3 input)
 	return p;
 }
 
-void apply_coloring(inout vec2 p_shader, Iterator it, vec3 p0, vec3 p)
+void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index, inout float opacity)
 {
-	float in_color = p_shader.x;
-	float in_opacity = p_shader.y;
+	float in_color = color_index;
+	float in_opacity = opacity;
 	float speed = it.color_speed;
 	if (it.shading_mode == 1)
 	{
 		float p_delta = length(p - p0);
 		speed *= (1.0 - 1.0 / (1.0 + p_delta));
 	}
-	float out_color = fract ( speed * it.color_index + (1.0f - speed) * in_color );
-	float out_opacity = it.opacity;
-	p_shader = vec2(out_color, out_opacity);
+
+	color_index = fract ( speed * it.color_index + (1.0f - speed) * in_color );
+	opacity = it.opacity;
 }
 
 vec3 getPaletteColor(float pos)
@@ -218,30 +223,34 @@ float startingDistribution(float uniformR)
 }
 
 void main() {
-	uint gid = gl_GlobalInvocationID.x;
+	const uint gid = gl_GlobalInvocationID.x;
 
 	int next = 34567;//TODO: option to change this seed by animation frame number
 
 	if (settings.resetPointsState == 1)
 	{//usually on first dispatch, or when number of threads changes
-		//randomize starting iterator
-		last_tf_index[gid] = int(/*randhash(next++)*/random(gl_WorkGroupID.x, settings.dispatchCnt, next++) * settings.itnum);
-		
 		//init points into a starting distribution
 		float theta = TWOPI * randhash(next++);
 		float phi = acos(2.0 * randhash(next++) - 1.0);
 		float rho = startingDistribution(randhash(next++));//[0,inf] ln
 		float sin_phi = sin(phi);
-		pointsstate[gid] = vec4(
+		state[gid].pos = vec4(
 			rho * sin_phi * cos(theta),
 			rho * sin_phi * sin(theta),
 			rho * cos(phi),
-			randhash(next++)
+			0.0//unused
 		);
+		state[gid].color_index = randhash(next++);
+		state[gid].last_tf_index = int(/*randhash(next++)*/random(gl_WorkGroupID.x, settings.dispatchCnt, next++) * settings.itnum);
+		state[gid].warmup_cnt = 0;
 	}
 
-	vec3 p = pointsstate[gid].xyz;
-	vec2 p_shader = vec2(pointsstate[gid].w, 1.0);
+	//vec3 p_pos = state[gid].pos.xyz;
+	//float p_color_index = state[gid].color_index;
+	//int p_last_tf_index = state[gid].last_tf_index;
+	//int p_warmup_cnt = state[gid].warmup_cnt;
+	p_state p = state[gid];
+	float p_opacity = 1.0;
 
 
 	for (int i = 0; i < settings.pass_iters; i++)
@@ -249,11 +258,11 @@ void main() {
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
 		float r = random(gl_WorkGroupID.x, settings.dispatchCnt, i);//randhash(next++);
-		r *= iterators[last_tf_index[gid]].wsum;//sum outgoing xaos weight
+		r *= iterators[p.last_tf_index].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
 			if (w_acc < r) {
-				w_acc += xaos[last_tf_index[gid] * settings.itnum + j];
+				w_acc += xaos[p.last_tf_index * settings.itnum + j];
 				r_index = j;
 			}
 			else
@@ -263,40 +272,40 @@ void main() {
 		if (r_index == -1)
 		{//reset position if no weight out
 			//idea: place next to another point instead of random reset
-			p = pointsstate[(gid + 1)].xyz;
-			p_shader.x = pointsstate[(gid + 1)].w;
-			p_shader.y = 1.0;
-			r_index = last_tf_index[(gid + 1)];
+			p.pos = state[gid + 1].pos;
+			p.color_index = state[gid + 1].color_index;
+			//p_opacity = 0.0;
+			r_index = state[gid + 1].last_tf_index;
 		}
-		if (isinf(p.x) || isinf(p.y) || isinf(p.z) || (p.x == 0 && p.y == 0 && p.z == 0))
+		if (any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))
 		{//reset position if too far
 			//TODO: make this optional?
 			//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
 			//idea: place next to another point instead of random reset
-			p = pointsstate[(gid + 1)].xyz;
-			p_shader.x = pointsstate[(gid + 1)].w;
-			p_shader.y = 1.0;
-			r_index = last_tf_index[(gid + 1)];
+			p.pos = state[gid + 1].pos;
+			p.color_index = state[gid + 1].color_index;
+			//p_opacity = 0.0;
+			r_index = state[gid + 1].last_tf_index;
 		}
-		last_tf_index[gid] = r_index;
+		p.last_tf_index = r_index;
 		
 
-		vec3 p0 = p;
-		p = apply_transform(iterators[r_index], p);//transform here
-		apply_coloring(p_shader, iterators[r_index], p0, p);
+		vec4 p0_pos = p.pos;
+		p.pos.xyz = apply_transform(iterators[r_index], p.pos.xyz);//transform here
+		apply_coloring(iterators[r_index], p0_pos, p.pos, p.color_index, p_opacity);
 
 		//perspective project
 		float ra1 = randhash(next++);
 		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, p, ra1, ra2);
+		ivec2 proj = Project(settings.camera, p.pos, ra1, ra2);
 	
 		//lands on the histogram && warmup
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < settings.warmup && settings.resetPointsState == 1))
 		{
-			vec4 color = vec4(getPaletteColor(p_shader.x), p_shader.y);
+			vec4 color = vec4(getPaletteColor(p.color_index), p_opacity);
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p), settings.fog_effect);
+				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p.pos.xyz), settings.fog_effect);
 				pr1 = clamp(pr1, 0.0f, 1.0f);
 				color.w *= pr1;
 			}
@@ -319,7 +328,7 @@ void main() {
 		}
 	
 	}
-	
-	pointsstate[gid] = vec4(p, p_shader.x);
+
+	state[gid] = p;
 
 }
