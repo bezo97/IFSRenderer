@@ -124,7 +124,7 @@ uint hash(uvec3 v) {
 uint hash(uvec4 v) {
 	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
 }
-float random(float f) {
+float f_hash(float f) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
@@ -135,7 +135,7 @@ float random(float f) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float random(float f1, float f2, uint nextSample) {
+float f_hash(float f1, float f2, uint nextSample) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
@@ -147,14 +147,13 @@ float random(float f1, float f2, uint nextSample) {
 	return r2 - 1.0;
 }
 
-float randhash(uint nextSample)
+float random(inout uint nextSample)
 {
-	return random(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample);
+	return f_hash(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample++);
 }
 
-ivec2 Project(CameraParameters c, vec4 p, float ra, float rl)
+ivec2 Project(CameraParameters c, vec4 p, inout uint next)
 {
-
 	vec3 pointDir = normalize(p.xyz - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
@@ -165,6 +164,8 @@ ivec2 Project(CameraParameters c, vec4 p, float ra, float rl)
 	//dof
 	float ratio = width / float(height);
 	float dof = settings.depth_of_field * max(0, abs(dot(p.xyz - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
+	float ra = random(next);
+	float rl = random(next);
 	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
 	ivec2 o = ivec2(//image center
@@ -187,10 +188,9 @@ vec3 apply_transform(Iterator iter, vec3 input)
 	return p;
 }
 
-void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index, inout float opacity)
+void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index)
 {
 	float in_color = color_index;
-	float in_opacity = opacity;
 	float speed = it.color_speed;
 	if (it.shading_mode == 1)
 	{
@@ -199,7 +199,6 @@ void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index, inout
 	}
 
 	color_index = fract ( speed * it.color_index + (1.0f - speed) * in_color );
-	opacity = it.opacity;
 }
 
 vec3 getPaletteColor(float pos)
@@ -222,42 +221,42 @@ float startingDistribution(float uniformR)
 	return -1.0 / curve * log(1.0 - a);
 }
 
+p_state reset_state(inout uint next)
+{
+	p_state p;
+	//init points into a starting distribution
+	float theta = TWOPI * random(next);
+	float phi = acos(2.0 * random(next) - 1.0);
+	float rho = startingDistribution(random(next));//[0,inf] ln
+	float sin_phi = sin(phi);
+	p.pos = vec4(
+		rho * sin_phi * cos(theta),
+		rho * sin_phi * sin(theta),
+		rho * cos(phi),
+		0.0//unused
+	);
+	p.color_index = random(next);
+	p.last_tf_index = int(/*random(next)*/f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next) * settings.itnum);
+	p.warmup_cnt = 0;
+	return p;
+}
+
 void main() {
 	const uint gid = gl_GlobalInvocationID.x;
 
-	int next = 34567;//TODO: option to change this seed by animation frame number
+	uint next = 34567;//TODO: option to change this seed by animation frame number
 
+	p_state p;
 	if (settings.resetPointsState == 1)
-	{//usually on first dispatch, or when number of threads changes
-		//init points into a starting distribution
-		float theta = TWOPI * randhash(next++);
-		float phi = acos(2.0 * randhash(next++) - 1.0);
-		float rho = startingDistribution(randhash(next++));//[0,inf] ln
-		float sin_phi = sin(phi);
-		state[gid].pos = vec4(
-			rho * sin_phi * cos(theta),
-			rho * sin_phi * sin(theta),
-			rho * cos(phi),
-			0.0//unused
-		);
-		state[gid].color_index = randhash(next++);
-		state[gid].last_tf_index = int(/*randhash(next++)*/random(gl_WorkGroupID.x, settings.dispatchCnt, next++) * settings.itnum);
-		state[gid].warmup_cnt = 0;
-	}
-
-	//vec3 p_pos = state[gid].pos.xyz;
-	//float p_color_index = state[gid].color_index;
-	//int p_last_tf_index = state[gid].last_tf_index;
-	//int p_warmup_cnt = state[gid].warmup_cnt;
-	p_state p = state[gid];
-	float p_opacity = 1.0;
-
+		p = reset_state(next);
+	else
+		p = state[gid];
 
 	for (int i = 0; i < settings.pass_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = random(gl_WorkGroupID.x, settings.dispatchCnt, i);//randhash(next++);
+		float r = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, i);//random(next);
 		r *= iterators[p.last_tf_index].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
@@ -267,42 +266,28 @@ void main() {
 			}
 			else
 				break;
-		
-		//TODO: option: reset position if no change for n iterations
-		if (r_index == -1)
-		{//reset position if no weight out
-			//idea: place next to another point instead of random reset
-			p.pos = state[gid + 1].pos;
-			p.color_index = state[gid + 1].color_index;
-			//p_opacity = 0.0;
-			r_index = state[gid + 1].last_tf_index;
-		}
-		if (any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))
-		{//reset position if too far
-			//TODO: make this optional?
-			//isinf: For each element i of the result, isinf returns true if x[i] is posititve or negative floating point infinity and false otherwise.
-			//idea: place next to another point instead of random reset
-			p.pos = state[gid + 1].pos;
-			p.color_index = state[gid + 1].color_index;
-			//p_opacity = 0.0;
-			r_index = state[gid + 1].last_tf_index;
-		}
 		p.last_tf_index = r_index;
 		
+		if (r_index == -1 || 
+			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
+		{//reset if invalid
+			//TODO: idea: detect if the only next iterator is self, reset after x iterations if
+			p = reset_state(next);
+		}
+
+		Iterator selected_iterator = iterators[r_index];
 
 		vec4 p0_pos = p.pos;
-		p.pos.xyz = apply_transform(iterators[r_index], p.pos.xyz);//transform here
-		apply_coloring(iterators[r_index], p0_pos, p.pos, p.color_index, p_opacity);
+		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz);//transform here
+		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 
 		//perspective project
-		float ra1 = randhash(next++);
-		float ra2 = randhash(next++);
-		ivec2 proj = Project(settings.camera, p.pos, ra1, ra2);
+		ivec2 proj = Project(settings.camera, p.pos, next);
 	
 		//lands on the histogram && warmup
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && !(i < settings.warmup && settings.resetPointsState == 1))
 		{
-			vec4 color = vec4(getPaletteColor(p.color_index), p_opacity);
+			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
 				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p.pos.xyz), settings.fog_effect);
