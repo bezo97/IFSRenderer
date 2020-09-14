@@ -1,0 +1,21 @@
+@Name: Affine
+@Version: 1.0
+
+@ox: 0
+@oy: 0
+@oz: 0
+@xx: 1
+@xy: 0
+@xz: 0
+@yx: 0
+@yy: 1
+@yz: 0
+@zx: 0
+@zy: 0
+@zz: 1
+
+return vec3(
+	@ox + @xx * p.x + @xy * p.y + @xz * p.z,
+	@oy + @yx * p.x + @yy * p.y + @yz * p.z,
+	@oz + @zx * p.x + @zy * p.y + @zz * p.z
+);

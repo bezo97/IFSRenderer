@@ -24,7 +24,7 @@ namespace WpfDisplay.Views
         {
             InitializeComponent();
             OpenTK.Toolkit.Init();
-            var loadedTransforms = Directory.GetFiles(@".\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
+            var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
             renderDisplay.Loaded += (s, e) =>
             {
                 renderer = new RendererGL(renderDisplay.display1.WindowInfo);

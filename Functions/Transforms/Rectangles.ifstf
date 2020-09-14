@@ -1,0 +1,16 @@
+@Name: Rectangles
+@Version: 1.0
+
+@SizeX: 1
+@SizeY: 1
+@SizeZ: 1
+vec3 rectSize = vec3(@SizeX, @SizeY, @SizeZ);
+
+vec3 outp = p;
+if(rectSize.x != 0.0)
+	outp.x = (2.0 * floor(p.x / rectSize.x) + 1.0) * rectSize.x - p.x;
+if(rectSize.y != 0.0)
+	outp.y = (2.0 * floor(p.y / rectSize.y) + 1.0) * rectSize.y - p.y;
+if(rectSize.z != 0.0)
+	outp.z = (2.0 * floor(p.z / rectSize.z) + 1.0) * rectSize.z - p.z;
+return outp;

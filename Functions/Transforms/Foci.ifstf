@@ -1,0 +1,13 @@
+@Name: Foci
+@Version: 1.0
+
+float exp_x = exp(p.x);
+float exp_x_2 = exp_x * 0.5;
+float exp_nz = 0.5 / exp_x;
+float cos_y = cos(p.y);
+float sin_y = sin(p.y);
+float cos_z = cos(p.z);
+float sin_z = sin(p.z);
+float r = 1.0 / (exp_x_2 + exp_nz - cos_y - cos_z);
+float fx = (exp_x_2 - exp_nz);
+return vec3(fx, sin_y, sin_z) * r;

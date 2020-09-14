@@ -265,4 +265,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /e /y /i "$(SolutionDir)Functions" "$(TargetDir)Functions"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -1,0 +1,14 @@
+@Name: Loonie
+@Version: test
+
+@Strength: 1
+@Weight: 1
+
+float w2 = @Weight * @Weight;
+float r2 = dot(p, p);
+float r;
+if (r2 < w2)
+	r = @Weight * sqrt(w2 / r2 - 1.0);
+else
+	r = @Weight;
+return mix(p, r * p, @Strength);

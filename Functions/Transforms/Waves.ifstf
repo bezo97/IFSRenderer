@@ -1,0 +1,15 @@
+@Name: Waves
+@Version: 1.0
+
+@Weight: 0.999
+@ScaleX: 0.02
+@ScaleY: 0.01
+@ScaleZ: -0.04
+@FreqX: 20
+@FreqY: 10
+@FreqZ: 10
+//TODO: pass as vec3 params
+
+vec3 scale = vec3(@ScaleX, @ScaleY, @ScaleZ);
+vec3 freq = vec3(@FreqX, @FreqY, @FreqZ);
+return @Weight * fma(scale, sin(p.yzx * freq), p);

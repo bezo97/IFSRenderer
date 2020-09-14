@@ -1,0 +1,10 @@
+@Name: Splits
+@Version: 1.0
+
+@SplitX: 0
+@SplitY: 0
+@SplitZ: 0
+vec3 splitvec = vec3(@SplitX, @SplitY, @SplitZ);
+
+vec3 sgn = sign(vec3(1.0) + 2.0 * sign(p));//p>=0
+return p + sgn * splitvec;

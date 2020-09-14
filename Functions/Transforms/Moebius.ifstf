@@ -1,0 +1,31 @@
+@Name: Möbius
+@Version: 1.0
+//https://en.wikipedia.org/wiki/M%C3%B6bius_transformation#Higher_dimensions
+
+//TODO: pass as vec3
+@Alpha: 1
+@AX: 0
+@AY: 0
+@AZ: 0
+@BX: 0
+@BY: 0
+@BZ: 0
+//mat3 pls
+@M11: 1
+@M12: 0
+@M13: 0
+@M21: 0
+@M22: 1
+@M23: 0
+@M31: 0
+@M32: 0
+@M33: 1
+
+vec3 a = vec3(@AX, @AY, @AZ);
+vec3 b = vec3(@BX, @BY, @BZ);
+mat3 m = mat3(
+	@M11, @M21, @M31, //col1
+	@M12, @M22, @M32, //col2
+	@M13, @M23, @M33  //col3
+);
+return b + (@Alpha * m * (p - a)) / pow(length(p - a), 2.0);

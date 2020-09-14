@@ -1,0 +1,7 @@
+@Name: Cross
+@Version: test
+
+@Strength: 1
+
+float s = min((p.x * p.x - p.y * p.y), min((p.y * p.y - p.z * p.z), (p.z * p.z - p.x * p.x)));
+return mix(p, p / s, @Strength);
