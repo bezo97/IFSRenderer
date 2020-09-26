@@ -287,9 +287,6 @@ namespace IFSEngine
 
                 if (invalidParams)
                 {
-                    //normalize base weights
-                    double SumWeights = currentParams.Iterators.Sum(i => i.BaseWeight);
-                    var normalizedBaseWeights = currentParams.Iterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
                     //generate iterator and transform structs
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
@@ -301,7 +298,6 @@ namespace IFSEngine
                         {
                             tfId = transformIds[it.TransformFunction],
                             tfParamsStart = tfsparams.Count,
-                            wsum = (float)it.WeightTo.Sum(xw => xw.Value * normalizedBaseWeights[xw.Key]),
                             color_speed = (float)it.ColorSpeed,
                             color_index = (float)it.ColorIndex,
                             opacity = (float)it.Opacity,
@@ -320,16 +316,28 @@ namespace IFSEngine
                     GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
 
                     //generate flattened xaos weight matrix
-                    List<float> xaosm = new List<float>(currentParams.Iterators.Count * currentParams.Iterators.Count);
-                    foreach (var it in currentParams.Iterators)
+                    //normalize base weights
+                    double SumWeights = currentIterators.Sum(i => i.BaseWeight);
+                    var normalizedBaseWeights = currentIterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
+                    List<float> xaosm = new List<float>(currentIterators.Count * currentIterators.Count);
+                    foreach (var it in currentIterators)
                     {
-                        foreach (var toIt in currentParams.Iterators)
+                        List<float> itWeights = new List<float>(currentIterators.Count);
+                        foreach (var toIt in currentIterators)
                         {
                             if (it.WeightTo.ContainsKey(toIt))
-                                xaosm.Add((float)(it.WeightTo[toIt] * normalizedBaseWeights[toIt]));
+                                itWeights.Add((float)(it.WeightTo[toIt] * normalizedBaseWeights[toIt]));
                             else
-                                xaosm.Add(0);
+                                itWeights.Add(0);
                         }
+                        //normalize xaos weights
+                        float sumw = itWeights.Sum();
+                        if (sumw > 0)
+                            itWeights = itWeights.Select(w => w / sumw).ToList();
+                        else
+                            itWeights = Enumerable.Repeat(0f, currentIterators.Count).ToList();
+                        //add to matrix
+                        xaosm.AddRange(itWeights);
                     }
                     GL.BindBuffer(BufferTarget.UniformBuffer, xaosBufferHandle);
                     GL.BufferData(BufferTarget.UniformBuffer, xaosm.Capacity * sizeof(float), xaosm.ToArray(), BufferUsageHint.DynamicDraw);

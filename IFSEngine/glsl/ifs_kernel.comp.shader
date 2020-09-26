@@ -25,7 +25,6 @@ struct CameraParameters
 
 struct Iterator
 {
-	float wsum;//outgoing xaos weights sum
 	float color_speed;
 	float color_index;//color index, 0 - 1
 	float opacity;
@@ -33,6 +32,7 @@ struct Iterator
 	int tfParamsStart;
 	int shading_mode;//0: default, 1: delta_p
 	int padding0;
+	int padding1;
 };
 
 struct p_state
@@ -40,7 +40,7 @@ struct p_state
 	vec4 pos;
 	float color_index;
 	float dummy0;
-	int last_tf_index;
+	int tf_index;
 	int warmup_cnt;
 };
 
@@ -177,7 +177,7 @@ ivec2 Project(CameraParameters c, vec4 p, inout uint next)
 
 }
 
-vec3 apply_transform(Iterator iter, vec3 input)
+vec3 apply_transform(Iterator iter, vec3 input, inout uint next)
 {
 	vec3 p = input;
 	int p_cnt = iter.tfParamsStart;
@@ -236,7 +236,7 @@ p_state reset_state(inout uint next)
 		0.0//unused
 	);
 	p.color_index = random(next);
-	p.last_tf_index = int(/*random(next)*/f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next) * settings.itnum);
+	p.tf_index = int(/*random(next)*/f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next) * settings.itnum);
 	p.warmup_cnt = 0;
 	return p;
 }
@@ -254,36 +254,31 @@ void main() {
 
 	for (int i = 0; i < settings.pass_iters; i++)
 	{
-
-		//chance to reset by entropy
-		if (random(next) < settings.entropy)
-			p = reset_state(next);
-
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
 		float r = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, i);//random(next);
-		r *= iterators[p.last_tf_index].wsum;//sum outgoing xaos weight
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
-			if (w_acc < r) {
-				w_acc += xaos[p.last_tf_index * settings.itnum + j];
+			if (w_acc <= r) {
+				w_acc += xaos[p.tf_index * settings.itnum + j];
 				r_index = j;
 			}
 			else
 				break;
-		p.last_tf_index = r_index;
-		
-		if (r_index == -1 || 
+		if (r_index == -1 || w_acc == 0.0f || //no outgoing weight
+			random(next) < settings.entropy || //chance to reset by entropy
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
 			//TODO: idea: detect if the only next iterator is self, reset after x iterations?
 			p = reset_state(next);
 		}
+		else
+			p.tf_index = r_index;
 
-		Iterator selected_iterator = iterators[r_index];
+		Iterator selected_iterator = iterators[p.tf_index];
 
 		vec4 p0_pos = p.pos;
-		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz);//transform here
+		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz, next);//transform here
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.warmup_cnt++;
 
