@@ -24,8 +24,6 @@ float log10(float x)
 //log density scaling
 vec4 logscale(vec4 acc)
 {
-	if (acc.w < 1.0)
-		return vec4(0.0);
 	float ls = log10(1.0 + acc.w / max_density) / acc.w;
 	vec4 lh = acc * ls;
 	return clamp(lh, vec4(0.0), vec4(1.0));
