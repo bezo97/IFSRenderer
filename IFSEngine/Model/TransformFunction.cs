@@ -15,7 +15,7 @@ namespace IFSEngine.Model
         public string SourceCode { get; private set; }
         public IReadOnlyDictionary<string, double> Variables { get; private set; }//name, default //type?
 
-        private const string regexVarDef = @"@[\w]+: .+";//@Name: name1
+        private const string regexVarDef = @"^(\s*)@[\w]+: .+";//@Name: name1
 
         public TransformFunction()
         {
