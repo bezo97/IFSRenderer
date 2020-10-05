@@ -20,12 +20,24 @@ namespace IFSEngine.Serialization
             ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
             //TypeNameHandling = TypeNameHandling.Auto
         };
-        //TODO: option for TransformFunctionConverter(true)
-
-        public static IFS LoadJson(string path)
+        private static JsonSerializerSettings ignoreTfVersionsSettings = new JsonSerializerSettings
         {
-            var ifs = JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path, Encoding.UTF8), defaultSettings);
-            return ifs;
+            Converters = new List<JsonConverter>
+            {
+                new TransformFunctionConverter(true),
+                new IteratorConverter(),
+                new IfsConverter()
+            },
+            ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
+            //TypeNameHandling = TypeNameHandling.Auto
+        };
+
+        public static IFS LoadJson(string path, bool ignoreTransformVersions)
+        {
+            JsonSerializerSettings settings = defaultSettings;
+            if (ignoreTransformVersions) 
+                settings = ignoreTfVersionsSettings;
+            return JsonConvert.DeserializeObject<IFS>(File.ReadAllText(path, Encoding.UTF8), settings);
         }
 
         public static void SaveJson(IFS ifs, string path)

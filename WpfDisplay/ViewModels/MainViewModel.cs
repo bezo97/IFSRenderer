@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
@@ -95,7 +97,18 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
                     {
-                        var ifs = IfsSerializer.LoadJson(path);
+                        IFS ifs;
+                        try
+                        {
+                            ifs = IfsSerializer.LoadJson(path, false);
+                        }
+                        catch(SerializationException)
+                        {
+                            if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                                ifs = IfsSerializer.LoadJson(path, true);
+                            else 
+                                return;
+                        }
                         IFSViewModel = new IFSViewModel(ifs);
                         renderer.LoadParams(ifs);
                     }

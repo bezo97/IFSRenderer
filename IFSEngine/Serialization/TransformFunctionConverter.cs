@@ -28,7 +28,7 @@ namespace IFSEngine.Serialization
             if (tf == null)
             {
                 if (ignoreVersion)
-                    throw new NotImplementedException();//TODO: prompt to load the transform's different version?
+                    return TransformFunction.LoadedTransformFunctions.FirstOrDefault(i => i.Name == Name);
                 else
                     throw new SerializationException($"The TransformFunction {Name} (Version: {Version}) is unknown.");
             }
