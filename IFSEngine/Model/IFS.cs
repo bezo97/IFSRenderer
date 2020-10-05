@@ -92,15 +92,26 @@ namespace IFSEngine.Model
                 Gamma = 4
             };
             //add random iterators
-            var itnum = RandHelper.Next(3) + 2;
+            var affinetf = new List<TransformFunction>() { TransformFunction.LoadedTransformFunctions.First(tf => tf.Name == "Affine") };//TODO: nicer
+            var pretfs = new List<Iterator>();
+            var tfs = new List<Iterator>();
+            var itnum = RandHelper.Next(4) + 2;
             for (var ii = 0; ii < itnum; ii++)
             {
-                randomIFS.AddIterator(Iterator.RandomIterator(TransformFunction.LoadedTransformFunctions), true);
+                var pretransform = Iterator.RandomIterator(affinetf);
+                var transform = Iterator.RandomIterator(TransformFunction.LoadedTransformFunctions);
+                randomIFS.AddIterator(pretransform, false);
+                randomIFS.AddIterator(transform, false);
+                pretransform.WeightTo[transform] = 1.0;
+                pretransform.Opacity = 0.0;
+                pretransform.ColorSpeed = 0.0;
+                pretfs.Add(pretransform);
+                tfs.Add(transform);
             }
             //randomize xaos weights
-            foreach (var it in randomIFS.iterators)
+            foreach (var it in tfs)
             {
-                foreach (var itTo in randomIFS.iterators)
+                foreach (var itTo in pretfs)
                 {
                     it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
                 }
