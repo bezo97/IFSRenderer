@@ -49,7 +49,6 @@
                                            MinValue="0" MaxValue="1" Increment="0.01" 
                                            Value="{Binding DataContext.DEThreshold, ElementName=qualitySettingsView}"/>
                     </StackPanel>
-                    <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
                     <CheckBox IsChecked="{Binding EnablePerceptualUpdates}">Perceptually Equal Updates</CheckBox>
                     <local:ValueSlider ValueName="1 / Entropy"
                                        MinValue="1" MaxValue="10000" Increment="10"
@@ -61,6 +60,10 @@
                     <local:ValueSlider ValueName="Warmup"
                                        MinValue="0" MaxValue="{Binding DataContext.PassIters, ElementName=qualitySettingsView}" Increment="10"
                                        Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider ValueName="Max Filter Radius"
+                                       MinValue="1" MaxValue="9" Increment="1"
+                                       Value="{Binding DataContext.MaxFilterRadius, ElementName=qualitySettingsView}"/>
+                    <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
 
                 </StackPanel>
             </md:Card>

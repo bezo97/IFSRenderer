@@ -23,6 +23,11 @@ namespace IFSEngine.Model.GpuStructs
         internal int resetPointsState;//0/1
         internal int warmup;//initial skipping / fuse
         internal float entropy;
-        internal int padding1;
+        internal int max_filter_radius;
+        
+        internal int filter_method;
+        internal float filter_param0;
+        internal float filter_param1;
+        internal float filter_param2;
     }
 }

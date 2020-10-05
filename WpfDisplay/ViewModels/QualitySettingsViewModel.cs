@@ -128,6 +128,17 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public int MaxFilterRadius
+        {
+            get => renderer.MaxFilterRadius;
+            set
+            {
+                renderer.MaxFilterRadius = value;
+                RaisePropertyChanged();
+                renderer.InvalidateAccumulation();
+            }
+        }
+
         private RelayCommand _previewPresetCommand;
         public RelayCommand PreviewPresetCommand
         {

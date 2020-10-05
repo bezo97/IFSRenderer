@@ -78,7 +78,12 @@ layout(std140, binding = 2) uniform settings_ubo
 	int resetPointsState;
 	int warmup;
 	float entropy;
-	int padding1;
+	int max_filter_radius;
+
+	int filter_method;
+	float filter_param0;
+	float filter_param1;
+	float filter_param2;
 } settings;
 
 layout(std140, binding = 3) uniform iterators_ubo
@@ -152,7 +157,7 @@ float random(inout uint nextSample)
 	return f_hash(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample++);
 }
 
-ivec2 Project(CameraParameters c, vec4 p, inout uint next)
+vec2 Project(CameraParameters c, vec4 p, inout uint next)
 {
 	vec3 pointDir = normalize(p.xyz - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
@@ -168,13 +173,9 @@ ivec2 Project(CameraParameters c, vec4 p, inout uint next)
 	float rl = random(next);
 	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
-	ivec2 o = ivec2(//image center
-		int((normalizedPoint.x + 1) * width / 2.0f),
-		int((normalizedPoint.y * ratio + 1) * height / 2.0f)
-	);
-	
-	return o;
-
+	return vec2(
+		(normalizedPoint.x + 1) * width / 2.0f,
+		(normalizedPoint.y * ratio + 1) * height / 2.0f);
 }
 
 vec3 apply_transform(Iterator iter, vec3 input, inout uint next)
@@ -241,6 +242,51 @@ p_state reset_state(inout uint next)
 	return p;
 }
 
+//Based on: https://pixinsight.com/doc/docs/InterpolationAlgorithms/InterpolationAlgorithms.html
+float sinc(float x)
+{
+	if (x==0.0)
+		return 1.0;
+	return sin(PI * x) / (PI * x);
+}
+float Lanczos(float x, int n)
+{
+	//n>0
+	if (abs(x) <= float(n))
+		return sinc(x) * sinc(x / float(n));
+	return 0.0;
+}
+
+float Mitchell_Netravali(float x /*,B, C*/)
+{
+	float B = 1.0 / 3.0;
+	float C = 1.0 / 3.0;
+
+	float a = abs(x);
+	if (a < 1.0)
+		return ((12.0 - 9.0 * B - 6.0 * C) * (a * a * a) + (-18.0 + 12.0 * B + 6.0 * C) * (a * a) + 6.0 - 2.0 * B) / 6.0;
+	else if (1.0 <= a && a < 2.0)
+		return ((-B - 6.0 * C) * (a * a * a) + (6.0 * B + 30.0 * C) * (a * a) + (-12.0 * B - 48.0 * C) * a + 8.0 * B + 24.0 * C) / 6.0;
+	else
+		return 0.0;
+}
+
+
+void accumulate_hit(ivec2 proj, vec4 color)
+{
+	int ipx = proj.x + proj.y * width;//pixel index
+#ifdef GL_NV_shader_atomic_float
+	//Use atomic float add if available. Slower but more accurate.
+	atomicAdd(histogram[ipx].r, color.r);
+	atomicAdd(histogram[ipx].g, color.g);
+	atomicAdd(histogram[ipx].b, color.b);
+	atomicAdd(histogram[ipx].w, color.w);//db
+#else
+	histogram[ipx].rgb += color.rgb;
+	histogram[ipx].w += color.w;//db
+#endif
+}
+
 void main() {
 	const uint gid = gl_GlobalInvocationID.x;
 
@@ -283,7 +329,9 @@ void main() {
 		p.warmup_cnt++;
 
 		//perspective project
-		ivec2 proj = Project(settings.camera, p.pos, next);
+		vec2 projf = Project(settings.camera, p.pos, next);
+		ivec2 proj = ivec2(int(projf.x), int(projf.y));
+		vec2 proj_offset = (fract(projf) - vec2(0.5))*2.0;
 	
 		//lands on the histogram && warmup
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
@@ -297,19 +345,35 @@ void main() {
 			}
 			color.xyz *= color.w;
 
-			int ipx = proj.x + proj.y * width;//pixel index
+			//
+			float offset_strength;
+			int offset_x_dir;
+			int offset_y_dir;
 
-			//accumulate hit
-			#ifdef GL_NV_shader_atomic_float
-				//Use atomic float add if available. Slower but more accurate.
-				atomicAdd(histogram[ipx].r, color.r);
-				atomicAdd(histogram[ipx].g, color.g);
-				atomicAdd(histogram[ipx].b, color.b);
-				atomicAdd(histogram[ipx].w, color.w);//db
-			#else
-				histogram[ipx].rgb += color.rgb;
-				histogram[ipx].w += color.w;//db
-			#endif
+			if (proj.x > width/2 && settings.dispatchCnt > 1)
+			{
+				const int filter_radius = 2 + int(settings.max_filter_radius / pow(1.0+(histogram[proj.x+proj.y*width].w), 0.4));
+				//float w_acc = 0.0;
+				for (int i = -filter_radius + 1; i < filter_radius; i++)
+				{
+					for (int j = -filter_radius + 1; j < filter_radius; j++)
+					{
+						//float wx = Lanczos(float(i) - projf.x + floor(projf.x), filter_radius);
+						//float wy = Lanczos(float(j) - projf.y + floor(projf.y), filter_radius);
+						float wx = Mitchell_Netravali((float(2*i) / filter_radius - projf.x + floor(projf.x)));
+						float wy = Mitchell_Netravali((float(2*j) / filter_radius - projf.y + floor(projf.y)));
+						//w_acc += wx * wy;//clamp
+						ivec2 filter_proj = ivec2(int(floor(proj.x)) + i, int(floor(projf.y)) + j);
+						accumulate_hit(filter_proj, color * clamp(wx * wy, 0.0, 1.0));
+					}
+				}
+			}
+			else
+			{
+				offset_strength = 1.0;
+				accumulate_hit(proj, color * offset_strength);
+			}
+
 
 		}
 	

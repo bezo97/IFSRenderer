@@ -123,6 +123,12 @@ namespace IFSEngine
         /// </summary>
         public ulong TotalIterations { get; private set; } = 0;
 
+        /// <summary>
+        /// Maximum radius of the spatial filter.
+        /// Higher values are slow to render.
+        /// </summary>
+        public int MaxFilterRadius { get; set; } = 2;
+
         private bool updateDisplayNow = false;
         private bool rendering = false;
 
@@ -364,7 +370,8 @@ namespace IFSEngine
                 palettecnt = currentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0,
                 entropy = (float)Entropy,
-                warmup = Warmup
+                warmup = Warmup,
+                max_filter_radius = MaxFilterRadius
             };
             GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
             GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
@@ -392,7 +399,7 @@ namespace IFSEngine
                 GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
                 GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-                if (EnableDE)
+                if (EnableDE && dispatchCnt>8)
                 {
                     GL.UseProgram(deProgramHandle);
                     //update uniforms..
