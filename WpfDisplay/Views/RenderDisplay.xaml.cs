@@ -47,7 +47,7 @@ namespace WpfDisplay.Views
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            IFSViewModel.ifs.FocusDistance += e.Delta * IFSViewModel.ifs.FocusDistance * 0.001;
+            IFSViewModel.CameraSettingsViewModel.FocusDistance += e.Delta * IFSViewModel.CameraSettingsViewModel.FocusDistance * 0.001;
             IFSViewModel.RaisePropertyChanged("InvalidateAccumulation");
         }
 
