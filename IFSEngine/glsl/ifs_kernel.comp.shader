@@ -339,9 +339,9 @@ void main() {
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float pr1 = 1.0f / pow(1.0f + length(settings.focuspoint.xyz - p.pos.xyz), settings.fog_effect);
-				pr1 = clamp(pr1, 0.0f, 1.0f);
-				color.w *= pr1;
+				float fog_mask = 1.0 / (1.0 + pow(length(settings.focuspoint.xyz - p.pos.xyz) / settings.focusarea, settings.fog_effect));
+				fog_mask = clamp(fog_mask, 0.0, 1.0);
+				color.w *= fog_mask;
 			}
 			color.xyz *= color.w;
 
