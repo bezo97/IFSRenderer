@@ -38,6 +38,12 @@ namespace IFSEngine.Serialization
             serializer.Converters.Remove(this);
             JObject jo = JObject.FromObject(value, serializer);
             serializer.Converters.Add(this);
+            foreach (var i in value.Iterators)
+                foreach (var j in value.Iterators)
+                {//hack to fill 0 weights.. TODO
+                    if (!i.WeightTo.TryGetValue(j, out _))
+                        i.WeightTo[j] = 0.0;
+                }
             jo["xaos"] = JToken.FromObject(value.Iterators.Select(i=>i.WeightTo.Values.ToArray()).ToArray(), serializer);
             jo.WriteTo(writer, serializer.Converters.ToArray());            
         }
