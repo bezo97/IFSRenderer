@@ -135,9 +135,12 @@ namespace WpfDisplay.ViewModels
             {
                 renderer.MaxFilterRadius = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(()=>FilterText);
                 renderer.InvalidateAccumulation();
             }
         }
+
+        public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 1 ? "" : " (Off)");
 
         private RelayCommand _previewPresetCommand;
         public RelayCommand PreviewPresetCommand
@@ -150,8 +153,9 @@ namespace WpfDisplay.ViewModels
                     //EnableTAA = true;
                     //EnablePerceptualUpdates = false;
                     //PassIters = 100;
-                    //renderer.Entropy = ;
-                    Warmup = 10;
+                    //Warmup = 10;
+                    EntropyInv = 100;
+                    MaxFilterRadius = 1;
                 }));
         }
 
@@ -165,8 +169,9 @@ namespace WpfDisplay.ViewModels
                     EnableTAA = false;
                     EnableDE = false;
                     //PassIters = 500;
-                    //renderer.Entropy = ;
-                    Warmup = 30;
+                    //Warmup = 30;
+                    EntropyInv = 10000;
+                    MaxFilterRadius = 3;
                     await renderer.SetHistogramScale(1.0);
                 }));
         }
