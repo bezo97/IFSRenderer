@@ -229,6 +229,8 @@ p_state reset_state(inout uint next)
 	float theta = TWOPI * random(next);
 	float phi = acos(2.0 * random(next) - 1.0);
 	float rho = startingDistribution(random(next));//[0,inf] ln
+	//experiment: rho dependent on camera distance from origo
+	rho *= 2.0 * length(settings.camera.position);
 	float sin_phi = sin(phi);
 	p.pos = vec4(
 		rho * sin_phi * cos(theta),
@@ -328,6 +330,9 @@ void main() {
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.warmup_cnt++;
 
+		if (selected_iterator.opacity == 0.0)
+			continue;//avoid useless projection and histogram writes
+
 		//perspective project
 		vec2 projf = Project(settings.camera, p.pos, next);
 		ivec2 proj = ivec2(int(projf.x), int(projf.y));
@@ -337,20 +342,27 @@ void main() {
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
+
+			//lightsource experiment
+			//vec3 surface_normal = normalize(p.pos.xyz - p0_pos.xyz);
+			//vec3 light_pos = vec3(1.0, 1.0 + settings.focusarea, 1.0);
+			//vec4 light_col = vec4(1.0, 1.0, 1.0, 1.0);
+			//vec3 light_vec = light_pos - p.pos.xyz;
+			//float light_falloff = clamp(1.0 / (1.0 + 1.0 * settings.focusdistance * dot(light_vec, light_vec)), 0.0, 1.0);
+			//color = color * (1.0-dot(surface_normal, normalize(light_vec))) * light_col * light_falloff;
+
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
 				float fog_mask = 1.0 / (1.0 + pow(length(settings.focuspoint.xyz - p.pos.xyz) / settings.focusarea, settings.fog_effect));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}
+			if (color.w == 0.0)
+				continue;//avoid useless histogram writes
+
 			color.xyz *= color.w;
 
-			//
-			float offset_strength;
-			int offset_x_dir;
-			int offset_y_dir;
-
-			if (proj.x > width/2 && settings.dispatchCnt > 1)
+			if (settings.max_filter_radius > 1/* && settings.dispatchCnt > 3*/)
 			{
 				const int filter_radius = 2 + int(settings.max_filter_radius / pow(1.0+(histogram[proj.x+proj.y*width].w), 0.4));
 				//float w_acc = 0.0;
@@ -370,10 +382,8 @@ void main() {
 			}
 			else
 			{
-				offset_strength = 1.0;
-				accumulate_hit(proj, color * offset_strength);
+				accumulate_hit(proj, color);
 			}
-
 
 		}
 	
