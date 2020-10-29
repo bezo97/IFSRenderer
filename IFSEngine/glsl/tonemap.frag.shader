@@ -24,9 +24,9 @@ float log10(float x)
 //log density scaling
 vec4 logscale(vec4 acc)
 {
-	float ls = log10(1.0 + acc.w / max_density) / acc.w;
+	float ls = log10(1.0 + brightness * acc.w / max_density) / acc.w;
 	vec4 lh = acc * ls;
-	return clamp(lh, vec4(0.0), vec4(1.0));
+	return lh;
 }
 
 //tonemapping algo based on Apophysis
@@ -34,9 +34,6 @@ vec4 tonemap(vec4 fp)
 {
 	//xyz: accumulated color (log)
 	//w: how many times this pixel was hit (log)
-
-	float ls = brightness * fp.w;
-	fp = fp * brightness;
 
 	//gamma linearization
 	float funcval = 0.0;
@@ -53,7 +50,7 @@ vec4 tonemap(vec4 fp)
 	else
 		alpha = pow(fp.w, inv_gamma);
 
-	ls = vibrancy * alpha / fp.w;
+	float ls = vibrancy * alpha / fp.w;
 	alpha = clamp(alpha, 0.0, 1.0);
 
 	vec3 o = ls * fp.rgb + (1.0 - vibrancy) * pow(fp.rgb, vec3(inv_gamma));
