@@ -43,6 +43,16 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public int PassIters
+        {
+            get => renderer.PassIters;
+            set
+            {
+                renderer.PassIters = value;
+                RaisePropertyChanged(() => PassIters);
+            }
+        }
+
         public PerformanceViewModel(RendererGL renderer)
         {
             this.renderer = renderer;

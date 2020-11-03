@@ -53,10 +53,6 @@
                     <local:ValueSlider ValueName="1 / Entropy"
                                        MinValue="1" MaxValue="10000" Increment="10"
                                        Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
-                    <!--TODO: This is not too user friendly.-->
-                    <local:ValueSlider ValueName="Iterations / Dispatch"
-                                       MinValue="20" MaxValue="1000" Increment="100" 
-                                       Value="{Binding DataContext.PassIters, ElementName=qualitySettingsView}"/>
                     <local:ValueSlider ValueName="Warmup"
                                        MinValue="0" MaxValue="{Binding DataContext.PassIters, ElementName=qualitySettingsView}" Increment="10"
                                        Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>

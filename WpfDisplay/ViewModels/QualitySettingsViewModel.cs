@@ -107,16 +107,6 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public int PassIters
-        {
-            get => renderer.PassIters;
-            set
-            {
-                renderer.PassIters = value;
-                RaisePropertyChanged();
-            }
-        }
-
         public int Warmup
         {
             get => renderer.Warmup;
