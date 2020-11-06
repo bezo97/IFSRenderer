@@ -15,7 +15,7 @@
         KeepContentInBounds="False" 
         DragModifiers="None"
         RelativeZoomModifiers="None"
-        Background="#FF1D1D1D" 
+        Background="#FF888888" 
         ZoomOnPreview="False"
         Cursor="SizeAll"
         Position="0,0"

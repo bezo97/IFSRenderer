@@ -20,9 +20,6 @@
         <StackPanel  Orientation="Horizontal" Grid.Row="0">
             <Button Command="{Binding LoadPaletteCommand}" Margin="8">🎨 Palette</Button>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="8">
-            <Button Command="{Binding RemoveSelectedCommand}" IsEnabled="{Binding SelectedIterator.IsSelected, TargetNullValue=false}">Remove Selection</Button>
-        </StackPanel>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

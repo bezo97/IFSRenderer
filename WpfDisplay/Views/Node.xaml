@@ -10,6 +10,9 @@
              d:DataContext="{d:DesignInstance Type=vm:IteratorViewModel}"
              Width="{Binding WeightedSize}" Height="{Binding WeightedSize}"
              >
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="visibilityConverter"/>
+    </UserControl.Resources>
     <UserControl.RenderTransform>
         <TranslateTransform X="{Binding RenderTranslateValue}" Y="{Binding RenderTranslateValue}"/>
     </UserControl.RenderTransform>
@@ -23,10 +26,28 @@
             </Ellipse.Fill>
             <!-- UniformToFill is lehet ^ -->
             <Ellipse.Effect>
-                <DropShadowEffect ShadowDepth="15" BlurRadius="30" Opacity="{Binding IsSelected}"/>
+                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
         </Ellipse>
-        <Label x:Name ="NameLabel" Content="{Binding TransformName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Label x:Name ="NameLabel" 
+               Content="{Binding TransformName, UpdateSourceTrigger=PropertyChanged}" 
+               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" >
+            <Button
+                Command="{Binding RemoveCommand}" 
+                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
+                Width="20" Height="20" Margin="5"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                🗑️
+            </Button>
+            <Button
+                Command="{Binding DuplicateCommand}" 
+                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
+                Width="20" Height="20" Margin="5"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                ➕
+            </Button>
 
+        </StackPanel>
     </Grid>
 </UserControl>

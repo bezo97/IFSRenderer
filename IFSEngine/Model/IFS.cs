@@ -43,34 +43,42 @@ namespace IFSEngine.Model
             }
         }
 
-        //TODO: duplicate
-        //public XForm DuplicateXForm(XForm a)
-        //{
-        //    XForm d = new XForm(a);//copy ctr
-        //    XForms.Add(d);
-        //    for (int fi = 0; fi < XForms.Count; fi++)
-        //    {//itt nem lehet foreach mert modositjuk
-        //        for (int ci = 0; ci < XForms[fi].GetConns().Count; ci++)
-        //        {
-        //            if (XForms[fi].GetConns()[ci].ConnTo == a)
-        //                XForms[fi].SetConn(new Conn(d, 1));
-        //        }
-        //    }
-        //    /*foreach (Conn c in a.GetConns())
-        //    {
-        //        if(c.ConnTo==a)
-        //        {//ha önmaga, akkor az újat is önmagába kötjük
-        //            d.SetConn(new Conn(d, c.WeightTo));
-        //        }
-        //        else
-        //         d.SetConn(c);
-        //    }*/
-        //    //eredetit és duplikáltat is összekötjük
-        //    d.SetConn(new Conn(a, 1.0));
-        //    a.SetConn(new Conn(d, 1.0));
-        //
-        //    return d;
-        //}
+        public Iterator DuplicateIterator(Iterator a)
+        {
+            //clone first
+            Iterator d = new Iterator(a.TransformFunction)
+            {
+                BaseWeight = a.BaseWeight,
+                ColorIndex = a.ColorIndex,
+                ColorSpeed = a.ColorSpeed,
+                Opacity = a.Opacity,
+                ShadingMode = a.ShadingMode,
+                
+            };
+            //copy variable values
+            foreach (var tv in a.TransformVariables)
+                d.TransformVariables[tv.Key] = tv.Value;
+            //connect weights
+            foreach(Iterator it in Iterators)
+            {//'from' weights
+                if (it.WeightTo.TryGetValue(a, out double w))
+                    it.WeightTo[d] = w;
+            }
+            foreach (var w in a.WeightTo)
+            {//'to' weights
+                if(w.Key == a)//if self-connected, do the same on the duplicate
+                    d.WeightTo[d] = w.Value;
+                else
+                    d.WeightTo[w.Key] = w.Value;
+            }
+            //connect he original with the duplicate
+            //d.WeightTo[a] = 1.0;
+            //a.WeightTo[d] = 1.0;
+            a.WeightTo.Remove(d);
+
+            AddIterator(d, false);
+            return d;
+        }
 
         public void RemoveIterator(Iterator it1)
         {

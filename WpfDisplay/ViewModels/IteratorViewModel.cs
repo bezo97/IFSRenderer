@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
 using IFSEngine.Util;
 using System;
@@ -36,6 +37,9 @@ namespace WpfDisplay.ViewModels
             });
 
         }
+
+        public RelayCommand RemoveCommand { get; set; }
+        public RelayCommand DuplicateCommand { get; set; }
 
         public void Redraw()
         {

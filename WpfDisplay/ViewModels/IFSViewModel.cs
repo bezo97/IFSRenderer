@@ -68,7 +68,11 @@ namespace WpfDisplay.ViewModels
 
         private IteratorViewModel AddNewIteratorVM(Iterator i)
         {
-            var ivm = new IteratorViewModel(i);
+            var ivm = new IteratorViewModel(i)
+            {
+                RemoveCommand = RemoveSelectedCommand,
+                DuplicateCommand = DuplicateSelectedCommand
+            };
             ivm.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
             ivm.ViewChanged += (s, e) => { Redraw(); };
             ivm.Selected += (s, e) => SelectedIterator = ivm;
@@ -89,7 +93,7 @@ namespace WpfDisplay.ViewModels
             };
             if (SelectedIterator != null)
             {
-                ivm.XCoord = SelectedIterator.XCoord+(float)SelectedIterator.WeightedSize/1.5f+(float)ivm.WeightedSize/1.5f;
+                ivm.XCoord = SelectedIterator.XCoord + (float)SelectedIterator.WeightedSize / 1.5f + (float)ivm.WeightedSize / 1.5f;
                 ivm.YCoord = SelectedIterator.YCoord;
             }
             IteratorViewModels.Add(ivm);
@@ -156,6 +160,19 @@ namespace WpfDisplay.ViewModels
                     SelectedIterator = null;
                     RaisePropertyChanged("InvalidateParams");
                     HandleIteratorsChanged();
+                }));
+        }
+
+        private RelayCommand _duplicateSelectedCommand;
+        public RelayCommand DuplicateSelectedCommand
+        {
+            get => _duplicateSelectedCommand ?? (
+                _duplicateSelectedCommand = new RelayCommand(() =>
+                {
+                    ifs.DuplicateIterator(SelectedIterator.iterator);
+                    RaisePropertyChanged("InvalidateParams");
+                    HandleIteratorsChanged();
+                    SelectedIterator = null;
                 }));
         }
 
