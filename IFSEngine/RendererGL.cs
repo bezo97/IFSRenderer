@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-//using OpenGL;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -212,7 +211,7 @@ namespace IFSEngine
         {
             currentParams = p;
             InvalidateParams();
-            Task.Run(()=>SetHistogramScale(1.0));
+            //Task.Run(()=>SetHistogramScale(1.0));
         }
 
         public void InvalidateAccumulation()
@@ -254,6 +253,12 @@ namespace IFSEngine
 
 
                 GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
+
+                GL.ClearBuffer(ClearBuffer.Color, 0, BufferClearColor);
+                ctx.SwapBuffers();//clear back buffer
+                GL.ClearBuffer(ClearBuffer.Color, 0, BufferClearColor);
+                DisplayFrameCompleted?.Invoke(this, null);
+
                 InvalidateAccumulation();
             });
 
@@ -768,6 +773,13 @@ if (iter.tfId == {transformIds[tf]})
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, xaosBufferHandle);
 
         }
+
+        private float[] BufferClearColor => new float[]
+        {
+            currentParams.BackgroundColor.R,
+            currentParams.BackgroundColor.G,
+            currentParams.BackgroundColor.B
+        };
 
         //TODO: reload plugins / recompile
 
