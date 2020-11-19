@@ -1,60 +1,56 @@
 ﻿using GalaSoft.MvvmLight;
-using IFSEngine.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class ToneMappingViewModel : ViewModelBase
     {
-        private readonly IFS ifs;
+        private readonly Workspace workspace;
 
-        public ToneMappingViewModel(IFS ifs)
+        public ToneMappingViewModel(Workspace workspace)
         {
-            this.ifs = ifs;
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
         }
 
         public double Brightness
         {
-            get => ifs.Brightness;
+            get => workspace.IFS.Brightness;
             set
             {
-                ifs.Brightness = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateRender");
+                workspace.IFS.Brightness = value;
+                RaisePropertyChanged(() => Brightness);
+                workspace.Renderer.UpdateDisplay();
             }
         }
         public double Gamma
         {
-            get => ifs.Gamma;
+            get => workspace.IFS.Gamma;
             set
             {
-                ifs.Gamma = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateRender");
+                workspace.IFS.Gamma = value;
+                RaisePropertyChanged(() => Gamma);
+                workspace.Renderer.UpdateDisplay();
             }
         }
         public double GammaThreshold
         {
-            get => ifs.GammaThreshold;
+            get => workspace.IFS.GammaThreshold;
             set
             {
-                ifs.GammaThreshold = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateRender");
+                workspace.IFS.GammaThreshold = value;
+                RaisePropertyChanged(() => GammaThreshold);
+                workspace.Renderer.UpdateDisplay();
             }
         }
         public double Vibrancy
         {
-            get => ifs.Vibrancy;
+            get => workspace.IFS.Vibrancy;
             set
             {
-                ifs.Vibrancy = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateRender");
+                workspace.IFS.Vibrancy = value;
+                RaisePropertyChanged(() => Vibrancy);
+                workspace.Renderer.UpdateDisplay();
             }
         }
 

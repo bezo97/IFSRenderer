@@ -1,20 +1,14 @@
 ﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 using WpfDisplay.Helper;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class PerformanceViewModel : ObservableObject
     {
-        private readonly RendererGL renderer;
-
+        private readonly Workspace workspace;
         private DispatcherTimer dt;
         private int fpsCounter = 0;
         private ulong lastTotalIters = 0;
@@ -25,51 +19,51 @@ namespace WpfDisplay.ViewModels
         public string TotalIterations { get; private set; }
         public double WorkgroupCount
         {
-            get => renderer.WorkgroupCount;
+            get => workspace.Renderer.WorkgroupCount;
             set
             {
-                renderer.setWorkgroupCount((int)value).Wait();
+                workspace.Renderer.setWorkgroupCount((int)value).Wait();
                 RaisePropertyChanged(() => WorkgroupCount);
             }
         }
 
         public bool UpdateDisplay
         {
-            get => renderer.UpdateDisplayOnRender;
+            get => workspace.Renderer.UpdateDisplayOnRender;
             set
             {
-                renderer.UpdateDisplayOnRender = value;
+                workspace.Renderer.UpdateDisplayOnRender = value;
                 RaisePropertyChanged(() => UpdateDisplay);
             }
         }
 
         public int PassIters
         {
-            get => renderer.PassIters;
+            get => workspace.Renderer.PassIters;
             set
             {
-                renderer.PassIters = value;
+                workspace.Renderer.PassIters = value;
                 RaisePropertyChanged(() => PassIters);
             }
         }
 
-        public PerformanceViewModel(RendererGL renderer)
+        public PerformanceViewModel(Workspace workspace)
         {
-            this.renderer = renderer;
-            renderer.DisplayFrameCompleted += (s, e) => fpsCounter++;
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.Renderer.DisplayFrameCompleted += (s, e) => fpsCounter++;
             dt = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, (s, e) => UpdateValues(), Dispatcher.CurrentDispatcher);
             dt.Start();
-
         }
 
         public void UpdateValues()
         {
-            TotalIterations = renderer.TotalIterations.ToKMB();
+            TotalIterations = workspace.Renderer.TotalIterations.ToKMB();
             Fps = fpsCounter;
             fpsCounter = 0;
-            lastTotalIters = Math.Min(renderer.TotalIterations, lastTotalIters);
-            IterationSpeed = (renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
-            lastTotalIters = renderer.TotalIterations;
+            lastTotalIters = Math.Min(workspace.Renderer.TotalIterations, lastTotalIters);
+            IterationSpeed = (workspace.Renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
+            lastTotalIters = workspace.Renderer.TotalIterations;
             RaisePropertyChanged(() => Fps);
             RaisePropertyChanged(() => IterationSpeed);
             RaisePropertyChanged(() => TotalIterations);

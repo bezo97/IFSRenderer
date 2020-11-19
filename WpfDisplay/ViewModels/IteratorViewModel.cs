@@ -7,12 +7,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IteratorViewModel : ObservableObject
+    public class IteratorViewModel : ViewModelBase
     {
         public readonly Iterator iterator;
+        private readonly Workspace workspace;
+
         public static double BaseSize = 100;
         public event EventHandler ViewChanged;
         public event EventHandler Selected;
@@ -22,18 +25,19 @@ namespace WpfDisplay.ViewModels
         public List<VariableViewModel> Variables { get; }
 
 
-        public IteratorViewModel(Iterator iterator)
+        public IteratorViewModel(Iterator iterator, Workspace workspace)
         {
             this.iterator = iterator;
-
-            Variables = new List<VariableViewModel>(iterator.TransformVariables.Select(v=>new VariableViewModel(v.Key, iterator)));
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            Variables = new List<VariableViewModel>(iterator.TransformVariables.Select(v=>new VariableViewModel(v.Key, iterator, workspace)));
             foreach (var v in Variables)
                 v.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
 
             Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) =>
             {
                 RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             });
 
         }
@@ -70,7 +74,7 @@ namespace WpfDisplay.ViewModels
                 iterator.Opacity = value;
                 RaisePropertyChanged(() => Opacity);
                 RaisePropertyChanged(() => OpacityColor);
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
@@ -81,7 +85,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ColorIndex = value;
                 RaisePropertyChanged(() => ColorIndex);
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
@@ -92,7 +96,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ColorSpeed = value;
                 RaisePropertyChanged(() => ColorSpeed);
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
@@ -103,7 +107,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
                 RaisePropertyChanged(() => DeltaColoring);
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
@@ -125,7 +129,7 @@ namespace WpfDisplay.ViewModels
                 //ifsvm.ifs.NormalizeBaseWeights();
                 //ifsvm.HandleConnectionsChanged(this);
                 ViewChanged?.Invoke(this, null);//refresh
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
@@ -181,8 +185,8 @@ namespace WpfDisplay.ViewModels
         public void FinishConnecting()
         {
             //
-            RaisePropertyChanged("InvalidateParams");
             ConnectEvent?.Invoke(this, true);
+            workspace.Renderer.InvalidateParams();
         }
 
     }

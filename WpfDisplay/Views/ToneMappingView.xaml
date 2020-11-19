@@ -13,11 +13,11 @@
     <md:Card Padding="6" Margin="8">
         <StackPanel>
             <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.01" 
+            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.05" 
                                Value="{Binding DataContext.Brightness, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.01" 
+            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.005" 
                                Value="{Binding DataContext.Gamma, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="Gamma threshold" Increment="0.01" 
+            <local:ValueSlider ValueName="Gamma threshold" MinValue="0.0" Increment="0.005"
                                Value="{Binding DataContext.GammaThreshold, ElementName=toneMappingView}"/>
             <local:ValueSlider ValueName="Vibrancy" Increment="0.05" 
                                Value="{Binding DataContext.Vibrancy, ElementName=toneMappingView}"/>

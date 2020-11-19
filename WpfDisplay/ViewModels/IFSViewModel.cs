@@ -5,21 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Windows.Media;
 using WpfDisplay.Helper;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class IFSViewModel : ViewModelBase
     {
-        //TODO: private
-        public readonly IFS ifs;
+        private readonly Workspace workspace;
 
         //HACK: actully more related to the renderer than the ifs
         public List<TransformFunction> RegisteredTransforms => TransformFunction.LoadedTransformFunctions;
 
-        public ToneMappingViewModel ToneMappingViewModel { get; }
-        public CameraSettingsViewModel CameraSettingsViewModel { get; }
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; private set; } = new ObservableCollection<IteratorViewModel>();
 
 
@@ -44,31 +43,32 @@ namespace WpfDisplay.ViewModels
         {
             get 
             {
-                var c = ifs.BackgroundColor;
+                var c = workspace.IFS.BackgroundColor;
                 return Color.FromRgb(c.R, c.G, c.B);
             }
             set
             {
-                ifs.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
-                RaisePropertyChanged("InvalidateRender");
+                workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
-        public IFSViewModel(IFS ifs)
+        public IFSViewModel(Workspace workspace)
         {
-            this.ifs = ifs;
-            CameraSettingsViewModel = new CameraSettingsViewModel(ifs);
-            CameraSettingsViewModel.PropertyChanged += (s,e) => RaisePropertyChanged(e.PropertyName);
-            ToneMappingViewModel = new ToneMappingViewModel(ifs);
-            ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-            IteratorViewModels.CollectionChanged += (s, e) => RaisePropertyChanged("InvalidateParams");
-            ifs.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            IteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParams();
+            workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            workspace.PropertyChanged += (s, e) => {
+                SelectedIterator = null;
+                HandleIteratorsChanged(); 
+            };
             HandleIteratorsChanged();
         }
 
         private IteratorViewModel AddNewIteratorVM(Iterator i)
         {
-            var ivm = new IteratorViewModel(i)
+            var ivm = new IteratorViewModel(i, workspace)
             {
                 RemoveCommand = RemoveSelectedCommand,
                 DuplicateCommand = DuplicateSelectedCommand
@@ -103,8 +103,8 @@ namespace WpfDisplay.ViewModels
 
         private void HandleIteratorsChanged()
         {
-            var newIterators = ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
-            var removedIteratorVMs = IteratorViewModels.Where(vm => !ifs.Iterators.Any(i => vm.iterator == i));
+            var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
+            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i));
             removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
             newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
 
@@ -132,6 +132,9 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public void RotateWithSensitivity(Vector3 rotation) => workspace.IFS.Camera.RotateWithSensitivity(rotation);
+        public void TranslateWithSensitivity(Vector3 translation) => workspace.IFS.Camera.TranslateWithSensitivity(translation);
+
         private RelayCommand<TransformFunction> _addIteratorCommand;
         public RelayCommand<TransformFunction> AddIteratorCommand
         {
@@ -139,13 +142,13 @@ namespace WpfDisplay.ViewModels
                 _addIteratorCommand = new RelayCommand<TransformFunction>((tf) =>
                 {
                     Iterator newIterator = new Iterator(tf);
-                    ifs.AddIterator(newIterator, false);
+                    workspace.IFS.AddIterator(newIterator, false);
                     if (SelectedIterator != null)
                     {
                         SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
                         newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
                     }
-                    RaisePropertyChanged("InvalidateParams");
+                    workspace.Renderer.InvalidateParams();
                     HandleIteratorsChanged();
                 }));
         }
@@ -156,9 +159,9 @@ namespace WpfDisplay.ViewModels
             get => _removeSelectedCommand ?? (
                 _removeSelectedCommand = new RelayCommand(() =>
                 {
-                    ifs.RemoveIterator(SelectedIterator.iterator);
+                    workspace.IFS.RemoveIterator(SelectedIterator.iterator);
                     SelectedIterator = null;
-                    RaisePropertyChanged("InvalidateParams");
+                    workspace.Renderer.InvalidateParams();
                     HandleIteratorsChanged();
                 }));
         }
@@ -169,7 +172,7 @@ namespace WpfDisplay.ViewModels
             get => _duplicateSelectedCommand ?? (
                 _duplicateSelectedCommand = new RelayCommand(() =>
                 {
-                    ifs.DuplicateIterator(SelectedIterator.iterator);
+                    workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
                     RaisePropertyChanged("InvalidateParams");
                     HandleIteratorsChanged();
                     SelectedIterator = null;
@@ -187,8 +190,8 @@ namespace WpfDisplay.ViewModels
                         var palettes = FlamePalette.FromFile(path);
                         //TODO: Replace random choice with a palette picker here
                         //var palette = PalettePicker.ShowDialog(palettes);
-                        ifs.Palette = palettes[new Random().Next(palettes.Count)];
-                        RaisePropertyChanged("InvalidateParams");
+                        workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
+                        workspace.Renderer.InvalidateParams();
                     }
                 }));
         }

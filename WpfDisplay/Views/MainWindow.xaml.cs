@@ -1,13 +1,11 @@
 ﻿using IFSEngine;
 using IFSEngine.Model;
-using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using WpfDisplay.Models;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views
@@ -18,21 +16,27 @@ namespace WpfDisplay.Views
     public partial class MainWindow : Window
     {
         private EditorWindow editorWindow;
-        private RendererGL renderer;
 
         public MainWindow()
         {
             InitializeComponent();
-            OpenTK.Toolkit.Init();
-            var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
-            renderDisplay.Loaded += (s, e) =>
+            ContentRendered += (s, e) =>
             {
-                renderer = new RendererGL(renderDisplay.display1.WindowInfo);
-                renderer.Initialize(loadedTransforms);
+                var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
+                //init workspace 
+                RendererGL renderer = new RendererGL(renderDisplay.display1.WindowInfo);
                 renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                var mainViewModel = new MainViewModel(renderer);
+                IFS ifs = IFS.GenerateRandom();
+                //TODO: create-workspace view?
+                Workspace workspace = new Workspace
+                {
+                    Renderer = renderer,
+                    IFS = ifs
+                };
+                var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
+                renderer.Initialize(loadedTransforms);
             };
         }
 
@@ -42,7 +46,7 @@ namespace WpfDisplay.Views
             if (editorWindow == null || !editorWindow.IsLoaded)
             {
                 editorWindow = new EditorWindow();
-                editorWindow.SetBinding(DataContextProperty, new Binding("IFSViewModel") { Source = DataContext, Mode=BindingMode.TwoWay});
+                editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = (DataContext as MainViewModel).IFSViewModel, Mode=BindingMode.TwoWay});
             }
 
             if (editorWindow.ShowActivated)
@@ -56,7 +60,7 @@ namespace WpfDisplay.Views
         {
             if (editorWindow != null)
                 editorWindow.Close();
-            renderer.Dispose();
+            (this.DataContext as MainViewModel).Dispose();
             base.OnClosing(e);
         }
 

@@ -1,73 +1,69 @@
 ﻿using GalaSoft.MvvmLight;
-using IFSEngine.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class CameraSettingsViewModel : ViewModelBase
     {
-        private readonly IFS ifs;
+        private readonly Workspace workspace;
 
-        public CameraSettingsViewModel(IFS ifs)
+        public CameraSettingsViewModel(Workspace workspace)
         {
-            this.ifs = ifs;
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
         }
 
         public float FieldOfView {
-            get => ifs.Camera.FieldOfView;
+            get => workspace.IFS.Camera.FieldOfView;
             set
             {
-                ifs.Camera.FieldOfView = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateAccumulation");
+                workspace.IFS.Camera.FieldOfView = value;
+                RaisePropertyChanged(() => FieldOfView);
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public double DepthOfField
         {
-            get => ifs.DepthOfField;
+            get => workspace.IFS.DepthOfField;
             set
             {
-                ifs.DepthOfField = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateAccumulation");
+                workspace.IFS.DepthOfField = value;
+                RaisePropertyChanged(() => DepthOfField);
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public double FocusDistance
         {
-            get => ifs.FocusDistance;
+            get => workspace.IFS.FocusDistance;
             set
             {
-                ifs.FocusDistance = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateAccumulation");
+                workspace.IFS.FocusDistance = value;
+                RaisePropertyChanged(() => FocusDistance);
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public double FocusArea
         {
-            get => ifs.FocusArea;
+            get => workspace.IFS.FocusArea;
             set
             {
-                ifs.FocusArea = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateAccumulation");
+                workspace.IFS.FocusArea = value;
+                RaisePropertyChanged(() => FocusArea);
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public double FogEffect
         {
-            get => ifs.FogEffect;
+            get => workspace.IFS.FogEffect;
             set
             {
-                ifs.FogEffect = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateAccumulation");
+                workspace.IFS.FogEffect = value;
+                RaisePropertyChanged(() => FogEffect);
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 

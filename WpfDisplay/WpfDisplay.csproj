@@ -77,6 +77,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\ConnectionGeometryConverter.cs" />
+    <Compile Include="Converters\DataContextSetConverter.cs" />
     <Compile Include="Helper\GDIHelper.cs" />
     <Compile Include="Helper\GeneralHelpers.cs" />
     <Compile Include="Helper\InstanceProperty.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="ViewModels\QualitySettingsViewModel.cs" />
     <Compile Include="ViewModels\ToneMappingViewModel.cs" />
     <Compile Include="ViewModels\VariableViewModel.cs" />
+    <Compile Include="Models\Workspace.cs" />
     <Compile Include="Views\CameraSettingsView.xaml.cs">
       <DependentUpon>CameraSettingsView.xaml</DependentUpon>
     </Compile>

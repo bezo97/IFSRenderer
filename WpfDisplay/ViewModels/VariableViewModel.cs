@@ -1,11 +1,13 @@
 ﻿using GalaSoft.MvvmLight;
 using IFSEngine.Model;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class VariableViewModel : ObservableObject
     {
         private readonly Iterator iterator;
+        private readonly Workspace workspace;
 
         public string Name { get; private set; }
         public double Value
@@ -15,16 +17,18 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.TransformVariables[Name] = value;
                 RaisePropertyChanged();
-                RaisePropertyChanged("InvalidateParams");
+                workspace.Renderer.InvalidateParams();
             }
         }
 
         //TODO: min max increment
 
-        public VariableViewModel(string name, Iterator iterator)
+        public VariableViewModel(string name, Iterator iterator, Workspace workspace)
         {
             this.Name = name;
             this.iterator = iterator;
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
         }
     }
 }

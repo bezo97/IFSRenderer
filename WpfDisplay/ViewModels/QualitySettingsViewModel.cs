@@ -1,21 +1,18 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class QualitySettingsViewModel : ObservableObject
     {
-        private readonly RendererGL renderer;
+        private readonly Workspace workspace;
 
-        public QualitySettingsViewModel(RendererGL renderer)
+        public QualitySettingsViewModel(Workspace workspace)
         {
-            this.renderer = renderer;
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
         }
 
         private RelayCommand _startRenderingCommand;
@@ -24,113 +21,167 @@ namespace WpfDisplay.ViewModels
             get => _startRenderingCommand ?? (
                 _startRenderingCommand = new RelayCommand(() =>
                 {
-                    renderer.StartRendering();
+                    workspace.Renderer.StartRendering();
                 }));
         }
 
         public bool EnableDE
         {
-            get => renderer.EnableDE;
+            get => workspace.Renderer.EnableDE;
             set
             {
-                renderer.EnableDE = value;
+                workspace.Renderer.EnableDE = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(DEPanelVisibility));
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
         public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
 
         public int DEMaxRadius
         {
-            get => renderer.DEMaxRadius;
+            get => workspace.Renderer.DEMaxRadius;
             set
             {
-                renderer.DEMaxRadius = value;
+                workspace.Renderer.DEMaxRadius = value;
                 RaisePropertyChanged();
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
         public double DEThreshold
         {
-            get => renderer.DEThreshold;
+            get => workspace.Renderer.DEThreshold;
             set
             {
-                renderer.DEThreshold = value;
+                workspace.Renderer.DEThreshold = value;
                 RaisePropertyChanged();
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
         public double DEPower
         {
-            get => renderer.DEPower;
+            get => workspace.Renderer.DEPower;
             set
             {
-                renderer.DEPower = value;
+                workspace.Renderer.DEPower = value;
                 RaisePropertyChanged();
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
         public bool EnableTAA
         {
-            get => renderer.EnableTAA;
+            get => workspace.Renderer.EnableTAA;
             set
             {
-                renderer.EnableTAA = value;
+                workspace.Renderer.EnableTAA = value;
                 RaisePropertyChanged();
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
         public bool EnablePerceptualUpdates
         {
-            get => renderer.EnablePerceptualUpdates;
+            get => workspace.Renderer.EnablePerceptualUpdates;
             set
             {
-                renderer.EnablePerceptualUpdates = value;
+                workspace.Renderer.EnablePerceptualUpdates = value;
                 RaisePropertyChanged();
-                renderer.UpdateDisplay();
+                workspace.Renderer.UpdateDisplay();
             }
         }
 
         public int EntropyInv
         {
-            get => (int)(1.0 / renderer.Entropy);
+            get => (int)(1.0 / workspace.Renderer.Entropy);
             set
             {
-                renderer.Entropy = 1.0 / value;
+                workspace.Renderer.Entropy = 1.0 / value;
                 RaisePropertyChanged();
-                renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public int Warmup
         {
-            get => renderer.Warmup;
+            get => workspace.Renderer.Warmup;
             set
             {
-                renderer.Warmup = value;
+                workspace.Renderer.Warmup = value;
                 RaisePropertyChanged();
-                renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public int MaxFilterRadius
         {
-            get => renderer.MaxFilterRadius;
+            get => workspace.Renderer.MaxFilterRadius;
             set
             {
-                renderer.MaxFilterRadius = value;
+                workspace.Renderer.MaxFilterRadius = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(()=>FilterText);
-                renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateAccumulation();
             }
         }
 
         public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 1 ? "" : " (Off)");
+
+        private bool isResolutionLinked;
+        public bool IsResolutionLinked
+        {
+            get { return isResolutionLinked; }
+            set { Set(ref isResolutionLinked, value); }
+        }
+
+
+        public int ImageWidth 
+        { 
+            get 
+            {
+                return workspace.IFS.ImageResolution.Width;
+            } 
+            set 
+            {
+                if(IsResolutionLinked)
+                {
+                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
+                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
+                }
+                else
+                {
+                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, workspace.IFS.ImageResolution.Height);
+                }
+                RaisePropertyChanged(() => ImageWidth);
+                RaisePropertyChanged(() => ImageHeight);
+                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+            }
+        }
+
+        public int ImageHeight
+        {
+            get
+            {
+                return workspace.IFS.ImageResolution.Height;
+            }
+            set
+            {
+                if (IsResolutionLinked)
+                {
+                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
+                    workspace.IFS.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
+                }
+                else
+                {
+                    workspace.IFS.ImageResolution = new System.Drawing.Size(workspace.IFS.ImageResolution.Width, value);
+                }
+                RaisePropertyChanged(() => ImageWidth);
+                RaisePropertyChanged(() => ImageHeight);
+                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+            }
+        }
 
         private RelayCommand _previewPresetCommand;
         public RelayCommand PreviewPresetCommand
@@ -138,7 +189,8 @@ namespace WpfDisplay.ViewModels
             get => _previewPresetCommand ?? (
                 _previewPresetCommand = new RelayCommand(async () =>
                 {
-                    await renderer.SetHistogramScaleToDisplay();
+                    await workspace.Renderer.SetHistogramScaleToDisplay();
+
                     //EnableDE = true;
                     //EnableTAA = true;
                     //EnablePerceptualUpdates = false;
@@ -162,7 +214,7 @@ namespace WpfDisplay.ViewModels
                     //Warmup = 30;
                     EntropyInv = 10000;
                     MaxFilterRadius = 3;
-                    await renderer.SetHistogramScale(1.0);
+                    await workspace.Renderer.SetHistogramScale(1.0);
                 }));
         }
 

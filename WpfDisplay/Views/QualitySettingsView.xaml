@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:WpfDisplay.Views" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
              x:Name="qualitySettingsView"
              d:DesignHeight="500" d:DesignWidth="300"
@@ -21,7 +22,7 @@
                         Command="{Binding StartRenderingCommand}"
                         Margin="12" HorizontalContentAlignment="Center">▶️ Start</Button>
                     <Label>Quality presets</Label>
-                    <Grid >
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -32,6 +33,24 @@
                         <Button
                             Command="{Binding FinalPresetCommand}"
                             Margin="8" Grid.Column="1">📸 Final</Button>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <toolkit:IntegerUpDown 
+                            Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
+                            Minimum="1" Increment="100"
+                            Grid.Column="0" Margin="8" UpdateValueOnEnterKey="True"/>
+                        <ToggleButton 
+                            IsChecked="{Binding IsResolutionLinked}" 
+                            Margin="0,8,0,8" Style="{x:Null}" Grid.Column="1">🔗</ToggleButton>
+                        <toolkit:IntegerUpDown 
+                            Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
+                            Minimum="1" Increment="100"
+                            Grid.Column="2" Margin="8" UpdateValueOnEnterKey="True"/>
                     </Grid>
                 </StackPanel>
             </md:Card>

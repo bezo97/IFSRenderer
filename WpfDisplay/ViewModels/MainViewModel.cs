@@ -1,56 +1,48 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine;
 using IFSEngine.Model;
 using IFSEngine.Serialization;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase, IDisposable
     {
-        private readonly RendererGL renderer;
+        private readonly Workspace workspace;
 
         //public DisplayViewModel DisplayViewModel { get; }
+        public ToneMappingViewModel ToneMappingViewModel { get; }
+        public CameraSettingsViewModel CameraSettingsViewModel { get; }
         public PerformanceViewModel PerformanceViewModel { get; }
         public QualitySettingsViewModel QualitySettingsViewModel { get; }
+        public IFSViewModel IFSViewModel { get; }
 
-
-        private IFSViewModel _ifsViewModel;
-        public IFSViewModel IFSViewModel {
-            get => _ifsViewModel; 
-            set {
-                Set(ref _ifsViewModel, value);
-                _ifsViewModel.PropertyChanged += (s, e) =>
-                {//
-                    if (e.PropertyName == "InvalidateRender")
-                        renderer.UpdateDisplay();
-                    if (e.PropertyName == "InvalidateParams")
-                        renderer.InvalidateParams();
-                    if (e.PropertyName == "InvalidateAccumulation")
-                        renderer.InvalidateAccumulation();
-                };
-            }
-        }
-
-        public MainViewModel(RendererGL renderer)
+        public MainViewModel(Workspace workspace)
         {
-            this.renderer = renderer;
-            PerformanceViewModel = new PerformanceViewModel(renderer);
-            QualitySettingsViewModel = new QualitySettingsViewModel(renderer);
-            LoadRandomCommand.Execute(null);
+            this.workspace = workspace;
+            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            PerformanceViewModel = new PerformanceViewModel(workspace);
+            QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
+            IFSViewModel = new IFSViewModel(workspace);
+            CameraSettingsViewModel = new CameraSettingsViewModel(workspace);
+            CameraSettingsViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            ToneMappingViewModel = new ToneMappingViewModel(workspace);
+            ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
         }
+
+        public void InvalidateRender() => workspace.Renderer.UpdateDisplay();
+        public void InvalidateParams() => workspace.Renderer.InvalidateParams();
+        public void InvalidateAccumulation() => workspace.Renderer.InvalidateAccumulation();
+
 
         private RelayCommand _newCommand;
         public RelayCommand NewCommand
@@ -58,9 +50,7 @@ namespace WpfDisplay.ViewModels
             get => _newCommand ?? (
                 _newCommand = new RelayCommand(() =>
                 {
-                    var ifs = new IFS();
-                    IFSViewModel = new IFSViewModel(ifs);
-                    renderer.LoadParams(ifs);
+                    workspace.IFS = new IFS();
                 }));
         }
 
@@ -70,9 +60,7 @@ namespace WpfDisplay.ViewModels
             get => _loadRandomCommand ?? (
                 _loadRandomCommand = new RelayCommand(() =>
                 {
-                    var ifs = IFS.GenerateRandom();
-                    IFSViewModel = new IFSViewModel(ifs);
-                    renderer.LoadParams(ifs);
+                    workspace.IFS = IFS.GenerateRandom();
                 }));
         }
 
@@ -84,7 +72,7 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
                     {
-                        IfsSerializer.SaveJson(IFSViewModel.ifs, path);
+                        IfsSerializer.SaveJson(workspace.IFS, path);
                     }
                 }));
         }
@@ -109,8 +97,7 @@ namespace WpfDisplay.ViewModels
                             else 
                                 return;
                         }
-                        IFSViewModel = new IFSViewModel(ifs);
-                        renderer.LoadParams(ifs);
+                        workspace.IFS = ifs;
                     }
                 }));
         }
@@ -125,8 +112,8 @@ namespace WpfDisplay.ViewModels
                     PngBitmapEncoder enc = new PngBitmapEncoder();
                     Task copyTask = Task.Run(async () =>
                     {
-                        wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-                        await renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
+                        wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+                        await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
                         //TODO: option to remove alpha channel
                         //TODO: flip y
                         wbm.Freeze();
@@ -145,5 +132,20 @@ namespace WpfDisplay.ViewModels
                 }));
         }
 
+        private RelayCommand _closeWorkspace;
+        public RelayCommand CloseWorkspace
+        {
+            get => _closeWorkspace ?? (
+                _closeWorkspace = new RelayCommand(() =>
+                {
+                    //TODO: prompt to save work?
+                    Dispose();
+                }));
+        }
+
+        public void Dispose()
+        {
+            workspace.Renderer.Dispose();
+        }
     }
 }
