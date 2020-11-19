@@ -57,7 +57,7 @@ namespace IFSEngine
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
-        private IFS currentParams;
+        private IFS currentParams = new IFS();
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
         private bool invalidPointsState = false;
@@ -154,6 +154,7 @@ namespace IFSEngine
         private int taaTextureHandle;
 
         private readonly AutoResetEvent stopRender = new AutoResetEvent(false);
+        private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
 
         //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
         private static void DebugCallback(DebugSource source,
@@ -183,19 +184,16 @@ namespace IFSEngine
 
             AnimationManager = new AnimationManager();
 
-            LoadParams(IFS.GenerateRandom());
-
-            //enable debugging
-            _debugProcCallbackHandle = System.Runtime.InteropServices.GCHandle.Alloc(_debugProcCallback);
-            GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
-            GL.Enable(EnableCap.DebugOutput);
-            GL.Enable(EnableCap.DebugOutputSynchronous);
-
         }
 
         public void Initialize(IEnumerable<TransformFunction> transforms)
         {
-            //TODO: separate opengl initialization from ctor
+            ////enable debugging
+            //_debugProcCallbackHandle = System.Runtime.InteropServices.GCHandle.Alloc(_debugProcCallback);
+            //GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
+            //GL.Enable(EnableCap.DebugOutput);
+            //GL.Enable(EnableCap.DebugOutputSynchronous);
+
             initTonemapPass();
             initDE();
             initRenderer(transforms);
@@ -254,9 +252,9 @@ namespace IFSEngine
 
                 GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
 
-                GL.ClearBuffer(ClearBuffer.Color, 0, BufferClearColor);
+                GL.ClearBuffer(ClearBuffer.Color, 0, bufferClearColor);
                 ctx.SwapBuffers();//clear back buffer
-                GL.ClearBuffer(ClearBuffer.Color, 0, BufferClearColor);
+                GL.ClearBuffer(ClearBuffer.Color, 0, bufferClearColor);
                 DisplayFrameCompleted?.Invoke(this, null);
 
                 InvalidateAccumulation();
@@ -773,13 +771,6 @@ if (iter.tfId == {transformIds[tf]})
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, xaosBufferHandle);
 
         }
-
-        private float[] BufferClearColor => new float[]
-        {
-            currentParams.BackgroundColor.R,
-            currentParams.BackgroundColor.G,
-            currentParams.BackgroundColor.B
-        };
 
         //TODO: reload plugins / recompile
 

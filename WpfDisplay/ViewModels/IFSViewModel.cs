@@ -132,9 +132,6 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public void RotateWithSensitivity(Vector3 rotation) => workspace.IFS.Camera.RotateWithSensitivity(rotation);
-        public void TranslateWithSensitivity(Vector3 translation) => workspace.IFS.Camera.TranslateWithSensitivity(translation);
-
         private RelayCommand<TransformFunction> _addIteratorCommand;
         public RelayCommand<TransformFunction> AddIteratorCommand
         {
@@ -200,9 +197,15 @@ namespace WpfDisplay.ViewModels
         public RelayCommand ReloadTransformsCommand
         {
             get => _reloadTransformsCommand ?? (
-                _reloadTransformsCommand = new RelayCommand(() =>
+                _reloadTransformsCommand = new RelayCommand(async () =>
                 {
-                    //TODO
+                    //TODO: Fix TransformFunctions reloading
+                    //TransformFunction.LoadedTransformFunctions.Clear();
+                    //var loadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(System.IO.File.ReadAllText(file))).ToList();
+                    ////await workspace.Renderer.WithContext(() =>
+                    //{
+                    //    workspace.Renderer.initRenderer(loadedTransforms);
+                    //});
                     RaisePropertyChanged(()=>RegisteredTransforms);
                 }));
         }

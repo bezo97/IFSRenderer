@@ -51,5 +51,23 @@ namespace IFSEngine.Model
             return debug;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is TransformFunction))//TODO: is not
+                return false;
+            var tf2 = (TransformFunction)obj;
+            return (Name == tf2.Name && Version == tf2.Version);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name + Version).GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} ({Version})";
+        }
+
     }
 }

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
@@ -18,7 +14,7 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class RenderDisplay : WindowsFormsHost
     {
-        private MainViewModel DisplayViewModel { get; set; }
+        private InteractiveDisplayViewModel DisplayViewModel { get; set; }
         private KeyboardController keyboard;
         //last mouse position
         private float lastX;
@@ -39,7 +35,7 @@ namespace WpfDisplay.Views
             InitializeComponent();
 
             //Avoid threading problems
-            DataContextChanged += (s, e) => DisplayViewModel = (MainViewModel)DataContext;
+            DataContextChanged += (s, e) => DisplayViewModel = DataContext as InteractiveDisplayViewModel;
 
             keyboard = new KeyboardController(this);
             keyboard.KeyboardTick += KeydownHandler;
@@ -47,7 +43,7 @@ namespace WpfDisplay.Views
 
         private void Display1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            DisplayViewModel.CameraSettingsViewModel.FocusDistance += e.Delta * DisplayViewModel.CameraSettingsViewModel.FocusDistance * 0.001;
+            DisplayViewModel.FocusDistance += e.Delta * DisplayViewModel.FocusDistance * 0.001;
             DisplayViewModel.InvalidateAccumulation();
         }
 
@@ -58,8 +54,7 @@ namespace WpfDisplay.Views
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
                 float yawDelta = e.X - lastX;
                 float pitchDelta = e.Y - lastY;
-                DisplayViewModel.IFSViewModel.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
-                DisplayViewModel.InvalidateAccumulation();
+                DisplayViewModel.RotateCommand(new Vector3(yawDelta, pitchDelta, 0.0f));
             }
             else
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
@@ -72,14 +67,13 @@ namespace WpfDisplay.Views
             if (translateKeys.Any(k => keyboard.IsKeyDown(k)))
             {
                 //Experiment: camera speed relates to focus distance
-                float magnitude = (float)DisplayViewModel.CameraSettingsViewModel.FocusDistance;
+                float magnitude = (float)DisplayViewModel.FocusDistance;
                 var direction = new Vector3(
                     ((keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((keyboard.IsKeyDown(Key.C) || keyboard.IsKeyDown(Key.Q)) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
                 );
-                DisplayViewModel.IFSViewModel.TranslateWithSensitivity(magnitude * direction);
-                DisplayViewModel.InvalidateAccumulation();
+                DisplayViewModel.TranslateCommand(magnitude * direction);
             }
 
             if (rotateKeys.Any(k => keyboard.IsKeyDown(k)))
@@ -90,8 +84,7 @@ namespace WpfDisplay.Views
                     ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
                     ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                 );
-                DisplayViewModel.IFSViewModel.RotateWithSensitivity(magnitude * direction);
-                DisplayViewModel.InvalidateAccumulation();
+                DisplayViewModel.RotateCommand(magnitude * direction);
             }
 
         }

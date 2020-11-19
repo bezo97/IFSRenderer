@@ -36,6 +36,8 @@ namespace WpfDisplay.Views
                 };
                 var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
+                //HACK: binding the DataContext in xaml causes OpenTK IWindowInfo null exception
+                renderDisplay.DataContext = mainViewModel.DisplayViewModel;
                 renderer.Initialize(loadedTransforms);
             };
         }

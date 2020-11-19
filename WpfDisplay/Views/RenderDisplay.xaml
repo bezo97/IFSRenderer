@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             d:DataContext="{d:DesignInstance Type=vm:IFSViewModel, IsDesignTimeCreatable=False}">
+             d:DataContext="{d:DesignInstance Type=vm:InteractiveDisplayViewModel, IsDesignTimeCreatable=False}">
     <tk:GLControl x:Name="display1"
                   VSync="False"
                   MouseMove="Display1_MouseMove"

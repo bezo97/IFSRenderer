@@ -19,7 +19,7 @@ namespace WpfDisplay.ViewModels
     {
         private readonly Workspace workspace;
 
-        //public DisplayViewModel DisplayViewModel { get; }
+        public InteractiveDisplayViewModel DisplayViewModel { get; }
         public ToneMappingViewModel ToneMappingViewModel { get; }
         public CameraSettingsViewModel CameraSettingsViewModel { get; }
         public PerformanceViewModel PerformanceViewModel { get; }
@@ -30,6 +30,7 @@ namespace WpfDisplay.ViewModels
         {
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            DisplayViewModel = new InteractiveDisplayViewModel(workspace);
             PerformanceViewModel = new PerformanceViewModel(workspace);
             QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
             IFSViewModel = new IFSViewModel(workspace);
@@ -38,11 +39,6 @@ namespace WpfDisplay.ViewModels
             ToneMappingViewModel = new ToneMappingViewModel(workspace);
             ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
         }
-
-        public void InvalidateRender() => workspace.Renderer.UpdateDisplay();
-        public void InvalidateParams() => workspace.Renderer.InvalidateParams();
-        public void InvalidateAccumulation() => workspace.Renderer.InvalidateAccumulation();
-
 
         private RelayCommand _newCommand;
         public RelayCommand NewCommand

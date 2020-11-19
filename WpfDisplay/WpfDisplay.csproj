@@ -85,6 +85,7 @@
     <Compile Include="ViewModels\CameraSettingsViewModel.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
     <Compile Include="ViewModels\IFSViewModel.cs" />
+    <Compile Include="ViewModels\InteractiveDisplayViewModel.cs" />
     <Compile Include="ViewModels\IteratorViewModel.cs" />
     <Compile Include="ViewModels\PerformanceViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
