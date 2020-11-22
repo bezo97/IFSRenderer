@@ -8,7 +8,8 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Background="{DynamicResource MaterialDesignPaper}"
         mc:Ignorable="d"
-        Title="EditorWindow" Height="450" Width="800" Topmost="True"
+        Title="EditorWindow" 
+        Width="1280" Height="720"
         x:Name="editorWindow"
         d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
     <Grid>
@@ -47,7 +48,8 @@
                             <ItemsControl ItemsSource="{Binding RegisteredTransforms}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Margin="6" 
+                                        <Button
+                                                Style="{StaticResource MaterialDesignFlatButton }"
                                                 Command="{Binding DataContext.AddIteratorCommand, ElementName=editorWindow}" 
                                                 CommandParameter="{Binding}"
                                                 Content="{Binding Name}"/>
