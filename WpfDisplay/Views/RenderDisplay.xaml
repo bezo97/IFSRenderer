@@ -1,16 +1,20 @@
-﻿<WindowsFormsHost x:Class="WpfDisplay.Views.RenderDisplay"
+﻿<UserControl x:Class="WpfDisplay.Views.RenderDisplay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay"
-             xmlns:tk="clr-namespace:OpenTK;assembly=OpenTK.GLControl"
+             xmlns:tk="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              d:DataContext="{d:DesignInstance Type=vm:InteractiveDisplayViewModel, IsDesignTimeCreatable=False}">
-    <tk:GLControl x:Name="display1"
+    <!--<tk:GLControl x:Name="display1"
                   VSync="False"
                   MouseMove="Display1_MouseMove"
-                  MouseWheel="Display1_MouseWheel"/>
-</WindowsFormsHost>
+                  MouseWheel="Display1_MouseWheel"/>-->
+    <tk:GLWpfControl x:Name="display1"
+                     Visibility="Hidden"
+                     MouseMove="Display1_MouseMove"
+                     MouseWheel="Display1_MouseWheel"/>
+</UserControl>

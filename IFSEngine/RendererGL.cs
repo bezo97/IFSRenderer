@@ -133,6 +133,7 @@ namespace IFSEngine
 
 
         private IGraphicsContext ctx;
+        //private readonly int displayFBO;
         private IWindowInfo wInfo;
 
         private int vertexShaderHandle;
@@ -154,6 +155,7 @@ namespace IFSEngine
         private int taaTextureHandle;
 
         private readonly AutoResetEvent stopRender = new AutoResetEvent(false);
+        private readonly AutoResetEvent pauseRender = new AutoResetEvent(false);
         private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
 
         //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
@@ -176,11 +178,13 @@ namespace IFSEngine
         }
         private static DebugProc _debugProcCallback = DebugCallback;
         private static System.Runtime.InteropServices.GCHandle _debugProcCallbackHandle;
+        private int vao;
 
-        public RendererGL(IWindowInfo wInfo)
+        public RendererGL(IWindowInfo wInfo, IGraphicsContext ctx/*, int displayFBO*/)
         {
             this.wInfo = wInfo;
-            ctx = new GraphicsContext(GraphicsMode.Default, wInfo);
+            this.ctx = ctx;//ctx = new GraphicsContext(GraphicsMode.Default, wInfo);
+            //this.displayFBO = displayFBO;
 
             AnimationManager = new AnimationManager();
 
@@ -193,6 +197,10 @@ namespace IFSEngine
             //GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
             //GL.Enable(EnableCap.DebugOutput);
             //GL.Enable(EnableCap.DebugOutputSynchronous);
+
+            //attributeless rendering, empty vao
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
 
             initTonemapPass();
             initDE();
@@ -252,10 +260,10 @@ namespace IFSEngine
 
                 GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
 
-                GL.ClearBuffer(ClearBuffer.Color, 0, bufferClearColor);
-                ctx.SwapBuffers();//clear back buffer
-                GL.ClearBuffer(ClearBuffer.Color, 0, bufferClearColor);
-                DisplayFrameCompleted?.Invoke(this, null);
+                //GL.ClearBuffer(ClearBuffer.Color, offscreenFBOHandle, bufferClearColor);
+                //ctx.SwapBuffers();//clear back buffer
+                //GL.ClearBuffer(ClearBuffer.Color, offscreenFBOHandle, bufferClearColor);
+                //DisplayFrameCompleted?.Invoke(this, null);
 
                 InvalidateAccumulation();
             });
@@ -386,62 +394,80 @@ namespace IFSEngine
             TotalIterations += Convert.ToUInt64(PassIters * InvocationCount);
             dispatchCnt++;
 
-            //GL.Finish();
             bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
             if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
             {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//
-                GL.UseProgram(tonemapProgramHandle);
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "width"), HistogramWidth);
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "height"), HistogramHeight);
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "brightness"), (float)currentParams.Brightness);
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "inv_gamma"), (float)(1.0f / currentParams.Gamma));
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "gamma_threshold"), (float)currentParams.GammaThreshold);
-                GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "vibrancy"), (float)currentParams.Vibrancy);
-                GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
-                GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-
-                if (EnableDE && dispatchCnt>8)
-                {
-                    GL.UseProgram(deProgramHandle);
-                    //update uniforms..
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "width"), HistogramWidth);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "height"), HistogramHeight);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_max_radius"), (float)DEMaxRadius);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_power"), (float)DEPower);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_threshold"), (float)DEThreshold);
-                    GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
-                    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-                }
-
-                if (EnableTAA)
-                {
-                    GL.UseProgram(taaProgramHandle);
-                    GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "width"), HistogramWidth);
-                    GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "height"), HistogramHeight);
-                    GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
-                    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-                }
-
-                float rw = DisplayWidth / (float)HistogramWidth;
-                float rh = DisplayHeight / (float)HistogramHeight;
-                float rr = (rw < rh ? rw : rh) * .98f;
-                GL.BlitNamedFramebuffer(offscreenFBOHandle,
-                    0, 0, 0, HistogramWidth, HistogramHeight,
-                    (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
-                    (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr),
-                    (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
-                    (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
-                    ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-                //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-                ctx.SwapBuffers();
+                ctx.MakeCurrent(null);
+                pauseRender.Reset();
                 DisplayFrameCompleted?.Invoke(this, null);
+                pauseRender.WaitOne();
+                ctx.MakeCurrent(wInfo);
+
                 updateDisplayNow = false;
             }
 
+        }
+
+        public void RenderFrame2()
+        {
+            ctx.MakeCurrent(wInfo);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//
+            GL.UseProgram(tonemapProgramHandle);
+            GL.BindVertexArray(vao);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "width"), HistogramWidth);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "height"), HistogramHeight);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "brightness"), (float)currentParams.Brightness);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "inv_gamma"), (float)(1.0f / currentParams.Gamma));
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "gamma_threshold"), (float)currentParams.GammaThreshold);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "vibrancy"), (float)currentParams.Vibrancy);
+            GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+
+            if (EnableDE && dispatchCnt > 8)
+            {
+                GL.UseProgram(deProgramHandle);
+                GL.BindVertexArray(vao);
+                //update uniforms..
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "height"), HistogramHeight);
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_max_radius"), (float)DEMaxRadius);
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_power"), (float)DEPower);
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_threshold"), (float)DEThreshold);
+                GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
+                GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            }
+
+            if (EnableTAA)
+            {
+                GL.UseProgram(taaProgramHandle);
+                GL.BindVertexArray(vao);
+                GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "height"), HistogramHeight);
+                GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
+                GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            }
+
+            BlitToDisplayFramebuffer(1);
+
+            ctx.MakeCurrent(null);
+            pauseRender.Set();
+        }
+
+        private void BlitToDisplayFramebuffer(int displayFBO)
+        {
+            float rw = DisplayWidth / (float)HistogramWidth;
+            float rh = DisplayHeight / (float)HistogramHeight;
+            float rr = (rw < rh ? rw : rh) * .98f;
+            GL.BlitNamedFramebuffer(offscreenFBOHandle, displayFBO,
+                0, 0, HistogramWidth, HistogramHeight,
+                (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
+                (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr),
+                (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
+                (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
+                ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
         }
 
         public void StartRendering()
@@ -489,7 +515,7 @@ namespace IFSEngine
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        private async Task WithContext(Action action)
+        public async Task WithContext(Action action)
         {
             bool continueRendering = rendering;
             await StopRendering();
@@ -680,7 +706,7 @@ namespace IFSEngine
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, renderTextureHandle, 0);
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new GraphicsException("Frame Buffer Error");
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
+            //GL.BindFramebuffer(FramebufferTarget.Framebuffer, displayFBO);//screen
 
             tonemapProgramHandle = GL.CreateProgram();
             GL.AttachShader(tonemapProgramHandle, vertexShaderHandle);

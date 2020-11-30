@@ -20,13 +20,15 @@ namespace WpfDisplay.Views
         public MainWindow()
         {
             InitializeComponent();
-            ContentRendered += (s, e) =>
+
+            //renderDisplay.display1.Ready += () =>
+            Loaded+=(sss,eee)=>
             {
                 var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
                 //init workspace 
-                RendererGL renderer = new RendererGL(renderDisplay.display1.WindowInfo);
-                renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
+                RendererGL renderer = new RendererGL(renderDisplay.WindowInfo, renderDisplay.GraphicsContext);
+                renderer.SetDisplayResolution((int)renderDisplay.display1.RenderSize.Width, (int)renderDisplay.display1.RenderSize.Height);
+                renderDisplay.display1.SizeChanged += (s2, e2) => renderer.SetDisplayResolution((int)renderDisplay.display1.RenderSize.Width, (int)renderDisplay.display1.RenderSize.Height);
                 IFS ifs = IFS.GenerateRandom();
                 //TODO: create-workspace view?
                 Workspace workspace = new Workspace
@@ -36,6 +38,15 @@ namespace WpfDisplay.Views
                 };
                 var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
+
+                renderDisplay.display1.Visibility = Visibility.Visible;
+                renderDisplay.display1.Render += (ss) =>
+                {
+                    renderer.RenderFrame2();
+                };
+                renderer.DisplayFrameCompleted += (s, e) =>
+                    Dispatcher.Invoke(() => {
+                        renderDisplay.display1.InvalidateVisual(); });
                 //HACK: binding the DataContext in xaml causes OpenTK IWindowInfo null exception
                 renderDisplay.DataContext = mainViewModel.DisplayViewModel;
                 renderer.Initialize(loadedTransforms);
