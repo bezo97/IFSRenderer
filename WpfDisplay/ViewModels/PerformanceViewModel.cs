@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Windows.Threading;
 using WpfDisplay.Helper;
@@ -23,7 +23,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.setWorkgroupCount((int)value).Wait();
-                RaisePropertyChanged(() => WorkgroupCount);
+                OnPropertyChanged(nameof(WorkgroupCount));
             }
         }
 
@@ -33,7 +33,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.UpdateDisplayOnRender = value;
-                RaisePropertyChanged(() => UpdateDisplay);
+                OnPropertyChanged(nameof(UpdateDisplay));
             }
         }
 
@@ -43,14 +43,14 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.PassIters = value;
-                RaisePropertyChanged(() => PassIters);
+                OnPropertyChanged(nameof(PassIters));
             }
         }
 
         public PerformanceViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             workspace.Renderer.DisplayFramebufferUpdated += (s, e) => fpsCounter++;
             dt = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, (s, e) => UpdateValues(), Dispatcher.CurrentDispatcher);
             dt.Start();
@@ -64,9 +64,9 @@ namespace WpfDisplay.ViewModels
             lastTotalIters = Math.Min(workspace.Renderer.TotalIterations, lastTotalIters);
             IterationSpeed = (workspace.Renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
             lastTotalIters = workspace.Renderer.TotalIterations;
-            RaisePropertyChanged(() => Fps);
-            RaisePropertyChanged(() => IterationSpeed);
-            RaisePropertyChanged(() => TotalIterations);
+            OnPropertyChanged(nameof(Fps));
+            OnPropertyChanged(nameof(IterationSpeed));
+            OnPropertyChanged(nameof(TotalIterations));
         }
 
 

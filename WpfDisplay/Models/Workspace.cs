@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using IFSEngine.Model;
+﻿using IFSEngine.Model;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using IFSEngine.Rendering;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +24,7 @@ namespace WpfDisplay.Models
         {
             get { return renderer; }
             set {
-                Set(ref renderer, value);
+                SetProperty(ref renderer, value);
                 if(ifs != null)
                     renderer.LoadParams(ifs);
             }
@@ -36,7 +36,7 @@ namespace WpfDisplay.Models
         {
             get { return ifs; }
             set {
-                Set(ref ifs, value);
+                SetProperty(ref ifs, value);
                 renderer?.LoadParams(ifs);
             }
         }
@@ -54,7 +54,7 @@ namespace WpfDisplay.Models
             LoadTransformLibrary();
             IFS.ReloadTransforms(loadedTransforms);
             await Renderer.LoadTransforms(loadedTransforms);
-            RaisePropertyChanged(() => LoadedTransforms);
+            OnPropertyChanged(nameof(LoadedTransforms));
         }
 
         private void LoadTransformLibrary()
@@ -63,7 +63,7 @@ namespace WpfDisplay.Models
                 .GetFiles(TransformsDirectoryPath)
                 .Select(file => TransformFunction.FromFile(file))
                 .ToList();
-            RaisePropertyChanged(() => LoadedTransforms);
+            OnPropertyChanged(nameof(LoadedTransforms));
         }
 
     }

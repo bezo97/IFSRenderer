@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
 using OpenTK;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using OpenTK.Windowing.Desktop;
 
 namespace WpfDisplay.Models
 {
@@ -31,8 +32,8 @@ namespace WpfDisplay.Models
         public GeneratorWorkspace()
         {
             //init thumbnail renderer
-            GameWindow hw = new GameWindow();
-            renderer = new RendererGL(hw.WindowInfo);
+            GameWindow hw = new GameWindow(new GameWindowSettings(), new NativeWindowSettings());
+            renderer = new RendererGL(hw.Context);
             renderer.SetDisplayResolution(100, 100);
             LoadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
                 .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
@@ -88,7 +89,7 @@ namespace WpfDisplay.Models
                     wbm.Freeze();
                     var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
                     thumbnails[ifs] = thumbnail;
-                    RaisePropertyChanged(() => Thumbnails);
+                    OnPropertyChanged(nameof(Thumbnails));
                 }
             }
             //cleanup old thumbnails

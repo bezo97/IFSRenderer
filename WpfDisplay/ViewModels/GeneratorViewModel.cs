@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using IFSEngine.Model;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class GeneratorViewModel : ViewModelBase
+    public class GeneratorViewModel : ObservableObject
     {
         private readonly MainViewModel mainvm;
         private readonly GeneratorWorkspace workspace = new GeneratorWorkspace();
@@ -34,7 +34,7 @@ namespace WpfDisplay.ViewModels
         public GeneratorViewModel(MainViewModel mainvm)
         {
             this.mainvm = mainvm;
-            workspace.PropertyChanged += (s,e) => RaisePropertyChanged(string.Empty);//tmp hack
+            workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);//tmp hack
 
 
 
@@ -60,7 +60,7 @@ namespace WpfDisplay.ViewModels
                     workspace.GenerateNewRandomBatch(30);
                     //TODO: do not start if already processing
                     workspace.processQueue();
-                    RaisePropertyChanged(() => GeneratedIFSThumbnails);
+                    OnPropertyChanged(nameof(GeneratedIFSThumbnails));
                 }));
         }
 
@@ -73,7 +73,7 @@ namespace WpfDisplay.ViewModels
                     workspace.PinIFS(param);
                     //TODO: do not start if already processing
                     workspace.processQueue();
-                    RaisePropertyChanged(()=>PinnedIFSThumbnails);
+                    OnPropertyChanged(nameof(PinnedIFSThumbnails));
                 }));
         }
 

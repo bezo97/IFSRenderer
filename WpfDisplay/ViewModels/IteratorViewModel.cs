@@ -1,7 +1,7 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine.Model;
+﻿using IFSEngine.Model;
 using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +11,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IteratorViewModel : ViewModelBase
+    public class IteratorViewModel : ObservableObject
     {
         public readonly Iterator iterator;
         private readonly Workspace workspace;
@@ -28,7 +28,7 @@ namespace WpfDisplay.ViewModels
         {
             this.iterator = iterator;
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             ReloadVariables();
         }
 
@@ -40,20 +40,21 @@ namespace WpfDisplay.ViewModels
             {
                 v.PropertyChanged += (s, e) =>
                 {
-                    RaisePropertyChanged(e.PropertyName);
+                    OnPropertyChanged(e.PropertyName);
                     workspace.Renderer.InvalidateParams();
                 };
             }
         }
 
-        public RelayCommand RemoveCommand { get; set; }
-        public RelayCommand DuplicateCommand { get; set; }
+        public AsyncRelayCommand RemoveCommand { get; set; }
+        public AsyncRelayCommand DuplicateCommand { get; set; }
 
         public void Redraw()
         {
-            RaisePropertyChanged(() => BaseWeight);
-            RaisePropertyChanged(() => WeightedSize);
-            RaisePropertyChanged(() => RenderTranslateValue);
+            /*OnPropertyChanged(nameof(BaseWeight));
+            OnPropertyChanged(nameof(WeightedSize));
+            OnPropertyChanged(nameof(RenderTranslateValue));*/
+            OnPropertyChanged(string.Empty);
         }
 
         private bool isselected;
@@ -62,7 +63,7 @@ namespace WpfDisplay.ViewModels
             get => isselected;
             set
             {
-                Set(ref isselected, value);
+                SetProperty(ref isselected, value);
             }
         }
 
@@ -72,7 +73,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.InputWeight = value;
-                RaisePropertyChanged(() => InputWeight);
+                OnPropertyChanged(nameof(InputWeight));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -83,8 +84,8 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.Opacity = value;
-                RaisePropertyChanged(() => Opacity);
-                RaisePropertyChanged(() => OpacityColor);
+                OnPropertyChanged(nameof(Opacity));
+                OnPropertyChanged(nameof(OpacityColor));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -95,7 +96,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.ColorIndex = value;
-                RaisePropertyChanged(() => ColorIndex);
+                OnPropertyChanged(nameof(ColorIndex));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -106,7 +107,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.ColorSpeed = value;
-                RaisePropertyChanged(() => ColorSpeed);
+                OnPropertyChanged(nameof(ColorSpeed));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -117,7 +118,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
-                RaisePropertyChanged(() => DeltaColoring);
+                OnPropertyChanged(nameof(DeltaColoring));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -167,14 +168,14 @@ namespace WpfDisplay.ViewModels
         public float XCoord
         {
             get => xCoord;
-            set { Set(ref xCoord, value); }
+            set { SetProperty(ref xCoord, value); }
         }
 
         private float yCoord = RandHelper.Next(500);
         public float YCoord
         {
             get => yCoord;
-            set { Set(ref yCoord, value); }
+            set { SetProperty(ref yCoord, value); }
         }
 
         //private RelayCommand _startConnectingCommand;

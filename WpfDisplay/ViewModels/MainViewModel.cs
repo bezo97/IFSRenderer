@@ -1,7 +1,7 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine.Model;
+﻿using IFSEngine.Model;
 using IFSEngine.Serialization;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using IFSEngine.Utility;
 using System;
 using System.IO;
@@ -16,7 +16,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class MainViewModel : ViewModelBase, IDisposable
+    public class MainViewModel : ObservableObject, IDisposable
     {
         private readonly Workspace workspace;
 
@@ -33,10 +33,10 @@ namespace WpfDisplay.ViewModels
             get => transparentBackground;
             set 
             {
-                Set(ref transparentBackground, value);
+                SetProperty(ref transparentBackground, value);
                 if (value)
                     IFSViewModel.BackgroundColor = Colors.Black;
-                RaisePropertyChanged(() => IsColorPickerEnabled);
+                OnPropertyChanged(nameof(IsColorPickerEnabled));
             }
         }
 
@@ -45,15 +45,15 @@ namespace WpfDisplay.ViewModels
         public MainViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             DisplayViewModel = new InteractiveDisplayViewModel(workspace);
             PerformanceViewModel = new PerformanceViewModel(workspace);
             QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
             IFSViewModel = new IFSViewModel(workspace);
             CameraSettingsViewModel = new CameraSettingsViewModel(workspace);
-            CameraSettingsViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
             ToneMappingViewModel = new ToneMappingViewModel(workspace);
-            ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         }
 
         public void LoadParamsToWorkspace(IFS ifs)
@@ -61,63 +61,55 @@ namespace WpfDisplay.ViewModels
             workspace.IFS = ifs;
         }
 
-        private RelayCommand _newCommand;
-        public RelayCommand NewCommand
+        private AsyncRelayCommand _newCommand;
+        public AsyncRelayCommand NewCommand =>
+            _newCommand ??= new AsyncRelayCommand(OnNewCommand);
+        private async Task OnNewCommand()
         {
-            get => _newCommand ?? (
-                _newCommand = new RelayCommand(() =>
-                {
-                    LoadParamsToWorkspace(new IFS());
-                }));
+            LoadParamsToWorkspace(new IFS());
         }
 
-        private RelayCommand _loadRandomCommand;
-        public RelayCommand LoadRandomCommand
+        private AsyncRelayCommand _loadRandomCommand;
+        public AsyncRelayCommand LoadRandomCommand =>
+            _loadRandomCommand ??= new AsyncRelayCommand(OnLoadRandomCommand);
+        private async Task OnLoadRandomCommand()
         {
-            get => _loadRandomCommand ?? (
-                _loadRandomCommand = new RelayCommand(() =>
-                {
-                    LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
-                }));
+            LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
         }
 
-        private RelayCommand _saveParamsCommand;
-        public RelayCommand SaveParamsCommand
+        private AsyncRelayCommand _saveParamsCommand;
+        public AsyncRelayCommand SaveParamsCommand =>
+            _saveParamsCommand ??= new AsyncRelayCommand(OnSaveParamsCommand);
+        private async Task OnSaveParamsCommand()
         {
-            get => _saveParamsCommand ?? (
-                _saveParamsCommand = new RelayCommand(() =>
-                {
-                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
-                    {
-                        IfsSerializer.SaveJson(workspace.IFS, path);
-                    }
-                }));
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
+            {
+                IfsSerializer.SaveJson(workspace.IFS, path);
+            }
         }
 
-        private RelayCommand _loadParamsCommand;
-        public RelayCommand LoadParamsCommand
+        private AsyncRelayCommand _loadParamsCommand;
+        public AsyncRelayCommand LoadParamsCommand =>
+            _loadParamsCommand ??= new AsyncRelayCommand(OnLoadParamsCommand);
+        private async Task OnLoadParamsCommand()
         {
-            get => _loadParamsCommand ?? (
-                _loadParamsCommand = new RelayCommand(() =>
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
+            {
+                var transforms = workspace.Renderer.RegisteredTransforms;
+                IFS ifs;
+                try
                 {
-                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
-                    {
-                        var transforms = workspace.Renderer.RegisteredTransforms;
-                        IFS ifs;
-                        try
-                        {
-                            ifs = IfsSerializer.LoadJson(path, transforms, false);
-                        }
-                        catch(SerializationException)
-                        {
-                            if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                                ifs = IfsSerializer.LoadJson(path, transforms, true);
-                            else 
-                                return;
-                        }
-                        LoadParamsToWorkspace(ifs);
-                    }
-                }));
+                    ifs = IfsSerializer.LoadJson(path, transforms, false);
+                }
+                catch (SerializationException)
+                {
+                    if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                        ifs = IfsSerializer.LoadJson(path, transforms, true);
+                    else
+                        return;
+                }
+                LoadParamsToWorkspace(ifs);
+            }
         }
 
         /// <summary>
@@ -152,80 +144,72 @@ namespace WpfDisplay.ViewModels
             return bs;
         }
 
-        private RelayCommand _exportToClipboardCommand;
-        public RelayCommand ExportToClipboardCommand
+        private AsyncRelayCommand _exportToClipboardCommand;
+        public AsyncRelayCommand ExportToClipboardCommand =>
+            _exportToClipboardCommand ??= new AsyncRelayCommand(OnExportToClipboardCommand);
+        private async Task OnExportToClipboardCommand()
         {
-            get => _exportToClipboardCommand ?? (
-                _exportToClipboardCommand = new RelayCommand(async () =>
-                {
-                    BitmapSource bs = await GetExportBitmapSource();
-                    Clipboard.SetImage(bs);
-                    //TODO: somehow alpha channel is not copied
+            BitmapSource bs = await GetExportBitmapSource();
+            Clipboard.SetImage(bs);
+            //TODO: somehow alpha channel is not copied
 
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
-                }));
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
 
-        private RelayCommand _saveImageCommand;
-        public RelayCommand SaveImageCommand
+        private AsyncRelayCommand _saveImageCommand;
+        public AsyncRelayCommand SaveImageCommand =>
+            _saveImageCommand ??= new AsyncRelayCommand(OnSaveImageCommand);
+        private async Task OnSaveImageCommand()
         {
-            get => _saveImageCommand ?? (
-                _saveImageCommand = new RelayCommand(async () =>
-                {
-                    var makeBitmapTask = GetExportBitmapSource();
+            var makeBitmapTask = GetExportBitmapSource();
 
-                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
-                    {
-                        BitmapSource bs = await makeBitmapTask;
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
+            {
+                BitmapSource bs = await makeBitmapTask;
 
-                        PngBitmapEncoder enc = new PngBitmapEncoder();
-                        enc.Frames.Add(BitmapFrame.Create(bs));
-                        using (FileStream stream = new FileStream(path, FileMode.Create))
-                            enc.Save(stream);
+                PngBitmapEncoder enc = new PngBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bs));
+                using (FileStream stream = new FileStream(path, FileMode.Create))
+                    enc.Save(stream);
 
-                        //open the image for viewing. TODO: optional..
-                        System.Diagnostics.Process.Start(path);
-                    }
+                //open the image for viewing. TODO: optional..
+                System.Diagnostics.Process.Start(path);
+            }
 
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
-                }));
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
 
-        private RelayCommand _saveExrCommand;
-        public RelayCommand SaveExrCommand
+        private AsyncRelayCommand _saveExrCommand;
+        public AsyncRelayCommand SaveExrCommand =>
+            _saveExrCommand ??= new AsyncRelayCommand(OnSaveExrCommand);
+        private async Task OnSaveExrCommand()
         {
-            get => _saveExrCommand ?? (
-                _saveExrCommand = new RelayCommand(async () =>
-                {
-                    Task<float[,,]> getDataTask = Task.Run(async () =>
-                    {
-                        return await workspace.Renderer.ReadHistogramData();
-                    });
+            Task<float[,,]> getDataTask = Task.Run(async () =>
+            {
+                return await workspace.Renderer.ReadHistogramData();
+            });
 
-                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveExr, out string path))
-                    {
-                        var histogramData = await getDataTask;
-                        using (var fstream = File.Create(path))
-                            OpenEXR.WriteStream(fstream, histogramData);
-                    }
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveExr, out string path))
+            {
+                var histogramData = await getDataTask;
+                using (var fstream = File.Create(path))
+                    OpenEXR.WriteStream(fstream, histogramData);
+            }
 
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
-                }));
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
 
-        private RelayCommand _closeWorkspace;
-        public RelayCommand CloseWorkspace
+        private AsyncRelayCommand _closeWorkspaceCommand;
+        public AsyncRelayCommand CloseWorkspaceCommand =>
+            _closeWorkspaceCommand ??= new AsyncRelayCommand(OnCloseWorkspaceCommand);
+        private async Task OnCloseWorkspaceCommand()
         {
-            get => _closeWorkspace ?? (
-                _closeWorkspace = new RelayCommand(() =>
-                {
-                    //TODO: prompt to save work?
-                    Dispose();
-                    Environment.Exit(0);
-                }));
+            //TODO: prompt to save work?
+            Dispose();
+            Environment.Exit(0);
         }
 
         public void Dispose()

@@ -1,11 +1,11 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using IFSEngine.Model;
+﻿using IFSEngine.Model;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using WpfDisplay.Helper;
@@ -13,7 +13,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IFSViewModel : ViewModelBase
+    public class IFSViewModel : ObservableObject
     {
         private readonly Workspace workspace;
 
@@ -32,8 +32,7 @@ namespace WpfDisplay.ViewModels
                 if(selectedIterator != null)
                     selectedIterator.IsSelected = false;
 
-                Set(ref selectedIterator, value);
-                RaisePropertyChanged(() => IsIteratorEditorVisible);
+                SetProperty(ref selectedIterator, value);
 
                 if (selectedIterator != null)
                 {
@@ -54,8 +53,8 @@ namespace WpfDisplay.ViewModels
                 if (selectedConnection != null)
                     selectedConnection.IsSelected = false;
 
-                Set(ref selectedConnection, value);
-                RaisePropertyChanged(() => IsConnectionEditorVisible);
+                SetProperty(ref selectedConnection, value);
+                OnPropertyChanged(nameof(IsConnectionEditorVisible));
 
                 if (selectedConnection != null)
                 {
@@ -78,7 +77,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
                 workspace.Renderer.UpdateDisplay();
-                RaisePropertyChanged(() => BackgroundColor);
+                OnPropertyChanged(nameof(BackgroundColor));
             }
         }
 
@@ -91,14 +90,14 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.FogEffect = value;
                 workspace.Renderer.InvalidateAccumulation();
-                RaisePropertyChanged(() => FogEffect);
+                OnPropertyChanged(nameof(FogEffect));
             }
         }
 
         public IFSViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             IteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParams();
             workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             workspace.PropertyChanged += (s, e) => {
@@ -115,7 +114,7 @@ namespace WpfDisplay.ViewModels
                 RemoveCommand = RemoveSelectedCommand,
                 DuplicateCommand = DuplicateSelectedCommand
             };
-            ivm.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            ivm.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
             ivm.ViewChanged += (s, e) => { Redraw(); };
             ivm.ConnectEvent += (s, finish) =>
             {
@@ -174,67 +173,61 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand<TransformFunction> _addIteratorCommand;
-        public RelayCommand<TransformFunction> AddIteratorCommand
+        private AsyncRelayCommand<TransformFunction> _addIteratorCommand;
+        public AsyncRelayCommand<TransformFunction> AddIteratorCommand =>
+            _addIteratorCommand ??= new AsyncRelayCommand<TransformFunction>(OnAddIteratorCommand);
+        private async Task OnAddIteratorCommand(TransformFunction tf)
         {
-            get => _addIteratorCommand ?? (
-                _addIteratorCommand = new RelayCommand<TransformFunction>((tf) =>
-                {
-                    Iterator newIterator = new Iterator(tf);
-                    workspace.IFS.AddIterator(newIterator, false);
-                    if (SelectedIterator != null)
-                    {
-                        SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
-                        newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
-                    }
-                    workspace.Renderer.InvalidateParams();
-                    HandleIteratorsChanged();
-                }));
+            Iterator newIterator = new Iterator(tf);
+            workspace.IFS.AddIterator(newIterator, false);
+            if (SelectedIterator != null)
+            {
+                SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
+                newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
+            }
+            workspace.Renderer.InvalidateParams();
+            HandleIteratorsChanged();
         }
 
-        private RelayCommand _removeSelectedCommand;
-        public RelayCommand RemoveSelectedCommand
+        private AsyncRelayCommand _removeSelectedCommand;
+        public AsyncRelayCommand RemoveSelectedCommand =>
+            _removeSelectedCommand ??= new AsyncRelayCommand(OnRemoveSelectedCommand);
+        private async Task OnRemoveSelectedCommand()
         {
-            get => _removeSelectedCommand ?? (
-                _removeSelectedCommand = new RelayCommand(() =>
-                {
-                    workspace.IFS.RemoveIterator(SelectedIterator.iterator);
-                    SelectedIterator = null;
-                    workspace.Renderer.InvalidateParams();
-                    HandleIteratorsChanged();
-                }));
+            workspace.IFS.RemoveIterator(SelectedIterator.iterator);
+            SelectedIterator = null;
+            workspace.Renderer.InvalidateParams();
+            HandleIteratorsChanged();
         }
 
-        private RelayCommand _duplicateSelectedCommand;
-        public RelayCommand DuplicateSelectedCommand
+        private AsyncRelayCommand _duplicateSelectedCommand;
+        public AsyncRelayCommand DuplicateSelectedCommand =>
+            _duplicateSelectedCommand ??= new AsyncRelayCommand(OnDuplicateSelectedCommand);
+        private async Task OnDuplicateSelectedCommand()
         {
-            get => _duplicateSelectedCommand ?? (
-                _duplicateSelectedCommand = new RelayCommand(() =>
-                {
-                    var newIterator = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
-                    RaisePropertyChanged("InvalidateParams");
-                    HandleIteratorsChanged();
-                    SelectedIterator = IteratorViewModels.First(vm=>vm.iterator == newIterator);
-                }));
+            var newIterator = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
+            workspace.Renderer.InvalidateParams();
+            HandleIteratorsChanged();
+            SelectedIterator = IteratorViewModels.First(vm => vm.iterator == newIterator);
         }
 
-        private RelayCommand _loadPaletteCommand;
-        public RelayCommand LoadPaletteCommand
+        private AsyncRelayCommand _loadPaletteCommand;
+        public AsyncRelayCommand LoadPaletteCommand =>
+            _loadPaletteCommand ??= new AsyncRelayCommand(OnLoadPaletteCommand);
+        private async Task OnLoadPaletteCommand()
         {
-            get => _loadPaletteCommand ?? (
-                _loadPaletteCommand = new RelayCommand(() =>
-                {
-                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
-                    {
-                        var palettes = FlamePalette.FromFile(path);
-                        //TODO: Replace random choice with a palette picker here
-                        //var palette = PalettePicker.ShowDialog(palettes);
-                        workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
-                        workspace.Renderer.InvalidateParams();
-                        RaisePropertyChanged(() => Palette);
-                    }
-                }));
+            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
+            {
+                var palettes = FlamePalette.FromFile(path);
+                //TODO: Replace random choice with a palette picker here
+                //var palette = PalettePicker.ShowDialog(palettes);
+                workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
+                workspace.Renderer.InvalidateParams();
+                OnPropertyChanged(nameof(Palette));
+            }
         }
+
+        //TODO: ASYNC
 
         private RelayCommand _reloadTransformsCommand;
         public RelayCommand ReloadTransformsCommand
@@ -245,7 +238,7 @@ namespace WpfDisplay.ViewModels
                     await workspace.ReloadTransforms();
                     foreach (var ivm in IteratorViewModels)
                         ivm.ReloadVariables();//handles when the number and names of variables have changed.
-                    RaisePropertyChanged(() => RegisteredTransforms);
+                    OnPropertyChanged(nameof(RegisteredTransforms));
                 }));
         }
 

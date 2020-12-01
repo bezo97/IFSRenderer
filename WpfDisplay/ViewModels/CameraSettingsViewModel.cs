@@ -1,16 +1,16 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class CameraSettingsViewModel : ViewModelBase
+    public class CameraSettingsViewModel : ObservableObject
     {
         private readonly Workspace workspace;
 
         public CameraSettingsViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
 
         public float FieldOfView {
@@ -18,7 +18,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Camera.FieldOfView = value;
-                RaisePropertyChanged(() => FieldOfView);
+                OnPropertyChanged(nameof(FieldOfView));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -29,7 +29,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Camera.DepthOfField = value;
-                RaisePropertyChanged(() => DepthOfField);
+                OnPropertyChanged(nameof(DepthOfField));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -40,7 +40,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Camera.FocusDistance = value;
-                RaisePropertyChanged(() => FocusDistance);
+                OnPropertyChanged(nameof(FocusDistance));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -51,7 +51,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Camera.FocusArea = value;
-                RaisePropertyChanged(() => FocusArea);
+                OnPropertyChanged(nameof(FocusArea));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }

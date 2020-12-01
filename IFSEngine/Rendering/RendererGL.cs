@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Platform;
+using OpenTK.Windowing.Common;
 
 using IFSEngine.Model;
 using IFSEngine.Rendering.GpuStructs;
 using IFSEngine.Animation;
 using IFSEngine.Utility;
+using System.Numerics;
+using System.Reflection;
 
 namespace IFSEngine.Rendering
 {
@@ -135,7 +134,7 @@ namespace IFSEngine.Rendering
 
 
         private IGraphicsContext ctx;
-        private IWindowInfo wInfo;
+        //private IWindowInfo wInfo;
 
         private int vertexShaderHandle;
         private int vao;
@@ -186,10 +185,9 @@ namespace IFSEngine.Rendering
         /// <see cref="Initialize"/> must be called before starting the render loop.
         /// </summary>
         /// <param name="ctx"></param>
-        public RendererGL(IWindowInfo wInfo)
+        public RendererGL(IGraphicsContext ctx)
         {
-            this.wInfo = wInfo;
-            ctx = new GraphicsContext(GraphicsMode.Default, wInfo);
+            this.ctx = ctx;
 
             //TODO: Remove from RendererGL
             AnimationManager = new AnimationManager();
@@ -355,7 +353,7 @@ namespace IFSEngine.Rendering
                     max_filter_radius = MaxFilterRadius
                 };
                 GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
-                GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
+                GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf(typeof(SettingsStruct)), ref settings, BufferUsageHint.StreamDraw);
 
             }
 
@@ -395,8 +393,8 @@ namespace IFSEngine.Rendering
                 }
                 //TODO: tfparamstart pop last value
 
-                GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
-                GL.BufferData(BufferTarget.UniformBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, its.Count * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray(), BufferUsageHint.DynamicDraw);
 
                 GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
                 GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
@@ -508,11 +506,11 @@ namespace IFSEngine.Rendering
                 rendering = true;
 
                 if(ctx.IsCurrent)
-                    ctx.MakeCurrent(null);
+                    ctx.MakeNoneCurrent();
 
                 new Thread(() =>
                 {
-                    ctx.MakeCurrent(wInfo);
+                    ctx.MakeCurrent();
                     while (rendering)
                     {
                         //compute the histogram
@@ -531,7 +529,7 @@ namespace IFSEngine.Rendering
                         }
                     }
                     GL.Finish();
-                    ctx.MakeCurrent(null);
+                    ctx.MakeNoneCurrent();
                     stopRender.Set();
                 }).Start();
             }
@@ -567,10 +565,10 @@ namespace IFSEngine.Rendering
             await StopRenderLoop();
             bool wasCurrentContext = ctx.IsCurrent;
             if(!ctx.IsCurrent)
-                ctx.MakeCurrent(wInfo);//acquire
+                ctx.MakeCurrent();//acquire
             action();
             if (!wasCurrentContext)
-                ctx.MakeCurrent(null);//release
+                ctx.MakeNoneCurrent();//release
             if (continueRendering)
                 StartRenderLoop();//restart render thread if it was running
         }
@@ -651,7 +649,7 @@ namespace IFSEngine.Rendering
             GL.GetShader(taaShaderH, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(taaShaderH)));
             }
 
@@ -672,7 +670,7 @@ namespace IFSEngine.Rendering
             GL.GetProgram(taaProgramHandle, GetProgramParameterName.LinkStatus, out status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error linking taa program: {0}", GL.GetProgramInfoLog(taaProgramHandle)));
             }
 
@@ -698,7 +696,7 @@ namespace IFSEngine.Rendering
             GL.GetShader(deShaderH, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(deShaderH)));
             }
 
@@ -709,7 +707,7 @@ namespace IFSEngine.Rendering
             GL.GetProgram(deProgramHandle, GetProgramParameterName.LinkStatus, out status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(deProgramHandle)));
             }
 
@@ -732,7 +730,7 @@ namespace IFSEngine.Rendering
             GL.GetShader(vertexShaderHandle, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(vertexShaderHandle)));
             }
 
@@ -742,7 +740,7 @@ namespace IFSEngine.Rendering
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
             }
             
@@ -762,7 +760,7 @@ namespace IFSEngine.Rendering
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//offscreen
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, renderTextureHandle, 0);
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-                throw new GraphicsException("Frame Buffer Error");
+                throw new Exception("Frame Buffer Error");
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
 
             tonemapProgramHandle = GL.CreateProgram();
@@ -772,7 +770,7 @@ namespace IFSEngine.Rendering
             GL.GetProgram(tonemapProgramHandle, GetProgramParameterName.LinkStatus, out status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error linking program: {0}", GL.GetProgramInfoLog(tonemapProgramHandle)));
             }
 
@@ -811,7 +809,7 @@ if (iter.tfId == {tfIndex})
             GL.GetShader(computeShaderH, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.ComputeShader.ToString(), GL.GetShaderInfoLog(computeShaderH)));
             }
 
@@ -825,7 +823,7 @@ if (iter.tfId == {tfIndex})
             GL.GetProgram(computeProgramHandle, GetProgramParameterName.LinkStatus, out status);
             if (status == 0)
             {
-                throw new GraphicsException(
+                throw new Exception(
                     String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(computeProgramHandle)));
             }
             GL.DetachShader(computeProgramHandle, computeShaderH);
@@ -863,7 +861,6 @@ if (iter.tfId == {tfIndex})
         {
             DisplayFramebufferUpdated = null;
             StopRenderLoop().Wait();
-            ctx.Dispose();
             //TOOD: dispose
         }
 

@@ -1,10 +1,6 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using WpfDisplay.Models;
@@ -35,7 +31,7 @@ namespace WpfDisplay.ViewModels
             {
                 from.iterator.WeightTo[to.iterator] = value;
                 workspace.Renderer.InvalidateParams();
-                RaisePropertyChanged(() => Weight);
+                OnPropertyChanged(nameof(Weight));
             }
         }
         
@@ -46,7 +42,7 @@ namespace WpfDisplay.ViewModels
             get => isselected;
             set
             {
-                Set(ref isselected, value);
+                SetProperty(ref isselected, value);
             }
         }
 
@@ -75,7 +71,7 @@ namespace WpfDisplay.ViewModels
             else
                 CalcGeometryByPoints();
 
-            RaisePropertyChanged(string.Empty);
+            OnPropertyChanged(string.Empty);
         }
 
         private void CalcGeometryByPoints()

@@ -15,6 +15,7 @@ namespace WpfDisplay.Views
     public partial class RenderDisplay : WindowsFormsHost
     {
         private InteractiveDisplayViewModel DisplayViewModel { get; set; }
+
         private KeyboardController keyboard;
         //last mouse position
         private float lastX;

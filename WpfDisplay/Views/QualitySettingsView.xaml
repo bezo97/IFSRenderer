@@ -73,7 +73,7 @@
                                        MinValue="1" MaxValue="10000" Increment="10"
                                        Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
                     <local:ValueSlider ValueName="Warmup"
-                                       MinValue="0" MaxValue="{Binding DataContext.PassIters, ElementName=qualitySettingsView}" Increment="10"
+                                       MinValue="0" Increment="10"
                                        Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
                     <local:ValueSlider ValueName="{Binding DataContext.FilterText, ElementName=qualitySettingsView}"
                                        MinValue="0" MaxValue="3" Increment="1"
