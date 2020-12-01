@@ -1,10 +1,6 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -53,14 +49,7 @@ namespace WpfDisplay.ViewModels
             else
                 CalcGeometryByPoints();
 
-            RaisePropertyChanged(() => ArrowHeadMid);
-            RaisePropertyChanged(() => ArrowHeadLeft);
-            RaisePropertyChanged(() => ArrowHeadRight);
-            RaisePropertyChanged(() => StartPoint);
-            RaisePropertyChanged(() => EndPoint);
-            RaisePropertyChanged(() => BodyPoints);
-            RaisePropertyChanged(() => EllipseMid);
-            RaisePropertyChanged(() => EllipseRadius);
+            OnPropertyChanged(string.Empty);
         }
 
         private void CalcGeometryByPoints()

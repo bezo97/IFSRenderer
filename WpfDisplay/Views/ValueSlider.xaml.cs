@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IFSEngine;
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using IFSEngine;
 
 namespace WpfDisplay.Views
 {
@@ -143,17 +130,17 @@ namespace WpfDisplay.Views
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 dragging = true;
-                //Mouse.Capture(this);
+                Mouse.Capture(this);
                 dragp = e.GetPosition(Window.GetWindow(this));
                 lastv = Value;
                 Mouse.OverrideCursor = Cursors.None;
             }
         }
 
-        bool cursorReset = false;
+        //bool cursorReset = false;
         private void Button_MouseMove(object sender, MouseEventArgs e)
         {
-            if (dragging && !cursorReset)
+            if (dragging/* && !cursorReset*/)
             {
                 double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
                 Value = lastv + delta * Increment;
@@ -162,8 +149,8 @@ namespace WpfDisplay.Views
             if(!dragging)//hack
                 Mouse.OverrideCursor = Cursors.Arrow;
 
-            if (cursorReset)
-                cursorReset = false;//Mouse.Capture(null);
+            //if (cursorReset)
+            //    cursorReset = false;//Mouse.Capture(null);
         }
 
         private void Button_MouseUp(object sender, MouseButtonEventArgs e)
@@ -178,7 +165,7 @@ namespace WpfDisplay.Views
                 ValueEditor.SelectAll();
             }
             Mouse.OverrideCursor = Cursors.Arrow;
-            //Mouse.Capture(null);
+            Mouse.Capture(null);
             //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
         }
 
@@ -191,13 +178,16 @@ namespace WpfDisplay.Views
         {
             if (dragging)
             {
-                cursorReset = true;
-                lastv = Value;
-                var pos = valueSlider.PointToScreen(new Point(valueSlider.ActualWidth / 2, valueSlider.ActualHeight / 2));
-                System.Windows.Forms.Cursor.Position = new System.Drawing.Point((int)pos.X, (int)pos.Y+10);
+                //cursorReset = true;
+                //lastv = Value;
+                //var pos = valueSlider.PointToScreen(new Point(valueSlider.ActualWidth / 2, valueSlider.ActualHeight / 2));
+                //System.Windows.Forms.Cursor.Position = new System.Drawing.Point((int)pos.X, (int)pos.Y + 10);
+
                 //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle(new System.Drawing.Point((int)(System.Windows.Forms.Cursor.Position.X - ActualWidth / 4), (int)System.Windows.Forms.Cursor.Position.Y-5), new System.Drawing.Size(/*(int)ActualWidth, (int)ActualHeight)*/(int)ActualWidth / 2, 10));
 
             }
+            //else
+            //    Mouse.Capture(null);
         }
     }
 }

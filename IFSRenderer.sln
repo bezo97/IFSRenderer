@@ -5,7 +5,10 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine", "IFSEngine\IFSEngine.csproj", "{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfDisplay", "WpfDisplay\WpfDisplay.csproj", "{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfDisplay", "WpfDisplay\WpfDisplay.csproj", "{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61} = {CD8AE533-71A9-4409-8C68-FE48F2F0FA61}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine.Util", "IFSEngine.Util\IFSEngine.Util.csproj", "{52B72CB8-CA7E-4127-84EA-C80129931A5D}"
 EndProject

@@ -1,15 +1,10 @@
-﻿using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class InteractiveDisplayViewModel : ViewModelBase
+    public class InteractiveDisplayViewModel : ObservableObject
     {
         private readonly Workspace workspace;
 
@@ -24,7 +19,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.FocusDistance = value;
-                RaisePropertyChanged(() => FocusDistance);
+                OnPropertyChanged(nameof(FocusDistance));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }

@@ -1,5 +1,6 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using System.Threading.Tasks;
 using System.Windows;
 using WpfDisplay.Models;
 
@@ -12,17 +13,15 @@ namespace WpfDisplay.ViewModels
         public QualitySettingsViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
 
-        private RelayCommand _startRenderingCommand;
-        public RelayCommand StartRenderingCommand
+        private AsyncRelayCommand _startRenderingCommand;
+        public AsyncRelayCommand StartRenderingCommand =>
+            _startRenderingCommand ??= new AsyncRelayCommand(OnStartRenderingCommand);
+        private async Task OnStartRenderingCommand()
         {
-            get => _startRenderingCommand ?? (
-                _startRenderingCommand = new RelayCommand(() =>
-                {
-                    workspace.Renderer.StartRendering();
-                }));
+            workspace.Renderer.StartRendering();
         }
 
         public bool EnableDE
@@ -31,8 +30,8 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.EnableDE = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DEPanelVisibility));
+                OnPropertyChanged(nameof(EnableDE));
+                OnPropertyChanged(nameof(DEPanelVisibility));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -44,7 +43,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.DEMaxRadius = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(DEMaxRadius));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -55,7 +54,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.DEThreshold = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(DEThreshold));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -66,7 +65,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.DEPower = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(DEPower));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -77,7 +76,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.EnableTAA = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(EnableTAA));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -88,7 +87,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.EnablePerceptualUpdates = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(EnablePerceptualUpdates));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -99,7 +98,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.Entropy = 1.0 / value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(EntropyInv));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -110,7 +109,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.Warmup = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(Warmup));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -121,8 +120,8 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.Renderer.MaxFilterRadius = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(()=>FilterText);
+                OnPropertyChanged(nameof(MaxFilterRadius));
+                OnPropertyChanged(nameof(FilterText));
                 workspace.Renderer.InvalidateAccumulation();
             }
         }
@@ -133,7 +132,7 @@ namespace WpfDisplay.ViewModels
         public bool IsResolutionLinked
         {
             get { return isResolutionLinked; }
-            set { Set(ref isResolutionLinked, value); }
+            set { SetProperty(ref isResolutionLinked, value); }
         }
 
 
@@ -154,8 +153,8 @@ namespace WpfDisplay.ViewModels
                 {
                     workspace.IFS.ImageResolution = new System.Drawing.Size(value, workspace.IFS.ImageResolution.Height);
                 }
-                RaisePropertyChanged(() => ImageWidth);
-                RaisePropertyChanged(() => ImageHeight);
+                OnPropertyChanged(nameof(ImageWidth));
+                OnPropertyChanged(nameof(ImageHeight));
                 workspace.Renderer.SetHistogramScale(1.0).Wait();//
             }
         }
@@ -177,47 +176,42 @@ namespace WpfDisplay.ViewModels
                 {
                     workspace.IFS.ImageResolution = new System.Drawing.Size(workspace.IFS.ImageResolution.Width, value);
                 }
-                RaisePropertyChanged(() => ImageWidth);
-                RaisePropertyChanged(() => ImageHeight);
+                OnPropertyChanged(nameof(ImageWidth));
+                OnPropertyChanged(nameof(ImageHeight));
                 workspace.Renderer.SetHistogramScale(1.0).Wait();//
             }
         }
 
-        private RelayCommand _previewPresetCommand;
-        public RelayCommand PreviewPresetCommand
+        private AsyncRelayCommand _previewPresetCommand;
+        public AsyncRelayCommand PreviewPresetCommand =>
+            _previewPresetCommand ??= new AsyncRelayCommand(OnPreviewPresetCommand);
+        private async Task OnPreviewPresetCommand()
         {
-            get => _previewPresetCommand ?? (
-                _previewPresetCommand = new RelayCommand(async () =>
-                {
-                    await workspace.Renderer.SetHistogramScaleToDisplay();
+            await workspace.Renderer.SetHistogramScaleToDisplay();
 
-                    //EnableDE = true;
-                    //EnableTAA = true;
-                    //EnablePerceptualUpdates = false;
-                    //PassIters = 100;
-                    //Warmup = 10;
-                    EntropyInv = 100;
-                    MaxFilterRadius = 1;
-                }));
+            //EnableDE = true;
+            //EnableTAA = true;
+            //EnablePerceptualUpdates = false;
+            //PassIters = 100;
+            //Warmup = 10;
+            EntropyInv = 100;
+            MaxFilterRadius = 1;
         }
 
-        private RelayCommand _finalPresetCommand;
-        public RelayCommand FinalPresetCommand
+        private AsyncRelayCommand _finalPresetCommand;
+        public AsyncRelayCommand FinalPresetCommand =>
+            _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
+        private async Task OnFinalPresetCommand()
         {
-            get => _finalPresetCommand ?? (
-                _finalPresetCommand = new RelayCommand(async () =>
-                {
-                    EnablePerceptualUpdates = true;
-                    EnableTAA = false;
-                    EnableDE = false;
-                    //PassIters = 500;
-                    //Warmup = 30;
-                    EntropyInv = 10000;
-                    MaxFilterRadius = 3;
-                    await workspace.Renderer.SetHistogramScale(1.0);
-                }));
+            EnablePerceptualUpdates = true;
+            EnableTAA = false;
+            EnableDE = false;
+            //PassIters = 500;
+            //Warmup = 30;
+            EntropyInv = 10000;
+            MaxFilterRadius = 3;
+            await workspace.Renderer.SetHistogramScale(1.0);
         }
-
 
     }
 }

@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using IFSEngine.Model;
+﻿using IFSEngine.Model;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
@@ -16,7 +16,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 iterator.TransformVariables[Name] = value;
-                RaisePropertyChanged();
+                OnPropertyChanged(nameof(Value));
                 workspace.Renderer.InvalidateParams();
             }
         }
@@ -28,7 +28,7 @@ namespace WpfDisplay.ViewModels
             this.Name = name;
             this.iterator = iterator;
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
     }
 }

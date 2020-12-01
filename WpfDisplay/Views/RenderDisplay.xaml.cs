@@ -1,5 +1,8 @@
-﻿using OpenTK.Graphics;
-using OpenTK.Platform;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.Wgl;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Wpf;
 using System;
 using System.Linq;
@@ -9,7 +12,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
-using OpenTK.Graphics.OpenGL;
+
 namespace WpfDisplay.Views
 {
     /// <summary>
@@ -19,8 +22,7 @@ namespace WpfDisplay.Views
     {
         private InteractiveDisplayViewModel DisplayViewModel { get; set; }
 
-        public IWindowInfo WindowInfo { get; private set; }
-        public GraphicsContext GraphicsContext { get; private set; }
+        public IGraphicsContext GraphicsContext { get; private set; }
 
         private KeyboardController keyboard;
         //last mouse position
@@ -43,18 +45,25 @@ namespace WpfDisplay.Views
 
             //Loaded += (s, e) =>
             {
-                var window = System.Windows.Application.Current.MainWindow;//Window.GetWindow(this);
-                // retrieve window handle/info
-                var baseHandle = window is null ? IntPtr.Zero : new WindowInteropHelper(window).Handle;
-                var _hwnd = new HwndSource(0, 0, 0, 0, 0, "MainWindow", baseHandle);
-                WindowInfo = Utilities.CreateWindowsWindowInfo(_hwnd.Handle);
-                // GL init
-                var mode = new GraphicsMode(ColorFormat.Empty, 0, 0, 0, 0, 0, false);
-                //var mode = new GraphicsMode(ColorFormat.Empty,0,0,0,ColorFormat.Empty, 2, false);
-                GraphicsContext = new GraphicsContext(mode, WindowInfo, 4, 5, GraphicsContextFlags.Default);
-                //GraphicsContext = new GraphicsContext(mode, WindowInfo);
-                GraphicsContext.LoadAll();
-                GraphicsContext.MakeCurrent(WindowInfo);
+                //TODO: util call
+                var windowHandle = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;//Window.GetWindow(this);
+                var nws = NativeWindowSettings.Default;
+                nws.StartFocused = false;
+                nws.StartVisible = false;
+                nws.NumberOfSamples = 0;
+                nws.APIVersion = new Version(4, 5);
+                nws.Flags = ContextFlags.Offscreen | ContextFlags.Default;
+                nws.Profile = ContextProfile.Compatability;// Any;//TODO: Core
+                nws.WindowBorder = WindowBorder.Hidden;
+                nws.WindowState = WindowState.Minimized;
+                var glfwWindow = new NativeWindow(nws);
+                var provider = new GLFWBindingsContext();
+                Wgl.LoadBindings(provider);
+                GraphicsContext = glfwWindow.Context;
+                GraphicsContext.MakeCurrent();
+
+
+
                 display1.Render += display1_OnRender;//actually invoked right after Start()
                 display1.Start(new GLWpfControlSettings
                 {
@@ -83,7 +92,7 @@ namespace WpfDisplay.Views
             keyboard.KeyboardTick += KeydownHandler;
         }
 
-        private void Display1_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void Display1_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             DisplayViewModel.FocusDistance += e.Delta * DisplayViewModel.FocusDistance * 0.001;
             DisplayViewModel.InvalidateAccumulation();

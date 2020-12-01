@@ -26,7 +26,7 @@ namespace WpfDisplay.Views
             {
                 var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
                 //init workspace 
-                RendererGL renderer = new RendererGL(renderDisplay.WindowInfo, renderDisplay.GraphicsContext);
+                RendererGL renderer = new RendererGL(renderDisplay.GraphicsContext);
                 renderer.SetDisplayResolution((int)renderDisplay.display1.RenderSize.Width, (int)renderDisplay.display1.RenderSize.Height);
                 renderDisplay.display1.SizeChanged += (s2, e2) => renderer.SetDisplayResolution((int)renderDisplay.display1.RenderSize.Width, (int)renderDisplay.display1.RenderSize.Height);
                 IFS ifs = IFS.GenerateRandom();

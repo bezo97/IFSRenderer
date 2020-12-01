@@ -1,16 +1,16 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class ToneMappingViewModel : ViewModelBase
+    public class ToneMappingViewModel : ObservableObject
     {
         private readonly Workspace workspace;
 
         public ToneMappingViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
 
         public double Brightness
@@ -19,7 +19,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Brightness = value;
-                RaisePropertyChanged(() => Brightness);
+                OnPropertyChanged(nameof(Brightness));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -29,7 +29,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Gamma = value;
-                RaisePropertyChanged(() => Gamma);
+                OnPropertyChanged(nameof(Gamma));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -39,7 +39,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.GammaThreshold = value;
-                RaisePropertyChanged(() => GammaThreshold);
+                OnPropertyChanged(nameof(GammaThreshold));
                 workspace.Renderer.UpdateDisplay();
             }
         }
@@ -49,7 +49,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.Vibrancy = value;
-                RaisePropertyChanged(() => Vibrancy);
+                OnPropertyChanged(nameof(Vibrancy));
                 workspace.Renderer.UpdateDisplay();
             }
         }
