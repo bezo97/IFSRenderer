@@ -62,9 +62,6 @@ namespace WpfDisplay.Views
                 GraphicsContext = glfwWindow.Context;
                 GraphicsContext.MakeCurrent();
 
-
-
-                display1.Render += display1_OnRender;//actually invoked right after Start()
                 display1.Start(new GLWpfControlSettings
                 {
                     MajorVersion = 4,
@@ -73,22 +70,12 @@ namespace WpfDisplay.Views
                     RenderContinuously = false
                 });
 
-                
-                //display1.Ready += () =>
-                //{
-                //    //tmp
-                //    var fi = typeof(GLWpfControl).GetField("_windowInfo", BindingFlags.NonPublic | BindingFlags.Instance);
-                //    var oo = fi.GetValue(display1);
-                //    WindowInfo = (IWindowInfo)oo;
-                //    GraphicsContext = (GraphicsContext)(typeof(GLWpfControl).GetField("_context", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(display1));
-                //};
-
             };
 
             //Avoid threading problems
             DataContextChanged += (s, e) => DisplayViewModel = DataContext as InteractiveDisplayViewModel;
 
-            keyboard = new KeyboardController(this.display1);
+            keyboard = new KeyboardController(System.Windows.Application.Current.MainWindow);
             keyboard.KeyboardTick += KeydownHandler;
         }
 
@@ -109,7 +96,7 @@ namespace WpfDisplay.Views
                 DisplayViewModel.RotateCommand(new Vector3((float)yawDelta, (float)pitchDelta, 0.0f));
             }
             else
-                Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                Mouse.OverrideCursor = Cursors.Arrow;
             lastX = mPos.X;
             lastY = mPos.Y;
         }
@@ -140,20 +127,6 @@ namespace WpfDisplay.Views
             }
 
         }
-       
-        private void display1_OnRender(TimeSpan obj)
-        {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, display1.Framebuffer);
-            var dd = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            /*GL.ClearColor(Color4.Red);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.LoadIdentity();
-            GL.Begin(PrimitiveType.Triangles);
-            GL.Color4(1.0f, 0.0f, 0.0f, 1.0f); GL.Vertex2(0.0f, 1.0f);
-            GL.Color4(0.0f, 1.0f, 0.0f, 1.0f); GL.Vertex2(0.87f, -0.5f);
-            GL.Color4(0.0f, 0.0f, 1.0f, 1.0f); GL.Vertex2(-0.87f, -0.5f);
-            GL.End();
-            GL.Finish();*/
-        }
+
     }
 }

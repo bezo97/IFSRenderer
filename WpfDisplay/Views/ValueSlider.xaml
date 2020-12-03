@@ -11,7 +11,6 @@
              x:Name="valueSlider"
              >
     <UserControl.Resources>
-        <conv:DoubleStringFormatConverter x:Key="formatConverter"/>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
         <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
     </UserControl.Resources>
@@ -30,14 +29,28 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Down_Click">-</Button>
-            <Label Grid.Column="1" Content="{Binding Value, Converter={StaticResource formatConverter}}" MouseLeave="ValueSlider_MouseLeave" Background="#303030" Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" PreviewMouseDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp">
+            <Label x:Name="displayLabel" Grid.Column="1" 
+                   Content="{Binding Value}"
+                   ContentStringFormat="N4"
+                   Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" 
+                   Background="#303030" 
+                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                   PreviewMouseDown="DisplayLabel_MouseDown" 
+                   PreviewMouseMove="DisplayLabel_MouseMove"
+                   PreviewMouseUp="DisplayLabel_MouseUp">
                 <Label.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Animate" Click="Animate_Click"/>
                     </ContextMenu>
                 </Label.ContextMenu>
             </Label>
-            <TextBox Grid.Column="1" Text="{Binding Value}" Background="#606060" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" x:Name="ValueEditor" KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
+            <TextBox x:Name="valueEditor" Grid.Column="1" 
+                     Text="{Binding Value, StringFormat=N4}"
+                     Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}"
+                     Background="#606060"
+                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                     KeyDown="ValueEditor_KeyDown" 
+                     LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Copy" />
