@@ -51,7 +51,7 @@ namespace WpfDisplay.ViewModels
         {
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-            workspace.Renderer.DisplayFrameCompleted += (s, e) => fpsCounter++;
+            workspace.Renderer.RenderFrameCompleted += (s, e) => fpsCounter++;
             dt = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, (s, e) => UpdateValues(), Dispatcher.CurrentDispatcher);
             dt.Start();
         }

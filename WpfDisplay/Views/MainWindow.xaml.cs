@@ -42,9 +42,9 @@ namespace WpfDisplay.Views
                 renderDisplay.display1.Visibility = Visibility.Visible;
                 renderDisplay.display1.Render += (ss) =>
                 {
-                    renderer.RenderFrame2();
+                    renderer.BlitToDisplayFramebuffer(renderDisplay.display1.Framebuffer);
                 };
-                renderer.DisplayFrameCompleted += (s, e) =>
+                renderer.RenderFrameCompleted += (s, e) =>
                     Dispatcher.Invoke(() => {
                         renderDisplay.display1.InvalidateVisual(); });
                 //HACK: binding the DataContext in xaml causes OpenTK IWindowInfo null exception

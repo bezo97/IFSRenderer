@@ -21,7 +21,7 @@ namespace WpfDisplay.ViewModels
             _startRenderingCommand ??= new AsyncRelayCommand(OnStartRenderingCommand);
         private async Task OnStartRenderingCommand()
         {
-            workspace.Renderer.StartRendering();
+            workspace.Renderer.StartRenderLoop();
         }
 
         public bool EnableDE
@@ -155,7 +155,7 @@ namespace WpfDisplay.ViewModels
                 }
                 OnPropertyChanged(nameof(ImageWidth));
                 OnPropertyChanged(nameof(ImageHeight));
-                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -178,7 +178,7 @@ namespace WpfDisplay.ViewModels
                 }
                 OnPropertyChanged(nameof(ImageWidth));
                 OnPropertyChanged(nameof(ImageHeight));
-                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -187,7 +187,7 @@ namespace WpfDisplay.ViewModels
             _previewPresetCommand ??= new AsyncRelayCommand(OnPreviewPresetCommand);
         private async Task OnPreviewPresetCommand()
         {
-            await workspace.Renderer.SetHistogramScaleToDisplay();
+            workspace.Renderer.SetHistogramScaleToDisplay();
 
             //EnableDE = true;
             //EnableTAA = true;
@@ -210,7 +210,7 @@ namespace WpfDisplay.ViewModels
             //Warmup = 30;
             EntropyInv = 10000;
             MaxFilterRadius = 3;
-            await workspace.Renderer.SetHistogramScale(1.0);
+            workspace.Renderer.SetHistogramScale(1.0);
         }
 
     }

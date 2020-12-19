@@ -16,7 +16,7 @@ namespace IFSEngine
 {
     public class RendererGL
     {
-        public event EventHandler DisplayFrameCompleted;
+        public event EventHandler RenderFrameCompleted;
 
         public bool UpdateDisplayOnRender { get; set; } = true;
 
@@ -46,6 +46,9 @@ namespace IFSEngine
 
         public int HistogramWidth { get; private set; } = 1920;
         public int HistogramHeight { get; private set; } = 1080;
+
+        private bool invalidHistogramResolution;
+
         public int DisplayWidth { get; private set; } = 1280;
         public int DisplayHeight { get; private set; } = 720;
 
@@ -152,18 +155,18 @@ namespace IFSEngine
 
         private readonly AutoResetEvent stopRender = new AutoResetEvent(false);
         private readonly AutoResetEvent pauseRender = new AutoResetEvent(false);
-        private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
 
         //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
-        private static void DebugCallback(DebugSource source,
-                                  DebugType type,
-                                  int id,
-                                  DebugSeverity severity,
-                                  int length,
-                                  IntPtr message,
-                                  IntPtr userParam)
+        private static void DebugCallback(
+            DebugSource source,
+            DebugType type,
+            int id,
+            DebugSeverity severity,
+            int length,
+            IntPtr message,
+            IntPtr userParam)
         {
-            string messageString = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(message, length);
+            string messageString = Marshal.PtrToStringAnsi(message, length);
 
             Console.WriteLine($"{severity} {type} | {messageString}");
 
@@ -173,14 +176,19 @@ namespace IFSEngine
             }
         }
         private static DebugProc _debugProcCallback = DebugCallback;
-        private static System.Runtime.InteropServices.GCHandle _debugProcCallbackHandle;
+        private static GCHandle _debugProcCallbackHandle;
         private int vao;
 
-        public RendererGL(IGraphicsContext ctx/*, int displayFBO*/)
+        /// <summary>
+        /// Creates a new renderer instance.
+        /// <see cref="Initialize"/> must be called before starting the render loop.
+        /// </summary>
+        /// <param name="ctx"></param>
+        public RendererGL(IGraphicsContext ctx)
         {
-            this.ctx = ctx;//ctx = new GraphicsContext(GraphicsMode.Default, wInfo);
-            //this.displayFBO = displayFBO;
+            this.ctx = ctx;
 
+            //TODO: Remove from RendererGL
             AnimationManager = new AnimationManager();
 
         }
@@ -202,7 +210,7 @@ namespace IFSEngine
             initRenderer(transforms);
             initTAA();
 
-            SetHistogramScale(1.0).Wait();
+            SetHistogramScaleToDisplay();
             setWorkgroupCount(WorkgroupCount).Wait();
 
             InvalidateParams();
@@ -212,7 +220,7 @@ namespace IFSEngine
         {
             currentParams = p;
             InvalidateParams();
-            //Task.Run(()=>SetHistogramScale(1.0));
+            SetHistogramScale(1.0);
         }
 
         public void InvalidateAccumulation()
@@ -229,46 +237,41 @@ namespace IFSEngine
             invalidParams = true;
         }
 
-        public async Task SetHistogramScale(double scale)
+        public void SetHistogramScale(double scale)
         {
-            await WithContext(() =>
-            {
-                HistogramWidth = (int)(currentParams.ImageResolution.Width * scale);
-                HistogramHeight = (int)(currentParams.ImageResolution.Height * scale);
-                GL.UseProgram(computeProgramHandle);
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
-                GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
-                GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "width"), HistogramWidth);
-                GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "height"), HistogramHeight);
-
-                //resize display texture. TODO: separate & use display resolution
-                //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, renderTextureHandle);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-
-                GL.ActiveTexture(TextureUnit.Texture2);
-                GL.BindTexture(TextureTarget.Texture2D, taaTextureHandle);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-                
-
-
-                GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
-
-                //GL.ClearBuffer(ClearBuffer.Color, offscreenFBOHandle, bufferClearColor);
-                //ctx.SwapBuffers();//clear back buffer
-                //GL.ClearBuffer(ClearBuffer.Color, offscreenFBOHandle, bufferClearColor);
-                //DisplayFrameCompleted?.Invoke(this, null);
-
-                InvalidateAccumulation();
-            });
-
+            HistogramWidth = (int)(currentParams.ImageResolution.Width * scale);
+            HistogramHeight = (int)(currentParams.ImageResolution.Height * scale);
+            invalidHistogramResolution = true;
+            InvalidateAccumulation();
         }
 
-        public async Task SetHistogramScaleToDisplay()
+        private void updateHistogramResolution()
+        {
+            GL.UseProgram(computeProgramHandle);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "width"), HistogramWidth);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "height"), HistogramHeight);
+
+            //resize display texture. TODO: separate & use display resolution
+            //TODO: GL.ClearTexImage(dispTexH, 0, PixelFormat.Rgba, PixelType.Float, ref clear_value);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, renderTextureHandle);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, taaTextureHandle);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+
+            GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
+
+            invalidHistogramResolution = false;
+        }
+
+        public void SetHistogramScaleToDisplay()
         {
             double fitToDisplayRatio = DisplayWidth / (double)currentParams.ImageResolution.Width;
-            await SetHistogramScale(fitToDisplayRatio);
+            SetHistogramScale(fitToDisplayRatio);
         }
 
         public void SetDisplayResolution(int displayWidth, int displayHeight)
@@ -283,12 +286,15 @@ namespace IFSEngine
             invalidPointsState = true;
         }
 
-        public void RenderFrame()
+        public void DispatchCompute()
         {
             GL.UseProgram(computeProgramHandle);
 
             if (invalidAccumulation)
             {
+                if (invalidHistogramResolution)
+                    updateHistogramResolution();
+
                 //reset accumulation
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
                 GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
@@ -389,24 +395,10 @@ namespace IFSEngine
             TotalIterations += Convert.ToUInt64(PassIters * InvocationCount);
             dispatchCnt++;
 
-            bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
-            if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
-            {
-                ctx.MakeNoneCurrent();
-                pauseRender.Reset();
-                DisplayFrameCompleted?.Invoke(this, null);
-                pauseRender.WaitOne();
-                ctx.MakeCurrent();
-
-                updateDisplayNow = false;
-            }
-
         }
 
-        public void RenderFrame2()
+        private void RenderFrame()
         {
-            ctx.MakeCurrent();
-
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//
             GL.UseProgram(tonemapProgramHandle);
             GL.BindVertexArray(vao);
@@ -444,28 +436,36 @@ namespace IFSEngine
                 GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
             }
 
-            BlitToDisplayFramebuffer(1);
+        }
 
-            ctx.MakeNoneCurrent();
+        public void BlitToDisplayFramebuffer(int displayFBO)
+        {
+            try
+            {
+                ctx.MakeCurrent();
+
+                float rw = DisplayWidth / (float)HistogramWidth;
+                float rh = DisplayHeight / (float)HistogramHeight;
+                float rr = (rw < rh ? rw : rh) * .98f;
+                GL.BlitNamedFramebuffer(offscreenFBOHandle, displayFBO,
+                    0, 0, HistogramWidth, HistogramHeight,
+                    (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
+                    (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr),
+                    (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
+                    (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
+                    ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+                //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
+
+                ctx.MakeNoneCurrent();
+            }
+            catch 
+            {
+                //GLFWException is thrown when resizing the window
+            }
             pauseRender.Set();
         }
 
-        private void BlitToDisplayFramebuffer(int displayFBO)
-        {
-            float rw = DisplayWidth / (float)HistogramWidth;
-            float rh = DisplayHeight / (float)HistogramHeight;
-            float rr = (rw < rh ? rw : rh) * .98f;
-            GL.BlitNamedFramebuffer(offscreenFBOHandle, displayFBO,
-                0, 0, HistogramWidth, HistogramHeight,
-                (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
-                (int)(DisplayHeight / 2 - HistogramHeight / 2 * rr),
-                (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
-                (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
-                ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-            //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
-        }
-
-        public void StartRendering()
+        public void StartRenderLoop()
         {
             if (!rendering)
             {
@@ -478,10 +478,30 @@ namespace IFSEngine
                 {
                     ctx.MakeCurrent();
                     while (rendering)
-                        RenderFrame();
+                    {
+                        //compute the histogram
+                        DispatchCompute();
+
+                        //render image from histogram
+                        bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
+                        if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
+                        {
+                            RenderFrame();
+
+                            ctx.MakeNoneCurrent();
+                            pauseRender.Reset();
+                            RenderFrameCompleted?.Invoke(this, null);
+                            pauseRender.WaitOne();
+                            ctx.MakeCurrent();
+
+                            updateDisplayNow = false;
+                        }
+                    }
+
                     GL.Finish();
                     ctx.MakeNoneCurrent();
                     stopRender.Set();
+
                 }).Start();
             }
         }
@@ -490,7 +510,7 @@ namespace IFSEngine
         /// Wait for render thread to stop
         /// TODO: async waitone ? http://msdn.microsoft.com/en-us/library/hh873178.aspx#WaitHandles
         /// </summary>
-        public async Task StopRendering()
+        public async Task StopRenderLoop()
         {
             if (rendering)
             {
@@ -513,7 +533,7 @@ namespace IFSEngine
         public async Task WithContext(Action action)
         {
             bool continueRendering = rendering;
-            await StopRendering();
+            await StopRenderLoop();
             bool wasCurrentContext = ctx.IsCurrent;
             if(!ctx.IsCurrent)
                 ctx.MakeCurrent();//acquire
@@ -521,7 +541,7 @@ namespace IFSEngine
             if (!wasCurrentContext)
                 ctx.MakeNoneCurrent();//release
             if (continueRendering)
-                StartRendering();//restart render thread if it was running
+                StartRenderLoop();//restart render thread if it was running
         }
 
         /// <summary>
@@ -797,8 +817,8 @@ if (iter.tfId == {transformIds[tf]})
 
         public void Dispose()
         {
-            DisplayFrameCompleted = null;
-            StopRendering().Wait();
+            RenderFrameCompleted = null;
+            StopRenderLoop().Wait();
             //TOOD: dispose
         }
 
