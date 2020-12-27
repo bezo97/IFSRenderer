@@ -28,11 +28,11 @@ struct Iterator
 	float color_speed;
 	float color_index;//color index, 0 - 1
 	float opacity;
+	float reset_prob;
+	int reset_alias;
 	int tfId;
 	int tfParamsStart;
 	int shading_mode;//0: default, 1: delta_p
-	int padding0;
-	int padding1;
 };
 
 struct p_state
@@ -40,7 +40,7 @@ struct p_state
 	vec4 pos;
 	float color_index;
 	float dummy0;
-	int tf_index;
+	int iterator_index;
 	int warmup_cnt;
 };
 
@@ -213,6 +213,21 @@ vec3 getPaletteColor(float pos)
 	return mix(c1, c2, a);//lerp
 }
 
+//alias method sampling in O(1)
+//input: uniform random 0-1
+//output: sampled iterator's index
+int alias_sample(float r01)
+{
+	//float i = floor(settings.itnum * r) + 1.0;
+	//float y = settings.itnum * r + 1.0 - i;
+	int i = int(floor(settings.itnum * r01));
+	float y = fract(settings.itnum * r01);
+	//biased coin flip
+	if (y < iterators[i].reset_prob)
+		return i;
+	return iterators[i].reset_alias;
+}
+
 //from [0,1] uniform to [0,inf] ln
 float startingDistribution(float uniformR)
 {
@@ -239,7 +254,9 @@ p_state reset_state(inout uint next)
 		0.0//unused
 	);
 	p.color_index = random(next);
-	p.tf_index = int(/*random(next)*/f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next) * settings.itnum);
+	float workgroup_random = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next);
+	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
+	p.iterator_index = alias_sample(workgroup_random);
 	p.warmup_cnt = 0;
 	return p;
 }
@@ -308,7 +325,7 @@ void main() {
 		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
 		for (int j = 0; j < settings.itnum; j++)
 			if (w_acc <= r) {
-				w_acc += xaos[p.tf_index * settings.itnum + j];
+				w_acc += xaos[p.iterator_index * settings.itnum + j];
 				r_index = j;
 			}
 			else
@@ -321,9 +338,9 @@ void main() {
 			p = reset_state(next);
 		}
 		else
-			p.tf_index = r_index;
+			p.iterator_index = r_index;
 
-		Iterator selected_iterator = iterators[p.tf_index];
+		Iterator selected_iterator = iterators[p.iterator_index];
 
 		vec4 p0_pos = p.pos;
 		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz, next);//transform here

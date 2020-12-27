@@ -66,6 +66,17 @@ namespace WpfDisplay.ViewModels
             Selected?.Invoke(this, null);
         }
 
+        public float InputWeight
+        {
+            get => (float)iterator.InputWeight;
+            set
+            {
+                iterator.InputWeight = value;
+                RaisePropertyChanged(() => InputWeight);
+                workspace.Renderer.InvalidateParams();
+            }
+        }
+
         public float Opacity
         {
             get => (float)iterator.Opacity;

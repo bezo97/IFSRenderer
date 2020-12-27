@@ -14,6 +14,7 @@ using OpenTK.Platform;
 using IFSEngine.Model;
 using IFSEngine.Model.GpuStructs;
 using IFSEngine.Animation;
+using IFSEngine.Util;
 
 namespace IFSEngine
 {
@@ -300,8 +301,15 @@ namespace IFSEngine
                     List<IteratorStruct> its = new List<IteratorStruct>();
                     List<float> tfsparams = new List<float>();
                     var currentIterators = currentParams.Iterators.ToList();
-                    foreach (var it in currentIterators)
+                    //input weights -> alias method tables
+                    double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
+                    if (sumInputWeights == 0.0)
+                        throw new Exception("Invalid params: No input iterator found.");//TODO: handle
+                    var normalizedInputWeights = currentIterators.Select(i => i.InputWeight / sumInputWeights).ToList();
+                    var aliasTables = AliasMethod.GenerateAliasTable(normalizedInputWeights).ToList();
+                    for(int iti = 0; iti < currentIterators.Count; iti++)
                     {
+                        var it = currentIterators[iti];
                         //iterators
                         its.Add(new IteratorStruct
                         {
@@ -310,7 +318,9 @@ namespace IFSEngine
                             color_speed = (float)it.ColorSpeed,
                             color_index = (float)it.ColorIndex,
                             opacity = (float)it.Opacity,
-                            shading_mode = (int)it.ShadingMode
+                            shading_mode = (int)it.ShadingMode,
+                            reset_alias = aliasTables[iti].k,
+                            reset_prob = (float)aliasTables[iti].u
                         });
                         //transform params
                         var varValues = it.TransformVariables.Values.ToArray();
