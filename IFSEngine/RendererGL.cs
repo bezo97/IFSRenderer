@@ -142,10 +142,10 @@ namespace IFSEngine
         private int histogramBufferHandle;
         private int settingsBufferHandle;
         private int iteratorsBufferHandle;
+        private int aliasBufferHandle;
         private int pointsBufferHandle;
         private int paletteBufferHandle;
         private int transformParametersBufferHandle;
-        private int xaosBufferHandle;
         //fragment shader handles
         private int tonemapProgramHandle;
         private int deProgramHandle;
@@ -334,32 +334,35 @@ namespace IFSEngine
                     GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
                     GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
 
-                    //generate flattened xaos weight matrix
                     //normalize base weights
                     double SumWeights = currentIterators.Sum(i => i.BaseWeight);
                     var normalizedBaseWeights = currentIterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
-                    List<float> xaosm = new List<float>(currentIterators.Count * currentIterators.Count);
+                    List<(double u, int k)> xaosAliasTables = new List<(double u, int k)>();
                     foreach (var it in currentIterators)
                     {
-                        List<float> itWeights = new List<float>(currentIterators.Count);
+                        List<double> itWeights = new List<double>(currentIterators.Count);
                         foreach (var toIt in currentIterators)
                         {
-                            if (it.WeightTo.ContainsKey(toIt))
-                                itWeights.Add((float)(it.WeightTo[toIt] * normalizedBaseWeights[toIt]));
-                            else
+                            if (it.WeightTo.ContainsKey(toIt))//multiply with base weights
+                                itWeights.Add(it.WeightTo[toIt] * normalizedBaseWeights[toIt]);
+                            else//fill missing transitions with 0
                                 itWeights.Add(0);
                         }
-                        //normalize xaos weights
-                        float sumw = itWeights.Sum();
+                        double sumw = itWeights.Sum();
                         if (sumw > 0)
-                            itWeights = itWeights.Select(w => w / sumw).ToList();
+                        {
+                            itWeights = itWeights.Select(w => w / sumw).ToList();//normalize xaos weights
+                            xaosAliasTables.AddRange(AliasMethod.GenerateAliasTable(itWeights));
+                        }
                         else
-                            itWeights = Enumerable.Repeat(0f, currentIterators.Count).ToList();
-                        //add to matrix
-                        xaosm.AddRange(itWeights);
+                        {//iteration resets here because there are no outgoing weights. Mark this with -1
+                            xaosAliasTables.AddRange(Enumerable.Repeat((-1.0,-1), currentIterators.Count));
+                        }
                     }
-                    GL.BindBuffer(BufferTarget.UniformBuffer, xaosBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, xaosm.Capacity * sizeof(float), xaosm.ToArray(), BufferUsageHint.DynamicDraw);
+
+                    //update xaos alias tables
+                    GL.BindBuffer(BufferTarget.UniformBuffer, aliasBufferHandle);
+                    GL.BufferData(BufferTarget.UniformBuffer, currentIterators.Count * currentIterators.Count * sizeof(float) * 4, xaosAliasTables.Select(t=>new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
 
                     //update palette
                     GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
@@ -767,18 +770,18 @@ if (iter.tfId == {transformIds[tf]})
             pointsBufferHandle = GL.GenBuffer();
             settingsBufferHandle = GL.GenBuffer();
             iteratorsBufferHandle = GL.GenBuffer();
+            aliasBufferHandle = GL.GenBuffer();
             paletteBufferHandle = GL.GenBuffer();
             transformParametersBufferHandle = GL.GenBuffer();
-            xaosBufferHandle = GL.GenBuffer();
 
             //bind layout:
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, histogramBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 2, settingsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, iteratorsBufferHandle);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, paletteBufferHandle);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, transformParametersBufferHandle);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, xaosBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, aliasBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, paletteBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, transformParametersBufferHandle);
 
         }
 

@@ -113,6 +113,8 @@ namespace IFSEngine.Model
                 pretransform.WeightTo[transform] = 1.0;
                 pretransform.Opacity = 0.0;
                 pretransform.ColorSpeed = 0.0;
+                pretransform.InputWeight = 1.0;
+                transform.InputWeight = 0.0;
                 pretfs.Add(pretransform);
                 tfs.Add(transform);
             }

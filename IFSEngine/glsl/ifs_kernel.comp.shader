@@ -91,20 +91,25 @@ layout(std140, binding = 3) uniform iterators_ubo
 	Iterator iterators[MAX_ITERATORS];
 };
 
-layout(std140, binding = 4) uniform palette_ubo
+layout(std140, binding = 4) uniform alias_tables_ubo
+{
+	vec4 alias_tables[MAX_ITERATORS];//x: probability, y: alias
+};
+
+layout(std140, binding = 5) uniform palette_ubo
 {
 	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(binding = 5) uniform transform_params_ubo
+layout(binding = 6) uniform transform_params_ubo
 {
 	float tfParams[MAX_PARAMS];//parameters of all transforms
 };
 
-layout(binding = 6) uniform xaos_ubo
+/*layout(binding = 7) uniform xaos_ubo
 {
 	float xaos[MAX_XAOS];//xaos matrix: weights to Iterators
-};
+};*/
 
 uniform int width;
 uniform int height;
@@ -218,14 +223,24 @@ vec3 getPaletteColor(float pos)
 //output: sampled iterator's index
 int alias_sample(float r01)
 {
-	//float i = floor(settings.itnum * r) + 1.0;
-	//float y = settings.itnum * r + 1.0 - i;
 	int i = int(floor(settings.itnum * r01));
 	float y = fract(settings.itnum * r01);
 	//biased coin flip
 	if (y < iterators[i].reset_prob)
 		return i;
 	return iterators[i].reset_alias;
+}
+
+int alias_sample_xaos(int iterator_index, float r01)
+{
+	int i = int(floor(settings.itnum * r01));
+	float y = fract(settings.itnum * r01);
+	vec4 t = alias_tables[iterator_index * settings.itnum + i];
+	float prob = t.x;
+	int alias = int(t.y);
+	if (y < prob)
+		return i;
+	return alias;
 }
 
 //from [0,1] uniform to [0,inf] ln
@@ -322,19 +337,11 @@ void main() {
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
 		float r = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, i);//random(next);
-		float w_acc = 0.0f;//accumulate previous iterator xaos weights until r randomly chosen iterator reached
-		for (int j = 0; j < settings.itnum; j++)
-			if (w_acc <= r) {
-				w_acc += xaos[p.iterator_index * settings.itnum + j];
-				r_index = j;
-			}
-			else
-				break;
-		if (r_index == -1 || w_acc == 0.0f || //no outgoing weight
+		r_index = alias_sample_xaos(p.iterator_index, r);
+		if (r_index == -1 || //no outgoing weight
 			random(next) < settings.entropy || //chance to reset by entropy
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
-			//TODO: idea: detect if the only next iterator is self, reset after x iterations?
 			p = reset_state(next);
 		}
 		else
