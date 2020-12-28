@@ -38,13 +38,19 @@ namespace IFSEngine.Serialization
             serializer.Converters.Remove(this);
             JObject jo = JObject.FromObject(value, serializer);
             serializer.Converters.Add(this);
-            foreach (var i in value.Iterators)
-                foreach (var j in value.Iterators)
-                {//hack to fill 0 weights.. TODO
-                    if (!i.WeightTo.TryGetValue(j, out _))
-                        i.WeightTo[j] = 0.0;
+            //the model has the iterators in a set, they must be ordered to serialize
+            List<Iterator> list = value.Iterators.ToList();
+            double[][] xaos = new double[list.Count][];
+            for (int i = 0; i < list.Count; i++)
+            {
+                xaos[i] = new double[list.Count];
+                for (int j = 0; j < list.Count; j++)
+                {
+                    list[i].WeightTo.TryGetValue(list[j], out double weight);//0 if not found
+                    xaos[i][j] = weight;
                 }
-            jo["xaos"] = JToken.FromObject(value.Iterators.Select(i=>i.WeightTo.Values.ToArray()).ToArray(), serializer);
+            }
+            jo["xaos"] = JToken.FromObject(xaos, serializer);
             jo.WriteTo(writer, serializer.Converters.ToArray());            
         }
     }
