@@ -105,20 +105,28 @@ namespace WpfDisplay.ViewModels
                 _saveImageCommand = new RelayCommand(async () =>
                 {
                     WriteableBitmap wbm = null;
-                    PngBitmapEncoder enc = new PngBitmapEncoder();
                     Task copyTask = Task.Run(async () =>
                     {
                         wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
                         await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
                         //TODO: option to remove alpha channel
-                        //TODO: flip y
                         wbm.Freeze();
                     });
 
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
                     {
                         await copyTask;
-                        enc.Frames.Add(BitmapFrame.Create(wbm));
+
+                        //flip vertically
+                        var tb = new TransformedBitmap();
+                        tb.BeginInit();
+                        tb.Source = wbm;
+                        tb.Transform = new ScaleTransform(1, -1, 0, 0);
+                        tb.EndInit();
+                        tb.Freeze();
+
+                        PngBitmapEncoder enc = new PngBitmapEncoder();
+                        enc.Frames.Add(BitmapFrame.Create(tb));
                         using (FileStream stream = new FileStream(path, FileMode.Create))
                             enc.Save(stream);
                     }
