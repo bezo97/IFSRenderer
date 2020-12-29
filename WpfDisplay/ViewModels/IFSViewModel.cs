@@ -50,6 +50,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
                 workspace.Renderer.UpdateDisplay();
+                RaisePropertyChanged(() => BackgroundColor);
             }
         }
 

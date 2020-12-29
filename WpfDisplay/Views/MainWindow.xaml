@@ -55,8 +55,22 @@
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
-                    <Label>Background color</Label>
-                    <xctk:ColorPicker SelectedColor="{Binding IFSViewModel.BackgroundColor}"/>
+                    <md:Card Padding="6" Margin="8">
+                        <StackPanel>
+                            <TextBlock Grid.Row="0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" >Background</TextBlock>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <xctk:ColorPicker Grid.Column="0" Margin="0,0,8,0"
+                                    SelectedColor="{Binding IFSViewModel.BackgroundColor}"
+                                    IsEnabled="{Binding IsColorPickerEnabled}"/>
+                                <CheckBox Grid.Column="1" ToolTip="Transparent background"
+                                    IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
+                            </Grid>
+                        </StackPanel>
+                    </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
                 </StackPanel>
             </ScrollViewer>

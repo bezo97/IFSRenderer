@@ -26,6 +26,21 @@ namespace WpfDisplay.ViewModels
         public QualitySettingsViewModel QualitySettingsViewModel { get; }
         public IFSViewModel IFSViewModel { get; }
 
+        private bool transparentBackground;
+        public bool TransparentBackground
+        {
+            get => transparentBackground;
+            set 
+            {
+                Set(ref transparentBackground, value);
+                if (value)
+                    IFSViewModel.BackgroundColor = Colors.Black;
+                RaisePropertyChanged(() => IsColorPickerEnabled);
+            }
+        }
+
+        public bool IsColorPickerEnabled => !TransparentBackground;
+
         public MainViewModel(Workspace workspace)
         {
             this.workspace = workspace;
@@ -104,29 +119,37 @@ namespace WpfDisplay.ViewModels
             get => _saveImageCommand ?? (
                 _saveImageCommand = new RelayCommand(async () =>
                 {
-                    WriteableBitmap wbm = null;
-                    Task copyTask = Task.Run(async () =>
+                    BitmapSource bs = null;
+                    Task makeBitmapTask = Task.Run(async () =>
                     {
-                        wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+                        WriteableBitmap wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
                         await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
-                        //TODO: option to remove alpha channel
                         wbm.Freeze();
+                        bs = wbm;
+                        if (!TransparentBackground)
+                        {//option to remove alpha channel
+                            var fcb = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
+                            fcb.Freeze();
+                            bs = fcb;
+                        }
                     });
 
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
                     {
-                        await copyTask;
+                        await makeBitmapTask;
 
                         //flip vertically
+                        //TODO: this must be on ui thread, can't do it in makeBitmapTask
                         var tb = new TransformedBitmap();
                         tb.BeginInit();
-                        tb.Source = wbm;
+                        tb.Source = bs;
                         tb.Transform = new ScaleTransform(1, -1, 0, 0);
                         tb.EndInit();
                         tb.Freeze();
+                        bs = tb;
 
                         PngBitmapEncoder enc = new PngBitmapEncoder();
-                        enc.Frames.Add(BitmapFrame.Create(tb));
+                        enc.Frames.Add(BitmapFrame.Create(bs));
                         using (FileStream stream = new FileStream(path, FileMode.Create))
                             enc.Save(stream);
                     }
