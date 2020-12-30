@@ -25,10 +25,10 @@ namespace WpfDisplay.ViewModels
 
         public double DepthOfField
         {
-            get => workspace.IFS.DepthOfField;
+            get => workspace.IFS.Camera.DepthOfField;
             set
             {
-                workspace.IFS.DepthOfField = value;
+                workspace.IFS.Camera.DepthOfField = value;
                 RaisePropertyChanged(() => DepthOfField);
                 workspace.Renderer.InvalidateAccumulation();
             }
@@ -36,10 +36,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusDistance
         {
-            get => workspace.IFS.FocusDistance;
+            get => workspace.IFS.Camera.FocusDistance;
             set
             {
-                workspace.IFS.FocusDistance = value;
+                workspace.IFS.Camera.FocusDistance = value;
                 RaisePropertyChanged(() => FocusDistance);
                 workspace.Renderer.InvalidateAccumulation();
             }
@@ -47,10 +47,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusArea
         {
-            get => workspace.IFS.FocusArea;
+            get => workspace.IFS.Camera.FocusArea;
             set
             {
-                workspace.IFS.FocusArea = value;
+                workspace.IFS.Camera.FocusArea = value;
                 RaisePropertyChanged(() => FocusArea);
                 workspace.Renderer.InvalidateAccumulation();
             }

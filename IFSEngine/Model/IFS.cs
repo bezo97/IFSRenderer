@@ -19,9 +19,6 @@ namespace IFSEngine.Model
         public double GammaThreshold { get; set; } = 0.0;
         public double Vibrancy { get; set; } = 1.0;
         public double FogEffect { get; set; } = 0.0;
-        public double DepthOfField { get; set; } = 0.0;
-        public double FocusDistance { get; set; } = 2.0;
-        public double FocusArea { get; set; } = 0.25;
         public Camera Camera { get; set; } = new Camera();
         public Color BackgroundColor { get; set; } = Color.Black;
         public Size ImageResolution { get; set; } = new Size(1920, 1080);

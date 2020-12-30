@@ -7,15 +7,14 @@ namespace IFSEngine.Model.GpuStructs
 {
     internal struct SettingsStruct
     {
-        //current view:
-        internal CameraStruct CameraBase;
-        internal Vector4 focuspoint;
+        internal CameraStruct camera_params;
+
         internal float fog_effect;
-        internal float depth_of_field;
-        internal float focusdistance;
-        internal float focusarea;
-        //current frame:
-        internal int itnum;//length of iterators - 1 (last one is finalit)
+        internal float padding0;
+        internal float padding1;
+        internal float padding2;
+
+        internal int itnum;//number of iterators
         internal int pass_iters;//iterations per pass
         internal int dispatchCnt;//number of dispatches since accumulation reset
         internal int palettecnt;//how many colors in the palette

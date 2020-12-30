@@ -10,5 +10,10 @@ namespace IFSEngine.Model.GpuStructs
         internal Matrix4x4 viewProjMatrix;
         internal Vector4 position;
         internal Vector4 forward;
+        internal Vector4 focus_point;
+        internal float depth_of_field;
+        internal float focus_distance;
+        internal float focus_area;
+        internal float padding0;
     }
 }

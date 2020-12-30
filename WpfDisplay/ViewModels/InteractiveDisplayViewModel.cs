@@ -20,10 +20,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusDistance
         {
-            get => workspace.IFS.FocusDistance;
+            get => workspace.IFS.Camera.FocusDistance;
             set
             {
-                workspace.IFS.FocusDistance = value;
+                workspace.IFS.Camera.FocusDistance = value;
                 RaisePropertyChanged(() => FocusDistance);
                 workspace.Renderer.InvalidateAccumulation();
             }

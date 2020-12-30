@@ -16,11 +16,16 @@ layout(local_size_x = 64) in;
 #define MAX_PARAMS (2 * MAX_ITERATORS)
 #define MAX_XAOS (MAX_ITERATORS * MAX_ITERATORS)
 
-struct CameraParameters
+struct camera_params
 {
-	mat4 viewProjectionMatrix;
+	mat4 view_proj_mat;
 	vec4 position;
 	vec4 forward;
+	vec4 focus_point;
+	float depth_of_field;
+	float focus_distance;
+	float focus_area;
+	float padding0;
 };
 
 struct Iterator
@@ -62,15 +67,14 @@ layout(std140, binding = 1) buffer points_buffer
 
 layout(std140, binding = 2) uniform settings_ubo
 {
-	//current view:
-	CameraParameters camera;
-	vec4 focuspoint;//from camera,focusdistance
+	camera_params camera;
+
 	float fog_effect;
-	float depth_of_field;
-	float focusdistance;
-	float focusarea;//focal plane -> focal 'area'
-	//current frame:
-	int itnum;//length of iterators
+	float padding0;
+	float padding1;
+	float padding2;
+
+	int itnum;//number of iterators
 	int pass_iters;//iterations per pass
 	int dispatchCnt;
 	int palettecnt;
@@ -162,18 +166,18 @@ float random(inout uint nextSample)
 	return f_hash(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample++);
 }
 
-vec2 Project(CameraParameters c, vec4 p, inout uint next)
+vec2 Project(camera_params c, vec4 p, inout uint next)
 {
 	vec3 pointDir = normalize(p.xyz - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
 		return ivec2(-2, -2);
 
-	vec4 normalizedPoint = c.viewProjectionMatrix * vec4(p.xyz, 1.0f);
+	vec4 normalizedPoint = c.view_proj_mat * vec4(p.xyz, 1.0f);
 	normalizedPoint /= normalizedPoint.w;
 
 	//dof
 	float ratio = width / float(height);
-	float dof = settings.depth_of_field * max(0, abs(dot(p.xyz - settings.focuspoint.xyz, -c.forward.xyz)) - settings.focusarea); //use focalplane normal
+	float dof = c.depth_of_field * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.focus_area); //use focalplane normal
 	float ra = random(next);
 	float rl = random(next);
 	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
@@ -367,17 +371,9 @@ void main() {
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 
-			//lightsource experiment
-			//vec3 surface_normal = normalize(p.pos.xyz - p0_pos.xyz);
-			//vec3 light_pos = vec3(1.0, 1.0 + settings.focusarea, 1.0);
-			//vec4 light_col = vec4(1.0, 1.0, 1.0, 1.0);
-			//vec3 light_vec = light_pos - p.pos.xyz;
-			//float light_falloff = clamp(1.0 / (1.0 + 1.0 * settings.focusdistance * dot(light_vec, light_vec)), 0.0, 1.0);
-			//color = color * (1.0-dot(surface_normal, normalize(light_vec))) * light_col * light_falloff;
-
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float fog_mask = 1.0 / (1.0 + pow(length(settings.focuspoint.xyz - p.pos.xyz) / settings.focusarea, settings.fog_effect));
+				float fog_mask = 1.0 / (1.0 + pow(length(settings.camera.focus_point.xyz - p.pos.xyz) / settings.camera.focus_area, settings.fog_effect));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}

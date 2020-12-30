@@ -374,15 +374,11 @@ namespace IFSEngine
 
             var settings = new SettingsStruct
             {
-                CameraBase = currentParams.Camera.GetCameraParameters(),
+                camera_params = currentParams.Camera.GetCameraParameters(),
                 itnum = currentParams.Iterators.Count,
                 pass_iters = PassIters,
                 dispatchCnt = dispatchCnt,
                 fog_effect = (float)currentParams.FogEffect,
-                depth_of_field = (float)currentParams.DepthOfField,
-                focusdistance = (float)currentParams.FocusDistance,
-                focusarea = (float)currentParams.FocusArea,
-                focuspoint = new System.Numerics.Vector4(currentParams.Camera.Position + (float)currentParams.FocusDistance * currentParams.Camera.ForwardDirection, 0.0f),
                 palettecnt = currentParams.Palette.Colors.Count,
                 resetPointsState = invalidPointsState ? 1 : 0,
                 entropy = (float)Entropy,
