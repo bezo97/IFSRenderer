@@ -54,6 +54,17 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public double FogEffect
+        {
+            get => workspace.IFS.FogEffect;
+            set
+            {
+                workspace.IFS.FogEffect = value;
+                RaisePropertyChanged(() => FogEffect);
+                workspace.Renderer.InvalidateAccumulation();
+            }
+        }
+
         public IFSViewModel(Workspace workspace)
         {
             this.workspace = workspace;

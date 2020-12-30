@@ -28,9 +28,6 @@
             <local:ValueSlider ValueName="Focus Area" 
                                MinValue="0" 
                                Value="{Binding DataContext.FocusArea, ElementName=cameraSettingsView}"/>
-            <local:ValueSlider ValueName="Fog effect"
-                               MinValue="0"
-                               Value="{Binding DataContext.FogEffect, ElementName=cameraSettingsView}"/>
         </StackPanel>
     </md:Card>
 </UserControl>

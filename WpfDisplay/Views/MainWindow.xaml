@@ -57,7 +57,8 @@
                     <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
                     <md:Card Padding="6" Margin="8">
                         <StackPanel>
-                            <TextBlock Grid.Row="0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" >Background</TextBlock>
+                            <TextBlock Grid.Row="0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" >Environment</TextBlock>
+                            <Label>Background</Label>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -69,6 +70,9 @@
                                 <CheckBox Grid.Column="1" ToolTip="Transparent background"
                                     IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
                             </Grid>
+                            <local:ValueSlider ValueName="Fog effect"
+                                    MinValue="0"
+                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"/>
                         </StackPanel>
                     </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
