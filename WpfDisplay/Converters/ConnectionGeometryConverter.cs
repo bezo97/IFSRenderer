@@ -9,6 +9,7 @@ using System.Windows.Media;
 
 namespace WpfDisplay.Converters
 {
+    [ValueConversion(typeof(object), typeof(Geometry))]
     public class ConnectionGeometryConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

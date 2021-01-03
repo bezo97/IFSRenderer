@@ -18,7 +18,6 @@ namespace WpfDisplay.ViewModels
 
         public static double BaseSize = 100;
         public event EventHandler ViewChanged;
-        public event EventHandler Selected;
         public event EventHandler<bool> ConnectEvent;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
@@ -60,10 +59,6 @@ namespace WpfDisplay.ViewModels
             {
                 Set(ref isselected, value);
             }
-        }
-        public void SelectNode()
-        {
-            Selected?.Invoke(this, null);
         }
 
         public float InputWeight

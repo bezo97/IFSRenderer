@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,20 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class Node : UserControl
     {
+
+
+        public RelayCommand<IteratorViewModel> SelectCommand
+        {
+            get { return (RelayCommand<IteratorViewModel>)GetValue(SelectCommandProperty); }
+            set { SetValue(SelectCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectCommandProperty =
+            DependencyProperty.Register("SelectCommand", typeof(RelayCommand<IteratorViewModel>), typeof(Node), new PropertyMetadata(null));
+
+
+
         public Node()
         {
             InitializeComponent();
@@ -32,7 +47,7 @@ namespace WpfDisplay.Views
             {
                 tx = vm.XCoord - (float)e.GetPosition(null).X;//vm.XCoord - e.GetPosition(Map).X;
                 ty = vm.YCoord - (float)e.GetPosition(null).Y;//vm.YCoord - e.GetPosition(Map).Y;
-                vm.SelectNode();
+                SelectCommand.Execute(vm);
             }
             else if (e.ChangedButton == MouseButton.Right)
             {

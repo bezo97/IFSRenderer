@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              mc:Ignorable="d" 
+             x:Name="connectionArrow"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:ConnectionViewModel}"
              >
@@ -22,24 +23,44 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Path Stroke="White" StrokeThickness="2">
+        <!--TODO: Would be nice to have a single Path, but MultiBinding can't go into a GeometryCollection-->
+        <!--Arrow body-->
+        <Path 
+            StrokeThickness="20"
+            Stroke="Transparent"
+            Data="{Binding Data, ElementName=arrowBody}"/>
+        <Path x:Name="arrowBody"
+            Stroke="White" 
+            StrokeThickness="2">
             <Path.Data>
                 <MultiBinding Converter="{StaticResource connectionGeometryConverter}">
                     <Binding Source="{StaticResource pathGeometry}" />
                     <Binding Source="{StaticResource ellipseGeometry}" />
-                    <Binding Path="IsLoopback"/><!--Actually a ConverterParameter-->
+                    <Binding Path="IsLoopback"/>
+                    <!--Actually a ConverterParameter-->
                 </MultiBinding>
             </Path.Data>
+            <Path.Effect>
+                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
+            </Path.Effect>
         </Path>
-        <Path Stroke="White" StrokeThickness="2">
+        <!--Arrow head-->
+        <Path
+        Stroke="White" 
+        StrokeThickness="2">
             <Path.Data>
-                <LineGeometry StartPoint="{Binding ArrowHeadMid}" EndPoint="{Binding ArrowHeadLeft}"/>
+                <GeometryGroup>
+                    <LineGeometry
+                    StartPoint="{Binding ArrowHeadMid}" 
+                    EndPoint="{Binding ArrowHeadLeft}"/>
+                    <LineGeometry 
+                    StartPoint="{Binding ArrowHeadMid}" 
+                    EndPoint="{Binding ArrowHeadRight}"/>
+                </GeometryGroup>
             </Path.Data>
-        </Path>
-        <Path Stroke="White" StrokeThickness="2">
-            <Path.Data>
-                <LineGeometry StartPoint="{Binding ArrowHeadMid}" EndPoint="{Binding ArrowHeadRight}"/>
-            </Path.Data>
+            <Path.Effect>
+                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
+            </Path.Effect>
         </Path>
     </Grid>
 </UserControl>

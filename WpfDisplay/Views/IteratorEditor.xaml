@@ -16,7 +16,7 @@
     <ScrollViewer HorizontalScrollBarVisibility="Auto">
         <StackPanel>
             <TextBlock Text="Iterator" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <StackPanel Visibility="{Binding IsSelected, Converter={StaticResource conv1}, TargetNullValue=Collapsed}">
+            <StackPanel>
                 <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"/>
                 <Grid>
                     <Grid.ColumnDefinitions>

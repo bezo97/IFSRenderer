@@ -65,7 +65,9 @@
                 </md:Card>
             </Grid>
             <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch">
-                <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
+                <Grid Visibility="{Binding IsIteratorEditorVisible}">
+                    <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
+                </Grid>
             </md:Card>
         </Grid>
     </Grid>

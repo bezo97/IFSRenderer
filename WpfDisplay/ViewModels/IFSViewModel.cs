@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Windows;
 using System.Windows.Media;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
@@ -27,17 +28,46 @@ namespace WpfDisplay.ViewModels
         private IteratorViewModel selectedIterator;
         public IteratorViewModel SelectedIterator
         {
-            get => selectedIterator; set
+            get => selectedIterator; 
+            set
             {
                 if(selectedIterator != null)
                     selectedIterator.IsSelected = false;
 
                 Set(ref selectedIterator, value);
+                RaisePropertyChanged(() => IsIteratorEditorVisible);
 
                 if (selectedIterator != null)
+                {
+                    SelectedConnection = null;
                     selectedIterator.IsSelected = true;
+                }
             }
         }
+
+        public Visibility IsIteratorEditorVisible => SelectedIterator == null ? Visibility.Collapsed : Visibility.Visible;
+
+        private ConnectionViewModel selectedConnection;
+        public ConnectionViewModel SelectedConnection
+        {
+            get => selectedConnection; 
+            set
+            {
+                if (selectedConnection != null)
+                    selectedConnection.IsSelected = false;
+
+                Set(ref selectedConnection, value);
+                RaisePropertyChanged(() => IsConnectionEditorVisible);
+
+                if (selectedConnection != null)
+                {
+                    SelectedIterator = null;
+                    selectedConnection.IsSelected = true;
+                }
+            }
+        }
+
+        public Visibility IsConnectionEditorVisible => SelectedConnection == null ? Visibility.Collapsed : Visibility.Visible;
 
         public Color BackgroundColor
         {
@@ -87,7 +117,6 @@ namespace WpfDisplay.ViewModels
             };
             ivm.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
             ivm.ViewChanged += (s, e) => { Redraw(); };
-            ivm.Selected += (s, e) => SelectedIterator = ivm;
             ivm.ConnectEvent += (s, finish) =>
             {
                 if (!finish)
@@ -125,8 +154,8 @@ namespace WpfDisplay.ViewModels
         }
         private void HandleConnectionsChanged(IteratorViewModel vm)
         {
-            var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key));
-            var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key));
+            var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key && w.Value > 0.0));
+            var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key && i.Value > 0.0));
             removedConnections.ToList().ForEach(vm2 => vm.ConnectionViewModels.Remove(vm2));
             newConnections.ToList().ForEach(c => vm.ConnectionViewModels.Add(new ConnectionViewModel(vm, IteratorViewModels.First(vm2=>vm2.iterator == c.Key))));
             Redraw();
@@ -219,6 +248,26 @@ namespace WpfDisplay.ViewModels
                     //    workspace.Renderer.initRenderer(loadedTransforms);
                     //});
                     RaisePropertyChanged(()=>RegisteredTransforms);
+                }));
+        }
+
+        private RelayCommand<ConnectionViewModel> _selectConnectionCommand;
+        public RelayCommand<ConnectionViewModel> SelectConnectionCommand
+        {
+            get => _selectConnectionCommand ?? (
+                _selectConnectionCommand = new RelayCommand<ConnectionViewModel>((con) =>
+                {
+                    SelectedConnection = con;
+                }));
+        }
+
+        private RelayCommand<IteratorViewModel> _selectIteratorCommand;
+        public RelayCommand<IteratorViewModel> SelectIteratorCommand
+        {
+            get => _selectIteratorCommand ?? (
+                _selectIteratorCommand = new RelayCommand<IteratorViewModel>((it) =>
+                {
+                    SelectedIterator = it;
                 }));
         }
 

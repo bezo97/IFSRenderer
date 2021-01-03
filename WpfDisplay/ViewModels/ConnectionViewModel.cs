@@ -27,7 +27,26 @@ namespace WpfDisplay.ViewModels
         public double EllipseRadius { get; set; }
         public Point EllipseMid { get; set; }
 
-        public double Weight => from.iterator.WeightTo[to.iterator];
+        public double Weight 
+        { 
+            get => from.iterator.WeightTo[to.iterator];
+            set
+            {
+                from.iterator.WeightTo[to.iterator] = value;
+                RaisePropertyChanged(() => Weight);
+            }
+        }
+        
+
+        private bool isselected;
+        public bool IsSelected
+        {
+            get => isselected;
+            set
+            {
+                Set(ref isselected, value);
+            }
+        }
 
         public ConnectionViewModel(IteratorViewModel from, IteratorViewModel to)
         {
@@ -53,14 +72,7 @@ namespace WpfDisplay.ViewModels
             else
                 CalcGeometryByPoints();
 
-            RaisePropertyChanged(() => ArrowHeadMid);
-            RaisePropertyChanged(() => ArrowHeadLeft);
-            RaisePropertyChanged(() => ArrowHeadRight);
-            RaisePropertyChanged(() => StartPoint);
-            RaisePropertyChanged(() => EndPoint);
-            RaisePropertyChanged(() => BodyPoints);
-            RaisePropertyChanged(() => EllipseMid);
-            RaisePropertyChanged(() => EllipseRadius);
+            RaisePropertyChanged(string.Empty);
         }
 
         private void CalcGeometryByPoints()
