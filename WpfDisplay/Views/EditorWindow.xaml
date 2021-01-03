@@ -64,10 +64,25 @@
                     <local:NodeMap DataContext="{Binding}"/>
                 </md:Card>
             </Grid>
-            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch">
-                <Grid Visibility="{Binding IsIteratorEditorVisible}">
-                    <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
-                </Grid>
+            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="255">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Grid Visibility="{Binding IsIteratorEditorVisible}">
+                            <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
+                        </Grid>
+                        <Grid Visibility="{Binding IsConnectionEditorVisible}">
+                            <StackPanel>
+                                <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
+                                    Connection settings
+                                </TextBlock>
+                                <local:ValueSlider
+                                    ValueName="Weight"
+                                    Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
+                                    MinValue="0" Increment="0.01"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
             </md:Card>
         </Grid>
     </Grid>

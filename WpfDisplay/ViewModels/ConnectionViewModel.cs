@@ -7,21 +7,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
     public class ConnectionViewModel : ObservableObject
     {
-
         public readonly IteratorViewModel from;
-        public readonly IteratorViewModel to;//TODO: replace with toPoint
+        public readonly IteratorViewModel to;
+        private readonly Workspace workspace;
 
         public Point StartPoint => new Point(from.XCoord, from.YCoord);
         public Point EndPoint => new Point(to.XCoord, to.YCoord);
         public Point ArrowHeadMid { get; set; }
         public Point ArrowHeadLeft { get; set; }
         public Point ArrowHeadRight { get; set; }
-        public PointCollection BodyPoints { get; set; } //not observable??
+        public PointCollection BodyPoints { get; set; }
 
         public bool IsLoopback => (from == to);
         public double EllipseRadius { get; set; }
@@ -33,6 +34,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 from.iterator.WeightTo[to.iterator] = value;
+                workspace.Renderer.InvalidateParams();
                 RaisePropertyChanged(() => Weight);
             }
         }
@@ -48,10 +50,11 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public ConnectionViewModel(IteratorViewModel from, IteratorViewModel to)
+        public ConnectionViewModel(IteratorViewModel from, IteratorViewModel to, Workspace workspace)
         {
             this.from = from;
             this.to = to;
+            this.workspace = workspace;
             from.PropertyChanged += handlePositionsChanged;
             to.PropertyChanged += handlePositionsChanged;
             UpdateGeometry();

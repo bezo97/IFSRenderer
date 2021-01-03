@@ -34,18 +34,19 @@
                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" >
             <Button
+                Command="{Binding DuplicateCommand}" 
+                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
+                Width="20" Height="20" Margin="5"
+                FontWeight="Bold"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                🗎🗎
+            </Button>
+            <Button
                 Command="{Binding RemoveCommand}" 
                 Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
                 Width="20" Height="20" Margin="5"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗑️
-            </Button>
-            <Button
-                Command="{Binding DuplicateCommand}" 
-                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
-                Width="20" Height="20" Margin="5"
-                Style="{DynamicResource MaterialDesignFloatingActionButton}">
-                ➕
             </Button>
 
         </StackPanel>

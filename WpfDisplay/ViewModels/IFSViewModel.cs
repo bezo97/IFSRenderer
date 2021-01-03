@@ -90,8 +90,8 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.FogEffect = value;
-                RaisePropertyChanged(() => FogEffect);
                 workspace.Renderer.InvalidateAccumulation();
+                RaisePropertyChanged(() => FogEffect);
             }
         }
 
@@ -157,7 +157,7 @@ namespace WpfDisplay.ViewModels
             var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key && w.Value > 0.0));
             var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key && i.Value > 0.0));
             removedConnections.ToList().ForEach(vm2 => vm.ConnectionViewModels.Remove(vm2));
-            newConnections.ToList().ForEach(c => vm.ConnectionViewModels.Add(new ConnectionViewModel(vm, IteratorViewModels.First(vm2=>vm2.iterator == c.Key))));
+            newConnections.ToList().ForEach(c => vm.ConnectionViewModels.Add(new ConnectionViewModel(vm, IteratorViewModels.First(vm2=>vm2.iterator == c.Key), workspace)));
             Redraw();
         }
 

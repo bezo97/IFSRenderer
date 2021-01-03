@@ -13,9 +13,24 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="conv1"/>
     </UserControl.Resources>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto">
-        <StackPanel>
-            <TextBlock Text="Iterator" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+    <StackPanel>
+            <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
+                Iterator settings
+            </TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <Button 
+                    Command="{Binding DuplicateCommand}"
+                    ToolTip="Duplicate"
+                    FontWeight="Bold" Margin="4" Padding="6">
+                    🗎🗎
+                </Button>
+                <Button 
+                    Command="{Binding RemoveCommand}"
+                    ToolTip="Remove"
+                    Margin="4" Padding="6">
+                    🗑️
+                </Button>
+            </StackPanel>
             <StackPanel>
                 <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"/>
                 <Grid>
@@ -52,5 +67,4 @@
                 </ItemsControl>
             </StackPanel>
         </StackPanel>
-    </ScrollViewer>
 </UserControl>
