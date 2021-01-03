@@ -126,8 +126,9 @@ namespace WpfDisplay.ViewModels
                     if (connectingIterator.iterator.WeightTo.ContainsKey(ivm.iterator))
                         connectingIterator.iterator.WeightTo.Remove(ivm.iterator);
                     else
-                        connectingIterator.iterator.WeightTo[ivm.iterator] = 0.5;//
+                        connectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
                     HandleConnectionsChanged(connectingIterator);
+                    SelectedConnection = connectingIterator.ConnectionViewModels.FirstOrDefault(c=>c.to==ivm);
                     connectingIterator = null;
 
                 }
@@ -210,10 +211,10 @@ namespace WpfDisplay.ViewModels
             get => _duplicateSelectedCommand ?? (
                 _duplicateSelectedCommand = new RelayCommand(() =>
                 {
-                    workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
+                    var newIterator = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
                     RaisePropertyChanged("InvalidateParams");
                     HandleIteratorsChanged();
-                    SelectedIterator = null;
+                    SelectedIterator = IteratorViewModels.First(vm=>vm.iterator == newIterator);
                 }));
         }
 
