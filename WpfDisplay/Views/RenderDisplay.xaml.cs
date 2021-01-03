@@ -57,7 +57,7 @@ namespace WpfDisplay.Views
                 DisplayViewModel.RotateCommand(new Vector3(yawDelta, pitchDelta, 0.0f));
             }
             else
-                Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                Mouse.OverrideCursor = null;//no override
             lastX = e.X;
             lastY = e.Y;
         }
