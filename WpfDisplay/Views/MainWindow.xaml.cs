@@ -22,7 +22,8 @@ namespace WpfDisplay.Views
             InitializeComponent();
             ContentRendered += (s, e) =>
             {
-                var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(File.ReadAllText(file))).ToList();
+                var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms")
+                    .Select(file => TransformFunction.FromFile(file)).ToList();
                 //init workspace 
                 RendererGL renderer = new RendererGL(renderDisplay.display1.WindowInfo);
                 renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);

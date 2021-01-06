@@ -11,7 +11,7 @@ namespace IFSEngine.Model
     public class Camera
     {
         public Quaternion Orientation { get; set; } = Quaternion.Identity;//no rotation
-        public Vector3 Position { get; set; } = new Vector3(0.0f, 0.0f, -2.0f);
+        public Vector3 Position { get; set; } = new Vector3(0.0f, 0.0f, -10.0f);
         public float TranslationSensitivity { get; set; } = 0.005f;
         public float RotationSensitivity { get; set; } = 0.01f;
         public Vector3 RightDirection { get; private set; } = new Vector3(1.0f, 0.0f, 0.0f);
@@ -23,7 +23,7 @@ namespace IFSEngine.Model
         /// </summary>
         public float FieldOfView { get; set; } = 60;
         public double DepthOfField { get; set; } = 0.0;
-        public double FocusDistance { get; set; } = 2.0;
+        public double FocusDistance { get; set; } = 10.0;
         public double FocusArea { get; set; } = 0.25;
 
         /// <summary>

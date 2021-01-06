@@ -51,7 +51,17 @@
                                                 Style="{StaticResource MaterialDesignFlatButton }"
                                                 Command="{Binding DataContext.AddIteratorCommand, ElementName=editorWindow}" 
                                                 CommandParameter="{Binding}"
-                                                Content="{Binding Name}"/>
+                                                Content="{Binding Name}">
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <!--TODO: this binding breaks design-time preview-->
+                                                    <MenuItem
+                                                        Header="✏️ Edit source"
+                                                        Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
+                                                        CommandParameter="{Binding FilePath}"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

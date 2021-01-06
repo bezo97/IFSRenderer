@@ -14,57 +14,57 @@
         <BooleanToVisibilityConverter x:Key="conv1"/>
     </UserControl.Resources>
     <StackPanel>
-            <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
+        <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
                 Iterator settings
-            </TextBlock>
-            <StackPanel Orientation="Horizontal">
-                <Button 
+        </TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <Button 
                     Command="{Binding DuplicateCommand}"
                     ToolTip="Duplicate"
                     FontWeight="Bold" Margin="4" Padding="6">
-                    🗎🗎
-                </Button>
-                <Button 
+                🗎🗎
+            </Button>
+            <Button 
                     Command="{Binding RemoveCommand}"
                     ToolTip="Remove"
                     Margin="4" Padding="6">
-                    🗑️
-                </Button>
-            </StackPanel>
-            <StackPanel>
-                <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <local:ValueSlider ValueName="InputWeight" 
+                🗑️
+            </Button>
+        </StackPanel>
+        <StackPanel>
+            <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <local:ValueSlider ValueName="InputWeight" 
                                        MinValue="0" MaxValue="1" Increment="0.01" 
                                        Value="{Binding DataContext.InputWeight, ElementName=iteratorEditor}"
                                        Grid.Column="0"/>
-                    <local:ValueSlider ValueName="Opacity" 
+                <local:ValueSlider ValueName="Opacity" 
                                        MinValue="0" MaxValue="1" Increment="0.01" 
                                        Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"
                                        Grid.Column="1"/>
-                </Grid>
-                <local:ValueSlider ValueName="Color Index (TODO: replace with palette)" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"/>
-                <local:ValueSlider ValueName="Color Speed" Increment="0.01" Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"/>
-                <CheckBox Foreground="LightGray" IsChecked="{Binding DeltaColoring}">Delta Coloring Mode</CheckBox>
-            </StackPanel>
+            </Grid>
+            <local:ValueSlider ValueName="Color Index (TODO: replace with palette)" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"/>
+            <local:ValueSlider ValueName="Color Speed" Increment="0.01" Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"/>
+            <CheckBox Foreground="LightGray" IsChecked="{Binding DeltaColoring}">Delta Coloring Mode</CheckBox>
+        </StackPanel>
+        <StackPanel>
             <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <StackPanel>
-                <ItemsControl ItemsSource="{Binding Variables}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid DataContext="{Binding}" x:Name="dummy">
-                                <local:ValueSlider
-                                    Increment="0.01"
+            <ItemsControl ItemsSource="{Binding Variables}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid DataContext="{Binding}" x:Name="dummy">
+                            <local:ValueSlider
+                                    Increment="0.001"
                                     ValueName="{Binding DataContext.Name, ElementName=dummy}" 
                                     Value="{Binding DataContext.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
+    </StackPanel>
 </UserControl>

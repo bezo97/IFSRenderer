@@ -240,9 +240,20 @@ namespace WpfDisplay.ViewModels
                 _reloadTransformsCommand = new RelayCommand(async () =>
                 {
                     var loadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
-                        .Select(file => TransformFunction.FromString(System.IO.File.ReadAllText(file)));
+                        .Select(file => TransformFunction.FromFile(file));
                     await workspace.Renderer.LoadTransforms(loadedTransforms);
                     RaisePropertyChanged(() => RegisteredTransforms);
+                }));
+        }
+
+        private RelayCommand<string> _editTransformSourceCommand;
+        public RelayCommand<string> EditTransformSourceCommand
+        {
+            get => _editTransformSourceCommand ?? (
+                _editTransformSourceCommand = new RelayCommand<string>(async (filePath) =>
+                {
+                    //open transform source file with the preferred text editor
+                    System.Diagnostics.Process.Start(filePath);
                 }));
         }
 
