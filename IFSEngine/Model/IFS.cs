@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using IFSEngine.Util;
 
 namespace IFSEngine.Model
@@ -89,22 +90,22 @@ namespace IFSEngine.Model
             iterators.Remove(it1);
         }
 
-        public static IFS GenerateRandom()
+        public static IFS GenerateRandom(List<TransformFunction> availableTransforms)
         {
             IFS randomIFS = new IFS
             {
-                Brightness = 4,
-                Gamma = 4
+                Brightness = 10,
+                Gamma = 2
             };
             //add random iterators
-            var affinetf = new List<TransformFunction>() { TransformFunction.LoadedTransformFunctions.First(tf => tf.Name == "Affine") };//TODO: nicer
+            var affinetf = new List<TransformFunction>() { availableTransforms.First(tf => tf.Name == "Affine") };//TODO: nicer
             var pretfs = new List<Iterator>();
             var tfs = new List<Iterator>();
-            var itnum = RandHelper.Next(4) + 2;
+            var itnum = RandHelper.Next(3) + 2;
             for (var ii = 0; ii < itnum; ii++)
             {
                 var pretransform = Iterator.RandomIterator(affinetf);
-                var transform = Iterator.RandomIterator(TransformFunction.LoadedTransformFunctions);
+                var transform = Iterator.RandomIterator(availableTransforms);
                 randomIFS.AddIterator(pretransform, false);
                 randomIFS.AddIterator(transform, false);
                 pretransform.WeightTo[transform] = 1.0;

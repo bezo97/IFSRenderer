@@ -17,9 +17,7 @@ namespace WpfDisplay.ViewModels
     {
         private readonly Workspace workspace;
 
-        //HACK: actully more related to the renderer than the ifs
-        public List<TransformFunction> RegisteredTransforms => TransformFunction.LoadedTransformFunctions;
-
+        public List<TransformFunction> RegisteredTransforms => workspace.Renderer.RegisteredTransforms;
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; private set; } = new ObservableCollection<IteratorViewModel>();
 
 
@@ -241,14 +239,10 @@ namespace WpfDisplay.ViewModels
             get => _reloadTransformsCommand ?? (
                 _reloadTransformsCommand = new RelayCommand(async () =>
                 {
-                    //TODO: Fix TransformFunctions reloading
-                    //TransformFunction.LoadedTransformFunctions.Clear();
-                    //var loadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms").Select(file => TransformFunction.FromString(System.IO.File.ReadAllText(file))).ToList();
-                    ////await workspace.Renderer.WithContext(() =>
-                    //{
-                    //    workspace.Renderer.initRenderer(loadedTransforms);
-                    //});
-                    RaisePropertyChanged(()=>RegisteredTransforms);
+                    var loadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
+                        .Select(file => TransformFunction.FromString(System.IO.File.ReadAllText(file)));
+                    await workspace.Renderer.LoadTransforms(loadedTransforms);
+                    RaisePropertyChanged(() => RegisteredTransforms);
                 }));
         }
 

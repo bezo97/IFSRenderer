@@ -14,9 +14,11 @@ namespace IFSEngine.Serialization
     internal class TransformFunctionConverter : JsonConverter<TransformFunction>
     {
         private readonly bool ignoreVersion;
+        private readonly IEnumerable<TransformFunction> loadedTransformFunctions;
 
-        public TransformFunctionConverter(bool ignoreVersion)
+        public TransformFunctionConverter(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
         {
+            this.loadedTransformFunctions = transforms;
             this.ignoreVersion = ignoreVersion;
         }
 
@@ -24,11 +26,11 @@ namespace IFSEngine.Serialization
         {
             TransformFunction tf;
             (string Name, string Version) = serializer.Deserialize<ValueTuple<string,string>>(reader);
-            tf = TransformFunction.LoadedTransformFunctions.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
+            tf = loadedTransformFunctions.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
             if (tf == null)
             {
                 if (ignoreVersion)
-                    return TransformFunction.LoadedTransformFunctions.FirstOrDefault(i => i.Name == Name);
+                    return loadedTransformFunctions.FirstOrDefault(i => i.Name == Name);
                 else
                     throw new SerializationException($"The TransformFunction {Name} (Version: {Version}) is unknown.");
             }

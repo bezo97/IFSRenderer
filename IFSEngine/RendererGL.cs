@@ -195,15 +195,29 @@ namespace IFSEngine
             //GL.Enable(EnableCap.DebugOutput);
             //GL.Enable(EnableCap.DebugOutputSynchronous);
 
+            RegisteredTransforms = transforms.ToList();
+
+            initBuffers();
             initTonemapPass();
-            initDE();
-            initRenderer(transforms);
-            initTAA();
+            initDEPass();
+            initComputeProgram();
+            initTAAPass();
+            GL.DeleteShader(vertexShaderHandle);
 
             SetHistogramScale(1.0).Wait();
             setWorkgroupCount(WorkgroupCount).Wait();
 
             InvalidateParams();
+        }
+
+        public async Task LoadTransforms(IEnumerable<TransformFunction> transformFunctions)
+        {
+            await WithContext(() =>
+            {
+                RegisteredTransforms = transformFunctions.ToList();
+                initComputeProgram();
+                InvalidateParams();
+            });
         }
 
         public void LoadParams(IFS p)
@@ -564,7 +578,7 @@ namespace IFSEngine
             return o;
         }
 
-        private void initTAA()
+        private void initTAAPass()
         {
 
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.taa.frag.shader");
@@ -611,7 +625,7 @@ namespace IFSEngine
             GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "new_frame_tex"), 0);
         }
 
-        private void initDE()
+        private void initDEPass()
         {
 
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.de.frag.shader");
@@ -640,12 +654,11 @@ namespace IFSEngine
 
             GL.DetachShader(deProgramHandle, vertexShaderHandle);
             GL.DetachShader(deProgramHandle, deShaderH);
-            //GL.DeleteShader(vertexShaderH);
             GL.DeleteShader(deShaderH);
 
             GL.UseProgram(deProgramHandle);
-
             GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "histogram_tex"), 0);
+
         }
 
         private void initTonemapPass()
@@ -704,23 +717,17 @@ namespace IFSEngine
 
             GL.DetachShader(tonemapProgramHandle, vertexShaderHandle);
             GL.DetachShader(tonemapProgramHandle, fragmentShader);
-            //GL.DeleteShader(vertexShaderH);
             GL.DeleteShader(fragmentShader);
 
-            GL.UseProgram(tonemapProgramHandle);
-
-            histogramBufferHandle = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
         }
 
-        private void initRenderer(IEnumerable<TransformFunction> transformFunctions)
+        private void initComputeProgram()
         {
             //load functions
             string transformsSource = "";
             transformIds.Clear();
             int cnt = 0;
-            foreach(var tf in transformFunctions)
+            foreach (var tf in RegisteredTransforms)
             {
                 transformIds[tf] = cnt++;
                 transformsSource += $@"
@@ -730,7 +737,6 @@ if (iter.tfId == {transformIds[tf]})
 }}
 ";
             }
-            RegisteredTransforms = transformFunctions.ToList();
 
             //assemble source string
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.comp.shader");
@@ -750,6 +756,9 @@ if (iter.tfId == {transformIds[tf]})
                     String.Format("Error compiling {0} shader: {1}", ShaderType.ComputeShader.ToString(), GL.GetShaderInfoLog(computeShaderH)));
             }
 
+            //free previous resources
+            if (computeProgramHandle != 0)
+                GL.DeleteProgram(computeProgramHandle);
             //build shader program
             computeProgramHandle = GL.CreateProgram();
             GL.AttachShader(computeProgramHandle, computeShaderH);
@@ -760,9 +769,19 @@ if (iter.tfId == {transformIds[tf]})
                 throw new GraphicsException(
                     String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(computeProgramHandle)));
             }
-            GL.UseProgram(computeProgramHandle);
+            GL.DetachShader(computeProgramHandle, computeShaderH);
+            GL.DeleteShader(computeShaderH);
 
+            GL.UseProgram(computeProgramHandle);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "width"), HistogramWidth);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "height"), HistogramHeight);
+
+        }
+
+        private void initBuffers()
+        {
             //create buffers
+            histogramBufferHandle = GL.GenBuffer();
             pointsBufferHandle = GL.GenBuffer();
             settingsBufferHandle = GL.GenBuffer();
             iteratorsBufferHandle = GL.GenBuffer();
@@ -780,8 +799,6 @@ if (iter.tfId == {transformIds[tf]})
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, transformParametersBufferHandle);
 
         }
-
-        //TODO: reload plugins / recompile
 
         public void Dispose()
         {

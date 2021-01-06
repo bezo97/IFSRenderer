@@ -8,19 +8,12 @@ namespace IFSEngine.Model
 {
     public class TransformFunction
     {
-        public static List<TransformFunction> LoadedTransformFunctions { get; } = new List<TransformFunction>();
-
         public string Name { get; private set; }
         public string Version { get; private set; }
         public string SourceCode { get; private set; }
         public IReadOnlyDictionary<string, double> Variables { get; private set; }//name, default //type?
 
         private const string regexVarDef = @"^(\s*)@[\w]+: .+";//@Name: name1
-
-        public TransformFunction()
-        {
-            LoadedTransformFunctions.Add(this);
-        }
 
         public static TransformFunction FromString(string s)
         {

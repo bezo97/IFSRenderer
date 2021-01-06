@@ -27,7 +27,7 @@ namespace WpfDisplay.Views
                 RendererGL renderer = new RendererGL(renderDisplay.display1.WindowInfo);
                 renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                IFS ifs = IFS.GenerateRandom();
+                IFS ifs = IFS.GenerateRandom(loadedTransforms);
                 //TODO: create-workspace view?
                 Workspace workspace = new Workspace
                 {

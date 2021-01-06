@@ -71,7 +71,7 @@ namespace WpfDisplay.ViewModels
             get => _loadRandomCommand ?? (
                 _loadRandomCommand = new RelayCommand(() =>
                 {
-                    workspace.IFS = IFS.GenerateRandom();
+                    workspace.IFS = IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms);
                 }));
         }
 
@@ -96,15 +96,16 @@ namespace WpfDisplay.ViewModels
                 {
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
                     {
+                        var transforms = workspace.Renderer.RegisteredTransforms;
                         IFS ifs;
                         try
                         {
-                            ifs = IfsSerializer.LoadJson(path, false);
+                            ifs = IfsSerializer.LoadJson(path, transforms, false);
                         }
                         catch(SerializationException)
                         {
                             if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                                ifs = IfsSerializer.LoadJson(path, true);
+                                ifs = IfsSerializer.LoadJson(path, transforms, true);
                             else 
                                 return;
                         }

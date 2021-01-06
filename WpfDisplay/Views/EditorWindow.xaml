@@ -37,8 +37,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Button 
-                            IsEnabled="False"
+                        <Button
                             Command="{Binding ReloadTransformsCommand}"
                             Padding="2,0,3,0">🔄</Button>
                         <Label>Transforms</Label>
