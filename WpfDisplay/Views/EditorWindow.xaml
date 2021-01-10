@@ -37,10 +37,15 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Label>Transforms</Label>
                         <Button
                             Command="{Binding ReloadTransformsCommand}"
-                            Padding="2,0,3,0">🔄</Button>
-                        <Label>Transforms</Label>
+                            ToolTip="Reload plugins"
+                            Padding="2">🔄</Button>
+                        <Button
+                            Command="{Binding OpenTransformsDirectoryCommand}"
+                            ToolTip="Open plugin directory"
+                            Padding="2">📂</Button>
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <StackPanel>

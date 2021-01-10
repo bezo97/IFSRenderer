@@ -246,11 +246,22 @@ namespace WpfDisplay.ViewModels
                 }));
         }
 
+        private RelayCommand _openTransformsDirectoryCommand;
+        public RelayCommand OpenTransformsDirectoryCommand
+        {
+            get => _openTransformsDirectoryCommand ?? (
+                _openTransformsDirectoryCommand = new RelayCommand(() =>
+                {
+                    //show the directory with the os file explorer
+                    System.Diagnostics.Process.Start(@".\Functions\Transforms");
+                }));
+        }
+
         private RelayCommand<string> _editTransformSourceCommand;
         public RelayCommand<string> EditTransformSourceCommand
         {
             get => _editTransformSourceCommand ?? (
-                _editTransformSourceCommand = new RelayCommand<string>(async (filePath) =>
+                _editTransformSourceCommand = new RelayCommand<string>((filePath) =>
                 {
                     //open transform source file with the preferred text editor
                     System.Diagnostics.Process.Start(filePath);
