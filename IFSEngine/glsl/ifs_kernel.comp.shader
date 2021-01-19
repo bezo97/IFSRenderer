@@ -272,10 +272,10 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	p.color_index = random(next);
 	float workgroup_random = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
+	p.color_index = iterators[p.iterator_index].color_index;
 	p.warmup_cnt = 0;
 	return p;
 }
