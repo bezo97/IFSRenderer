@@ -363,8 +363,8 @@ void main() {
 
 		//perspective project
 		vec2 projf = Project(settings.camera, p.pos, next);
-		ivec2 proj = ivec2(int(projf.x), int(projf.y));
-		vec2 proj_offset = (fract(projf) - vec2(0.5))*2.0;
+		ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
+		vec2 proj_offset = projf - vec2(proj);
 	
 		//lands on the histogram && warmup
 		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
@@ -382,21 +382,22 @@ void main() {
 
 			color.xyz *= color.w;
 
-			if (settings.max_filter_radius > 1/* && settings.dispatchCnt > 3*/)
+			if (settings.max_filter_radius > 1)
 			{
-				const int filter_radius = 2 + int(settings.max_filter_radius / pow(1.0+(histogram[proj.x+proj.y*width].w), 0.4));
-				//float w_acc = 0.0;
-				for (int i = -filter_radius + 1; i < filter_radius; i++)
+				const int filter_radius = int(settings.max_filter_radius);
+				//const int filter_radius = 1 + int(settings.max_filter_radius / pow(1.0 + (histogram[proj.x + proj.y * width].w), 0.4));
+
+				for (int ax = -filter_radius; ax <= filter_radius; ax++)
 				{
-					for (int j = -filter_radius + 1; j < filter_radius; j++)
+					for (int ay = -filter_radius; ay <= filter_radius; ay++)
 					{
-						//float wx = Lanczos(float(i) - projf.x + floor(projf.x), filter_radius);
-						//float wy = Lanczos(float(j) - projf.y + floor(projf.y), filter_radius);
-						float wx = Mitchell_Netravali((float(2*i) / filter_radius - projf.x + floor(projf.x)));
-						float wy = Mitchell_Netravali((float(2*j) / filter_radius - projf.y + floor(projf.y)));
-						//w_acc += wx * wy;//clamp
-						ivec2 filter_proj = ivec2(int(floor(proj.x)) + i, int(floor(projf.y)) + j);
-						accumulate_hit(filter_proj, color * clamp(wx * wy, 0.0, 1.0));
+						vec2 nb = vec2(proj + ivec2(ax, ay));
+						float pd = distance(nb, projf);
+						//float ww = max(0.0, 1.0-pd);
+						//float ww = max(0.0, Lanczos(ofr, 2));
+						float aw = max(0.0, Mitchell_Netravali(pd));
+
+						accumulate_hit(ivec2(nb), aw * color);
 					}
 				}
 			}
