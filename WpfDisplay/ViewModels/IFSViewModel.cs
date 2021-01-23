@@ -82,6 +82,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        public FlamePalette Palette => workspace.IFS.Palette;
+
         public double FogEffect
         {
             get => workspace.IFS.FogEffect;
@@ -229,6 +231,7 @@ namespace WpfDisplay.ViewModels
                         //var palette = PalettePicker.ShowDialog(palettes);
                         workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
                         workspace.Renderer.InvalidateParams();
+                        RaisePropertyChanged(() => Palette);
                     }
                 }));
         }

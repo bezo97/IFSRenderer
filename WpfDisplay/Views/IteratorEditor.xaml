@@ -47,7 +47,20 @@
                                        Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"
                                        Grid.Column="1"/>
             </Grid>
-            <local:ValueSlider ValueName="Color Index (TODO: replace with palette)" MinValue="0" MaxValue="1" Increment="0.01" Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"/>
+            <local:ValueSlider ValueName="Color Index"
+                               MinValue="0" MaxValue="1" Increment="0.01" 
+                               Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"/>
+            <Grid>
+                <!--TODO: nicer binding-->
+                <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                     Height="20"/>
+                <!--<Label Margin="-1,0" Padding="0" Foreground="White">
+                        <Label.RenderTransform>
+                            <TranslateTransform X="{Binding ColorIndex}"/>
+                        </Label.RenderTransform>
+                       ||
+                </Label>-->
+            </Grid>
             <local:ValueSlider ValueName="Color Speed" Increment="0.01" Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"/>
             <CheckBox Foreground="LightGray" IsChecked="{Binding DeltaColoring}">Delta Coloring Mode</CheckBox>
         </StackPanel>

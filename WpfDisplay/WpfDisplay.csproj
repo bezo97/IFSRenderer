@@ -111,6 +111,9 @@
     <Compile Include="Views\NodeMap.xaml.cs">
       <DependentUpon>NodeMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PaletteButton.xaml.cs">
+      <DependentUpon>PaletteButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PerformanceView.xaml.cs">
       <DependentUpon>PerformanceView.xaml</DependentUpon>
     </Compile>
@@ -141,6 +144,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NodeMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PaletteButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -19,7 +19,11 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel  Orientation="Horizontal" Grid.Row="0">
-            <Button Command="{Binding LoadPaletteCommand}" Margin="8">🎨 Palette</Button>
+            <local:PaletteButton
+                Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 
+                Palette="{Binding DataContext.Palette, ElementName=editorWindow}"
+                ToolTip="Load Palette"
+                Margin="8" Padding="30,8,30,8">🎨</local:PaletteButton>
         </StackPanel>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
