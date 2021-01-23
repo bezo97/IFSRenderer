@@ -82,8 +82,10 @@
     <Compile Include="Helper\GeneralHelpers.cs" />
     <Compile Include="Helper\InstanceProperty.cs" />
     <Compile Include="Helper\NativeDialogHelper.cs" />
+    <Compile Include="Models\GeneratorWorkspace.cs" />
     <Compile Include="ViewModels\CameraSettingsViewModel.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
+    <Compile Include="ViewModels\GeneratorViewModel.cs" />
     <Compile Include="ViewModels\IFSViewModel.cs" />
     <Compile Include="ViewModels\InteractiveDisplayViewModel.cs" />
     <Compile Include="ViewModels\IteratorViewModel.cs" />
@@ -101,6 +103,9 @@
     </Compile>
     <Compile Include="Views\EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GeneratorWindow.xaml.cs">
+      <DependentUpon>GeneratorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\IteratorEditor.xaml.cs">
       <DependentUpon>IteratorEditor.xaml</DependentUpon>
@@ -132,6 +137,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GeneratorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -55,13 +55,18 @@ namespace WpfDisplay.ViewModels
             ToneMappingViewModel.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
         }
 
+        public void LoadParamsToWorkspace(IFS ifs)
+        {
+            workspace.IFS = ifs;
+        }
+
         private RelayCommand _newCommand;
         public RelayCommand NewCommand
         {
             get => _newCommand ?? (
                 _newCommand = new RelayCommand(() =>
                 {
-                    workspace.IFS = new IFS();
+                    LoadParamsToWorkspace(new IFS());
                 }));
         }
 
@@ -71,7 +76,7 @@ namespace WpfDisplay.ViewModels
             get => _loadRandomCommand ?? (
                 _loadRandomCommand = new RelayCommand(() =>
                 {
-                    workspace.IFS = IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms);
+                    LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
                 }));
         }
 
@@ -109,7 +114,7 @@ namespace WpfDisplay.ViewModels
                             else 
                                 return;
                         }
-                        workspace.IFS = ifs;
+                        LoadParamsToWorkspace(ifs);
                     }
                 }));
         }

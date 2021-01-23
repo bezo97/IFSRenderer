@@ -1,0 +1,95 @@
+﻿<Window x:Class="WpfDisplay.Views.GeneratorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        mc:Ignorable="d"
+        Title="Generator Window" Height="450" Width="800"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        x:Name="generatorWindow"
+        d:DataContext="{d:DesignInstance Type=vm:GeneratorViewModel, IsDesignTimeCreatable=False}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="menu1"/>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <md:Card Grid.Column="0" Margin="8" Padding="8">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Label>Pinned fractals</Label>
+                        <ItemsControl ItemsSource="{Binding PinnedIFSList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!--rows-->
+                                    <ItemsControl ItemsSource="{Binding}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button 
+                                                    Width="100" Height="100"
+                                                    Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
+                                                    CommandParameter="{Binding Key}">
+                                                    <Button.Background>
+                                                        <ImageBrush 
+                                                            ImageSource="{Binding Value}" 
+                                                            Stretch="UniformToFill">
+                                                            <ImageBrush.RelativeTransform>
+                                                                <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                                            </ImageBrush.RelativeTransform>
+                                                        </ImageBrush>
+                                                    </Button.Background>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </md:Card>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <StackPanel>
+                        <Label>Generator options</Label>
+                        <CheckBox/>
+                        <CheckBox/>
+                        <CheckBox/>
+                    </StackPanel>
+                </Grid>
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding GeneratedIFSList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

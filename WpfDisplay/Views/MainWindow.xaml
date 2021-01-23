@@ -31,18 +31,16 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
-
-        <md:Card Grid.Row="0" Margin="8">
-            <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding NewCommand}" Margin="10">📑 New</Button>
-                <Button Command="{Binding LoadParamsCommand}" Margin="10">📂 Load</Button>
-                <Button Command="{Binding SaveParamsCommand}" Margin="10">💾 Save</Button>
-                <Button Command="{Binding SaveImageCommand}" Margin="10">🖼 Save</Button>
-                <Separator Margin="25"></Separator>
-                <Button Click="EditorButton_Click" Margin="10" >🏗️ Editor</Button>
-                <Button Command="{Binding LoadRandomCommand}" Margin="10">🎲 Random</Button>
-            </StackPanel>
-        </md:Card>
+        <Menu Grid.Row="0">
+            <MenuItem Header="📑 New" Command="{Binding NewCommand}"/>
+            <MenuItem Header="📂 Load" Command="{Binding LoadParamsCommand}"/>
+            <MenuItem Header="💾 Save" Command="{Binding SaveParamsCommand}"/>
+            <MenuItem Header="🖼 Save" Command="{Binding SaveImageCommand}"/>
+            <Separator Margin="25"/>
+            <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
+            <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />
+            <MenuItem Header="🎲 Random" Command="{Binding LoadRandomCommand}"/>
+        </Menu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>

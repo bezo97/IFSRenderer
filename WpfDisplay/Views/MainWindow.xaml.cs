@@ -16,6 +16,7 @@ namespace WpfDisplay.Views
     public partial class MainWindow : Window
     {
         private EditorWindow editorWindow;
+        private GeneratorWindow generatorWindow;
 
         public MainWindow()
         {
@@ -43,6 +44,23 @@ namespace WpfDisplay.Views
             };
         }
 
+        private void GeneratorButton_Click(object sender, RoutedEventArgs e)
+        {
+            //create window
+            if (generatorWindow == null || !generatorWindow.IsLoaded)
+            {
+                generatorWindow = new GeneratorWindow();
+                generatorWindow.DataContext = new GeneratorViewModel((DataContext as MainViewModel));
+                //generatorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = (DataContext as MainViewModel).IFSViewModel, Mode = BindingMode.TwoWay });
+            }
+
+            if (generatorWindow.ShowActivated)
+                generatorWindow.Show();
+            //bring to foreground
+            if (!generatorWindow.IsActive)
+                generatorWindow.Activate();
+        }
+
         private void EditorButton_Click(object sender, RoutedEventArgs e)
         {
             //create window
@@ -61,6 +79,8 @@ namespace WpfDisplay.Views
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            if (generatorWindow != null)
+                generatorWindow.Close();
             if (editorWindow != null)
                 editorWindow.Close();
             (this.DataContext as MainViewModel).Dispose();
