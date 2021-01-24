@@ -139,6 +139,7 @@ namespace IFSEngine
         private IWindowInfo wInfo;
 
         private int vertexShaderHandle;
+        private int vao;
         //compute shader handles
         private int computeProgramHandle;
         private int histogramBufferHandle;
@@ -205,6 +206,11 @@ namespace IFSEngine
 
             RegisteredTransforms = transforms.ToList();
 
+            //attributeless rendering
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
+            //empty vao
+
             initBuffers();
             initTonemapPass();
             initDEPass();
@@ -251,10 +257,15 @@ namespace IFSEngine
 
         public void SetHistogramScale(double scale)
         {
-            HistogramWidth = (int)(currentParams.ImageResolution.Width * scale);
-            HistogramHeight = (int)(currentParams.ImageResolution.Height * scale);
-            invalidHistogramResolution = true;
-            InvalidateAccumulation();
+            var newWidth = (int)(currentParams.ImageResolution.Width * scale);
+            var newHeight = (int)(currentParams.ImageResolution.Height * scale);
+            if (newWidth != HistogramWidth || newHeight != HistogramHeight)
+            {
+                HistogramWidth = newWidth;
+                HistogramHeight = newHeight;
+                invalidHistogramResolution = true;
+                InvalidateAccumulation();
+            }
         }
 
         public void SetHistogramScaleToDisplay()
@@ -436,6 +447,7 @@ namespace IFSEngine
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//
 
             GL.UseProgram(tonemapProgramHandle);
+            GL.BindVertexArray(vao);
             GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
             GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "brightness"), (float)currentParams.Brightness);
             GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "inv_gamma"), (float)(1.0f / currentParams.Gamma));
@@ -447,6 +459,7 @@ namespace IFSEngine
             if (EnableDE && dispatchCnt > 8)
             {
                 GL.UseProgram(deProgramHandle);
+                GL.BindVertexArray(vao);
                 GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_max_radius"), (float)DEMaxRadius);
                 GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_power"), (float)DEPower);
                 GL.Uniform1(GL.GetUniformLocation(deProgramHandle, "de_threshold"), (float)DEThreshold);
@@ -457,6 +470,7 @@ namespace IFSEngine
             if (EnableTAA)
             {
                 GL.UseProgram(taaProgramHandle);
+                GL.BindVertexArray(vao);
                 GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
                 GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
             }
