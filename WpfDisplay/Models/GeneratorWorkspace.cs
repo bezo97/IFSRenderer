@@ -57,9 +57,10 @@ namespace WpfDisplay.Models
             while (renderQueue.TryDequeue(out IFS ifs))
             {
                 renderer.LoadParams(ifs);
-                await renderer.SetHistogramScaleToDisplay();
+                renderer.SetHistogramScaleToDisplay();
                 renderer.UpdateDisplay();
-                renderer.RenderFrame();
+                renderer.DispatchCompute();
+                renderer.RenderImage();
                 WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
                 await renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
                 wbm.Freeze();

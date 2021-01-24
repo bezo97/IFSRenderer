@@ -21,7 +21,7 @@ namespace WpfDisplay.ViewModels
             get => _startRenderingCommand ?? (
                 _startRenderingCommand = new RelayCommand(() =>
                 {
-                    workspace.Renderer.StartRendering();
+                    workspace.Renderer.StartRenderLoop();
                 }));
         }
 
@@ -156,7 +156,7 @@ namespace WpfDisplay.ViewModels
                 }
                 RaisePropertyChanged(() => ImageWidth);
                 RaisePropertyChanged(() => ImageHeight);
-                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -179,7 +179,7 @@ namespace WpfDisplay.ViewModels
                 }
                 RaisePropertyChanged(() => ImageWidth);
                 RaisePropertyChanged(() => ImageHeight);
-                workspace.Renderer.SetHistogramScale(1.0).Wait();//
+                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -189,7 +189,7 @@ namespace WpfDisplay.ViewModels
             get => _previewPresetCommand ?? (
                 _previewPresetCommand = new RelayCommand(async () =>
                 {
-                    await workspace.Renderer.SetHistogramScaleToDisplay();
+                    workspace.Renderer.SetHistogramScaleToDisplay();
 
                     //EnableDE = true;
                     //EnableTAA = true;
@@ -214,7 +214,7 @@ namespace WpfDisplay.ViewModels
                     //Warmup = 30;
                     EntropyInv = 10000;
                     MaxFilterRadius = 3;
-                    await workspace.Renderer.SetHistogramScale(1.0);
+                    workspace.Renderer.SetHistogramScale(1.0);
                 }));
         }
 
