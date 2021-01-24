@@ -192,7 +192,6 @@
     </Compile>
     <Compile Include="Converters\BetterBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
-    <Compile Include="Converters\DoubleStringFormatConverter.cs" />
     <Compile Include="Helper\KeyboardController.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

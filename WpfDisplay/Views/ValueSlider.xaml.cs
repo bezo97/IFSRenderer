@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using IFSEngine;
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using IFSEngine;
 
 namespace WpfDisplay.Views
 {
@@ -24,8 +13,9 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class ValueSlider : UserControl
     {
-        //TODO: implement optional Min and Max properties
 
+        [DllImport("User32.dll")]
+        private static extern bool SetCursorPos(int X, int Y);
 
         public string ValueName
         {
@@ -119,7 +109,7 @@ namespace WpfDisplay.Views
             if (e.Key == Key.Enter)
             {
                 Editing = false;
-                ValueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             }
             else if (e.Key == Key.Escape)
             {
@@ -131,73 +121,53 @@ namespace WpfDisplay.Views
         private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
         {
             Editing = false;
-            dragging = false;
         }
 
-        private bool dragging = false;
         Point dragp;
         double lastv;//value before editing
 
-        private void Button_MouseDown(object sender, MouseButtonEventArgs e)
+        private void DisplayLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                dragging = true;
-                //Mouse.Capture(this);
                 dragp = e.GetPosition(Window.GetWindow(this));
                 lastv = Value;
+                displayLabel.CaptureMouse();
                 Mouse.OverrideCursor = Cursors.None;
             }
         }
 
-        bool cursorReset = false;
-        private void Button_MouseMove(object sender, MouseEventArgs e)
+        private void DisplayLabel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (dragging && !cursorReset)
+            if (e.LeftButton == MouseButtonState.Pressed && displayLabel.IsMouseCaptured)
             {
                 double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
                 Value = lastv + delta * Increment;
-            }
-            
-            if(!dragging)//hack
-                Mouse.OverrideCursor = Cursors.Arrow;
 
-            if (cursorReset)
-                cursorReset = false;//Mouse.Capture(null);
+                //reset position on mouseleave
+                if (VisualTreeHelper.HitTest(this, e.GetPosition(displayLabel)) == null)
+                {
+                    lastv = Value;
+                    var pos = displayLabel.PointToScreen(new Point(displayLabel.ActualWidth / 2, displayLabel.ActualHeight / 2));
+                    SetCursorPos((int)pos.X, (int)pos.Y);
+                }
+            }
+
         }
 
-        private void Button_MouseUp(object sender, MouseButtonEventArgs e)
+        private void DisplayLabel_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            dragging = false;
             double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
 
             if (Math.Abs(delta)<1)
             {//click
                 Editing = true;
-                ValueEditor.Focus();
-                ValueEditor.SelectAll();
+                valueEditor.Focus();
+                valueEditor.SelectAll();
             }
-            Mouse.OverrideCursor = Cursors.Arrow;
-            //Mouse.Capture(null);
-            //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
+            Mouse.OverrideCursor = null;//no override
+            displayLabel.ReleaseMouseCapture();
         }
 
-        /*private void Label_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            Value = Math.Round(Value + (double)e.Delta/Math.Abs(e.Delta)*Increment, 3);
-        }*/
-
-        private void ValueSlider_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (dragging)
-            {
-                cursorReset = true;
-                lastv = Value;
-                var pos = valueSlider.PointToScreen(new Point(valueSlider.ActualWidth / 2, valueSlider.ActualHeight / 2));
-                System.Windows.Forms.Cursor.Position = new System.Drawing.Point((int)pos.X, (int)pos.Y+10);
-                //System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle(new System.Drawing.Point((int)(System.Windows.Forms.Cursor.Position.X - ActualWidth / 4), (int)System.Windows.Forms.Cursor.Position.Y-5), new System.Drawing.Size(/*(int)ActualWidth, (int)ActualHeight)*/(int)ActualWidth / 2, 10));
-
-            }
-        }
     }
 }
