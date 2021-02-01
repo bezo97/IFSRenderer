@@ -105,6 +105,8 @@ namespace IFSEngine.Model
             for (var ii = 0; ii < itnum; ii++)
             {
                 var pretransform = Iterator.RandomIterator(affinetf);
+                foreach (var key in pretransform.TransformVariables.Keys.ToList())//contracting affine transform
+                    pretransform.TransformVariables[key] = pretransform.TransformVariables[key]*0.75;
                 var transform = Iterator.RandomIterator(availableTransforms);
                 randomIFS.AddIterator(pretransform, false);
                 randomIFS.AddIterator(transform, false);
@@ -113,6 +115,7 @@ namespace IFSEngine.Model
                 pretransform.ColorSpeed = 0.0;
                 pretransform.InputWeight = 1.0;
                 transform.InputWeight = 0.0;
+                transform.Opacity = 1.0;
                 pretfs.Add(pretransform);
                 tfs.Add(transform);
             }
