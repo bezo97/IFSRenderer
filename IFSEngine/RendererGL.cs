@@ -618,6 +618,18 @@ namespace IFSEngine
             return o;
         }
 
+        public async Task<float[,,]> ReadHistogramData()
+        {
+            UpdateDisplay();
+            float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
+            await WithContext(() => {
+                GL.GetNamedBufferSubData<float>(histogramBufferHandle, IntPtr.Zero, HistogramWidth * HistogramHeight * 4 * sizeof(float), o);
+                GL.Finish();
+            });
+
+            return o;
+        }
+
         private void initTAAPass()
         {
 

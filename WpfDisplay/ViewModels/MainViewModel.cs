@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
 using IFSEngine.Serialization;
+using IFSEngine.Util;
 using System;
 using System.IO;
 using System.Runtime;
@@ -158,6 +159,29 @@ namespace WpfDisplay.ViewModels
                         enc.Frames.Add(BitmapFrame.Create(bs));
                         using (FileStream stream = new FileStream(path, FileMode.Create))
                             enc.Save(stream);
+                    }
+
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                }));
+        }
+
+        private RelayCommand _saveExrCommand;
+        public RelayCommand SaveExrCommand
+        {
+            get => _saveExrCommand ?? (
+                _saveExrCommand = new RelayCommand(async () =>
+                {
+                    Task<float[,,]> getDataTask = Task.Run(async () =>
+                    {
+                        return await workspace.Renderer.ReadHistogramData();
+                    });
+
+                    if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveExr, out string path))
+                    {
+                        var histogramData = await getDataTask;
+                        using (var fstream = File.Create(path))
+                            OpenEXR.WriteStream(fstream, histogramData);
                     }
 
                     GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;

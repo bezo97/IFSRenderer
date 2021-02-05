@@ -10,10 +10,11 @@ namespace WpfDisplay.Helper
 {
     public static class NativeDialogHelper
     {
-        private static Guid OpenParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
-        private static Guid SaveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
-        private static Guid SaveImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
-        private static Guid OpenPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
+        private static readonly Guid OpenParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
+        private static readonly Guid SaveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
+        private static readonly Guid SaveImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
+        private static readonly Guid SaveExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
+        private static readonly Guid OpenPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
 
         public static bool ShowFileSelectorDialog(DialogSetting ds, out string DialogResult)
         {
@@ -30,12 +31,14 @@ namespace WpfDisplay.Helper
                         ds == DialogSetting.OpenParams ? OpenParamsGuid :
                         ds == DialogSetting.SaveParams ? SaveParamsGuid :
                         ds == DialogSetting.SaveImage ? SaveImageGuid :
+                        ds == DialogSetting.SaveExr ? SaveExrGuid :
                         ds == DialogSetting.OpenPalette ? OpenPaletteGuid :
                         Guid.Empty,
                     DefaultExtension =
                         ds == DialogSetting.OpenParams ? "json" :
                         ds == DialogSetting.SaveParams ? "json" :
                         ds == DialogSetting.SaveImage ? "png" :
+                        ds == DialogSetting.SaveExr ? "exr" :
                         ds == DialogSetting.OpenPalette ? "gradient" :
                         ""
                 };
@@ -50,6 +53,9 @@ namespace WpfDisplay.Helper
                         break;
                     case DialogSetting.SaveImage:
                         dlg.Filters.Add(new CommonFileDialogFilter("PNG Image", "*.png"));
+                        break;
+                    case DialogSetting.SaveExr:
+                        dlg.Filters.Add(new CommonFileDialogFilter("OpenEXR Image", "*.exr"));
                         break;
                     case DialogSetting.OpenPalette:
                         dlg.Filters.Add(new CommonFileDialogFilter("Palette", "*.gradient;*.ugr"));
@@ -78,7 +84,8 @@ namespace WpfDisplay.Helper
         OpenParams,
         SaveParams,
         SaveImage,
-        OpenPalette
+        OpenPalette,
+        SaveExr
     }
 
 }

@@ -34,8 +34,11 @@
         <Menu Grid.Row="0">
             <MenuItem Header="📑 New" Command="{Binding NewCommand}"/>
             <MenuItem Header="📂 Load" Command="{Binding LoadParamsCommand}"/>
-            <MenuItem Header="💾 Save" Command="{Binding SaveParamsCommand}"/>
-            <MenuItem Header="🖼 Save" Command="{Binding SaveImageCommand}"/>
+            <MenuItem Header="🖫 Save" Command="{Binding SaveParamsCommand}"/>
+            <MenuItem Header="🖬 Export">
+                <MenuItem Icon="🖼" Header="Export PNG" Command="{Binding SaveImageCommand}"/>
+                <MenuItem Icon="📊" Header="Export EXR" Command="{Binding SaveExrCommand}"/>
+            </MenuItem>
             <Separator Margin="25"/>
             <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
             <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />

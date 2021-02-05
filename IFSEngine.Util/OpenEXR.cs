@@ -6,7 +6,7 @@ using System.Text;
 namespace IFSEngine.Util
 {
     /// <summary>
-    /// 
+    /// Helper class for the EXR hdr image file format.
     /// </summary>
     /// <remarks>
     /// Implementation based on OpenEXR documentation:
@@ -15,14 +15,24 @@ namespace IFSEngine.Util
     /// </remarks>
     public static class OpenEXR
     {
-        public static void WriteFile(string path)
+        /// <summary>
+        /// Writes the given 4-channel image data to the specified stream in EXR format.
+        /// Only a small subset of the specification is implemented:
+        /// <list type="bullet">
+        /// <item> 4 channel (RGBA), 32 bit floating-point pixel data </item>
+        /// <item> No compression </item>
+        /// <item> Regular single-part, scan line format</item>
+        /// </list>
+        /// </summary>
+        /// <param name="stream">An empty stream where the exr file is written to.</param>
+        /// <param name="data">Image data must be passed in this specific format: [y, x, rgba].</param>
+        public static void WriteStream(Stream stream, float[,,] data)
         {
+            int histogramHeight = data.GetLength(0);
+            int histogramWidth = data.GetLength(1);
             const int chnum = 4;
-            const int histogramWidth = 1920;
-            const int histogramHeight = 1080;
 
-            using (var fstream = File.Create(path))
-            using (var bw = new BinaryWriter(fstream))
+            using (var bw = new BinaryWriter(stream))
             {
                 bw.Write(20000630);//openexr "magic number"
                 //version field
@@ -45,7 +55,7 @@ namespace IFSEngine.Util
                         //A channel
                         bw.WriteString0("A");//channel name
                         bw.Write(2);//type: 32-bit float
-                        bw.Write((byte)0);//pLinear: unsigned char, possible values are 0 and 1
+                        bw.Write((byte)0);//pLinear
                         bw.Write((byte)0);//reserved
                         bw.Write((byte)0);
                         bw.Write((byte)0);
@@ -56,7 +66,7 @@ namespace IFSEngine.Util
                         //B channel
                         bw.WriteString0("B");//channel name
                         bw.Write(2);//type: 32-bit float
-                        bw.Write((byte)0);//pLinear: unsigned char, possible values are 0 and 1
+                        bw.Write((byte)0);//pLinear
                         bw.Write((byte)0);//reserved
                         bw.Write((byte)0);
                         bw.Write((byte)0);
@@ -67,7 +77,7 @@ namespace IFSEngine.Util
                         //G channel
                         bw.WriteString0("G");//channel name
                         bw.Write(2);//type: 32-bit float
-                        bw.Write((byte)0);//pLinear: unsigned char, possible values are 0 and 1
+                        bw.Write((byte)0);//pLinear
                         bw.Write((byte)0);//reserved
                         bw.Write((byte)0);
                         bw.Write((byte)0);
@@ -78,7 +88,7 @@ namespace IFSEngine.Util
                         //R channel
                         bw.WriteString0("R");//channel name
                         bw.Write(2);//type: 32-bit float
-                        bw.Write((byte)0);//pLinear: unsigned char, possible values are 0 and 1
+                        bw.Write((byte)0);//pLinear
                         bw.Write((byte)0);//reserved
                         bw.Write((byte)0);
                         bw.Write((byte)0);
@@ -138,13 +148,13 @@ namespace IFSEngine.Util
                 }
                 bw.Write((byte)0);//supposed to be omitted??
                 //Offset tables
-                //sequence of offsets 
-                //offset (ulong): distance in bytes from the start of the file
-                //1 offset for each scan line
-                ulong headerLength = (ulong)fstream.Length;//number of written bytes until this point
+                ulong headerLength = (ulong)stream.Length;//number of written bytes until this point
                 int scanlineDataLength = chnum * histogramWidth * 4;
                 int scanlineBlockLength = 2 * 4 + scanlineDataLength;
                 int offsetTableLength = histogramHeight * 8;
+                //sequence of offsets 
+                //offset (ulong): distance in bytes from the start of the file
+                //1 offset for each scan line
                 for (int scanline = 0; scanline < histogramHeight; scanline++)
                     bw.Write(headerLength + (ulong)offsetTableLength + (ulong)scanline * (ulong)scanlineBlockLength);
                 //Pixel data
@@ -152,19 +162,19 @@ namespace IFSEngine.Util
                 {
                     bw.Write(scanline);//(int) y coordinate of the scanline block
                     bw.Write(scanlineDataLength);//(int) data size in bytes
-                    //channels in alphabetical order
+                    //channels must be written in alphabetical order
                     //channel A
                     for (int x = 0; x < histogramWidth; x++)
-                        bw.Write((float)(x / (float)histogramWidth) * (float)(scanline / (float)histogramHeight));
+                        bw.Write(data[scanline, x, 3]);
                     //channel B
                     for (int x = 0; x < histogramWidth; x++)
-                        bw.Write((float)(x / (float)histogramWidth));
+                        bw.Write(data[scanline, x, 2]);
                     //channel G
                     for (int x = 0; x < histogramWidth; x++)
-                        bw.Write((float)(scanline / (float)histogramHeight));
+                        bw.Write(data[scanline, x, 1]);
                     //channel R
                     for (int x = 0; x < histogramWidth; x++)
-                        bw.Write(0.5f);
+                        bw.Write(data[scanline, x, 0]);
                 }
             }
         }
