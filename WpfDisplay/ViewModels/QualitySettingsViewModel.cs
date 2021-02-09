@@ -127,7 +127,7 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 1 ? "" : " (Off)");
+        public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 0 ? "" : " (Off)");
 
         private bool isResolutionLinked;
         public bool IsResolutionLinked
@@ -154,9 +154,9 @@ namespace WpfDisplay.ViewModels
                 {
                     workspace.IFS.ImageResolution = new System.Drawing.Size(value, workspace.IFS.ImageResolution.Height);
                 }
+                workspace.Renderer.SetHistogramScale(1.0);
                 RaisePropertyChanged(() => ImageWidth);
                 RaisePropertyChanged(() => ImageHeight);
-                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -177,9 +177,9 @@ namespace WpfDisplay.ViewModels
                 {
                     workspace.IFS.ImageResolution = new System.Drawing.Size(workspace.IFS.ImageResolution.Width, value);
                 }
+                workspace.Renderer.SetHistogramScale(1.0);
                 RaisePropertyChanged(() => ImageWidth);
                 RaisePropertyChanged(() => ImageHeight);
-                workspace.Renderer.SetHistogramScale(1.0);
             }
         }
 
@@ -197,7 +197,7 @@ namespace WpfDisplay.ViewModels
                     //PassIters = 100;
                     //Warmup = 10;
                     EntropyInv = 100;
-                    MaxFilterRadius = 1;
+                    MaxFilterRadius = 0;
                 }));
         }
 

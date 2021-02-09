@@ -56,6 +56,10 @@ layout(std140, binding = 0) coherent buffer histogram_buffer
 {
 	vec4 histogram[];
 };
+layout(binding = 7) coherent buffer filter_acc_buffer
+{
+	float filter_acc[];
+};
 layout(std140, binding = 1) buffer points_buffer
 {
 	//per invocation
@@ -297,8 +301,11 @@ float Lanczos(float x, int n)
 
 float Mitchell_Netravali(float x /*,B, C*/)
 {
-	float B = 1.0 / 3.0;
-	float C = 1.0 / 3.0;
+	//const float B = 1.0 / 3.0;
+	//const float C = 1.0 / 3.0;
+	//best when B + 2*C = 1
+	const float B = 0.35f;
+	const float C = 0.325f;
 
 	float a = abs(x);
 	if (a < 1.0)
@@ -309,8 +316,7 @@ float Mitchell_Netravali(float x /*,B, C*/)
 		return 0.0;
 }
 
-
-void accumulate_hit(ivec2 proj, vec4 color)
+void accumulate_hit(ivec2 proj, vec4 color, float filterw)
 {
 	int ipx = proj.x + proj.y * width;//pixel index
 #ifdef GL_NV_shader_atomic_float
@@ -323,6 +329,9 @@ void accumulate_hit(ivec2 proj, vec4 color)
 	histogram[ipx].rgb += color.rgb;
 	histogram[ipx].w += color.w;//db
 #endif
+
+	//
+	atomicAdd(filter_acc[ipx], filterw);
 }
 
 void main() {
@@ -382,7 +391,7 @@ void main() {
 
 			color.xyz *= color.w;
 
-			if (settings.max_filter_radius > 1)
+			if (settings.max_filter_radius > 0/* && proj.x>width/2*/)
 			{
 				const int filter_radius = int(settings.max_filter_radius);
 				//const int filter_radius = 1 + int(settings.max_filter_radius / pow(1.0 + (histogram[proj.x + proj.y * width].w), 0.4));
@@ -393,17 +402,17 @@ void main() {
 					{
 						vec2 nb = vec2(proj + ivec2(ax, ay));
 						float pd = distance(nb, projf);
-						//float ww = max(0.0, 1.0-pd);
-						//float ww = max(0.0, Lanczos(ofr, 2));
+						//float aw = max(0.0, 1.0-pd);
+						//float aw = max(0.0, Lanczos(pd, 2));
 						float aw = max(0.0, Mitchell_Netravali(pd));
 
-						accumulate_hit(ivec2(nb), aw * color);
+						accumulate_hit(ivec2(nb), aw * color, aw);
 					}
 				}
 			}
 			else
 			{
-				accumulate_hit(proj, color);
+				accumulate_hit(proj, color, 1.0);
 			}
 
 		}

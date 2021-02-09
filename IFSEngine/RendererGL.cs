@@ -129,7 +129,7 @@ namespace IFSEngine
         /// Maximum radius of the spatial filter.
         /// Higher values are slow to render.
         /// </summary>
-        public int MaxFilterRadius { get; set; } = 2;
+        public int MaxFilterRadius { get; set; } = 0;
 
         private bool updateDisplayNow = false;
         private bool rendering = false;
@@ -143,6 +143,7 @@ namespace IFSEngine
         //compute shader handles
         private int computeProgramHandle;
         private int histogramBufferHandle;
+        private int filterAccBufferHandle;
         private int settingsBufferHandle;
         private int iteratorsBufferHandle;
         private int aliasBufferHandle;
@@ -280,6 +281,8 @@ namespace IFSEngine
             GL.UseProgram(computeProgramHandle);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, filterAccBufferHandle);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 1 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
             //resize display texture. TODO: separate & use display resolution
             GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "width"), HistogramWidth);
             GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "height"), HistogramHeight);
@@ -334,7 +337,9 @@ namespace IFSEngine
 
                 //reset accumulation
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
-                GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
+                GL.ClearNamedBufferData(histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero); 
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, filterAccBufferHandle);
+                GL.ClearNamedBufferData(filterAccBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
                 invalidAccumulation = false;
                 dispatchCnt = 0;
                 TotalIterations = 0;
@@ -839,16 +844,18 @@ if (iter.tfId == {transformIds[tf]})
             iteratorsBufferHandle = GL.GenBuffer();
             aliasBufferHandle = GL.GenBuffer();
             paletteBufferHandle = GL.GenBuffer();
+            filterAccBufferHandle = GL.GenBuffer();
             transformParametersBufferHandle = GL.GenBuffer();
 
             //bind layout:
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, histogramBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, histogramBufferHandle); 
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 2, settingsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, iteratorsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, aliasBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, paletteBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, transformParametersBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 7, filterAccBufferHandle);
 
         }
 

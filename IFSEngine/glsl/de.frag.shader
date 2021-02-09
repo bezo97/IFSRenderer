@@ -48,7 +48,7 @@ vec4 density_estimation()
 			if (py + j < 0 || py + j > height - 1)
 				continue;
 
-			float cw = clamp(1.0 - sqrt(float(i * i + j * j)) / float(kSize), 0.0, 1.0);
+			float cw = clamp(1.0 - sqrt(float(i * i + j * j)) / float(kSize*sqrt(2)), 0.0, 1.0);
 			de += cw * texture(histogram_tex, uv + vec2(float(i), float(j)) / vec2(float(width), float(height)));
 			wnorm += cw;
 		}

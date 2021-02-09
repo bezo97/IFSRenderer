@@ -16,6 +16,10 @@ layout(std140, binding = 0) buffer histogram_buffer
 {
 	vec4 histogram[];
 };
+layout(binding = 7) coherent buffer filter_acc_buffer
+{
+	float filter_acc[];
+};
 
 float log10(float x)
 {
@@ -69,7 +73,10 @@ void main(void)
 	vec2 uv = vec2(gl_FragCoord.x/float(width),gl_FragCoord.y/float(height));
 	int pxi = px+py*width;
 
-	vec4 c = logscale(histogram[pxi]);
+	vec4 c = histogram[pxi];
+	float filter_norm = filter_acc[pxi] / histogram[pxi].w;
+	c *= filter_norm;
+	c = logscale(c);
 	c = tonemap(c);
 	color = c;
 }
