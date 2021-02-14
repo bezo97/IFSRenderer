@@ -28,7 +28,6 @@ namespace WpfDisplay.Views
 
             ContentRendered += (s, e) => {
                 GeneratorViewModel vm = (GeneratorViewModel)DataContext;
-                vm.ProcessQueue();
             };
 
         }

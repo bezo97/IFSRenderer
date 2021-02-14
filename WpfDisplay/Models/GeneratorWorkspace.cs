@@ -41,33 +41,65 @@ namespace WpfDisplay.Models
             LoadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
                 .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
             renderer.Initialize(LoadedTransforms);
-
+            //performance settings
+            renderer.setWorkgroupCount(10).Wait();
+            renderer.PassIters = 100;
         }
 
+        public void GenerateNewRandomBatch(int batchSize)
+        {
+            generatedIFS.Clear();
+            for (int i = 0; i < batchSize; i++)
+            {
+                GenerateRandom();
+            }
+        }
+
+        public void GenerateRandom()
+        {
+            var r = IFS.GenerateRandom(LoadedTransforms);
+            r.ImageResolution = new System.Drawing.Size(1080, 1080);
+            generatedIFS.Add(r);
+            renderQueue.Enqueue(r);
+        }
 
         public void PinIFS(IFS ifs)
         {
             pinnedIFS.Add(ifs);
-            renderQueue.Enqueue(ifs);
+            if(!thumbnails.ContainsKey(ifs))
+                renderQueue.Enqueue(ifs);
         }
 
-        public async Task processQueue()
+        public void UnpinIFS(IFS ifs)
+        {
+            pinnedIFS.Remove(ifs);
+        }
+
+        public void processQueue()
         {
             //TODO: separate thread, make context current
-            while (renderQueue.TryDequeue(out IFS ifs))
+            lock (renderer)
             {
-                renderer.LoadParams(ifs);
-                renderer.SetHistogramScaleToDisplay();
-                renderer.UpdateDisplay();
-                renderer.DispatchCompute();
-                renderer.RenderImage();
-                WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-                await renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
-                wbm.Freeze();
-                var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-                thumbnails[ifs] = thumbnail;
-                RaisePropertyChanged(() => Thumbnails);
+                while (renderQueue.TryDequeue(out IFS ifs))
+                {
+                    renderer.LoadParams(ifs);
+                    renderer.SetHistogramScaleToDisplay();
+                    renderer.UpdateDisplay();
+                    renderer.DispatchCompute();
+                    renderer.RenderImage();
+                    WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+                    renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
+                    wbm.Freeze();
+                    var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
+                    thumbnails[ifs] = thumbnail;
+                    RaisePropertyChanged(() => Thumbnails);
+                }
             }
+            //cleanup old thumbnails
+            var removedParams = thumbnails.Keys.Where(k => !(pinnedIFS.Contains(k) || generatedIFS.Contains(k))).ToList();
+            foreach (var t in removedParams)
+                thumbnails.Remove(t);
+
         }
 
 

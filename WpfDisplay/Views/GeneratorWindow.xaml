@@ -30,7 +30,7 @@
                 <ScrollViewer>
                     <StackPanel>
                         <Label>Pinned fractals</Label>
-                        <ItemsControl ItemsSource="{Binding PinnedIFSList}">
+                        <ItemsControl ItemsSource="{Binding PinnedIFSThumbnails}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <!--rows-->
@@ -70,25 +70,59 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <StackPanel>
-                        <Label>Generator options</Label>
-                        <CheckBox/>
-                        <CheckBox/>
-                        <CheckBox/>
-                    </StackPanel>
-                </Grid>
-                <ScrollViewer Grid.Row="1">
-                    <StackPanel>
-                        <ItemsControl ItemsSource="{Binding GeneratedIFSList}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
+
+                <md:Card Grid.Row="0" Margin="8" Padding="8">
+                    <Grid>
+                        <StackPanel>
+                            <Label>Generator options</Label>
+                            <CheckBox/>
+                            <CheckBox/>
+
+                            <Button HorizontalAlignment="Left" Command="{Binding GenerateRandomBatchCommand}">New batch</Button>
+                        </StackPanel>
+                    </Grid>
+                </md:Card>
+                <md:Card Grid.Row="1" Margin="8" Padding="8">
+                    <ScrollViewer>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Generated fractals</Label>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding GeneratedIFSThumbnails}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!--rows-->
+                                        <ItemsControl ItemsSource="{Binding}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button 
+                                                    Width="100" Height="100"
+                                                    Command="{Binding DataContext.PinGeneratedCommand, ElementName=generatorWindow}"
+                                                    CommandParameter="{Binding Key}">
+                                                        <Button.Background>
+                                                            <ImageBrush 
+                                                            ImageSource="{Binding Value}" 
+                                                            Stretch="UniformToFill">
+                                                                <ImageBrush.RelativeTransform>
+                                                                    <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                                                </ImageBrush.RelativeTransform>
+                                                            </ImageBrush>
+                                                        </Button.Background>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </md:Card>
             </Grid>
         </Grid>
     </Grid>
