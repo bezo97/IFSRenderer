@@ -1,0 +1,15 @@
+@Name: Klein bottle
+@Version: 1.0
+//Reference: https://en.wikipedia.org/wiki/Klein_bottle
+
+float u = 2.0 * PI * random(next);
+float v = 2.0 * PI * random(next);
+float sinu = sin(u);
+float cosu = cos(u);
+float sinv = sin(v);
+float cosv = cos(v);
+return vec3(
+	-2.0/15.0*cosu*(3.0*cosv-30.0*sinu+90.0*pow(cosu,4.0)*sinu-60.0*pow(cosu,6.0)*sinu+5.0*cosu*cosv*sinu),
+	-1.0/15.0*sinu*(3.0*cosv-3.0*cosu*cosu*cosv-48.0*pow(cosu,4.0)*cosv+48.0*pow(cosu,6.0)*cosv-60.0*sinu+5.0*cosu*cosv*sinu-5.0*pow(cosu,3.0)*cosv*sinu-80.0*pow(cosu,5.0)*cosv*sinu+80.0*pow(cosu,7.0)*cosv*sinu),
+	2.0/15.0*(3.0+5.0*cosu*sinu)*sinv
+);
