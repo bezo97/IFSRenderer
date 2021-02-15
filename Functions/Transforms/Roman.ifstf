@@ -1,0 +1,15 @@
+@Name: Roman
+@Version: 1.0
+//Reference: https://en.wikipedia.org/wiki/Roman_surface
+
+float u = 2.0 * PI * random(next);//longitude
+float v = PI / 2.0 * random(next);//latitude
+float sinu = sin(u);
+float cosu = cos(u);
+float sinv = sin(v);
+float cosv = cos(v);
+return vec3(
+	cosv*sinv*sinu,
+	cosv*sinv*cosu,
+	cosv*cosv*cosu*sinu
+);
