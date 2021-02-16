@@ -36,8 +36,10 @@
             <MenuItem Header="📂 Load" Command="{Binding LoadParamsCommand}"/>
             <MenuItem Header="🖫 Save" Command="{Binding SaveParamsCommand}"/>
             <MenuItem Header="🖬 Export">
-                <MenuItem Icon="🖼" Header="Export PNG" Command="{Binding SaveImageCommand}"/>
-                <MenuItem Icon="📊" Header="Export EXR" Command="{Binding SaveExrCommand}"/>
+                <MenuItem Icon="🖼" Header="Export to PNG" Command="{Binding SaveImageCommand}"/>
+                <MenuItem Icon="📊" Header="Export to EXR" Command="{Binding SaveExrCommand}"/>
+                <Separator/>
+                <MenuItem Icon="📋" Header="Export to clipboard" Command="{Binding ExportToClipboardCommand}"/>
             </MenuItem>
             <Separator Margin="25"/>
             <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />

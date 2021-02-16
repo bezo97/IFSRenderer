@@ -574,7 +574,7 @@ namespace IFSEngine
         /// <remarks>        
         /// The resulting bitmap requires further transformations: 
         /// <list type="bullet">
-        /// <item> Y coordinates must be flipped </item>
+        /// <item> Image must be flipped vertically </item>
         /// <item> Alpha channel may be removed </item>
         /// </list>
         /// </remarks>
@@ -602,7 +602,7 @@ namespace IFSEngine
         /// 
         /// The resulting bitmap requires further transformations: 
         /// <list type="bullet">
-        /// <item> Y coordinates must be flipped </item>
+        /// <item> Image must be flipped vertically </item>
         /// <item> Alpha channel may be removed </item>
         /// </list>
         /// </remarks>

@@ -120,45 +120,72 @@ namespace WpfDisplay.ViewModels
                 }));
         }
 
+        /// <summary>
+        /// Converts the raw pixel data into a BitmapSource with WPF specific calls.
+        /// The Alpha channel is optionally removed and the image is flipped vertically, as required by CopyPixelDataToBitmap()
+        /// </summary>
+        /// <returns></returns>
+        private async Task<BitmapSource> GetExportBitmapSource()
+        {
+            BitmapSource bs;
+            WriteableBitmap wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+            await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
+            wbm.Freeze();
+            bs = wbm;
+            if (!TransparentBackground)
+            {//option to remove alpha channel
+                var fcb = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
+                fcb.Freeze();
+                bs = fcb;
+            }
+            //flip vertically
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {//This transformation must happen on ui thread
+                var tb = new TransformedBitmap();
+                tb.BeginInit();
+                tb.Source = bs;
+                tb.Transform = new ScaleTransform(1, -1, 0, 0);
+                tb.EndInit();
+                tb.Freeze();
+                bs = tb;
+            });
+            return bs;
+        }
+
+        private RelayCommand _exportToClipboardCommand;
+        public RelayCommand ExportToClipboardCommand
+        {
+            get => _exportToClipboardCommand ?? (
+                _exportToClipboardCommand = new RelayCommand(async () =>
+                {
+                    BitmapSource bs = await GetExportBitmapSource();
+                    Clipboard.SetImage(bs);
+                    //TODO: somehow alpha channel is not copied
+
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                }));
+        }
+
         private RelayCommand _saveImageCommand;
         public RelayCommand SaveImageCommand
         {
             get => _saveImageCommand ?? (
                 _saveImageCommand = new RelayCommand(async () =>
                 {
-                    BitmapSource bs = null;
-                    Task makeBitmapTask = Task.Run(async () =>
-                    {
-                        WriteableBitmap wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-                        await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
-                        wbm.Freeze();
-                        bs = wbm;
-                        if (!TransparentBackground)
-                        {//option to remove alpha channel
-                            var fcb = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-                            fcb.Freeze();
-                            bs = fcb;
-                        }
-                    });
+                    var makeBitmapTask = GetExportBitmapSource();
 
                     if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
                     {
-                        await makeBitmapTask;
-
-                        //flip vertically
-                        //TODO: this must be on ui thread, can't do it in makeBitmapTask
-                        var tb = new TransformedBitmap();
-                        tb.BeginInit();
-                        tb.Source = bs;
-                        tb.Transform = new ScaleTransform(1, -1, 0, 0);
-                        tb.EndInit();
-                        tb.Freeze();
-                        bs = tb;
+                        BitmapSource bs = await makeBitmapTask;
 
                         PngBitmapEncoder enc = new PngBitmapEncoder();
                         enc.Frames.Add(BitmapFrame.Create(bs));
                         using (FileStream stream = new FileStream(path, FileMode.Create))
                             enc.Save(stream);
+
+                        //open the image for viewing. TODO: optional..
+                        System.Diagnostics.Process.Start(path);
                     }
 
                     GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
