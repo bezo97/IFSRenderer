@@ -161,6 +161,17 @@ float f_hash(float f1, float f2, uint nextSample) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
+float f_hash(float f1, float f2, float f3) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
 
 float random(inout uint nextSample)
 {

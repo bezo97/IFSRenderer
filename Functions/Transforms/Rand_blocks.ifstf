@@ -1,0 +1,17 @@
+@Name: Rand blocks
+@Version: 1.0
+
+@height: 1
+@gridsize: 1
+@blocksize: 1
+@power: 0.1
+@seed: 42
+
+vec3 block = floor(p/@gridsize);
+float z = f_hash(@seed*block.x, @seed*block.y, 1);//block height
+float fade = pow(random(next), @power);
+vec3 p_out = vec3(
+	(block.x + (2*random(next)-1) * @blocksize)*@gridsize,
+	(block.y + (2*random(next)-1) * @blocksize)*@gridsize,
+	@height*(z-fade));//fade out down
+return p_out;
