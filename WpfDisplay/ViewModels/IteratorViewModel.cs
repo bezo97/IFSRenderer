@@ -21,7 +21,7 @@ namespace WpfDisplay.ViewModels
         public event EventHandler<bool> ConnectEvent;
         public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
-        public List<VariableViewModel> Variables { get; }
+        public List<VariableViewModel> Variables { get; } = new List<VariableViewModel>();
 
 
         public IteratorViewModel(Iterator iterator, Workspace workspace)
@@ -29,16 +29,21 @@ namespace WpfDisplay.ViewModels
             this.iterator = iterator;
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
-            Variables = new List<VariableViewModel>(iterator.TransformVariables.Select(v=>new VariableViewModel(v.Key, iterator, workspace)));
+            ReloadVariables();
+        }
+
+        public void ReloadVariables()
+        {
+            Variables.Clear();
+            Variables.AddRange(iterator.TransformVariables.Select(v => new VariableViewModel(v.Key, iterator, workspace)));
             foreach (var v in Variables)
-                v.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-
-            Variables.ToList().ForEach(v => v.PropertyChanged += (s, e) =>
             {
-                RaisePropertyChanged();
-                workspace.Renderer.InvalidateParams();
-            });
-
+                v.PropertyChanged += (s, e) =>
+                {
+                    RaisePropertyChanged(e.PropertyName);
+                    workspace.Renderer.InvalidateParams();
+                };
+            }
         }
 
         public RelayCommand RemoveCommand { get; set; }

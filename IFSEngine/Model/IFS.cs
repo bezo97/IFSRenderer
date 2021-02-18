@@ -130,5 +130,17 @@ namespace IFSEngine.Model
             return randomIFS;
         }
 
+        public void ReloadTransforms(IEnumerable<TransformFunction> transforms)
+        {
+            foreach (var iterator in iterators.ToList())
+            {
+                //ignore transform version checking here so they are updated.
+                var newtf = transforms.FirstOrDefault(tf => tf.Name == iterator.TransformFunction.Name);
+                if(newtf != null)
+                    iterator.SetTransformFunction(newtf);
+                //leave old transform if a newer version is not found
+            }
+        }
+
     }
 }

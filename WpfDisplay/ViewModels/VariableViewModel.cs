@@ -28,7 +28,6 @@ namespace WpfDisplay.ViewModels
             this.Name = name;
             this.iterator = iterator;
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => RaisePropertyChanged(string.Empty);
         }
     }
 }

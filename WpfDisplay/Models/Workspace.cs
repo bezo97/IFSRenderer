@@ -1,6 +1,10 @@
 ﻿using GalaSoft.MvvmLight;
 using IFSEngine;
 using IFSEngine.Model;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WpfDisplay.Models
 {
@@ -10,9 +14,12 @@ namespace WpfDisplay.Models
     /// </summary>
     public class Workspace : ObservableObject
     {
-        private RendererGL renderer;
-        private IFS ifs;
+        private List<TransformFunction> loadedTransforms = new List<TransformFunction>();
+        public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
 
+        public readonly string TransformsDirectoryPath = @".\Functions\Transforms";
+
+        private RendererGL renderer;
         public RendererGL Renderer
         {
             get { return renderer; }
@@ -24,6 +31,7 @@ namespace WpfDisplay.Models
         }
 
 
+        private IFS ifs;
         public IFS IFS
         {
             get { return ifs; }
@@ -33,6 +41,30 @@ namespace WpfDisplay.Models
             }
         }
 
+        public Workspace(RendererGL r)
+        {
+            LoadTransformLibrary();
+            Renderer = r;
+            Renderer.Initialize(loadedTransforms);
+            IFS = IFS.GenerateRandom(loadedTransforms);
+        }
+
+        public async Task ReloadTransforms()
+        {
+            LoadTransformLibrary();
+            IFS.ReloadTransforms(loadedTransforms);
+            await Renderer.LoadTransforms(loadedTransforms);
+            RaisePropertyChanged(() => LoadedTransforms);
+        }
+
+        private void LoadTransformLibrary()
+        {
+            loadedTransforms = Directory
+                .GetFiles(TransformsDirectoryPath)
+                .Select(file => TransformFunction.FromFile(file))
+                .ToList();
+            RaisePropertyChanged(() => LoadedTransforms);
+        }
 
     }
 }

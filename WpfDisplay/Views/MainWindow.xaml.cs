@@ -23,24 +23,17 @@ namespace WpfDisplay.Views
             InitializeComponent();
             ContentRendered += (s, e) =>
             {
-                var loadedTransforms = Directory.GetFiles(@".\Functions\Transforms")
-                    .Select(file => TransformFunction.FromFile(file)).ToList();
-                //init workspace 
+                //init workspace, tie renderer to display
                 RendererGL renderer = new RendererGL(renderDisplay.display1.WindowInfo);
                 renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                IFS ifs = IFS.GenerateRandom(loadedTransforms);
-                //TODO: create-workspace view?
-                Workspace workspace = new Workspace
-                {
-                    Renderer = renderer,
-                    IFS = ifs
-                };
+                Workspace workspace = new Workspace(renderer);
+
+                //create viewmodel
                 var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
                 //HACK: binding the DataContext in xaml causes OpenTK IWindowInfo null exception
                 renderDisplay.DataContext = mainViewModel.DisplayViewModel;
-                renderer.Initialize(loadedTransforms);
             };
         }
 

@@ -55,7 +55,6 @@ namespace IFSEngine
         public int DisplayHeight { get; private set; } = 720;
 
         public List<TransformFunction> RegisteredTransforms { get; private set; }
-        private readonly Dictionary<TransformFunction, int> transformIds = new Dictionary<TransformFunction, int>();//name, id
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
@@ -358,7 +357,7 @@ namespace IFSEngine
                         //iterators
                         its.Add(new IteratorStruct
                         {
-                            tfId = transformIds[it.TransformFunction],
+                            tfId = RegisteredTransforms.IndexOf(it.TransformFunction),
                             tfParamsStart = tfsparams.Count,
                             color_speed = (float)it.ColorSpeed,
                             color_index = (float)it.ColorIndex,
@@ -777,13 +776,11 @@ namespace IFSEngine
         {
             //load functions
             string transformsSource = "";
-            transformIds.Clear();
-            int cnt = 0;
-            foreach (var tf in RegisteredTransforms)
+            for(int tfIndex = 0; tfIndex < RegisteredTransforms.Count; tfIndex++)
             {
-                transformIds[tf] = cnt++;
+                var tf = RegisteredTransforms[tfIndex];
                 transformsSource += $@"
-if (iter.tfId == {transformIds[tf]})
+if (iter.tfId == {tfIndex})
 {{
 {tf.SourceCode}
 }}

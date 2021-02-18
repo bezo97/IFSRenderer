@@ -17,7 +17,7 @@ namespace WpfDisplay.ViewModels
     {
         private readonly Workspace workspace;
 
-        public List<TransformFunction> RegisteredTransforms => workspace.Renderer.RegisteredTransforms;
+        public IReadOnlyCollection<TransformFunction> RegisteredTransforms => workspace.LoadedTransforms;
         public ObservableCollection<IteratorViewModel> IteratorViewModels { get; private set; } = new ObservableCollection<IteratorViewModel>();
 
 
@@ -242,9 +242,9 @@ namespace WpfDisplay.ViewModels
             get => _reloadTransformsCommand ?? (
                 _reloadTransformsCommand = new RelayCommand(async () =>
                 {
-                    var loadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
-                        .Select(file => TransformFunction.FromFile(file));
-                    await workspace.Renderer.LoadTransforms(loadedTransforms);
+                    await workspace.ReloadTransforms();
+                    foreach (var ivm in IteratorViewModels)
+                        ivm.ReloadVariables();//handles when the number and names of variables have changed.
                     RaisePropertyChanged(() => RegisteredTransforms);
                 }));
         }
@@ -256,7 +256,7 @@ namespace WpfDisplay.ViewModels
                 _openTransformsDirectoryCommand = new RelayCommand(() =>
                 {
                     //show the directory with the os file explorer
-                    System.Diagnostics.Process.Start(@".\Functions\Transforms");
+                    System.Diagnostics.Process.Start(workspace.TransformsDirectoryPath);
                 }));
         }
 
