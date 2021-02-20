@@ -224,6 +224,7 @@ namespace WpfDisplay.ViewModels
                 {
                     //TODO: prompt to save work?
                     Dispose();
+                    Environment.Exit(0);
                 }));
         }
 

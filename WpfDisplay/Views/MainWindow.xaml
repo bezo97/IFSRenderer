@@ -23,6 +23,15 @@
     <Window.Resources>
         <conv:DataContextSetConverter x:Key="dataContextSetConverter"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
+        <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+S" Command="{Binding SaveParamsCommand}"/>
+        <KeyBinding Gesture="CTRL+E" Command="{Binding SaveImageCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
+        <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -32,19 +41,23 @@
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0">
-            <MenuItem Header="📑 New" Command="{Binding NewCommand}"/>
-            <MenuItem Header="📂 Load" Command="{Binding LoadParamsCommand}"/>
-            <MenuItem Header="🖫 Save" Command="{Binding SaveParamsCommand}"/>
-            <MenuItem Header="🖬 Export">
-                <MenuItem Icon="🖼" Header="Export to PNG" Command="{Binding SaveImageCommand}"/>
-                <MenuItem Icon="📊" Header="Export to EXR" Command="{Binding SaveExrCommand}"/>
+            <MenuItem Header="📑 _File">
+                <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
+                <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
-                <MenuItem Icon="📋" Header="Export to clipboard" Command="{Binding ExportToClipboardCommand}"/>
+                <MenuItem Header="Exit" Command="{Binding CloseWorkspace}" InputGestureText="Alt+F4"/>
             </MenuItem>
-            <Separator Margin="25"/>
             <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
             <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />
-            <MenuItem Header="🎲 Random" Command="{Binding LoadRandomCommand}"/>
+            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" InputGestureText="Ctrl+R"/>
+            <Separator Margin="25"/>
+            <MenuItem Header="🖬 E_xport">
+                <MenuItem Icon="🖼" Header="Export to _PNG" Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                <MenuItem Icon="📊" Header="Export to _EXR" Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                <Separator/>
+                <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
+            </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
