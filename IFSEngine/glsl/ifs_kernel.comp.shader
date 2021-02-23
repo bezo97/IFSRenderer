@@ -388,7 +388,7 @@ void main() {
 
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float fog_mask = 1.0 / (1.0 + pow(length(settings.camera.focus_point.xyz - p.pos.xyz) / settings.camera.focus_area, settings.fog_effect));
+				float fog_mask = settings.fog_effect * 1.0 / (1.0 + pow(length(settings.camera.focus_point.xyz - p.pos.xyz) / settings.camera.focus_area, settings.fog_effect));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}
