@@ -45,7 +45,7 @@ namespace IFSEngine.Rendering
 
         /// <summary>
         /// Number of dispatches since accumulation reset.
-        /// This is needed for random generation and 0. dispatch reset
+        /// This is needed for random generation.
         /// </summary>
         private int dispatchCnt = 0;
 
@@ -246,13 +246,15 @@ namespace IFSEngine.Rendering
             //can be called multiple times, but it's enough to reset once before first frame
             InvalidatePointsState();
             invalidAccumulation = true;
-
         }
+
+        /// <summary>
+        /// Invalidates the data in the parameters-buffer, which causes the render thread to update it.
+        /// </summary>
         public void InvalidateParams()
-        {
-            //can be called multiple times, but it's enough to reset once before first frame
-            InvalidateAccumulation();
+        {//can be called multiple times, but it's enough to reset once before first frame
             invalidParams = true;
+            InvalidateAccumulation();            
         }
 
         public void SetHistogramScale(double scale)
@@ -340,98 +342,105 @@ namespace IFSEngine.Rendering
                 TotalIterations = 0;
                 InvalidatePointsState();//needed when IterationDepth is high
 
-                if (invalidParams)
+                //update settings struct
+                var settings = new SettingsStruct
                 {
-                    //generate iterator and transform structs
-                    List<IteratorStruct> its = new List<IteratorStruct>();
-                    List<float> tfsparams = new List<float>();
-                    var currentIterators = currentParams.Iterators.ToList();
-                    //input weights -> alias method tables
-                    double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
-                    if (sumInputWeights == 0.0)
-                        throw new Exception("Invalid params: No input iterator found.");//TODO: handle
-                    var normalizedInputWeights = currentIterators.Select(i => i.InputWeight / sumInputWeights).ToList();
-                    var aliasTables = AliasMethod.GenerateAliasTable(normalizedInputWeights).ToList();
-                    for(int iti = 0; iti < currentIterators.Count; iti++)
-                    {
-                        var it = currentIterators[iti];
-                        //iterators
-                        its.Add(new IteratorStruct
-                        {
-                            tfId = RegisteredTransforms.IndexOf(it.TransformFunction),
-                            tfParamsStart = tfsparams.Count,
-                            color_speed = (float)it.ColorSpeed,
-                            color_index = (float)it.ColorIndex,
-                            opacity = (float)it.Opacity,
-                            shading_mode = (int)it.ShadingMode,
-                            reset_alias = aliasTables[iti].k,
-                            reset_prob = (float)aliasTables[iti].u
-                        });
-                        //transform params
-                        var varValues = it.TransformVariables.Values.ToArray();
-                        tfsparams.AddRange(varValues.Select(p => (float)p));
-                    }
-                    //TODO: tfparamstart pop last value
+                    camera_params = currentParams.Camera.GetCameraParameters(),
+                    itnum = currentParams.Iterators.Count,
+                    fog_effect = (float)currentParams.FogEffect,
+                    palettecnt = currentParams.Palette.Colors.Count,
+                    entropy = (float)Entropy,
+                    warmup = Warmup,
+                    pass_iters = PassIters,
+                    max_filter_radius = MaxFilterRadius
+                };
+                GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
 
-                    GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
-
-                    GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
-
-                    //normalize base weights
-                    double SumWeights = currentIterators.Sum(i => i.BaseWeight);
-                    var normalizedBaseWeights = currentIterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
-                    List<(double u, int k)> xaosAliasTables = new List<(double u, int k)>();
-                    foreach (var it in currentIterators)
-                    {
-                        List<double> itWeights = new List<double>(currentIterators.Count);
-                        foreach (var toIt in currentIterators)
-                        {
-                            if (it.WeightTo.ContainsKey(toIt))//multiply with base weights
-                                itWeights.Add(it.WeightTo[toIt] * normalizedBaseWeights[toIt]);
-                            else//fill missing transitions with 0
-                                itWeights.Add(0);
-                        }
-                        double sumw = itWeights.Sum();
-                        if (sumw > 0)
-                        {
-                            itWeights = itWeights.Select(w => w / sumw).ToList();//normalize xaos weights
-                            xaosAliasTables.AddRange(AliasMethod.GenerateAliasTable(itWeights));
-                        }
-                        else
-                        {//iteration resets here because there are no outgoing weights. Mark this with -1
-                            xaosAliasTables.AddRange(Enumerable.Repeat((-1.0,-1), currentIterators.Count));
-                        }
-                    }
-
-                    //update xaos alias tables
-                    GL.BindBuffer(BufferTarget.UniformBuffer, aliasBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, currentIterators.Count * currentIterators.Count * sizeof(float) * 4, xaosAliasTables.Select(t=>new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
-
-                    //update palette
-                    GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
-                    GL.BufferData(BufferTarget.UniformBuffer, currentParams.Palette.Colors.Count * sizeof(float) * 4, currentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
-
-                    invalidParams = false;
-                }
             }
 
-            var settings = new SettingsStruct
+            if (invalidParams)
             {
-                camera_params = currentParams.Camera.GetCameraParameters(),
-                itnum = currentParams.Iterators.Count,
-                pass_iters = PassIters,
-                dispatchCnt = dispatchCnt,
-                fog_effect = (float)currentParams.FogEffect,
-                palettecnt = currentParams.Palette.Colors.Count,
-                resetPointsState = invalidPointsState ? 1 : 0,
-                entropy = (float)Entropy,
-                warmup = Warmup,
-                max_filter_radius = MaxFilterRadius
-            };
-            GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, BlittableValueType<SettingsStruct>.Stride, ref settings, BufferUsageHint.StreamDraw);
+                //generate iterator and transform structs
+                List<IteratorStruct> its = new List<IteratorStruct>();
+                List<float> tfsparams = new List<float>();
+                var currentIterators = currentParams.Iterators.ToList();
+                //input weights -> alias method tables
+                double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
+                if (sumInputWeights == 0.0)
+                {
+                    //TODO: throw new Exception("Invalid params: No input iterator found.");
+                    return;
+                }
+                var normalizedInputWeights = currentIterators.Select(i => i.InputWeight / sumInputWeights).ToList();
+                var aliasTables = AliasMethod.GenerateAliasTable(normalizedInputWeights).ToList();
+                for (int iti = 0; iti < currentIterators.Count; iti++)
+                {
+                    var it = currentIterators[iti];
+                    //iterators
+                    its.Add(new IteratorStruct
+                    {
+                        tfId = RegisteredTransforms.IndexOf(it.TransformFunction),
+                        tfParamsStart = tfsparams.Count,
+                        color_speed = (float)it.ColorSpeed,
+                        color_index = (float)it.ColorIndex,
+                        opacity = (float)it.Opacity,
+                        shading_mode = (int)it.ShadingMode,
+                        reset_alias = aliasTables[iti].k,
+                        reset_prob = (float)aliasTables[iti].u
+                    });
+                    //transform params
+                    var varValues = it.TransformVariables.Values.ToArray();
+                    tfsparams.AddRange(varValues.Select(p => (float)p));
+                }
+                //TODO: tfparamstart pop last value
+
+                GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, its.Count * (BlittableValueType<IteratorStruct>.Stride), its.ToArray(), BufferUsageHint.DynamicDraw);
+
+                GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
+
+                //normalize base weights
+                double SumWeights = currentIterators.Sum(i => i.BaseWeight);
+                var normalizedBaseWeights = currentIterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
+                List<(double u, int k)> xaosAliasTables = new List<(double u, int k)>();
+                foreach (var it in currentIterators)
+                {
+                    List<double> itWeights = new List<double>(currentIterators.Count);
+                    foreach (var toIt in currentIterators)
+                    {
+                        if (it.WeightTo.ContainsKey(toIt))//multiply with base weights
+                            itWeights.Add(it.WeightTo[toIt] * normalizedBaseWeights[toIt]);
+                        else//fill missing transitions with 0
+                            itWeights.Add(0);
+                    }
+                    double sumw = itWeights.Sum();
+                    if (sumw > 0)
+                    {
+                        itWeights = itWeights.Select(w => w / sumw).ToList();//normalize xaos weights
+                        xaosAliasTables.AddRange(AliasMethod.GenerateAliasTable(itWeights));
+                    }
+                    else
+                    {//iteration resets here because there are no outgoing weights. Mark this with -1
+                        xaosAliasTables.AddRange(Enumerable.Repeat((-1.0, -1), currentIterators.Count));
+                    }
+                }
+
+                //update xaos alias tables
+                GL.BindBuffer(BufferTarget.UniformBuffer, aliasBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, currentIterators.Count * currentIterators.Count * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
+
+                //update palette
+                GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, currentParams.Palette.Colors.Count * sizeof(float) * 4, currentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+
+                invalidParams = false;
+            }
+
+            //these values can change every dispatch
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "reset_points_state"), invalidPointsState ? 1 : 0);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "dispatch_cnt"), dispatchCnt);
 
             GL.Finish();
             GL.DispatchCompute(WorkgroupCount, 1, 1);

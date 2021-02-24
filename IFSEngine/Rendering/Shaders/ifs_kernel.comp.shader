@@ -71,19 +71,14 @@ layout(std140, binding = 2) uniform settings_ubo
 	camera_params camera;
 
 	float fog_effect;
-	float padding0;
-	float padding1;
-	float padding2;
-
 	int itnum;//number of iterators
 	int pass_iters;//iterations per pass
-	int dispatchCnt;
 	int palettecnt;
 
-	int resetPointsState;
 	int warmup;
 	float entropy;
 	int max_filter_radius;
+	int padding0;
 
 	int filter_method;
 	float filter_param0;
@@ -118,6 +113,8 @@ layout(binding = 6) uniform transform_params_ubo
 
 uniform int width;
 uniform int height;
+uniform int dispatch_cnt;
+uniform int reset_points_state;
 
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
 uint hash(uint x) {
@@ -175,7 +172,7 @@ float f_hash(float f1, float f2, float f3) {
 
 float random(inout uint nextSample)
 {
-	return f_hash(gl_GlobalInvocationID.x, settings.dispatchCnt, nextSample++);
+	return f_hash(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
@@ -264,7 +261,7 @@ float startingDistribution(float uniformR)
 {
 	float a = pow(uniformR, 1.0/3.0);//avoid center of sphere
 	float curve = 1.578425;//1.578425: half of the values are < 0.5	//TODO: parameter?
-	//float curve = 0.5 + 10.0 * pow(1.001, -settings.dispatchCnt);
+	//float curve = 0.5 + 10.0 * pow(1.001, -dispatch_cnt);
 	return -1.0 / curve * log(1.0 - a);
 }
 
@@ -284,7 +281,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, next);
+	float workgroup_random = f_hash(gl_WorkGroupID.x, dispatch_cnt, next);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -346,7 +343,7 @@ void main() {
 	uint next = 34567;//TODO: option to change this seed by animation frame number
 
 	p_state p;
-	if (settings.resetPointsState == 1)//after invalidation
+	if (reset_points_state == 1)//after invalidation
 		p = reset_state(next);
 	else
 		p = state[gid];
@@ -355,7 +352,7 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash(gl_WorkGroupID.x, settings.dispatchCnt, i);//random(next);
+		float r = f_hash(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
 			random(next) < settings.entropy || //chance to reset by entropy
