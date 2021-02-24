@@ -18,10 +18,8 @@ namespace IFSEngine.Model
             Name = "Default Palette",
             Colors = new List<Vector4>
             {
-                new Vector4(1,0,0,1),
-                new Vector4(1,1,0,1),
-                new Vector4(0,0,1,1),
-                new Vector4(1,0,0,1)
+                new Vector4(1,1,1,1),
+                new Vector4(1,1,1,1)
             }
         };
 
