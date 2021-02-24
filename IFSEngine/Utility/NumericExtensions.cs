@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Helper
+namespace IFSEngine.Utility
 {
-    public static class NumericExtensions
+    internal static class NumericExtensions
     {
         public static float ToRadians(float val)
         {

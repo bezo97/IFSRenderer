@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Util
+namespace IFSEngine.Utility
 {
     //global random state to avoid getting same values
     public static class RandHelper

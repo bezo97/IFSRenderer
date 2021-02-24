@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 
-namespace IFSEngine.Model.GpuStructs
+namespace IFSEngine.Rendering.GpuStructs
 {
     internal struct CameraStruct
     {

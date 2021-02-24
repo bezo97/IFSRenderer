@@ -101,7 +101,7 @@ namespace WpfDisplay.Views
 
         private void Animate_Click(object sender, RoutedEventArgs e)
         {
-           ((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
+           //((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
         }
 
         private void ValueEditor_KeyDown(object sender, KeyEventArgs e)

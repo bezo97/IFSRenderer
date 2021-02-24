@@ -2,7 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
 using IFSEngine.Serialization;
-using IFSEngine.Util;
+using IFSEngine.Utility;
 using System;
 using System.IO;
 using System.Runtime;

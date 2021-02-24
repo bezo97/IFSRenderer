@@ -24,6 +24,9 @@ namespace IFSEngine.Serialization
             File.WriteAllText(path, JsonConvert.SerializeObject(ifs, getJsonSerializerSettings(null, false)), Encoding.UTF8);
         }
 
+        /// <summary>
+        /// Extension method on <see cref="IFS"/> to <see cref="SaveJson(IFS, string)"/>
+        /// </summary>
         public static void Save(this IFS ifs, string path) => SaveJson(ifs, path);
 
         private static JsonSerializerSettings getJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Numerics;
-using IFSEngine.Util;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Model
 {
@@ -94,8 +92,8 @@ namespace IFSEngine.Model
         {
             IFS randomIFS = new IFS
             {
-                Brightness = 10,
-                Gamma = 2
+                Brightness = 1,
+                Gamma = 4
             };
             //add random iterators
             var affinetf = new List<TransformFunction>() { availableTransforms.First(tf => tf.Name == "Affine") };//TODO: nicer

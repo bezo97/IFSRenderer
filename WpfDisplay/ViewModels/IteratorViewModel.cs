@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using IFSEngine.Model;
-using IFSEngine.Util;
+using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

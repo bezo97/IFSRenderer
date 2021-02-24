@@ -1,9 +1,6 @@
-﻿using IFSEngine.Helper;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using IFSEngine.Rendering.GpuStructs;
+using IFSEngine.Utility;
 using System.Numerics;
-using IFSEngine.Model.GpuStructs;
 
 namespace IFSEngine.Model
 {

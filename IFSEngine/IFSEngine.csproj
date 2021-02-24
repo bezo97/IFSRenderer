@@ -13,19 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="glsl\de.frag.shader" />
-    <None Remove="glsl\ifs_kernel.comp.shader" />
-    <None Remove="glsl\quad.vert.shader" />
-    <None Remove="glsl\taa.frag.shader" />
-    <None Remove="glsl\tonemap.frag.shader" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="glsl\de.frag.shader" />
-    <EmbeddedResource Include="glsl\tonemap.frag.shader" />
-    <EmbeddedResource Include="glsl\quad.vert.shader" />
-    <EmbeddedResource Include="glsl\ifs_kernel.comp.shader" />
-    <EmbeddedResource Include="glsl\taa.frag.shader" />
+    <EmbeddedResource Include="Rendering\Shaders\de.frag.shader" />
+    <EmbeddedResource Include="Rendering\Shaders\tonemap.frag.shader" />
+    <EmbeddedResource Include="Rendering\Shaders\quad.vert.shader" />
+    <EmbeddedResource Include="Rendering\Shaders\ifs_kernel.comp.shader" />
+    <EmbeddedResource Include="Rendering\Shaders\taa.frag.shader" />
   </ItemGroup>
 
   <ItemGroup>

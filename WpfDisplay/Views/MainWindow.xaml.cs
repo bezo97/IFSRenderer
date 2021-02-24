@@ -1,8 +1,5 @@
-﻿using IFSEngine;
-using IFSEngine.Model;
+﻿using IFSEngine.Rendering;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using WpfDisplay.Models;

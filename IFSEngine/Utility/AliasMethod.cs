@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace IFSEngine.Util
+namespace IFSEngine.Utility
 {
     /// <summary>
     /// Efficient algorithm for sampling from a discrete probability distribution.
@@ -12,7 +12,7 @@ namespace IFSEngine.Util
     /// <remarks>
     /// Implementation based on <a href="https://en.wikipedia.org/wiki/Alias_method"></a>
     /// </remarks>
-    public class AliasMethod
+    internal static class AliasMethod
     {
         /// <summary>
         /// Table generation for the Alias method.

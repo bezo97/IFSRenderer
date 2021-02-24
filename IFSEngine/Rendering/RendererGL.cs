@@ -13,11 +13,11 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 
 using IFSEngine.Model;
-using IFSEngine.Model.GpuStructs;
+using IFSEngine.Rendering.GpuStructs;
 using IFSEngine.Animation;
-using IFSEngine.Util;
+using IFSEngine.Utility;
 
-namespace IFSEngine
+namespace IFSEngine.Rendering
 {
     public class RendererGL
     {
@@ -158,6 +158,7 @@ namespace IFSEngine
 
         private readonly AutoResetEvent stopRender = new AutoResetEvent(false); 
         private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
+        private readonly string shadersPath = "IFSEngine.Rendering.Shaders.";
 
         //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
         private static void DebugCallback(DebugSource source,
@@ -508,7 +509,7 @@ namespace IFSEngine
                         //compute the histogram
                         DispatchCompute();
 
-                        bool isPerceptuallyEqualFrame = Helper.MathExtensions.IsPow2(dispatchCnt);
+                        bool isPerceptuallyEqualFrame = Utility.MathExtensions.IsPow2(dispatchCnt);
                         if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                         {
                             //render image from histogram
@@ -632,7 +633,7 @@ namespace IFSEngine
         private void initTAAPass()
         {
 
-            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.taa.frag.shader");
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(shadersPath + "taa.frag.shader");
             string taaShaderSource = new StreamReader(resource).ReadToEnd();
             //compile taa shader
             int taaShaderH = GL.CreateShader(ShaderType.FragmentShader);
@@ -679,7 +680,7 @@ namespace IFSEngine
         private void initDEPass()
         {
 
-            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.de.frag.shader");
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(shadersPath + "de.frag.shader");
             string deShaderSource = new StreamReader(resource).ReadToEnd();
             //compile de shader
             int deShaderH = GL.CreateShader(ShaderType.FragmentShader);
@@ -717,7 +718,7 @@ namespace IFSEngine
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
             vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShaderHandle, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.quad.vert.shader")).ReadToEnd());
+            GL.ShaderSource(vertexShaderHandle, new StreamReader(assembly.GetManifestResourceStream(shadersPath + "quad.vert.shader")).ReadToEnd());
             GL.CompileShader(vertexShaderHandle);
             GL.GetShader(vertexShaderHandle, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
@@ -727,7 +728,7 @@ namespace IFSEngine
             }
 
             var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream("IFSEngine.glsl.tonemap.frag.shader")).ReadToEnd());
+            GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream(shadersPath + "tonemap.frag.shader")).ReadToEnd());
             GL.CompileShader(fragmentShader);
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
             if (status == 0)
@@ -788,7 +789,7 @@ if (iter.tfId == {tfIndex})
             }
 
             //assemble source string
-            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream("IFSEngine.glsl.ifs_kernel.comp.shader");
+            var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(shadersPath + "ifs_kernel.comp.shader");
             string computeShaderSource = new StreamReader(resource).ReadToEnd();
 
             //insert transforms

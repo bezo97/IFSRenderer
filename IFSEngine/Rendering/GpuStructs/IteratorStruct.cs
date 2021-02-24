@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Model.GpuStructs
+namespace IFSEngine.Rendering.GpuStructs
 {
     internal struct IteratorStruct
     {

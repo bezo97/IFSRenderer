@@ -1,14 +1,10 @@
 ﻿using GalaSoft.MvvmLight;
-using IFSEngine;
 using IFSEngine.Model;
+using IFSEngine.Rendering;
 using OpenTK;
-using OpenTK.Platform;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 

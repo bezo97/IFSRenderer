@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace IFSEngine.Util
+namespace IFSEngine.Utility
 {
     /// <summary>
     /// Helper class for the EXR hdr image file format.
