@@ -383,14 +383,21 @@ void main() {
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 
+			//TODO: this is the same as dof
+			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.focus_area);
+
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float fog_mask = settings.fog_effect * 1.0 / (1.0 + pow(length(settings.camera.focus_point.xyz - p.pos.xyz) / settings.camera.focus_area, settings.fog_effect));
+				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.focus_area)));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}
 			if (color.w == 0.0)
 				continue;//avoid useless histogram writes
+
+			//mark plane of focus
+			//if (defocus == 0.0)
+				//color.rgb = vec3(2.0, 0.0, 0.0);
 
 			color.xyz *= color.w;
 
