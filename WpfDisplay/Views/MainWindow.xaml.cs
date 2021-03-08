@@ -21,7 +21,7 @@ namespace WpfDisplay.Views
             ContentRendered += (s, e) =>
             {
                 //init workspace, tie renderer to display
-                RendererGL renderer = new RendererGL(renderDisplay.display1.GraphicsContext);
+                RendererGL renderer = new RendererGL(renderDisplay.display1.Context);
                 renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
                 Workspace workspace = new Workspace(renderer);

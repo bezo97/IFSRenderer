@@ -8,12 +8,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfDisplay", "WpfDisplay\WpfDisplay.csproj", "{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61} = {CD8AE533-71A9-4409-8C68-FE48F2F0FA61}
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F} = {BCC22DEC-46B0-457F-8255-606AB4A47A1F}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine.Util", "IFSEngine.Util\IFSEngine.Util.csproj", "{52B72CB8-CA7E-4127-84EA-C80129931A5D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTK.WinForms", "E:\dev\GLControl\OpenTK.WinForms\OpenTK.WinForms.csproj", "{BCC22DEC-46B0-457F-8255-606AB4A47A1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,22 +72,6 @@ Global
 		{52B72CB8-CA7E-4127-84EA-C80129931A5D}.Release|x64.Build.0 = Release|Any CPU
 		{52B72CB8-CA7E-4127-84EA-C80129931A5D}.Release|x86.ActiveCfg = Release|Any CPU
 		{52B72CB8-CA7E-4127-84EA-C80129931A5D}.Release|x86.Build.0 = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|ARM.Build.0 = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|x64.Build.0 = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Debug|x86.Build.0 = Debug|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|ARM.ActiveCfg = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|ARM.Build.0 = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|x64.ActiveCfg = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|x64.Build.0 = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|x86.ActiveCfg = Release|Any CPU
-		{BCC22DEC-46B0-457F-8255-606AB4A47A1F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>bezo97</Authors>
+    <Description>3D IFS fractal rendering engine.</Description>
+    <Copyright>Copyright 2021</Copyright>
+    <Version></Version>
+    <PackageLicenseExpression>TODO</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fractal, 3d, graphics, art, ifs, rendering</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -9,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>    
   </PropertyGroup>
 
   <ItemGroup>
