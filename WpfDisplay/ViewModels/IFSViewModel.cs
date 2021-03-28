@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -249,7 +250,11 @@ namespace WpfDisplay.ViewModels
                 _openTransformsDirectoryCommand = new RelayCommand(() =>
                 {
                     //show the directory with the os file explorer
-                    System.Diagnostics.Process.Start(workspace.TransformsDirectoryPath);
+                    Process.Start(new ProcessStartInfo
+                    { 
+                        FileName = workspace.TransformsDirectoryPath,
+                        UseShellExecute = true
+                    });
                 }));
         }
 
@@ -260,7 +265,11 @@ namespace WpfDisplay.ViewModels
                 _editTransformSourceCommand = new RelayCommand<string>((filePath) =>
                 {
                     //open transform source file with the preferred text editor
-                    System.Diagnostics.Process.Start(filePath);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = filePath,
+                        UseShellExecute = true
+                    });
                 }));
         }
 

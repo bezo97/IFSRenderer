@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
+using System.Diagnostics;
 
 namespace WpfDisplay.ViewModels
 {
@@ -174,7 +175,7 @@ namespace WpfDisplay.ViewModels
                     enc.Save(stream);
 
                 //open the image for viewing. TODO: optional..
-                System.Diagnostics.Process.Start(path);
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
             }
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
