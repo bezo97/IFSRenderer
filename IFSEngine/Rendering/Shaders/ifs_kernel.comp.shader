@@ -406,9 +406,11 @@ void main() {
 				//TODO: determine filter_radius based on settings.filter_method
 				const int filter_radius = int(settings.max_filter_radius);
 
-				for (int ax = -filter_radius; ax <= filter_radius; ax++)
+				//for (int ax = -filter_radius; ax <= filter_radius; ax++)
+				int ax = -filter_radius + int(random(next) * 2 * filter_radius);
 				{
-					for (int ay = -filter_radius; ay <= filter_radius; ay++)
+					//for (int ay = -filter_radius; ay <= filter_radius; ay++)
+					int ay = -filter_radius + int(random(next) * 2 * filter_radius);
 					{
 						vec2 nb = vec2(proj + ivec2(ax, ay));
 						float pd = distance(nb, projf);
@@ -416,7 +418,7 @@ void main() {
 						//TODO: use settings.filter_method to pick one
 						//float aw = max(0.0, 1.0-pd);
 						//float aw = max(0.0, Lanczos(pd, 2));
-						float aw = max(0.0, Mitchell_Netravali(pd));
+						float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
 						if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
 							accumulate_hit(ivec2(nb), aw * color);
 					}
