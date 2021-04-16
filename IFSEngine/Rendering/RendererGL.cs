@@ -478,6 +478,9 @@ namespace IFSEngine.Rendering
             {
                 GL.UseProgram(taaProgramHandle);
                 GL.BindVertexArray(vao);
+                GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "width"), HistogramWidth);
+                GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "height"), HistogramHeight);
+                GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "new_frame_tex"), 0);
                 GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
                 GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
             }
