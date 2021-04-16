@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using IFSEngine.Utility;
 
 namespace IFSEngine.Model
@@ -86,46 +87,6 @@ namespace IFSEngine.Model
                 it.WeightTo.Remove(it1);
             }
             iterators.Remove(it1);
-        }
-
-        public static IFS GenerateRandom(List<TransformFunction> availableTransforms)
-        {
-            IFS randomIFS = new IFS
-            {
-                Brightness = 1,
-                Gamma = 4
-            };
-            //add random iterators
-            var affinetf = new List<TransformFunction>() { availableTransforms.First(tf => tf.Name == "Affine") };//TODO: nicer
-            var pretfs = new List<Iterator>();
-            var tfs = new List<Iterator>();
-            var itnum = RandHelper.Next(3) + 2;
-            for (var ii = 0; ii < itnum; ii++)
-            {
-                var pretransform = Iterator.RandomIterator(affinetf);
-                foreach (var key in pretransform.TransformVariables.Keys.ToList())//contracting affine transform
-                    pretransform.TransformVariables[key] = pretransform.TransformVariables[key]*0.75;
-                var transform = Iterator.RandomIterator(availableTransforms);
-                randomIFS.AddIterator(pretransform, false);
-                randomIFS.AddIterator(transform, false);
-                pretransform.WeightTo[transform] = 1.0;
-                pretransform.Opacity = 0.0;
-                pretransform.ColorSpeed = 0.0;
-                pretransform.InputWeight = 1.0;
-                transform.InputWeight = 0.0;
-                transform.Opacity = 1.0;
-                pretfs.Add(pretransform);
-                tfs.Add(transform);
-            }
-            //randomize xaos weights
-            foreach (var it in tfs)
-            {
-                foreach (var itTo in pretfs)
-                {
-                    it.WeightTo[itTo] = RandHelper.Next(3) == 0 ? 0.0 : RandHelper.NextDouble();
-                }
-            }
-            return randomIFS;
         }
 
         public void ReloadTransforms(IEnumerable<TransformFunction> transforms)

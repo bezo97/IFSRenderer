@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
+using IFSEngine.Generation;
 
 namespace WpfDisplay.ViewModels
 {
@@ -75,7 +76,8 @@ namespace WpfDisplay.ViewModels
             _loadRandomCommand ??= new AsyncRelayCommand(OnLoadRandomCommand);
         private async Task OnLoadRandomCommand()
         {
-            LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
+            Generator g = new Generator(workspace.Renderer.RegisteredTransforms);//
+            LoadParamsToWorkspace(g.GenerateOne(new GeneratorOptions()));
         }
 
         private AsyncRelayCommand _saveParamsCommand;

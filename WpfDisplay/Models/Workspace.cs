@@ -46,7 +46,7 @@ namespace WpfDisplay.Models
             LoadTransformLibrary();
             Renderer = r;
             Renderer.Initialize(loadedTransforms);
-            IFS = IFS.GenerateRandom(loadedTransforms);
+            IFS = new IFS();
         }
 
         public async Task ReloadTransforms()

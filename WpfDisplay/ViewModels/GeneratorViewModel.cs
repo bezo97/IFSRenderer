@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
+using IFSEngine.Generation;
 
 namespace WpfDisplay.ViewModels
 {
@@ -15,6 +16,14 @@ namespace WpfDisplay.ViewModels
     {
         private readonly MainViewModel mainvm;
         private readonly GeneratorWorkspace workspace = new GeneratorWorkspace();
+        private readonly GeneratorOptions options = new GeneratorOptions();
+
+        public bool MutateIterators { get => options.MutateIterators; set => SetProperty(ref options.MutateIterators, value); }
+        public bool MutateConnections { get => options.MutateConnections; set => SetProperty(ref options.MutateConnections, value); }
+        public bool MutateConnectionWeights { get => options.MutateConnectionWeights; set => SetProperty(ref options.MutateConnectionWeights, value); }
+        public bool MutateVariables { get => options.MutateVariables; set => SetProperty(ref options.MutateVariables, value); }
+        public bool MutatePalette { get => options.MutatePalette; set => SetProperty(ref options.MutatePalette, value); }
+        public bool MutateColoring { get => options.MutateColoring; set => SetProperty(ref options.MutateColoring, value); }
 
         //Linq magic to split an array into arrays of 3
         //This makes binding the thumbnails to the 3-wide gallery of images easy.
@@ -35,9 +44,6 @@ namespace WpfDisplay.ViewModels
         {
             this.mainvm = mainvm;
             workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);//tmp hack
-
-
-
         }
 
         private RelayCommand<IFS> _sendToMainCommand;
@@ -57,7 +63,7 @@ namespace WpfDisplay.ViewModels
             get => _generateRandomBatchCommand ?? (
                 _generateRandomBatchCommand = new RelayCommand<IFS>((IFS param) =>
                 {
-                    workspace.GenerateNewRandomBatch(30);
+                    workspace.GenerateNewRandomBatch(options).Wait();
                     //TODO: do not start if already processing
                     workspace.processQueue();
                     OnPropertyChanged(nameof(GeneratedIFSThumbnails));
@@ -76,7 +82,6 @@ namespace WpfDisplay.ViewModels
                     OnPropertyChanged(nameof(PinnedIFSThumbnails));
                 }));
         }
-
 
     }
 }
