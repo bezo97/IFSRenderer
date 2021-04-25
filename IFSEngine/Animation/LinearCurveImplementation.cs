@@ -8,7 +8,7 @@ namespace IFSEngine.Animation
 {
     class LinearCurveImplementation : ICurveImplementation
     {
-        public float Evaluate(float t, List<ControlPoint> controlPoints)
+        public double Evaluate(double t, List<ControlPoint> controlPoints)
         {
 
             if (t >= controlPoints.Last().t)

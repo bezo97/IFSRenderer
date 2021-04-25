@@ -4,18 +4,21 @@ using System.Text;
 
 namespace IFSEngine.Animation
 {
-    class PropertyAnimation
+    public class PropertyAnimation
     {
-        public AnimationCurve AnimationCurve=new AnimationCurve();
-        private Action<float> ApplyValue;
+        public readonly string AnimatedVariableName;
+        public readonly AnimationCurve AnimationCurve;
+        private readonly Action<float> ApplyValue;
 
-        public PropertyAnimation(Action<float> ApplyValue)
+        public PropertyAnimation(Action<float> ApplyValue,string animatedVariableName)
         {
             this.ApplyValue = ApplyValue;
+            AnimationCurve = new AnimationCurve();
+            AnimatedVariableName = animatedVariableName;
         }
-        public void Animate(float t)
+        public void Animate(double t)
         {
-            ApplyValue(AnimationCurve.Evaluate(t));
+            ApplyValue((float)AnimationCurve.Evaluate(t));
         }
     }
 }

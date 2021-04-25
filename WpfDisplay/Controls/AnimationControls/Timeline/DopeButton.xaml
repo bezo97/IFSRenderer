@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="WpfDisplay.Controls.Animation.DopeButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Controls"
+             xmlns:conv="clr-namespace:WpfDisplay.Converters"
+             xmlns:conv1="clr-namespace:WpfDisplay"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="100"
+             x:Name="dopesheetButton"
+             >
+    <UserControl.Resources>
+        <materialDesign:MathConverter x:Key="mathConverter"/>
+    </UserControl.Resources>
+    <Grid x:Name="DopesheetButtonContainer">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" 
+                Style="{DynamicResource MaterialDesignRaisedDarkButton}" 
+                Height="20"
+                Width="20" PreviewMouseDown="OnMouseDown" PreviewMouseMove="OnMouseMove" PreviewMouseUp="OnMouseUp"
+                
+            >
+            <Button.LayoutTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+            </Button.LayoutTransform>
+        </Button>
+    </Grid>
+</UserControl>
+<!--Height="{Binding ElementName=DopesheetButtonContainer, Path=ActualWidth,Converter={StaticResource mathConverter},
+                ConverterParameter=((@VALUE)*.7)}" 
+                Width="{Binding ElementName=DopesheetButtonContainer, Path=ActualWidth,Converter={StaticResource mathConverter},
+                ConverterParameter=((@VALUE)*.7)}"-->
