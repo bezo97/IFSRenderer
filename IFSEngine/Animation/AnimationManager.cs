@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using IFSEngine.Utility;
 
 namespace IFSEngine.Animation
@@ -10,7 +12,7 @@ namespace IFSEngine.Animation
         public int AnimationCount => animations.Count;
         public int CurrentAnimationId => currentAnimationId;
         public event AnimationCreatedHandler OnAnimationCreated;
-
+        public float AnimationLength = 10f;
         private List<PropertyAnimation> animations = new List<PropertyAnimation>();
         private PropertyAnimation currentAnimation;
         private double animationSliderTime = 0;
@@ -52,17 +54,12 @@ namespace IFSEngine.Animation
             }
         }
 
-        public void PlayAnimation()
+        public void EvaluateAt(in double normalizedTime)
         {
-
-        }
-
-        public void EvaluateAt(in double timeInSeconds)
-        {
-            animationSliderTime = timeInSeconds;
+            animationSliderTime = normalizedTime * AnimationLength;
             for (int i = 0; i < animations.Count; i++)
             {
-                animations[i].Animate(timeInSeconds);
+                animations[i].Animate(normalizedTime * AnimationLength);
             }
         }
     }

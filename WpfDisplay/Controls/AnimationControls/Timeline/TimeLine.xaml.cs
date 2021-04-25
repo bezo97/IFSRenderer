@@ -24,24 +24,24 @@ namespace WpfDisplay.Controls.Animation
 
         private AnimationManager animationManager;
         private bool isMouseDown = false;
-        private float currentMaximumTime = 10f;
 
         public TimeLine()
         {
 
             DataContextChanged += (s, e) =>
             {
-                animationManager = ((AnimationViewModel)DataContext).AnimationManager;
-                var lineDrawer = new TimelineDrawer(activeAreaStart,activeAreaEnd);
-                lineDrawer.DrawLines(TimeSlider,true);
-                lineDrawer.DrawLines(Dopesheet,false);
+                animationManager = ((AnimationViewModel) DataContext).AnimationManager;
+                var lineDrawer = new TimelineDrawer(activeAreaStart, activeAreaEnd);
+                lineDrawer.DrawLines(TimeSlider, true);
+                lineDrawer.DrawLines(Dopesheet, false);
                 ManipulateTime(new Point(0, 0));
 
                 animationManager.OnAnimationCreated += AnimationManagerOnAnimationCreated;
+
                 void AnimationManagerOnAnimationCreated(PropertyAnimation propertyAnimation)
                 {
                     var animation = new Animation(propertyAnimation.AnimationCurve);
-                    
+
                     AnimationStack.Children.Add(animation);
                     animation.Width = TimeLineLayout.ActualWidth;
                     Canvas.SetTop(animation, 0);
@@ -50,8 +50,11 @@ namespace WpfDisplay.Controls.Animation
             InitializeComponent();
         }
 
-        public static double MapToActiveArea(double normalizedOriginalValue) => normalizedOriginalValue.Remap(0, 1, activeAreaStart, activeAreaEnd);
-        private double MapFromActiveArea(double normalizedOriginalValue) => normalizedOriginalValue.Remap(activeAreaStart, activeAreaEnd, 0, 1);
+        public static double MapToActiveArea(double normalizedOriginalValue) =>
+            normalizedOriginalValue.Remap(0, 1, activeAreaStart, activeAreaEnd);
+
+        private double MapFromActiveArea(double normalizedOriginalValue) =>
+            normalizedOriginalValue.Remap(activeAreaStart, activeAreaEnd, 0, 1);
 
 
         private void TimeSlider_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -68,25 +71,30 @@ namespace WpfDisplay.Controls.Animation
         private void ManipulateTime(Point relativePositon)
         {
             var normalizedT = (relativePositon.X / this.ActualWidth).Clamp(activeAreaStart, activeAreaEnd);
+            ManipulateTime(normalizedT);
+        }
+
+        public void ManipulateTime(double t)
+        {
             SetDopesheetLinePosition();
             SetAnimatorTime();
 
             void SetDopesheetLinePosition()
             {
-                var x = normalizedT * this.ActualWidth;
-                DopesheetLine.X1= x;
+                var x = t * this.ActualWidth;
+                DopesheetLine.X1 = x;
                 DopesheetLine.X2 = x;
             }
 
             void SetAnimatorTime()
             {
-                animationManager.EvaluateAt(MapFromActiveArea(normalizedT) * currentMaximumTime);
+                animationManager.EvaluateAt(MapFromActiveArea(t));
             }
         }
 
 
 
-        private void TimeSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+    private void TimeSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             isMouseDown = false;
         }

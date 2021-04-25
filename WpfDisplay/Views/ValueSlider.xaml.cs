@@ -90,7 +90,8 @@ namespace WpfDisplay.Views
 
         private void SetValue(float value)
         {
-            Value = value;
+            Dispatcher.Invoke(() => { Value = value; });
+            
         }
 
         private void Down_Click(object sender, RoutedEventArgs e)

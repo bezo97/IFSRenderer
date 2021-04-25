@@ -27,8 +27,10 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0">
-                        <Image Source="../../../Resources/Images/Animation/skip-backward.png" />
+                    <Button Grid.Column="0"
+                            Command="{Binding PlayCommand}">
+                        <Image Source="../../../Resources/Images/Animation/skip-backward.png"
+                               />
                     </Button>
                     <Button Grid.Column="1">
                         <Image Source="../../../Resources/Images/Animation/play.png" />
