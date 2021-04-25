@@ -2,7 +2,7 @@
 //#version 430 compatibility
 //#extension GL_ARB_compute_shader : enable
 //#extension GL_ARB_shader_storage_buffer_object : enable
-#extension GL_NV_shader_atomic_float : enable
+//#extension GL_NV_shader_atomic_float : enable
 
 //precision highp float;
 
@@ -136,7 +136,7 @@ uint hash(uvec3 v) {
 uint hash(uvec4 v) {
 	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
 }
-float f_hash(float f) {
+float f_hash_1(float f) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
@@ -147,7 +147,7 @@ float f_hash(float f) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, uint nextSample) {
+float f_hash_2(float f1, float f2, uint nextSample) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
@@ -158,7 +158,7 @@ float f_hash(float f1, float f2, uint nextSample) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, float f3) {
+float f_hash_3(float f1, float f2, float f3) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
@@ -172,7 +172,7 @@ float f_hash(float f1, float f2, float f3) {
 
 float random(inout uint nextSample)
 {
-	return f_hash(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash_2(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
@@ -196,9 +196,9 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 		(normalizedPoint.y * ratio + 1) * height / 2.0f);
 }
 
-vec3 apply_transform(Iterator iter, vec3 input, inout uint next)
+vec3 apply_transform(Iterator iter, vec3 inputP, inout uint next)
 {
-	vec3 p = input;
+	vec3 p = inputP;
 	int p_cnt = iter.tfParamsStart;
 
 	//snippets inserted on initialization
@@ -281,7 +281,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash(gl_WorkGroupID.x, dispatch_cnt, next);
+	float workgroup_random = f_hash_2(gl_WorkGroupID.x, dispatch_cnt, next);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -352,7 +352,7 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash_2(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
 			random(next) < settings.entropy || //chance to reset by entropy
