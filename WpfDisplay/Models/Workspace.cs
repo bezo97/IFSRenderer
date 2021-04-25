@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IFSEngine.Animation;
 
 namespace WpfDisplay.Models
 {
@@ -18,7 +19,7 @@ namespace WpfDisplay.Models
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
 
         public readonly string TransformsDirectoryPath = @".\Functions\Transforms";
-
+        public readonly AnimationManager AnimationManager = new AnimationManager();
         private RendererGL renderer;
         public RendererGL Renderer
         {

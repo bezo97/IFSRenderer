@@ -4,14 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Controls.Animation"
+             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <local:AnimationControlPanel Grid.Column="0"/>
-        <local:TimeLine Grid.Column="1" x:Name="TimeLine"/> 
+        <local:AnimationControlPanel  DataContext="{Binding .}" Grid.Column="0"/>
+        <local:TimeLine DataContext="{Binding .}" Grid.Column="1" x:Name="TimeLine"/> 
     </Grid>
 </UserControl>

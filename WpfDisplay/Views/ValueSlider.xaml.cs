@@ -1,10 +1,13 @@
 ﻿using IFSEngine;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using IFSEngine.Rendering;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views
 {
@@ -13,7 +16,8 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class ValueSlider : UserControl
     {
-
+        private bool hasAnimation = false;
+        private int animationIndex;
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
@@ -101,7 +105,18 @@ namespace WpfDisplay.Views
 
         private void Animate_Click(object sender, RoutedEventArgs e)
         {
-           //((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
+            if (!hasAnimation)
+            {
+                hasAnimation = true;
+                animationIndex =
+                    ((MainViewModel)Application.Current.Windows.OfType<MainWindow>().First().DataContext).AnimationViewModel.AnimationManager
+                    .AddNewAnimation(ValueName, SetValue, Value);
+            }
+            else
+            {
+                ((MainViewModel)Application.Current.Windows.OfType<MainWindow>().First().DataContext).AnimationViewModel.AnimationManager
+                    .AddNewControlPoint(animationIndex, Value);
+            }
         }
 
         private void ValueEditor_KeyDown(object sender, KeyEventArgs e)

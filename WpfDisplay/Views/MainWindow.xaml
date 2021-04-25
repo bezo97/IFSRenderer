@@ -19,6 +19,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}" WindowState="Maximized"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
+        xmlns:animation="clr-namespace:WpfDisplay.Controls.Animation"
         >
     <Window.Resources>
         <conv:DataContextSetConverter x:Key="dataContextSetConverter"/>
@@ -118,10 +119,16 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
+        <!-- Animation -->
         <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">
-            <StackPanel>
-                <TextBlock Text="Animation" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Animation" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+                <animation:AnimationPanel Grid.Row="1" DataContext="{Binding AnimationViewModel}"/>
+            </Grid>
         </md:Card>
     </Grid>
 </Window>

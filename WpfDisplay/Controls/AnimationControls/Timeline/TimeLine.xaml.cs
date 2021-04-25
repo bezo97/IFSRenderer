@@ -10,6 +10,7 @@ using IFSEngine.Rendering;
 using IFSEngine.Utility;
 using WpfDisplay.Controls.Animation.Helper;
 using WpfDisplay.Views;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Controls.Animation
 {
@@ -28,9 +29,9 @@ namespace WpfDisplay.Controls.Animation
         public TimeLine()
         {
 
-            Loaded += (s, e) =>
+            DataContextChanged += (s, e) =>
             {
-                animationManager = ((RendererGL)Application.Current.Windows.OfType<MainWindow>().First().DataContext).AnimationManager;
+                animationManager = ((AnimationViewModel)DataContext).AnimationManager;
                 var lineDrawer = new TimelineDrawer(activeAreaStart,activeAreaEnd);
                 lineDrawer.DrawLines(TimeSlider,true);
                 lineDrawer.DrawLines(Dopesheet,false);

@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:animation="clr-namespace:WpfDisplay.Controls.Animation"
-             mc:Ignorable="d" 
+             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="150">
     <Grid>
         <Grid.RowDefinitions>
@@ -42,7 +44,10 @@
             </materialDesign:Card>
 
             <ScrollViewer Grid.Row="2" Name="AnimationTitlesScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                <animation:AnimationTitles Width="{Binding ElementName=AnimationTitlesScroll, Path=ActualWidth}" Height="{Binding ElementName=AnimationTitlesScroll, Path=ActualHeight}"/>
+                <animation:AnimationTitles 
+                    DataContext="{Binding .}" 
+                    Width="{Binding ElementName=AnimationTitlesScroll, Path=ActualWidth}" 
+                    Height="{Binding ElementName=AnimationTitlesScroll, Path=ActualHeight}"/>
             </ScrollViewer>
 
         </Grid>

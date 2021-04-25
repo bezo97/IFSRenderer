@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
+using IFSEngine.Animation;
 
 namespace WpfDisplay.ViewModels
 {
@@ -27,6 +28,10 @@ namespace WpfDisplay.ViewModels
         public PerformanceViewModel PerformanceViewModel { get; }
         public QualitySettingsViewModel QualitySettingsViewModel { get; }
         public IFSViewModel IFSViewModel { get; }
+        public AnimationViewModel AnimationViewModel
+        {
+            get;
+        }
 
         private bool transparentBackground;
         public bool TransparentBackground
@@ -46,6 +51,7 @@ namespace WpfDisplay.ViewModels
         public MainViewModel(Workspace workspace)
         {
             this.workspace = workspace;
+            AnimationViewModel = new AnimationViewModel(workspace);
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             DisplayViewModel = new InteractiveDisplayViewModel(workspace);
             PerformanceViewModel = new PerformanceViewModel(workspace);
