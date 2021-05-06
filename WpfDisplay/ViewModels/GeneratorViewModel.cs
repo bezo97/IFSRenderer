@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
 using IFSEngine.Generation;
+using IFSEngine.Utility;
 
 namespace WpfDisplay.ViewModels
 {
@@ -31,13 +32,13 @@ namespace WpfDisplay.ViewModels
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails => 
             workspace.PinnedIFS.ToArray()
             .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 3)//3 in a row
+            .GroupBy(x => x.Index / 1)
             .Select(grp => grp.Select(x => x.Value));
 
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
             workspace.GeneratedIFS.ToArray()
             .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 10)//10 in a row
+            .GroupBy(x => x.Index / 7)
             .Select(grp => grp.Select(x => x.Value));
 
         public GeneratorViewModel(MainViewModel mainvm)
@@ -52,16 +53,15 @@ namespace WpfDisplay.ViewModels
             get => _sendToMainCommand ?? (
                 _sendToMainCommand = new RelayCommand<IFS>((IFS param) =>
                 {
-                    //copy?
-                    mainvm.LoadParamsToWorkspace(param);
+                    mainvm.LoadParamsToWorkspace(param.DeepClone());
                 }));
         }
 
-        private RelayCommand<IFS> _generateRandomBatchCommand;
-        public RelayCommand<IFS> GenerateRandomBatchCommand
+        private RelayCommand _generateRandomBatchCommand;
+        public RelayCommand GenerateRandomBatchCommand
         {
             get => _generateRandomBatchCommand ?? (
-                _generateRandomBatchCommand = new RelayCommand<IFS>((IFS param) =>
+                _generateRandomBatchCommand = new RelayCommand(() =>
                 {
                     workspace.GenerateNewRandomBatch(options).Wait();
                     //TODO: do not start if already processing

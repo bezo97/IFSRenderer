@@ -35,9 +35,19 @@ namespace WpfDisplay.Models
         public GeneratorWorkspace()
         {
             //init thumbnail renderer
-            GameWindow hw = new(GameWindowSettings.Default, NativeWindowSettings.Default);
+            GameWindow hw = new(new GameWindowSettings
+            {
+                IsMultiThreaded=true
+            }, new NativeWindowSettings
+            {
+                Flags = OpenTK.Windowing.Common.ContextFlags.Offscreen,
+                IsEventDriven = true,
+                StartFocused = false,
+                StartVisible = false,
+                WindowState = OpenTK.Windowing.Common.WindowState.Minimized
+            });
             renderer = new RendererGL(hw.Context);
-            renderer.SetDisplayResolution(100, 100);
+            renderer.SetDisplayResolution(200, 200);
             var transforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
                 .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
             generator = new Generator(transforms);
@@ -49,6 +59,7 @@ namespace WpfDisplay.Models
 
         public async Task GenerateNewRandomBatch(GeneratorOptions options)
         {
+            options.baseParams = pinnedIFS.LastOrDefault() ?? new IFS();//TODO: use selection of pinned fractals
             generatedIFS.Clear();
             await foreach (IFS r in generator.GenerateBatch(options, 30))
             {

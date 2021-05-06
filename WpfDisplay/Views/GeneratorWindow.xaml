@@ -47,7 +47,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button 
-                                                    Width="100" Height="100"
+                                                    Width="200" Height="200"
                                                     Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
                                                     CommandParameter="{Binding Key}">
                                                     <Button.Background>
@@ -124,7 +124,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Button 
-                                                    Width="100" Height="100"
+                                                    Width="200" Height="200"
                                                     Command="{Binding DataContext.PinGeneratedCommand, ElementName=generatorWindow}"
                                                     CommandParameter="{Binding Key}">
                                                         <Button.Background>

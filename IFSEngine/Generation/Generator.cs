@@ -11,34 +11,37 @@ namespace IFSEngine.Generation
 {
     public class Generator
     {
-        protected List<TransformFunction> LoadedTransforms { get; }
+        public List<TransformFunction> SelectedTransforms { get; set; }
 
         public Generator(IEnumerable<TransformFunction> transforms)
         {
-            LoadedTransforms = transforms.ToList();
+            SelectedTransforms = transforms.ToList();
         }
 
         public async IAsyncEnumerable<IFS> GenerateBatch(GeneratorOptions options, int batchSize)
         {
+            double max_strength = options.MutationStrength;
             for (int i = 0; i < batchSize; i++)
+            {
+                options.MutationStrength = (double)i / batchSize * max_strength;
                 yield return GenerateOne(options);
+            }
+            options.MutationStrength = max_strength;
         }
 
         public IFS GenerateOne(GeneratorOptions options)
         {
-            IFS gen = new IFS();
+            IFS gen = options.baseParams.DeepClone();
             if(options.MutateIterators)
             {
                 while(gen.Iterators.Count<4)
                 {
-                    var transform = new List<TransformFunction>() { LoadedTransforms.First(tf => tf.Name == "Affine") };
-                    gen.AddIterator(Iterator.RandomIterator(transform), true);
+                    gen.AddIterator(Iterator.RandomIterator(SelectedTransforms), true);
                 }
                 //TODO: 
                 if (options.MutationChance > RandHelper.NextDouble())
                 {
-                    var transform = new List<TransformFunction>() { LoadedTransforms.First(tf => tf.Name == "Affine") };
-                    gen.AddIterator(Iterator.RandomIterator(transform), true);
+                    gen.AddIterator(Iterator.RandomIterator(SelectedTransforms), true);
                 }
                 if (gen.Iterators.Count > 2 && options.MutationChance > RandHelper.NextDouble())
                 {

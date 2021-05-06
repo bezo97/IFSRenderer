@@ -15,21 +15,16 @@ namespace IFSEngine.Serialization
         public static IFS LoadJson(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
         {
             var fileContent = File.ReadAllText(path, Encoding.UTF8);
-            var settings = getJsonSerializerSettings(transforms, ignoreTransformVersions);
+            var settings = GetJsonSerializerSettings(transforms, ignoreTransformVersions);
             return JsonConvert.DeserializeObject<IFS>(fileContent, settings);
         }
 
         public static void SaveJson(IFS ifs, string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(ifs, getJsonSerializerSettings(null, false)), Encoding.UTF8);
+            File.WriteAllText(path, JsonConvert.SerializeObject(ifs, GetJsonSerializerSettings(null, false)), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Extension method on <see cref="IFS"/> to <see cref="SaveJson(IFS, string)"/>
-        /// </summary>
-        public static void Save(this IFS ifs, string path) => SaveJson(ifs, path);
-
-        private static JsonSerializerSettings getJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
+        internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
         {
             return new JsonSerializerSettings
             {
