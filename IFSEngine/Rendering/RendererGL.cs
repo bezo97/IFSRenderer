@@ -270,8 +270,10 @@ namespace IFSEngine.Rendering
 
         public void SetHistogramScaleToDisplay()
         {
-            double fitToDisplayRatio = DisplayWidth / (double)currentParams.ImageResolution.Width;
-            SetHistogramScale(fitToDisplayRatio);
+            double rw = DisplayWidth / (double)currentParams.ImageResolution.Width;
+            double rh = DisplayHeight / (double)currentParams.ImageResolution.Height;
+            double rr = Math.Min(rw, rh) * .98;
+            SetHistogramScale(rr);
         }
 
         private void updateHistogramResolution()
@@ -490,7 +492,7 @@ namespace IFSEngine.Rendering
         {
             float rw = DisplayWidth / (float)HistogramWidth;
             float rh = DisplayHeight / (float)HistogramHeight;
-            float rr = (rw < rh ? rw : rh) * .98f;
+            float rr = (rw < rh ? rw : rh) * .98f;//
             GL.BlitNamedFramebuffer(offscreenFBOHandle,
                 0, 0, 0, HistogramWidth, HistogramHeight,
                 (int)(DisplayWidth / 2 - HistogramWidth / 2 * rr),
