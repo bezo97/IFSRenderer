@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay
 {
@@ -13,5 +14,9 @@ namespace WpfDisplay
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            NvOptimusHelper.InitializeDedicatedGraphics();
+        }
     }
 }
