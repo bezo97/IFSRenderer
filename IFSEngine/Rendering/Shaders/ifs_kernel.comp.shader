@@ -117,9 +117,9 @@ uniform int dispatch_cnt;
 uniform int reset_points_state;
 
 //pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
-uint pcg_hash(uint input)
+uint pcg_hash(uint x)
 {
-	uint state = input * 747796405u + 2891336453u;
+	uint state = x * 747796405u + 2891336453u;
 	uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
 	return (word >> 22u) ^ word;
 }
@@ -207,9 +207,9 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 		(normalizedPoint.y * ratio + 1) * height / 2.0f);
 }
 
-vec3 apply_transform(Iterator iter, vec3 input, inout uint next)
+vec3 apply_transform(Iterator iter, vec3 p_input, inout uint next)
 {
-	vec3 p = input;
+	vec3 p = p_input;
 	int p_cnt = iter.tfParamsStart;
 
 	//snippets inserted on initialization
