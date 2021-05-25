@@ -116,14 +116,25 @@ uniform int height;
 uniform int dispatch_cnt;
 uniform int reset_points_state;
 
+//pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
+uint pcg_hash(uint input)
+{
+	uint state = input * 747796405u + 2891336453u;
+	uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+	return (word >> 22u) ^ word;
+}
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
-uint hash(uint x) {
+uint no_sin_hash(uint x) {
 	x += (x << 10u);
 	x ^= (x >> 6u);
 	x += (x << 3u);
 	x ^= (x >> 11u);
 	x += (x << 15u);
 	return x;
+}
+uint hash(uint x)
+{
+	return pcg_hash(x);
 }
 uint hash(uvec2 v) {
 	return hash(v.x ^ hash(v.y));
