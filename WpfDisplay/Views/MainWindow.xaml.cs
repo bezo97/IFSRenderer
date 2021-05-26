@@ -21,16 +21,12 @@ namespace WpfDisplay.Views
             ContentRendered += (s, e) =>
             {
                 //init workspace, tie renderer to display
-                RendererGL renderer = new RendererGL(renderDisplay.display1.Context);
-                renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                renderDisplay.display1.Resize += (s2, e2) => renderer.SetDisplayResolution(renderDisplay.display1.Width, renderDisplay.display1.Height);
-                Workspace workspace = new Workspace(renderer);
-
+                RendererGL renderer = new(mainDisplay.GraphicsContext);
+                mainDisplay.AttachRenderer(renderer);
+                Workspace workspace = new(renderer);
                 //create viewmodel
                 var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
-                //HACK: binding the DataContext in xaml causes OpenTK IWindowInfo null exception
-                renderDisplay.DataContext = mainViewModel.DisplayViewModel;
             };
         }
 

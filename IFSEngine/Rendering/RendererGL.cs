@@ -18,9 +18,12 @@ using System.Reflection;
 
 namespace IFSEngine.Rendering
 {
-    public class RendererGL
+    public sealed class RendererGL : IDisposable
     {
         public event EventHandler DisplayFramebufferUpdated;
+
+        public bool IsInitialized { get; private set; } = false;
+        public bool IsRendering { get; private set; } = false;
 
         public bool UpdateDisplayOnRender { get; set; } = true;
 
@@ -57,7 +60,7 @@ namespace IFSEngine.Rendering
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
-        private IFS currentParams = new IFS();
+        public IFS LoadedParams { get; private set; } = new IFS();
         private bool invalidHistogramResolution = false;
         private bool invalidAccumulation = false;
         private bool invalidParams = false;
@@ -130,9 +133,6 @@ namespace IFSEngine.Rendering
         public int MaxFilterRadius { get; set; } = 0;
 
         private bool updateDisplayNow = false;
-        private bool rendering = false;
-
-
         private IGraphicsContext ctx;
         //private IWindowInfo wInfo;
 
@@ -188,15 +188,14 @@ namespace IFSEngine.Rendering
         public RendererGL(IGraphicsContext ctx)
         {
             this.ctx = ctx;
-
-            //TODO: Remove from RendererGL
-            AnimationManager = new AnimationManager();
-
         }
 
         public void Initialize(IEnumerable<TransformFunction> transforms)
         {
-            ////enable debugging
+            if (IsInitialized)
+                throw new InvalidOperationException("Renderer is already initialized.");
+
+            //TODO: enable debugging flag
             //_debugProcCallbackHandle = System.Runtime.InteropServices.GCHandle.Alloc(_debugProcCallback);
             //GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
             //GL.Enable(EnableCap.DebugOutput);
@@ -217,6 +216,8 @@ namespace IFSEngine.Rendering
             GL.DeleteShader(vertexShaderHandle);
 
             SetHistogramScaleToDisplay();
+
+            IsInitialized = true;
             setWorkgroupCount(WorkgroupCount).Wait();
 
             InvalidateParams();
@@ -224,6 +225,9 @@ namespace IFSEngine.Rendering
 
         public async Task LoadTransforms(IEnumerable<TransformFunction> transformFunctions)
         {
+            if(!IsInitialized)
+                throw NewNotInitializedException();
+
             await WithContext(() =>
             {
                 RegisteredTransforms = transformFunctions.ToList();
@@ -234,7 +238,7 @@ namespace IFSEngine.Rendering
 
         public void LoadParams(IFS p)
         {
-            currentParams = p;
+            LoadedParams = p;
             InvalidateParams();
             SetHistogramScaleToDisplay();
         }
@@ -257,8 +261,8 @@ namespace IFSEngine.Rendering
 
         public void SetHistogramScale(double scale)
         {
-            var newWidth = (int)(currentParams.ImageResolution.Width * scale);
-            var newHeight = (int)(currentParams.ImageResolution.Height * scale);
+            var newWidth = (int)(LoadedParams.ImageResolution.Width * scale);
+            var newHeight = (int)(LoadedParams.ImageResolution.Height * scale);
             if (newWidth != HistogramWidth || newHeight != HistogramHeight)
             {
                 HistogramWidth = newWidth;
@@ -270,8 +274,8 @@ namespace IFSEngine.Rendering
 
         public void SetHistogramScaleToDisplay()
         {
-            double rw = DisplayWidth / (double)currentParams.ImageResolution.Width;
-            double rh = DisplayHeight / (double)currentParams.ImageResolution.Height;
+            double rw = DisplayWidth / (double)LoadedParams.ImageResolution.Width;
+            double rh = DisplayHeight / (double)LoadedParams.ImageResolution.Height;
             double rr = Math.Min(rw, rh) * .98;
             SetHistogramScale(rr);
         }
@@ -327,6 +331,9 @@ namespace IFSEngine.Rendering
 
         public void DispatchCompute()
         {
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
             GL.UseProgram(computeProgramHandle);
 
             if (invalidAccumulation)
@@ -345,10 +352,10 @@ namespace IFSEngine.Rendering
                 //update settings struct
                 var settings = new SettingsStruct
                 {
-                    camera_params = currentParams.Camera.GetCameraParameters(),
-                    itnum = currentParams.Iterators.Count,
-                    fog_effect = (float)currentParams.FogEffect,
-                    palettecnt = currentParams.Palette.Colors.Count,
+                    camera_params = LoadedParams.Camera.GetCameraParameters(),
+                    itnum = LoadedParams.Iterators.Count,
+                    fog_effect = (float)LoadedParams.FogEffect,
+                    palettecnt = LoadedParams.Palette.Colors.Count,
                     entropy = (float)Entropy,
                     warmup = Warmup,
                     pass_iters = PassIters,
@@ -364,12 +371,12 @@ namespace IFSEngine.Rendering
                 //generate iterator and transform structs
                 List<IteratorStruct> its = new List<IteratorStruct>();
                 List<float> tfsparams = new List<float>();
-                var currentIterators = currentParams.Iterators.ToList();
+                var currentIterators = LoadedParams.Iterators.ToList();
                 //input weights -> alias method tables
                 double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
                 if (sumInputWeights == 0.0)
                 {
-                    //TODO: throw new Exception("Invalid params: No input iterator found.");
+                    //TODO: throw new InvalidOperationException("Invalid params: No input iterator found.");
                     return;
                 }
                 var normalizedInputWeights = currentIterators.Select(i => i.InputWeight / sumInputWeights).ToList();
@@ -433,7 +440,7 @@ namespace IFSEngine.Rendering
 
                 //update palette
                 GL.BindBuffer(BufferTarget.UniformBuffer, paletteBufferHandle);
-                GL.BufferData(BufferTarget.UniformBuffer, currentParams.Palette.Colors.Count * sizeof(float) * 4, currentParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.UniformBuffer, LoadedParams.Palette.Colors.Count * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
 
                 invalidParams = false;
             }
@@ -453,16 +460,19 @@ namespace IFSEngine.Rendering
 
         public void RenderImage()
         {
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);//
 
             GL.UseProgram(tonemapProgramHandle);
             GL.BindVertexArray(vao);
             GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
-            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "brightness"), (float)currentParams.Brightness);
-            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "inv_gamma"), (float)(1.0f / currentParams.Gamma));
-            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "gamma_threshold"), (float)currentParams.GammaThreshold);
-            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "vibrancy"), (float)currentParams.Vibrancy);
-            GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), currentParams.BackgroundColor.R / 255.0f, currentParams.BackgroundColor.G / 255.0f, currentParams.BackgroundColor.B / 255.0f);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "brightness"), (float)LoadedParams.Brightness);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "inv_gamma"), (float)(1.0f / LoadedParams.Gamma));
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "gamma_threshold"), (float)LoadedParams.GammaThreshold);
+            GL.Uniform1(GL.GetUniformLocation(tonemapProgramHandle, "vibrancy"), (float)LoadedParams.Vibrancy);
+            GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), LoadedParams.BackgroundColor.R / 255.0f, LoadedParams.BackgroundColor.G / 255.0f, LoadedParams.BackgroundColor.B / 255.0f);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             if (EnableDE && dispatchCnt > 8)
@@ -506,9 +516,12 @@ namespace IFSEngine.Rendering
 
         public void StartRenderLoop()
         {
-            if (!rendering)
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
+            if (!IsRendering)
             {
-                rendering = true;
+                IsRendering = true;
 
                 if(ctx.IsCurrent)
                     ctx.MakeNoneCurrent();
@@ -516,7 +529,7 @@ namespace IFSEngine.Rendering
                 new Thread(() =>
                 {
                     ctx.MakeCurrent();
-                    while (rendering)
+                    while (IsRendering)
                     {
                         //compute the histogram
                         DispatchCompute();
@@ -546,11 +559,11 @@ namespace IFSEngine.Rendering
         /// </summary>
         public async Task StopRenderLoop()
         {
-            if (rendering)
-            {
-                rendering = false;
-                stopRender.WaitOne();
-            }
+            if (!IsRendering)
+                throw new InvalidOperationException("The render loop is not running.");
+
+            IsRendering = false;
+            stopRender.WaitOne();
         }
 
         public void UpdateDisplay()
@@ -566,8 +579,9 @@ namespace IFSEngine.Rendering
         /// <returns></returns>
         private async Task WithContext(Action action)
         {
-            bool continueRendering = rendering;
-            await StopRenderLoop();
+            bool continueRendering = IsRendering;
+            if(IsRendering)
+                await StopRenderLoop();
             bool wasCurrentContext = ctx.IsCurrent;
             if(!ctx.IsCurrent)
                 ctx.MakeCurrent();//acquire
@@ -592,6 +606,9 @@ namespace IFSEngine.Rendering
         /// </remarks>
         public async Task CopyPixelDataToBitmap(IntPtr ptr)
         {
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
             UpdateDisplay();
             await WithContext(() => {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);
@@ -620,6 +637,9 @@ namespace IFSEngine.Rendering
         /// </remarks>
         public async Task<float[,,]> ReadPixelData()
         {
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
             UpdateDisplay();
             float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
             await WithContext(() => {
@@ -632,6 +652,9 @@ namespace IFSEngine.Rendering
 
         public async Task<float[,,]> ReadHistogramData()
         {
+            if (!IsInitialized)
+                throw NewNotInitializedException();
+
             UpdateDisplay();
             float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
             await WithContext(() => {
@@ -862,11 +885,21 @@ if (iter.tfId == {tfIndex})
 
         }
 
+        private InvalidOperationException NewNotInitializedException()
+        {
+            return new InvalidOperationException("Renderer is not initialized.");
+        }
+
         public void Dispose()
         {
             DisplayFramebufferUpdated = null;
-            StopRenderLoop().Wait();
-            //TOOD: dispose
+            if (IsInitialized)
+            {
+                if (IsRendering)
+                    StopRenderLoop().Wait();
+                //TOOD: dispose buffers
+            }
+            IsInitialized = false;
         }
 
     }

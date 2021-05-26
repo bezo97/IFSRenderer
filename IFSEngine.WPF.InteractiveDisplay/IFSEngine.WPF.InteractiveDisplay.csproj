@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.0.0-preview5" />
+    <PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IFSEngine\IFSEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="InteractiveDisplay.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
+
+</Project>

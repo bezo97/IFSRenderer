@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IFSEngine.WPF.InteractiveDisplay\IFSEngine.WPF.InteractiveDisplay.csproj" />
     <ProjectReference Include="..\IFSEngine\IFSEngine.csproj" />
   </ItemGroup>
 
