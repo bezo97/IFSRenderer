@@ -22,7 +22,7 @@ namespace WpfDisplay.ViewModels
             get => workspace.Renderer.WorkgroupCount;
             set
             {
-                workspace.Renderer.setWorkgroupCount((int)value).Wait();
+                workspace.Renderer.SetWorkgroupCount((int)value).Wait();
                 OnPropertyChanged(nameof(WorkgroupCount));
             }
         }

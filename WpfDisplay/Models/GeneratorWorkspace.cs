@@ -39,7 +39,7 @@ namespace WpfDisplay.Models
                 .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
             renderer.Initialize(LoadedTransforms);
             //performance settings
-            renderer.setWorkgroupCount(10).Wait();
+            renderer.SetWorkgroupCount(10).Wait();
             renderer.PassIters = 100;
         }
 

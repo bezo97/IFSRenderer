@@ -4,10 +4,14 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <Version>1.0.0-pre.1</Version>
+    <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
+    <Authors>bezo97</Authors>
+    <Company>bezo97</Company>
+    <Description>WPF UIElement for IFSEngine, a 3D IFS fractal rendering engine.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.0.0-preview5" />
     <PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.5" />
   </ItemGroup>
 

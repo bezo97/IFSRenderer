@@ -70,7 +70,7 @@ namespace IFSEngine.Rendering
         /// TODO: make this adaptive, private
         /// </summary>
         public int WorkgroupCount { get; private set; } = 300;
-        public async Task setWorkgroupCount(int s)
+        public async Task SetWorkgroupCount(int s)
         {
             WorkgroupCount = s;
             await WithContext(() =>
@@ -133,7 +133,7 @@ namespace IFSEngine.Rendering
         public int MaxFilterRadius { get; set; } = 0;
 
         private bool updateDisplayNow = false;
-        private IGraphicsContext ctx;
+        private readonly IGraphicsContext ctx;
         //private IWindowInfo wInfo;
 
         private int vertexShaderHandle;
@@ -155,9 +155,10 @@ namespace IFSEngine.Rendering
         private int renderTextureHandle;
         private int taaTextureHandle;
 
-        private readonly AutoResetEvent stopRender = new AutoResetEvent(false); 
+        private readonly AutoResetEvent stopRender = new(false); 
         private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
         private readonly string shadersPath = "IFSEngine.Rendering.Shaders.";
+        private readonly bool debugFlag = false;
 
         //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
         private static void DebugCallback(DebugSource source,
@@ -177,7 +178,7 @@ namespace IFSEngine.Rendering
                 throw new Exception(messageString);
             }
         }
-        private static DebugProc _debugProcCallback = DebugCallback;
+        private static readonly DebugProc _debugProcCallback = DebugCallback;
         private static GCHandle _debugProcCallbackHandle;
 
         /// <summary>
@@ -195,11 +196,13 @@ namespace IFSEngine.Rendering
             if (IsInitialized)
                 throw new InvalidOperationException("Renderer is already initialized.");
 
-            //TODO: enable debugging flag
-            //_debugProcCallbackHandle = System.Runtime.InteropServices.GCHandle.Alloc(_debugProcCallback);
-            //GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
-            //GL.Enable(EnableCap.DebugOutput);
-            //GL.Enable(EnableCap.DebugOutputSynchronous);
+            if (debugFlag)
+            {
+                _debugProcCallbackHandle = GCHandle.Alloc(_debugProcCallback);
+                GL.DebugMessageCallback(_debugProcCallback, IntPtr.Zero);
+                GL.Enable(EnableCap.DebugOutput);
+                GL.Enable(EnableCap.DebugOutputSynchronous);
+            }
 
             RegisteredTransforms = transforms.ToList();
 
@@ -208,17 +211,17 @@ namespace IFSEngine.Rendering
             GL.BindVertexArray(vao);
             //empty vao
 
-            initBuffers();
-            initTonemapPass();
-            initDEPass();
-            initComputeProgram();
-            initTAAPass();
+            InitBuffers();
+            InitTonemapPass();
+            InitDEPass();
+            InitComputeProgram();
+            InitTAAPass();
             GL.DeleteShader(vertexShaderHandle);
 
             SetHistogramScaleToDisplay();
 
             IsInitialized = true;
-            setWorkgroupCount(WorkgroupCount).Wait();
+            SetWorkgroupCount(WorkgroupCount).Wait();
 
             InvalidateParams();
         }
@@ -231,7 +234,7 @@ namespace IFSEngine.Rendering
             await WithContext(() =>
             {
                 RegisteredTransforms = transformFunctions.ToList();
-                initComputeProgram();
+                InitComputeProgram();
                 InvalidateParams();
             });
         }
@@ -280,7 +283,7 @@ namespace IFSEngine.Rendering
             SetHistogramScale(rr);
         }
 
-        private void updateHistogramResolution()
+        private void UpdateHistogramResolution()
         {
 
             GL.UseProgram(computeProgramHandle);
@@ -339,7 +342,7 @@ namespace IFSEngine.Rendering
             if (invalidAccumulation)
             {
                 if (invalidHistogramResolution)
-                    updateHistogramResolution();
+                    UpdateHistogramResolution();
 
                 //reset accumulation
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
@@ -369,8 +372,8 @@ namespace IFSEngine.Rendering
             if (invalidParams)
             {
                 //generate iterator and transform structs
-                List<IteratorStruct> its = new List<IteratorStruct>();
-                List<float> tfsparams = new List<float>();
+                var its = new List<IteratorStruct>();
+                var tfsparams = new List<float>();
                 var currentIterators = LoadedParams.Iterators.ToList();
                 //input weights -> alias method tables
                 double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
@@ -411,10 +414,10 @@ namespace IFSEngine.Rendering
                 //normalize base weights
                 double SumWeights = currentIterators.Sum(i => i.BaseWeight);
                 var normalizedBaseWeights = currentIterators.ToDictionary(i => i, i => i.BaseWeight / SumWeights);
-                List<(double u, int k)> xaosAliasTables = new List<(double u, int k)>();
+                var xaosAliasTables = new List<(double u, int k)>();
                 foreach (var it in currentIterators)
                 {
-                    List<double> itWeights = new List<double>(currentIterators.Count);
+                    var itWeights = new List<double>(currentIterators.Count);
                     foreach (var toIt in currentIterators)
                     {
                         if (it.WeightTo.ContainsKey(toIt))//multiply with base weights
@@ -498,7 +501,7 @@ namespace IFSEngine.Rendering
             }
         }
 
-        private void blitToDisplayFramebuffer()
+        private void BlitToDisplayFramebuffer()
         {
             float rw = DisplayWidth / (float)HistogramWidth;
             float rh = DisplayHeight / (float)HistogramHeight;
@@ -540,7 +543,7 @@ namespace IFSEngine.Rendering
                             //render image from histogram
                             RenderImage();
                             //display the image
-                            blitToDisplayFramebuffer();
+                            BlitToDisplayFramebuffer();
                             ctx.SwapBuffers();
                             DisplayFramebufferUpdated?.Invoke(this, null);
                             updateDisplayNow = false;
@@ -554,16 +557,14 @@ namespace IFSEngine.Rendering
         }
 
         /// <summary>
-        /// Wait for render thread to stop
-        /// TODO: async waitone ? http://msdn.microsoft.com/en-us/library/hh873178.aspx#WaitHandles
+        /// Wait for the render thread to stop.
         /// </summary>
         public async Task StopRenderLoop()
         {
             if (!IsRendering)
                 throw new InvalidOperationException("The render loop is not running.");
-
             IsRendering = false;
-            stopRender.WaitOne();
+            stopRender.WaitOne(); //TODO: find async solution
         }
 
         public void UpdateDisplay()
@@ -665,7 +666,7 @@ namespace IFSEngine.Rendering
             return o;
         }
 
-        private void initTAAPass()
+        private void InitTAAPass()
         {
 
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(shadersPath + "taa.frag.shader");
@@ -712,7 +713,7 @@ namespace IFSEngine.Rendering
             GL.Uniform1(GL.GetUniformLocation(taaProgramHandle, "new_frame_tex"), 0);
         }
 
-        private void initDEPass()
+        private void InitDEPass()
         {
 
             var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(shadersPath + "de.frag.shader");
@@ -748,7 +749,7 @@ namespace IFSEngine.Rendering
 
         }
 
-        private void initTonemapPass()
+        private void InitTonemapPass()
         {
             var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
@@ -808,7 +809,7 @@ namespace IFSEngine.Rendering
 
         }
 
-        private void initComputeProgram()
+        private void InitComputeProgram()
         {
             //load functions
             string transformsSource = "";
@@ -863,7 +864,7 @@ if (iter.tfId == {tfIndex})
 
         }
 
-        private void initBuffers()
+        private void InitBuffers()
         {
             //create buffers
             histogramBufferHandle = GL.GenBuffer();
@@ -885,7 +886,7 @@ if (iter.tfId == {tfIndex})
 
         }
 
-        private InvalidOperationException NewNotInitializedException()
+        private static InvalidOperationException NewNotInitializedException()
         {
             return new InvalidOperationException("Renderer is not initialized.");
         }
@@ -897,7 +898,10 @@ if (iter.tfId == {tfIndex})
             {
                 if (IsRendering)
                     StopRenderLoop().Wait();
-                //TOOD: dispose buffers
+                if (debugFlag)
+                    _debugProcCallbackHandle.Free();
+                //TODO: dispose buffers
+
             }
             IsInitialized = false;
         }
