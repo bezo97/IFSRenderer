@@ -4,7 +4,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.0.0-pre.1</Version>
+    <Version>1.0.0-pre.2</Version>
     <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
     <Authors>bezo97</Authors>
     <Company>bezo97</Company>

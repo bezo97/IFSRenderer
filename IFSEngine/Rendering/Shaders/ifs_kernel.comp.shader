@@ -132,48 +132,48 @@ uint no_sin_hash(uint x) {
 	x += (x << 15u);
 	return x;
 }
-uint hash(uint x)
+uint hash1(uint x)
 {
 	return pcg_hash(x);
 }
-uint hash(uvec2 v) {
-	return hash(v.x ^ hash(v.y));
+uint hash2(uvec2 v) {
+	return hash1(v.x ^ hash1(v.y));
 }
 
-uint hash(uvec3 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z));
+uint hash3(uvec3 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z));
 }
 
-uint hash(uvec4 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
+uint hash4(uvec4 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z) ^ hash1(v.w));
 }
-float f_hash(float f) {
+float f_hash1(float f) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(floatBitsToUint(f));
+	uint h = hash1(floatBitsToUint(f));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, uint nextSample) {
+float f_hash21(float f1, float f2, uint nextSample) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, float f3) {
+float f_hash3(float f1, float f2, float f3) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
 	h &= mantissaMask;
 	h |= one;
 
@@ -183,7 +183,7 @@ float f_hash(float f1, float f2, float f3) {
 
 float random(inout uint nextSample)
 {
-	return f_hash(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash21(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
@@ -292,7 +292,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash(gl_WorkGroupID.x, dispatch_cnt, next);
+	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -363,7 +363,7 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
 			random(next) < settings.entropy || //chance to reset by entropy
