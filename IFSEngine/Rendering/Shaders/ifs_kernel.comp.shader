@@ -292,7 +292,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next);
+	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -358,7 +358,7 @@ void main() {
 		p = reset_state(next);
 	else
 		p = state[gid];
-
+	
 	for (int i = 0; i < settings.pass_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
@@ -366,7 +366,7 @@ void main() {
 		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
-			random(next) < settings.entropy || //chance to reset by entropy
+			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy || //chance to reset by entropy
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
 			p = reset_state(next);
