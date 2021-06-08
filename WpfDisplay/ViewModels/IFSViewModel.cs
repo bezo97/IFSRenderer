@@ -77,7 +77,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
                 OnPropertyChanged(nameof(BackgroundColor));
             }
         }
@@ -90,7 +90,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 workspace.IFS.FogEffect = value;
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
                 OnPropertyChanged(nameof(FogEffect));
             }
         }
@@ -99,7 +99,7 @@ namespace WpfDisplay.ViewModels
         {
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-            IteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParams();
+            IteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParamsBuffer();
             workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             workspace.PropertyChanged += (s, e) => {
                 SelectedIterator = null;
@@ -186,7 +186,7 @@ namespace WpfDisplay.ViewModels
                 SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
                 newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
             }
-            workspace.Renderer.InvalidateParams();
+            workspace.Renderer.InvalidateParamsBuffer();
             HandleIteratorsChanged();
         }
 
@@ -197,7 +197,7 @@ namespace WpfDisplay.ViewModels
         {
             workspace.IFS.RemoveIterator(SelectedIterator.iterator);
             SelectedIterator = null;
-            workspace.Renderer.InvalidateParams();
+            workspace.Renderer.InvalidateParamsBuffer();
             HandleIteratorsChanged();
         }
 
@@ -207,7 +207,7 @@ namespace WpfDisplay.ViewModels
         private async Task OnDuplicateSelectedCommand()
         {
             var newIterator = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
-            workspace.Renderer.InvalidateParams();
+            workspace.Renderer.InvalidateParamsBuffer();
             HandleIteratorsChanged();
             SelectedIterator = IteratorViewModels.First(vm => vm.iterator == newIterator);
         }
@@ -223,7 +223,7 @@ namespace WpfDisplay.ViewModels
                 //TODO: Replace random choice with a palette picker here
                 //var palette = PalettePicker.ShowDialog(palettes);
                 workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
                 OnPropertyChanged(nameof(Palette));
             }
         }

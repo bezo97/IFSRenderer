@@ -30,7 +30,7 @@ namespace WpfDisplay.ViewModels
             set
             {
                 from.iterator.WeightTo[to.iterator] = value;
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
                 OnPropertyChanged(nameof(Weight));
             }
         }

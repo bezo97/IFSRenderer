@@ -55,7 +55,7 @@ namespace IFSEngine.Model
 
         public override bool Equals(object obj)
         {
-            if (!(obj is TransformFunction))//TODO: is not
+            if(obj is not TransformFunction)
                 return false;
             var tf2 = (TransformFunction)obj;
             return (Name == tf2.Name && Version == tf2.Version);

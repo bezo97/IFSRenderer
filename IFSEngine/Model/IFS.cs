@@ -12,7 +12,7 @@ namespace IFSEngine.Model
     /// </summary>
     public class IFS
     {
-        public IReadOnlyCollection<Iterator> Iterators => iterators;//TODO: use IReadOnlySet in .NET5
+        public IReadOnlySet<Iterator> Iterators => iterators;
         public double Brightness { get; set; } = 1.0;
         public double Gamma { get; set; } = 1.0;
         public double GammaThreshold { get; set; } = 0.0;

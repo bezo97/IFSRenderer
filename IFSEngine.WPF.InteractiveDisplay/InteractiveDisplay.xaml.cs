@@ -59,7 +59,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
             if (IsInteractionEnabled)
             {
                 Renderer.LoadedParams.Camera.FocusDistance += e.Delta * Renderer.LoadedParams.Camera.FocusDistance * 0.001;
-                Renderer.InvalidateAccumulation();
+                Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -73,7 +73,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
-                    Renderer.InvalidateAccumulation();
+                    Renderer.InvalidateHistogramBuffer();
 
                     //TODO: Mouse position reset
                     //if (VisualTreeHelper.HitTest(this, Mouse.GetPosition(this)) == null)
@@ -103,7 +103,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                         ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
                     );
                     Renderer.LoadedParams.Camera.TranslateWithSensitivity(magnitude * direction);
-                    Renderer.InvalidateAccumulation();
+                    Renderer.InvalidateHistogramBuffer();
                 }
 
                 if (rotateKeys.Any(k => keyboard.IsKeyDown(k)))
@@ -115,7 +115,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                         ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                     );
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(magnitude * direction);
-                    Renderer.InvalidateAccumulation();
+                    Renderer.InvalidateHistogramBuffer();
                 }
             }
         }

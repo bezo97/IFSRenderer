@@ -20,7 +20,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Brightness = value;
                 OnPropertyChanged(nameof(Brightness));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
         public double Gamma
@@ -30,7 +30,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Gamma = value;
                 OnPropertyChanged(nameof(Gamma));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
         public double GammaThreshold
@@ -40,7 +40,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.GammaThreshold = value;
                 OnPropertyChanged(nameof(GammaThreshold));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
         public double Vibrancy
@@ -50,7 +50,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Vibrancy = value;
                 OnPropertyChanged(nameof(Vibrancy));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 

@@ -81,7 +81,6 @@ namespace WpfDisplay.Models
                 {
                     renderer.LoadParams(ifs);
                     renderer.SetHistogramScaleToDisplay();
-                    renderer.UpdateDisplay();
                     renderer.DispatchCompute();
                     renderer.RenderImage();
                     WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
