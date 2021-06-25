@@ -96,10 +96,15 @@ namespace IFSEngine.Rendering
         public int Warmup { get; set; } = 20;
 
         /// <summary>
-        /// Performance setting: Number of iterations per dispatch.
-        /// TODO: adaptive, using a target fps. depends on hardware & params.
+        /// Number of iterations a single invocation performs.
+        /// This value is adjusted after each dispatch in order to approach <see cref="TargetFramerate"/>
         /// </summary>
-        public int PassIters { get; set; } = 500;
+        public int InvocationIters { get; private set; } = 500;
+
+        /// <summary>
+        /// The render loop aims to reach the specified framerate by measuring compute kernel execution time and adjusting the workload size. Measured in Fps.
+        /// </summary>
+        public int TargetFramerate { get; set; } = 60;
 
         // <summary>
         // Number of iterations between resetting points.
@@ -179,6 +184,7 @@ namespace IFSEngine.Rendering
         }
         private static readonly DebugProc _debugProcCallback = DebugCallback;
         private static GCHandle _debugProcCallbackHandle;
+        private int timerQueryHandle;
 
         /// <summary>
         /// Creates a new renderer instance.
@@ -216,6 +222,8 @@ namespace IFSEngine.Rendering
             InitComputeProgram();
             InitTAAPass();
             GL.DeleteShader(vertexShaderHandle);
+
+            timerQueryHandle = GL.GenQuery();
 
             SetHistogramScaleToDisplay();
 
@@ -370,7 +378,6 @@ namespace IFSEngine.Rendering
                     palettecnt = LoadedParams.Palette.Colors.Count,
                     entropy = (float)Entropy,
                     warmup = Warmup,
-                    pass_iters = PassIters,
                     max_filter_radius = MaxFilterRadius
                 };
                 GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);
@@ -459,12 +466,13 @@ namespace IFSEngine.Rendering
             //these values can change every dispatch
             GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "reset_points_state"), invalidPointsStateBuffer ? 1 : 0);
             GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "dispatch_cnt"), dispatchCnt);
+            GL.Uniform1(GL.GetUniformLocation(computeProgramHandle, "invocation_iters"), InvocationIters);
 
-            GL.Finish();
+            GL.Finish(); //blocking call
             GL.DispatchCompute(WorkgroupCount, 1, 1);
 
             invalidPointsStateBuffer = false;
-            TotalIterations += Convert.ToUInt64(PassIters * InvocationCount);
+            TotalIterations += Convert.ToUInt64(InvocationIters * InvocationCount);
             dispatchCnt++;
 
         }
@@ -525,6 +533,16 @@ namespace IFSEngine.Rendering
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
+        private void AdjustWorkloadSize()
+        {
+            GL.GetQueryObject(timerQueryHandle, GetQueryObjectParam.QueryResult, out int timerQueryResultNs); //blocking call
+            int actualMs = timerQueryResultNs / 1000000;//ns to ms
+            int targetMs = 1000 / TargetFramerate;
+            double adjustment = (actualMs > targetMs) ? 0.66 : 1.1;
+            int adjustedInvocationIters = (int)(InvocationIters * adjustment);
+            InvocationIters = Math.Clamp(adjustedInvocationIters, 50, 20000);
+        }
+
         public void StartRenderLoop()
         {
             if (!IsInitialized)
@@ -542,8 +560,11 @@ namespace IFSEngine.Rendering
                     ctx.MakeCurrent();
                     while (IsRendering)
                     {
-                        //compute the histogram
-                        DispatchCompute();
+                        GL.BeginQuery(QueryTarget.TimeElapsed, timerQueryHandle);
+                        DispatchCompute();//compute the histogram
+                        GL.EndQuery(QueryTarget.TimeElapsed);
+
+                        AdjustWorkloadSize();
 
                         bool isPerceptuallyEqualFrame = MathExtensions.IsPow2(dispatchCnt);
                         if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
@@ -904,6 +925,7 @@ if (iter.tfId == {tfIndex})
                     _debugProcCallbackHandle.Free();
                 //TODO: dispose buffers
 
+                GL.DeleteQuery(timerQueryHandle);
             }
             IsInitialized = false;
         }

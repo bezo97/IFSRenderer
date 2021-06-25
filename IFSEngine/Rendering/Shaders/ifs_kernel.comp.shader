@@ -72,8 +72,8 @@ layout(std140, binding = 2) uniform settings_ubo
 
 	float fog_effect;
 	int itnum;//number of iterators
-	int pass_iters;//iterations per pass
 	int palettecnt;
+	int padding1;
 
 	int warmup;
 	float entropy;
@@ -115,6 +115,7 @@ uniform int width;
 uniform int height;
 uniform int dispatch_cnt;
 uniform int reset_points_state;
+uniform int invocation_iters;
 
 //pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
 uint pcg_hash(uint x)
@@ -359,7 +360,7 @@ void main() {
 	else
 		p = state[gid];
 	
-	for (int i = 0; i < settings.pass_iters; i++)
+	for (int i = 0; i < invocation_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;

@@ -40,7 +40,6 @@ namespace WpfDisplay.Models
             renderer.Initialize(LoadedTransforms);
             //performance settings
             renderer.SetWorkgroupCount(10).Wait();
-            renderer.PassIters = 100;
         }
 
         public void GenerateNewRandomBatch(int batchSize)
