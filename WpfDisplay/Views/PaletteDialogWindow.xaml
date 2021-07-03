@@ -1,0 +1,42 @@
+﻿<Window x:Class="WpfDisplay.Views.PaletteDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        x:Name="paletteWindow"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        mc:Ignorable="d"
+        Height="500" Width="300"
+        WindowStartupLocation="CenterOwner" 
+        ShowInTaskbar="False"
+        WindowStyle="ToolWindow"
+        Title="Palette Picker"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Palettes}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:PaletteButton 
+                                Palette="{Binding}"
+                                Content="{Binding Name}"
+                                Command="{Binding PaletteSelectedCommand, ElementName=paletteWindow}"
+                                CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <Button Grid.Row="1" 
+                Command="{Binding CancelDialogCommand}"
+                IsCancel="True">
+            Cancel
+        </Button>
+    </Grid>
+</Window>

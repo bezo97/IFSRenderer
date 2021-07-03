@@ -43,7 +43,6 @@ namespace WpfDisplay.Views
 
         private void SetGradient(FlamePalette fp)
         {
-
             gradientStops.Clear();
             for (int i = 0; i < fp.Colors.Count; i++)
             {
@@ -54,20 +53,9 @@ namespace WpfDisplay.Views
                         (byte)(fp.Colors[i].Z * 255)),
                     i / (double)fp.Colors.Count));
             }
-            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GradientStops)));
+            
         }
 
-        /*protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);
-            if (Palette == null)
-                return;
-            foreach (var c in Palette.Colors)
-            {
-
-                drawingContext.DrawRectangle(brush, null, rect);
-            }
-        }*/
 
     }
 }

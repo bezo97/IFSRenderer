@@ -219,12 +219,16 @@ namespace WpfDisplay.ViewModels
         {
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
             {
-                var palettes = FlamePalette.FromFile(path);
-                //TODO: Replace random choice with a palette picker here
-                //var palette = PalettePicker.ShowDialog(palettes);
-                workspace.IFS.Palette = palettes[new Random().Next(palettes.Count)];
-                workspace.Renderer.InvalidateParamsBuffer();
-                OnPropertyChanged(nameof(Palette));
+                var picker = new Views.PaletteDialogWindow
+                {
+                    Palettes = await FlamePalette.FromFileAsync(path)
+                };
+                if (picker.ShowDialog() == true)
+                {
+                    workspace.IFS.Palette = picker.SelectedPalette;
+                    workspace.Renderer.InvalidateParamsBuffer();
+                    OnPropertyChanged(nameof(Palette));
+                }
             }
         }
 

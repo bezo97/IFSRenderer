@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:WpfDisplay.Views"
              mc:Ignorable="d" 
              x:Name="paletteButton"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             Style="{StaticResource MaterialDesignRaisedButton}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Button.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -15,18 +15,24 @@
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
     </Button.Background>
-    <Button.Style>
-        <Style BasedOn="{StaticResource MaterialDesignRaisedButton}" TargetType="Button">
-            <Setter Property="TextBlock.Foreground">
-                <Setter.Value>
-                    <SolidColorBrush Color="White"/>
-                </Setter.Value>
-            </Setter>
-            <!--<Setter Property="TextBlock.Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="3" ShadowDepth="5" />
-                </Setter.Value>
-            </Setter>-->
-        </Style>
-    </Button.Style>
+    <!--HACK: text shadow above colored background-->
+    <Button.Template>
+        <ControlTemplate TargetType="Button">
+            <Grid>
+                <Label
+                    Background="{Binding Background, ElementName=paletteButton}"></Label>
+                <TextBlock Text="{TemplateBinding Content}"
+                            Style="{StaticResource MaterialDesignButtonTextBlock}"
+                            Padding="{Binding Padding, ElementName=paletteButton}"
+                            Foreground="White"
+                            TextAlignment="Center"
+                           Background="Transparent"
+                            >
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" />
+                    </TextBlock.Effect>
+                </TextBlock>
+            </Grid>
+        </ControlTemplate>
+    </Button.Template>
 </Button>

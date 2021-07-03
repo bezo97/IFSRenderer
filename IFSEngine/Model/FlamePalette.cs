@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace IFSEngine.Model
 {
@@ -26,7 +27,7 @@ namespace IFSEngine.Model
         /// <summary>
         /// Parse *.gradient files. Compatible with ChaosHelper.
         /// </summary>
-        public static List<FlamePalette> FromFile(string filePath)
+        public static async Task<List<FlamePalette>> FromFileAsync(string filePath)
         {
             List<FlamePalette> palettes = new List<FlamePalette>();
             int state = 0;
@@ -35,7 +36,7 @@ namespace IFSEngine.Model
             {
                 while (!sr.EndOfStream)
                 {
-                    string sor = sr.ReadLine();
+                    string sor = await sr.ReadLineAsync();
                     switch (state)
                     {
                         case 0://new palette
