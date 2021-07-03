@@ -32,7 +32,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.EnableDE = value;
                 OnPropertyChanged(nameof(EnableDE));
                 OnPropertyChanged(nameof(DEPanelVisibility));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
         public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
@@ -44,7 +44,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.DEMaxRadius = value;
                 OnPropertyChanged(nameof(DEMaxRadius));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 
@@ -55,7 +55,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.DEThreshold = value;
                 OnPropertyChanged(nameof(DEThreshold));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 
@@ -66,7 +66,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.DEPower = value;
                 OnPropertyChanged(nameof(DEPower));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 
@@ -77,7 +77,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.EnableTAA = value;
                 OnPropertyChanged(nameof(EnableTAA));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 
@@ -88,7 +88,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.EnablePerceptualUpdates = value;
                 OnPropertyChanged(nameof(EnablePerceptualUpdates));
-                workspace.Renderer.UpdateDisplay();
+                workspace.Renderer.InvalidateDisplay();
             }
         }
 
@@ -99,7 +99,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.Entropy = 1.0 / value;
                 OnPropertyChanged(nameof(EntropyInv));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -110,7 +110,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.Renderer.Warmup = value;
                 OnPropertyChanged(nameof(Warmup));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -122,7 +122,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.MaxFilterRadius = value;
                 OnPropertyChanged(nameof(MaxFilterRadius));
                 OnPropertyChanged(nameof(FilterText));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 

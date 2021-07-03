@@ -22,7 +22,6 @@ namespace WpfDisplay.ViewModels
     {
         private readonly Workspace workspace;
 
-        public InteractiveDisplayViewModel DisplayViewModel { get; }
         public ToneMappingViewModel ToneMappingViewModel { get; }
         public CameraSettingsViewModel CameraSettingsViewModel { get; }
         public PerformanceViewModel PerformanceViewModel { get; }
@@ -48,7 +47,6 @@ namespace WpfDisplay.ViewModels
         {
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-            DisplayViewModel = new InteractiveDisplayViewModel(workspace);
             PerformanceViewModel = new PerformanceViewModel(workspace);
             QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
             IFSViewModel = new IFSViewModel(workspace);
@@ -197,8 +195,8 @@ namespace WpfDisplay.ViewModels
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveExr, out string path))
             {
                 var histogramData = await getDataTask;
-                using (var fstream = File.Create(path))
-                    OpenEXR.WriteStream(fstream, histogramData);
+                using var fstream = File.Create(path);
+                OpenEXR.WriteStream(fstream, histogramData);
             }
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;

@@ -53,8 +53,7 @@ namespace WpfDisplay.Models
             generator = new Generator(transforms);
             renderer.Initialize(transforms);
             //performance settings
-            renderer.setWorkgroupCount(10).Wait();
-            renderer.PassIters = 100;
+            renderer.SetWorkgroupCount(10).Wait();
         }
 
         public async Task GenerateNewRandomBatch(GeneratorOptions options)
@@ -89,7 +88,6 @@ namespace WpfDisplay.Models
                 {
                     renderer.LoadParams(ifs);
                     renderer.SetHistogramScaleToDisplay();
-                    renderer.UpdateDisplay();
                     renderer.DispatchCompute();
                     renderer.RenderImage();
                     WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);

@@ -41,7 +41,7 @@ namespace WpfDisplay.ViewModels
                 v.PropertyChanged += (s, e) =>
                 {
                     OnPropertyChanged(e.PropertyName);
-                    workspace.Renderer.InvalidateParams();
+                    workspace.Renderer.InvalidateParamsBuffer();
                 };
             }
         }
@@ -74,7 +74,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.InputWeight = value;
                 OnPropertyChanged(nameof(InputWeight));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -86,7 +86,7 @@ namespace WpfDisplay.ViewModels
                 iterator.Opacity = value;
                 OnPropertyChanged(nameof(Opacity));
                 OnPropertyChanged(nameof(OpacityColor));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -97,7 +97,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ColorIndex = value;
                 OnPropertyChanged(nameof(ColorIndex));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -108,7 +108,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ColorSpeed = value;
                 OnPropertyChanged(nameof(ColorSpeed));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -119,7 +119,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
                 OnPropertyChanged(nameof(DeltaColoring));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -141,7 +141,7 @@ namespace WpfDisplay.ViewModels
                 //ifsvm.ifs.NormalizeBaseWeights();
                 //ifsvm.HandleConnectionsChanged(this);
                 ViewChanged?.Invoke(this, null);//refresh
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 
@@ -198,7 +198,7 @@ namespace WpfDisplay.ViewModels
         {
             //
             ConnectEvent?.Invoke(this, true);
-            workspace.Renderer.InvalidateParams();
+            workspace.Renderer.InvalidateParamsBuffer();
         }
 
     }

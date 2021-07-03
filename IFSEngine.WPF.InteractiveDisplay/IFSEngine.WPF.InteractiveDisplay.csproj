@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Version>1.0.0-pre.3</Version>
+    <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
+    <Authors>bezo97</Authors>
+    <Company>bezo97</Company>
+    <Description>WPF UIElement for IFSEngine, a 3D IFS fractal rendering engine.</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IFSEngine\IFSEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="InteractiveDisplay.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
+
+</Project>

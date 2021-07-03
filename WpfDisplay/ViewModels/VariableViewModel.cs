@@ -17,7 +17,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.TransformVariables[Name] = value;
                 OnPropertyChanged(nameof(Value));
-                workspace.Renderer.InvalidateParams();
+                workspace.Renderer.InvalidateParamsBuffer();
             }
         }
 

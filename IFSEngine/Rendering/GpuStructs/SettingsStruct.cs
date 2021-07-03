@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0649
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -11,8 +12,8 @@ namespace IFSEngine.Rendering.GpuStructs
 
         internal float fog_effect;
         internal int itnum;//number of iterators
-        internal int pass_iters;//iterations per pass
         internal int palettecnt;//how many colors in the palette
+        internal int padding1;
 
         internal int warmup;//initial skipping / fuse
         internal float entropy;

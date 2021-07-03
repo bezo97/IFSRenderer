@@ -1,26 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>IFSEngine</RootNamespace>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>bezo97</Authors>
     <Description>3D IFS fractal rendering engine.</Description>
     <Copyright>Copyright 2021</Copyright>
-    <Version></Version>
-    <PackageLicenseExpression>TODO</PackageLicenseExpression>
+    <Version>1.0.0-pre.4</Version>
+    <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>fractal, 3d, graphics, art, ifs, rendering</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>    
+    <PackageReleaseNotes>test version</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,13 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="OpenTK.Graphics" Version="4.5.0" />
-    <PackageReference Include="OpenTK.Windowing.Common" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\IFSEngine.Util\IFSEngine.Util.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="OpenTK.Graphics" Version="4.4.0" />
+    <PackageReference Include="OpenTK.Windowing.Common" Version="4.4.0" />
   </ItemGroup>
 
 </Project>

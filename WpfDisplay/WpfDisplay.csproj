@@ -10,16 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.2" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.0.0-preview5" />
-    <PackageReference Include="OpenTK" Version="4.5.0" />
-    <PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.5" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.0.2" />
+    <PackageReference Include="OpenTK" Version="4.4.0" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IFSEngine.WPF.InteractiveDisplay\IFSEngine.WPF.InteractiveDisplay.csproj" />
     <ProjectReference Include="..\IFSEngine\IFSEngine.csproj" />
   </ItemGroup>
 

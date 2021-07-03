@@ -72,8 +72,8 @@ layout(std140, binding = 2) uniform settings_ubo
 
 	float fog_effect;
 	int itnum;//number of iterators
-	int pass_iters;//iterations per pass
 	int palettecnt;
+	int padding1;
 
 	int warmup;
 	float entropy;
@@ -115,9 +115,17 @@ uniform int width;
 uniform int height;
 uniform int dispatch_cnt;
 uniform int reset_points_state;
+uniform int invocation_iters;
 
+//pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
+uint pcg_hash(uint x)
+{
+	uint state = x * 747796405u + 2891336453u;
+	uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+	return (word >> 22u) ^ word;
+}
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
-uint hash(uint x) {
+uint no_sin_hash(uint x) {
 	x += (x << 10u);
 	x ^= (x >> 6u);
 	x += (x << 3u);
@@ -125,44 +133,48 @@ uint hash(uint x) {
 	x += (x << 15u);
 	return x;
 }
-uint hash(uvec2 v) {
-	return hash(v.x ^ hash(v.y));
+uint hash1(uint x)
+{
+	return pcg_hash(x);
+}
+uint hash2(uvec2 v) {
+	return hash1(v.x ^ hash1(v.y));
 }
 
-uint hash(uvec3 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z));
+uint hash3(uvec3 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z));
 }
 
-uint hash(uvec4 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
+uint hash4(uvec4 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z) ^ hash1(v.w));
 }
-float f_hash(float f) {
+float f_hash1(float f) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(floatBitsToUint(f));
+	uint h = hash1(floatBitsToUint(f));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, uint nextSample) {
+float f_hash21(float f1, float f2, uint nextSample) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash(float f1, float f2, float f3) {
+float f_hash3(float f1, float f2, float f3) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
 	h &= mantissaMask;
 	h |= one;
 
@@ -172,7 +184,7 @@ float f_hash(float f1, float f2, float f3) {
 
 float random(inout uint nextSample)
 {
-	return f_hash(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash21(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
@@ -196,9 +208,9 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 		(normalizedPoint.y * ratio + 1) * height / 2.0f);
 }
 
-vec3 apply_transform(Iterator iter, vec3 input, inout uint next)
+vec3 apply_transform(Iterator iter, vec3 p_input, inout uint next)
 {
-	vec3 p = input;
+	vec3 p = p_input;
 	int p_cnt = iter.tfParamsStart;
 
 	//snippets inserted on initialization
@@ -281,7 +293,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash(gl_WorkGroupID.x, dispatch_cnt, next);
+	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -347,15 +359,15 @@ void main() {
 		p = reset_state(next);
 	else
 		p = state[gid];
-
-	for (int i = 0; i < settings.pass_iters; i++)
+	
+	for (int i = 0; i < invocation_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
-			random(next) < settings.entropy || //chance to reset by entropy
+			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy || //chance to reset by entropy
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
 			p = reset_state(next);

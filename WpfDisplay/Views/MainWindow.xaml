@@ -7,7 +7,8 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
-        xmlns:conv="clr-namespace:WpfDisplay.Converters"
+        xmlns:conv="clr-namespace:WpfDisplay.Converters" 
+        xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -98,9 +99,9 @@
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <DockPanel Name="Docker">
                     <Grid>
-                        <local:RenderDisplay
+                        <disp:InteractiveDisplay
                             Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
-                            x:Name="renderDisplay"
+                            x:Name="mainDisplay"
                             Height="{Binding ElementName=Docker, Path=ActualHeight}" 
                             Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
                         <ProgressBar

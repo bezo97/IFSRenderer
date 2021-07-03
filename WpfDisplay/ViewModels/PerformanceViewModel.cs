@@ -14,15 +14,27 @@ namespace WpfDisplay.ViewModels
         private ulong lastTotalIters = 0;
 
         //TODO: add total render time, account for pauses
-        public int Fps { get; private set; }
-        public string IterationSpeed { get; private set; }
-        public string TotalIterations { get; private set; }
+        public int Fps => fpsCounter;
+        public int InvocationIters => workspace.Renderer.InvocationIters;
+        public string IterationSpeed => (workspace.Renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
+        public string TotalIterations => workspace.Renderer.TotalIterations.ToKMB();
+
+        public int TargetFramerate
+        {
+            get => workspace.Renderer.TargetFramerate;
+            set
+            {
+                workspace.Renderer.TargetFramerate = value;
+                OnPropertyChanged(nameof(TargetFramerate));
+            }
+        }
+
         public double WorkgroupCount
         {
             get => workspace.Renderer.WorkgroupCount;
             set
             {
-                workspace.Renderer.setWorkgroupCount((int)value).Wait();
+                workspace.Renderer.SetWorkgroupCount((int)value).Wait();
                 OnPropertyChanged(nameof(WorkgroupCount));
             }
         }
@@ -37,15 +49,6 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public int PassIters
-        {
-            get => workspace.Renderer.PassIters;
-            set
-            {
-                workspace.Renderer.PassIters = value;
-                OnPropertyChanged(nameof(PassIters));
-            }
-        }
 
         public PerformanceViewModel(Workspace workspace)
         {
@@ -58,15 +61,16 @@ namespace WpfDisplay.ViewModels
 
         public void UpdateValues()
         {
-            TotalIterations = workspace.Renderer.TotalIterations.ToKMB();
-            Fps = fpsCounter;
-            fpsCounter = 0;
-            lastTotalIters = Math.Min(workspace.Renderer.TotalIterations, lastTotalIters);
-            IterationSpeed = (workspace.Renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
-            lastTotalIters = workspace.Renderer.TotalIterations;
             OnPropertyChanged(nameof(Fps));
+            fpsCounter = 0;
+
+            lastTotalIters = Math.Min(workspace.Renderer.TotalIterations, lastTotalIters);
             OnPropertyChanged(nameof(IterationSpeed));
+            lastTotalIters = workspace.Renderer.TotalIterations;
+
             OnPropertyChanged(nameof(TotalIterations));
+            OnPropertyChanged(nameof(InvocationIters));
+            OnPropertyChanged(nameof(TargetFramerate));
         }
 
 

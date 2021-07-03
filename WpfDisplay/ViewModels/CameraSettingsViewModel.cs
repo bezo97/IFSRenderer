@@ -19,7 +19,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Camera.FieldOfView = value;
                 OnPropertyChanged(nameof(FieldOfView));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -30,7 +30,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Camera.DepthOfField = value;
                 OnPropertyChanged(nameof(DepthOfField));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -41,7 +41,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Camera.FocusDistance = value;
                 OnPropertyChanged(nameof(FocusDistance));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
@@ -52,7 +52,7 @@ namespace WpfDisplay.ViewModels
             {
                 workspace.IFS.Camera.FocusArea = value;
                 OnPropertyChanged(nameof(FocusArea));
-                workspace.Renderer.InvalidateAccumulation();
+                workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
