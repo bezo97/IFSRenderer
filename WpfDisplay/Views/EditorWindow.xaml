@@ -12,19 +12,29 @@
         Width="1280" Height="720"
         x:Name="editorWindow"
         d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Gesture="CTRL+P" Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}"/>
+        <KeyBinding Gesture="CTRL+R" Command="{Binding ReloadTransformsCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel  Orientation="Horizontal" Grid.Row="0">
+        <Menu Grid.Row="0">
+            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <local:PaletteButton
                 Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 
                 Palette="{Binding DataContext.Palette, ElementName=editorWindow}"
-                ToolTip="Load Palette"
-                Margin="8" Padding="30,8,30,8">🎨</local:PaletteButton>
-        </StackPanel>
+                ToolTip="Load Palette (Ctrl+P)"
+                Padding="30,8,30,8">🎨</local:PaletteButton>
+        </Menu>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -44,7 +54,7 @@
                         <Label>Transforms</Label>
                         <Button
                             Command="{Binding ReloadTransformsCommand}"
-                            ToolTip="Reload plugins"
+                            ToolTip="Reload plugins (Ctrl+R)"
                             Padding="2">🔄</Button>
                         <Button
                             Command="{Binding OpenTransformsDirectoryCommand}"

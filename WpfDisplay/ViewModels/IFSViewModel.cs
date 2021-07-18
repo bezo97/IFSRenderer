@@ -48,7 +48,7 @@ namespace WpfDisplay.ViewModels
         private ConnectionViewModel selectedConnection;
         public ConnectionViewModel SelectedConnection
         {
-            get => selectedConnection; 
+            get => selectedConnection;
             set
             {
                 if (selectedConnection != null)
@@ -123,6 +123,7 @@ namespace WpfDisplay.ViewModels
                     connectingIterator = ivm;
                 else if(connectingIterator != null)
                 {
+                    workspace.TakeSnapshot();
                     if (connectingIterator.iterator.WeightTo.ContainsKey(ivm.iterator))
                         connectingIterator.iterator.WeightTo.Remove(ivm.iterator);
                     else
@@ -145,13 +146,16 @@ namespace WpfDisplay.ViewModels
 
         private void HandleIteratorsChanged()
         {
-            var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
-            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i));
-            removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
-            newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
+                var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i));
+                removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
+                newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
 
-            //update connections vms:
-            IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
+                //update connections vms:
+                IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
+            });
         }
         private void HandleConnectionsChanged(IteratorViewModel vm)
         {
@@ -174,128 +178,125 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private AsyncRelayCommand<TransformFunction> _addIteratorCommand;
-        public AsyncRelayCommand<TransformFunction> AddIteratorCommand =>
-            _addIteratorCommand ??= new AsyncRelayCommand<TransformFunction>(OnAddIteratorCommand);
-        private async Task OnAddIteratorCommand(TransformFunction tf)
-        {
-            Iterator newIterator = new Iterator(tf);
-            workspace.IFS.AddIterator(newIterator, false);
-            if (SelectedIterator != null)
+        private RelayCommand<TransformFunction> _addIteratorCommand;
+        public RelayCommand<TransformFunction> AddIteratorCommand => _addIteratorCommand
+            ??= new((tf) =>
             {
-                SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
-                newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
-            }
-            workspace.Renderer.InvalidateParamsBuffer();
-            HandleIteratorsChanged();
-        }
+                workspace.TakeSnapshot();
+                Iterator newIterator = new(tf);
+                workspace.IFS.AddIterator(newIterator, false);
+                if (SelectedIterator != null)
+                {
+                    SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
+                    newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
+                }
+                workspace.Renderer.InvalidateParamsBuffer();
+                HandleIteratorsChanged();
+            });
 
-        private AsyncRelayCommand _removeSelectedCommand;
-        public AsyncRelayCommand RemoveSelectedCommand =>
-            _removeSelectedCommand ??= new AsyncRelayCommand(OnRemoveSelectedCommand);
-        private async Task OnRemoveSelectedCommand()
-        {
-            workspace.IFS.RemoveIterator(SelectedIterator.iterator);
-            SelectedIterator = null;
-            workspace.Renderer.InvalidateParamsBuffer();
-            HandleIteratorsChanged();
-        }
+        private RelayCommand _removeSelectedCommand;
+        public RelayCommand RemoveSelectedCommand => _removeSelectedCommand
+            ??= new(() =>
+            {
+                workspace.TakeSnapshot();
+                workspace.IFS.RemoveIterator(SelectedIterator.iterator);
+                workspace.Renderer.InvalidateParamsBuffer();
+                SelectedIterator = null;
+                HandleIteratorsChanged();
+            });
 
-        private AsyncRelayCommand _duplicateSelectedCommand;
-        public AsyncRelayCommand DuplicateSelectedCommand =>
-            _duplicateSelectedCommand ??= new AsyncRelayCommand(OnDuplicateSelectedCommand);
-        private async Task OnDuplicateSelectedCommand()
-        {
-            var newIterator = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
-            workspace.Renderer.InvalidateParamsBuffer();
-            HandleIteratorsChanged();
-            SelectedIterator = IteratorViewModels.First(vm => vm.iterator == newIterator);
-        }
+        private RelayCommand _duplicateSelectedCommand;
+        public RelayCommand DuplicateSelectedCommand => _duplicateSelectedCommand
+            ??= new(() =>
+            {
+                workspace.TakeSnapshot();
+                Iterator dupe = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
+                workspace.Renderer.InvalidateParamsBuffer();
+                HandleIteratorsChanged();
+                SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
+            });
 
         private AsyncRelayCommand _loadPaletteCommand;
-        public AsyncRelayCommand LoadPaletteCommand =>
-            _loadPaletteCommand ??= new AsyncRelayCommand(OnLoadPaletteCommand);
-        private async Task OnLoadPaletteCommand()
-        {
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
+        public AsyncRelayCommand LoadPaletteCommand => _loadPaletteCommand
+            ??= new(async () =>
             {
-                var picker = new Views.PaletteDialogWindow
+                if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
                 {
-                    Palettes = await FlamePalette.FromFileAsync(path)
-                };
-                if (picker.ShowDialog() == true)
-                {
-                    workspace.IFS.Palette = picker.SelectedPalette;
-                    workspace.Renderer.InvalidateParamsBuffer();
-                    OnPropertyChanged(nameof(Palette));
+                    var picker = new Views.PaletteDialogWindow
+                    {
+                        Palettes = await FlamePalette.FromFileAsync(path)
+                    };
+                    if (picker.ShowDialog() == true)
+                    {
+                        workspace.TakeSnapshot();
+                        workspace.IFS.Palette = picker.SelectedPalette;
+                        workspace.Renderer.InvalidateParamsBuffer();
+                        OnPropertyChanged(nameof(Palette));
+                    }
                 }
-            }
-        }
+            });
 
-        //TODO: ASYNC
-
-        private RelayCommand _reloadTransformsCommand;
-        public RelayCommand ReloadTransformsCommand
-        {
-            get => _reloadTransformsCommand ?? (
-                _reloadTransformsCommand = new RelayCommand(async () =>
-                {
-                    await workspace.ReloadTransforms();
-                    foreach (var ivm in IteratorViewModels)
-                        ivm.ReloadVariables();//handles when the number and names of variables have changed.
-                    OnPropertyChanged(nameof(RegisteredTransforms));
-                }));
-        }
+        private AsyncRelayCommand _reloadTransformsCommand;
+        public AsyncRelayCommand ReloadTransformsCommand => _reloadTransformsCommand
+            ??= new(async () =>
+            {
+                await workspace.ReloadTransforms();
+                foreach (IteratorViewModel ivm in IteratorViewModels)
+                    ivm.ReloadVariables();//handles when the number and names of variables have changed.
+                OnPropertyChanged(nameof(RegisteredTransforms));
+            });
 
         private RelayCommand _openTransformsDirectoryCommand;
-        public RelayCommand OpenTransformsDirectoryCommand
-        {
-            get => _openTransformsDirectoryCommand ?? (
-                _openTransformsDirectoryCommand = new RelayCommand(() =>
+        public RelayCommand OpenTransformsDirectoryCommand => _openTransformsDirectoryCommand
+            ??= new(() =>
+            {
+                //show the directory with the os file explorer
+                Process.Start(new ProcessStartInfo
                 {
-                    //show the directory with the os file explorer
-                    Process.Start(new ProcessStartInfo
-                    { 
-                        FileName = workspace.TransformsDirectoryPath,
-                        UseShellExecute = true
-                    });
-                }));
-        }
+                    FileName = workspace.TransformsDirectoryPath,
+                    UseShellExecute = true
+                });
+            });
 
         private RelayCommand<string> _editTransformSourceCommand;
-        public RelayCommand<string> EditTransformSourceCommand
-        {
-            get => _editTransformSourceCommand ?? (
-                _editTransformSourceCommand = new RelayCommand<string>((filePath) =>
+        public RelayCommand<string> EditTransformSourceCommand => _editTransformSourceCommand
+            ??= new((filePath) =>
+            {
+                //open transform source file with the preferred text editor
+                Process.Start(new ProcessStartInfo
                 {
-                    //open transform source file with the preferred text editor
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = filePath,
-                        UseShellExecute = true
-                    });
-                }));
-        }
+                    FileName = filePath,
+                    UseShellExecute = true
+                });
+            });
 
         private RelayCommand<ConnectionViewModel> _selectConnectionCommand;
-        public RelayCommand<ConnectionViewModel> SelectConnectionCommand
-        {
-            get => _selectConnectionCommand ?? (
-                _selectConnectionCommand = new RelayCommand<ConnectionViewModel>((con) =>
-                {
-                    SelectedConnection = con;
-                }));
-        }
+        public RelayCommand<ConnectionViewModel> SelectConnectionCommand => _selectConnectionCommand
+            ??= new((con) =>
+            {
+                SelectedConnection = con;
+            });
 
         private RelayCommand<IteratorViewModel> _selectIteratorCommand;
-        public RelayCommand<IteratorViewModel> SelectIteratorCommand
-        {
-            get => _selectIteratorCommand ?? (
-                _selectIteratorCommand = new RelayCommand<IteratorViewModel>((it) =>
-                {
-                    SelectedIterator = it;
-                }));
-        }
+        public RelayCommand<IteratorViewModel> SelectIteratorCommand => _selectIteratorCommand
+            ??= new((it) =>
+            {
+                SelectedIterator = it;
+            });
+
+        private RelayCommand _undoCommand;
+        public RelayCommand UndoCommand => _undoCommand
+            ??= new(() =>
+            {
+                workspace.UndoHistory();
+            }, () => workspace.IsHistoryUndoable);
+
+        private RelayCommand _redoCommand;
+        public RelayCommand RedoCommand => _redoCommand
+            ??= new(() =>
+            {
+                workspace.RedoHistory();
+            }, () => workspace.IsHistoryRedoable);
 
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.Models
 {
@@ -14,7 +15,9 @@ namespace WpfDisplay.Models
     /// </summary>
     public class Workspace : ObservableObject
     {
+        private readonly IFSHistoryTracker tracker = new();
         private List<TransformFunction> loadedTransforms = new List<TransformFunction>();
+
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
 
         public readonly string TransformsDirectoryPath = @".\Functions\Transforms";
@@ -22,10 +25,11 @@ namespace WpfDisplay.Models
         private RendererGL renderer;
         public RendererGL Renderer
         {
-            get { return renderer; }
-            set {
+            get => renderer;
+            set
+            {
                 SetProperty(ref renderer, value);
-                if(ifs != null)
+                if (ifs != null)
                     renderer.LoadParams(ifs);
             }
         }
@@ -34,12 +38,17 @@ namespace WpfDisplay.Models
         private IFS ifs;
         public IFS IFS
         {
-            get { return ifs; }
-            set {
+            get => ifs;
+            set
+            {
                 SetProperty(ref ifs, value);
                 renderer?.LoadParams(ifs);
+                //ClearHistory();
             }
         }
+
+        public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
+        public bool IsHistoryRedoable => tracker.IsHistoryRedoable;
 
         public Workspace(RendererGL r)
         {
@@ -64,6 +73,26 @@ namespace WpfDisplay.Models
                 .Select(file => TransformFunction.FromFile(file))
                 .ToList();
             OnPropertyChanged(nameof(LoadedTransforms));
+        }
+        public void UndoHistory()
+        {
+            IFS = tracker.Undo(IFS, LoadedTransforms);
+        }
+
+        public void RedoHistory()
+        {
+            IFS = tracker.Redo(IFS, LoadedTransforms);
+        }
+
+        public void ClearHistory()
+        {
+            tracker.Clear();
+        }
+
+        public void TakeSnapshot()
+        {
+            System.Diagnostics.Debug.WriteLine(IFS.Iterators.Count);
+            tracker.TakeSnapshot(IFS);
         }
 
     }

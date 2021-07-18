@@ -33,9 +33,10 @@ namespace WpfDisplay.ViewModels
             get => transparentBackground;
             set 
             {
-                SetProperty(ref transparentBackground, value);
+                workspace.TakeSnapshot();
                 if (value)
                     IFSViewModel.BackgroundColor = Colors.Black;
+                SetProperty(ref transparentBackground, value);
                 OnPropertyChanged(nameof(IsColorPickerEnabled));
             }
         }
@@ -57,6 +58,7 @@ namespace WpfDisplay.ViewModels
 
         public void LoadParamsToWorkspace(IFS ifs)
         {
+            workspace.TakeSnapshot();
             workspace.IFS = ifs;
         }
 
@@ -83,7 +85,7 @@ namespace WpfDisplay.ViewModels
         {
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
             {
-                IfsSerializer.SaveJson(workspace.IFS, path);
+                IfsSerializer.SaveJsonFile(workspace.IFS, path);
             }
         }
 
@@ -98,12 +100,12 @@ namespace WpfDisplay.ViewModels
                 IFS ifs;
                 try
                 {
-                    ifs = IfsSerializer.LoadJson(path, transforms, false);
+                    ifs = IfsSerializer.LoadJsonFile(path, transforms, false);
                 }
                 catch (SerializationException)
                 {
                     if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                        ifs = IfsSerializer.LoadJson(path, transforms, true);
+                        ifs = IfsSerializer.LoadJsonFile(path, transforms, true);
                     else
                         return;
                 }

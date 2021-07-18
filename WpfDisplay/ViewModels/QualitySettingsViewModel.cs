@@ -144,6 +144,7 @@ namespace WpfDisplay.ViewModels
             } 
             set 
             {
+                workspace.TakeSnapshot();
                 if(IsResolutionLinked)
                 {
                     double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
@@ -167,6 +168,7 @@ namespace WpfDisplay.ViewModels
             }
             set
             {
+                workspace.TakeSnapshot();
                 if (IsResolutionLinked)
                 {
                     double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;

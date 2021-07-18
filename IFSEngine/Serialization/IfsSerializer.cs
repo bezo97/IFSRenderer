@@ -12,24 +12,36 @@ namespace IFSEngine.Serialization
         private static IteratorConverter iteratorConverter = new IteratorConverter();
         private static IfsConverter ifsConverter = new IfsConverter();
 
-        public static IFS LoadJson(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
+        public static IFS LoadJsonFile(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
         {
-            var fileContent = File.ReadAllText(path, Encoding.UTF8);
-            var settings = getJsonSerializerSettings(transforms, ignoreTransformVersions);
-            return JsonConvert.DeserializeObject<IFS>(fileContent, settings);
+            string fileContent = File.ReadAllText(path, Encoding.UTF8);
+            return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
         }
 
-        public static void SaveJson(IFS ifs, string path)
+        public static void SaveJsonFile(IFS ifs, string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(ifs, getJsonSerializerSettings(null, false)), Encoding.UTF8);
+            string fileContent = SerializeJsonString(ifs);
+            File.WriteAllText(path, fileContent, Encoding.UTF8);
+        }
+
+        public static IFS DeserializeJsonString(string ifsState, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
+        {
+            JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, ignoreTransformVersions);
+            return JsonConvert.DeserializeObject<IFS>(ifsState, settings);
+        }
+
+        public static string SerializeJsonString(IFS ifs)
+        {
+            JsonSerializerSettings settings = GetJsonSerializerSettings(null, false);
+            return JsonConvert.SerializeObject(ifs, settings);
         }
 
         /// <summary>
-        /// Extension method on <see cref="IFS"/> to <see cref="SaveJson(IFS, string)"/>
+        /// Extension method on <see cref="IFS"/> to <see cref="SaveJsonFile(IFS, string)"/>
         /// </summary>
-        public static void Save(this IFS ifs, string path) => SaveJson(ifs, path);
+        public static void Save(this IFS ifs, string path) => SaveJsonFile(ifs, path);
 
-        private static JsonSerializerSettings getJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
+        private static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
         {
             return new JsonSerializerSettings
             {
