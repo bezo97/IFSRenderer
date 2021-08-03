@@ -298,5 +298,9 @@ namespace WpfDisplay.ViewModels
                 workspace.RedoHistory();
             }, () => workspace.IsHistoryRedoable);
 
+        private RelayCommand _takeSnapshotCommand;
+        public RelayCommand TakeSnapshotCommand =>
+            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+
     }
 }

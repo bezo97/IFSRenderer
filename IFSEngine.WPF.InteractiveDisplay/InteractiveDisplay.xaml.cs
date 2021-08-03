@@ -22,6 +22,14 @@ namespace IFSEngine.WPF.InteractiveDisplay
         public IGraphicsContext GraphicsContext => GLControl1.Context;
         public RendererGL Renderer { get; private set; }
 
+        public ICommand InteractionStartedCommand
+        {
+            get { return (ICommand)GetValue(InteractionStartedCommandProperty); }
+            set { SetValue(InteractionStartedCommandProperty, value); }
+        }
+        public static readonly DependencyProperty InteractionStartedCommandProperty =
+            DependencyProperty.Register("InteractionStartedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
+        
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
@@ -32,7 +40,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
         private float lastY;
         private readonly Key[] translateKeys = 
         {
-            Key.W, Key.S, Key.D, Key.A, Key.Q, Key.E, Key.C
+            Key.W, Key.S, Key.D, Key.A, Key.Q, Key.E
         };
         private readonly Key[] rotateKeys = 
         {
@@ -58,6 +66,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
         {
             if (IsInteractionEnabled)
             {
+                InteractionStartedCommand?.Execute(null);
                 Renderer.LoadedParams.Camera.FocusDistance += e.Delta * Renderer.LoadedParams.Camera.FocusDistance * 0.001;
                 Renderer.InvalidateHistogramBuffer();
             }
@@ -69,7 +78,10 @@ namespace IFSEngine.WPF.InteractiveDisplay
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+                    if(Mouse.OverrideCursor == null)
+                        Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+                    else //HACK
+                         InteractionStartedCommand?.Execute(null);
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
@@ -93,13 +105,14 @@ namespace IFSEngine.WPF.InteractiveDisplay
         {
             if (IsInteractionEnabled)
             {
+                //TODO: InteractionStartedCommand?.Execute(null);
                 if (translateKeys.Any(k => keyboard.IsKeyDown(k)))
                 {
                     //camera speed relates to focus distance
                     float magnitude = (float)Renderer.LoadedParams.Camera.FocusDistance * 2;
                     var direction = new Vector3(
                         ((keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0)),
-                        ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - ((keyboard.IsKeyDown(Key.C) || keyboard.IsKeyDown(Key.Q)) ? 1 : 0)),
+                        ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - (keyboard.IsKeyDown(Key.Q) ? 1 : 0)),
                         ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
                     );
                     Renderer.LoadedParams.Camera.TranslateWithSensitivity(magnitude * direction);

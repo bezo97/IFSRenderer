@@ -19,9 +19,9 @@ namespace IFSEngine.Model
         /// Vertical field of view in degrees. Ranges from 0 to 180 exclusive.
         /// </summary>
         public float FieldOfView { get; set; } = 60;
-        public double DepthOfField { get; set; } = 0.0;
+        public double Aperture { get; set; } = 0.0;
         public double FocusDistance { get; set; } = 10.0;
-        public double FocusArea { get; set; } = 0.25;
+        public double DepthOfField { get; set; } = 0.25;
 
         /// <summary>
         /// Moves camera position by a translate vector given in camera space.
@@ -81,9 +81,9 @@ namespace IFSEngine.Model
                 position = new Vector4(Position, 1.0f),
                 forward = new Vector4(ForwardDirection, 1.0f),
                 viewProjMatrix = GetViewProjectionMatrix(),
-                depth_of_field = (float)DepthOfField,
+                aperture = (float)Aperture,
                 focus_distance = (float)FocusDistance,
-                focus_area = (float)FocusArea,
+                depth_of_field = (float)DepthOfField,
                 focus_point = new Vector4(Position + (float)FocusDistance * ForwardDirection, 0.0f)
             };
         }

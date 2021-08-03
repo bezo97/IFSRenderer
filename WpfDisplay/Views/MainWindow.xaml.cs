@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using WpfDisplay.Models;
 using WpfDisplay.ViewModels;
 
@@ -14,6 +15,7 @@ namespace WpfDisplay.Views
     {
         private EditorWindow editorWindow;
         private GeneratorWindow generatorWindow;
+        private MainViewModel vm => (MainViewModel)DataContext;
 
         public MainWindow()
         {
@@ -36,7 +38,7 @@ namespace WpfDisplay.Views
             if (generatorWindow == null || !generatorWindow.IsLoaded)
             {
                 generatorWindow = new GeneratorWindow();
-                generatorWindow.DataContext = new GeneratorViewModel((DataContext as MainViewModel));
+                generatorWindow.DataContext = new GeneratorViewModel(vm);
                 //generatorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = (DataContext as MainViewModel).IFSViewModel, Mode = BindingMode.TwoWay });
             }
 
@@ -53,7 +55,7 @@ namespace WpfDisplay.Views
             if (editorWindow == null || !editorWindow.IsLoaded)
             {
                 editorWindow = new EditorWindow();
-                editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = (DataContext as MainViewModel).IFSViewModel, Mode=BindingMode.TwoWay});
+                editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode=BindingMode.TwoWay});
             }
 
             if (editorWindow.ShowActivated)
@@ -69,8 +71,28 @@ namespace WpfDisplay.Views
                 generatorWindow.Close();
             if (editorWindow != null)
                 editorWindow.Close();
-            (this.DataContext as MainViewModel).Dispose();
+            vm.Dispose();
             base.OnClosing(e);
+        }
+
+        private void Undo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            vm.IFSViewModel.UndoCommand.Execute(null);
+        }
+
+        private void Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = vm?.IFSViewModel.UndoCommand.CanExecute(null) ?? false;
+        }
+
+        private void Redo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            vm.IFSViewModel.RedoCommand.Execute(null);
+        }
+
+        private void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
         }
 
     }

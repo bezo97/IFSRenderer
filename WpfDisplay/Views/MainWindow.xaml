@@ -24,6 +24,10 @@
     <Window.Resources>
         <conv:DataContextSetConverter x:Key="dataContextSetConverter"/>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
+    </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
         <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
@@ -49,10 +53,13 @@
                 <Separator/>
                 <MenuItem Header="Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>
+            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
             <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
             <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />
             <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" InputGestureText="Ctrl+R"/>
-            <Separator Margin="25"/>
+            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
             <MenuItem Header="🖬 E_xport">
                 <MenuItem Icon="🖼" Header="Export to _PNG" Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
                 <MenuItem Icon="📊" Header="Export to _EXR" Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
@@ -89,7 +96,8 @@
                             </Grid>
                             <local:ValueSlider ValueName="Fog effect"
                                     MinValue="0"
-                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"/>
+                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"
+                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=mainWindow}"/>
                         </StackPanel>
                     </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
@@ -103,7 +111,8 @@
                             Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
                             x:Name="mainDisplay"
                             Height="{Binding ElementName=Docker, Path=ActualHeight}" 
-                            Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
+                            Width="{Binding ElementName=Docker, Path=ActualWidth}"
+                            InteractionStartedCommand="{Binding TakeSnapshotCommand}"/>
                         <ProgressBar
                             Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
                             Width="100" Height="25"
@@ -121,7 +130,7 @@
         </Grid>
         <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">
             <StackPanel>
-                <TextBlock Text="Animation" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+                <TextBlock Text="🎥 Animation" ToolTip="🛠️ Under Construction" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
             </StackPanel>
         </md:Card>
     </Grid>

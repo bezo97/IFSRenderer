@@ -201,5 +201,9 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.InvalidateParamsBuffer();
         }
 
+        private RelayCommand _takeSnapshotCommand;
+        public RelayCommand TakeSnapshotCommand =>
+            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+
     }
 }

@@ -206,6 +206,11 @@ namespace WpfDisplay.ViewModels
         private AsyncRelayCommand _closeWorkspaceCommand;
         public AsyncRelayCommand CloseWorkspaceCommand =>
             _closeWorkspaceCommand ??= new AsyncRelayCommand(OnCloseWorkspaceCommand);
+
+        private RelayCommand _takeSnapshotCommand;
+        public RelayCommand TakeSnapshotCommand =>
+            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+
         private async Task OnCloseWorkspaceCommand()
         {
             //TODO: prompt to save work?

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
@@ -53,6 +54,10 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateDisplay();
             }
         }
+
+        private RelayCommand _takeSnapshotCommand;
+        public RelayCommand TakeSnapshotCommand =>
+            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
 
     }
 }

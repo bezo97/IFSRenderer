@@ -73,7 +73,6 @@
                                                 Content="{Binding Name}">
                                             <Button.ContextMenu>
                                                 <ContextMenu>
-                                                    <!--TODO: this binding breaks design-time preview-->
                                                     <MenuItem
                                                         Header="✏️ Edit source"
                                                         Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
@@ -106,7 +105,8 @@
                                 <local:ValueSlider
                                     ValueName="Weight"
                                     Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
-                                    MinValue="0" Increment="0.01"/>
+                                    MinValue="0" Increment="0.01"
+                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=editorWindow}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

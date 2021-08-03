@@ -190,29 +190,22 @@ namespace WpfDisplay.ViewModels
         private async Task OnPreviewPresetCommand()
         {
             workspace.Renderer.SetHistogramScaleToDisplay();
-
-                    //EnableDE = true;
-                    //EnableTAA = true;
-                    //EnablePerceptualUpdates = false;
-                    //PassIters = 100;
-                    //Warmup = 10;
-                    EntropyInv = 100;
-                    MaxFilterRadius = 0;
+            //EnableDE = true;
+            //EnableTAA = true;
+            //EnablePerceptualUpdates = false;
+            MaxFilterRadius = 0;
         }
 
-    private AsyncRelayCommand _finalPresetCommand;
-    public AsyncRelayCommand FinalPresetCommand =>
-        _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
-    private async Task OnFinalPresetCommand()
-    {
-        EnablePerceptualUpdates = true;
-                    EnableTAA = false;
-                    EnableDE = false;
-                    //PassIters = 500;
-                    //Warmup = 30;
-                    EntropyInv = 10000;
-                    MaxFilterRadius = 3;
-                    workspace.Renderer.SetHistogramScale(1.0);
+        private AsyncRelayCommand _finalPresetCommand;
+        public AsyncRelayCommand FinalPresetCommand =>
+            _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
+        private async Task OnFinalPresetCommand()
+        {
+            EnablePerceptualUpdates = true;
+            EnableTAA = false;
+            EnableDE = false;
+            MaxFilterRadius = 3;
+            workspace.Renderer.SetHistogramScale(1.0);
         }
 
     }

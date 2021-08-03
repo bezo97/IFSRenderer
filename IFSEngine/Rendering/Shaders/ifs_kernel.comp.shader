@@ -22,9 +22,9 @@ struct camera_params
 	vec4 position;
 	vec4 forward;
 	vec4 focus_point;
-	float depth_of_field;
+	float aperture;
 	float focus_distance;
-	float focus_area;
+	float depth_of_field;
 	float padding0;
 };
 
@@ -198,10 +198,10 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 
 	//dof
 	float ratio = width / float(height);
-	float dof = c.depth_of_field * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.focus_area); //use focalplane normal
+	float blur = c.aperture * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
 	float ra = random(next);
 	float rl = random(next);
-	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+	normalizedPoint.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
 	return vec2(
 		(normalizedPoint.x + 1) * width / 2.0f,
@@ -396,11 +396,11 @@ void main() {
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 
 			//TODO: this is the same as dof
-			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.focus_area);
+			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.depth_of_field);
 
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.focus_area)));
+				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.depth_of_field)));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}

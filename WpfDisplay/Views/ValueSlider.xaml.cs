@@ -1,4 +1,5 @@
 ﻿using IFSEngine;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -75,27 +76,20 @@ namespace WpfDisplay.Views
         public static readonly DependencyProperty MaxValueProperty =
             DependencyProperty.Register("MaxValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
 
-
-
-
-
         public ValueSlider()
         {
             InitializeComponent();
         }
 
-        private void SetValue(float value)
-        {
-            Value = value;
-        }
-
         private void Down_Click(object sender, RoutedEventArgs e)
         {
+            ValueChangedCommand?.Execute(null);
             Value = Math.Round(Value - Increment, 3);
         }
 
         private void Up_Click(object sender, RoutedEventArgs e)
         {
+            ValueChangedCommand?.Execute(null);
             Value = Math.Round(Value + Increment, 3);
         }
 
@@ -130,6 +124,7 @@ namespace WpfDisplay.Views
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
+                ValueChangedCommand?.Execute(null);
                 dragp = e.GetPosition(Window.GetWindow(this));
                 lastv = Value;
                 displayLabel.CaptureMouse();
@@ -168,6 +163,16 @@ namespace WpfDisplay.Views
             Mouse.OverrideCursor = null;//no override
             displayLabel.ReleaseMouseCapture();
         }
+
+        public RelayCommand ValueChangedCommand
+        {
+            get { return (RelayCommand)GetValue(ValueChangedCommandProperty); }
+            set { SetValue(ValueChangedCommandProperty, value); }
+        }
+        public static readonly DependencyProperty ValueChangedCommandProperty =
+            DependencyProperty.Register("ValueChangedCommand", typeof(RelayCommand), typeof(ValueSlider), new PropertyMetadata(null));
+
+
 
     }
 }
