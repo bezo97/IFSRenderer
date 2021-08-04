@@ -36,28 +36,37 @@
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
+        <KeyBinding Gesture="F1"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
             <MenuItem Header="📑 _File">
                 <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
                 <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
+                <Separator/>
+                <MenuItem Header="⚙️ Settings..."/>
                 <Separator/>
                 <MenuItem Header="Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
-            <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
-            <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />
+            <MenuItem Header="🏗 Editor" Click="EditorButton_Click" />
+            <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" />
             <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" InputGestureText="Ctrl+R"/>
             <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
             <MenuItem Header="🖬 E_xport">
@@ -65,6 +74,12 @@
                 <MenuItem Icon="📊" Header="Export to _EXR" Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                 <Separator/>
                 <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
+            </MenuItem>
+            <MenuItem Header="❓ Help" HorizontalAlignment="Right">
+                <MenuItem Icon="📚" Header="Manual" InputGestureText="F1" IsEnabled="False"/>
+                <MenuItem Icon="📚" Header="Tutorials" IsEnabled="False"/>
+                <MenuItem Icon="🤔" Header="Issues" Command=""/>
+                <MenuItem Icon="🙋" Header="Community" IsEnabled="False"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -105,20 +120,16 @@
             </ScrollViewer>
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
-                <DockPanel Name="Docker">
-                    <Grid>
-                        <disp:InteractiveDisplay
-                            Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
-                            x:Name="mainDisplay"
-                            Height="{Binding ElementName=Docker, Path=ActualHeight}" 
-                            Width="{Binding ElementName=Docker, Path=ActualWidth}"
-                            InteractionStartedCommand="{Binding TakeSnapshotCommand}"/>
-                        <ProgressBar
-                            Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
-                            Width="100" Height="25"
-                            IsIndeterminate="True"/>
-                    </Grid>
-                </DockPanel>
+                <Grid>
+                    <disp:InteractiveDisplay
+                        Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
+                        x:Name="mainDisplay"
+                        InteractionStartedCommand="{Binding TakeSnapshotCommand}"/>
+                    <ProgressBar
+                        Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
+                        Width="100" Height="25"
+                        IsIndeterminate="True"/>
+                </Grid>
             </md:Card>
             <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
@@ -132,6 +143,25 @@
             <StackPanel>
                 <TextBlock Text="🎥 Animation" ToolTip="🛠️ Under Construction" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
             </StackPanel>
+        </md:Card>
+        <md:Card Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
+            <StatusBar Background="Transparent">
+                <StatusBarItem>
+                    <TextBlock
+                        Text="{Binding StatusBarText, NotifyOnTargetUpdated=True}"
+                        Foreground="LightGray">
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" BeginTime="0:0:0" Duration="0:0:1" From="0.0" To="1.0"  />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                    </TextBlock>
+                </StatusBarItem>
+            </StatusBar>
         </md:Card>
     </Grid>
 </Window>

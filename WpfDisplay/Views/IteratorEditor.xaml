@@ -18,6 +18,18 @@
                 Iterator settings
         </TextBlock>
         <StackPanel Orientation="Horizontal">
+            <Button
+                Command="{Binding FlipOpacityCommand}"
+                ToolTip="Show/Hide"
+                FontWeight="Bold" Margin="4" Padding="6">
+                👁️
+            </Button>
+            <Button
+                Command="{Binding FlipWeightCommand}"
+                ToolTip="Enable/Disable"
+                FontWeight="Bold" Margin="4" Padding="6">
+                ⚖
+            </Button>
             <Button 
                     Command="{Binding DuplicateCommand}"
                     ToolTip="Duplicate"

@@ -16,14 +16,6 @@ namespace WpfDisplay.ViewModels
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
 
-        private AsyncRelayCommand _startRenderingCommand;
-        public AsyncRelayCommand StartRenderingCommand =>
-            _startRenderingCommand ??= new AsyncRelayCommand(OnStartRenderingCommand);
-        private async Task OnStartRenderingCommand()
-        {
-            workspace.Renderer.StartRenderLoop();
-        }
-
         public bool EnableDE
         {
             get => workspace.Renderer.EnableDE;

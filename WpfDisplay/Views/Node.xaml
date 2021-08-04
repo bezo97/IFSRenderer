@@ -32,19 +32,37 @@
         <Label x:Name ="NameLabel" 
                Content="{Binding TransformName, UpdateSourceTrigger=PropertyChanged}" 
                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"  Cursor="Hand" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" >
+            <Button
+                Command="{Binding FlipOpacityCommand}" 
+                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
+                Width="20" Height="20" Margin="5"
+                FontWeight="Bold" ToolTip="Show/Hide"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                👁️
+            </Button>
+            <Button
+                Command="{Binding FlipWeightCommand}" 
+                Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
+                Width="20" Height="20" Margin="5"
+                FontWeight="Bold" ToolTip="Enable/Disable"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                ⚖
+            </Button>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" >
             <Button
                 Command="{Binding DuplicateCommand}" 
                 Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
                 Width="20" Height="20" Margin="5"
-                FontWeight="Bold"
+                FontWeight="Bold" ToolTip="Duplicate"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗎🗎
             </Button>
             <Button
-                Command="{Binding RemoveCommand}" 
+                Command="{Binding RemoveCommand}"
                 Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"
-                Width="20" Height="20" Margin="5"
+                Width="20" Height="20" Margin="5" ToolTip="Remove"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗑️
             </Button>

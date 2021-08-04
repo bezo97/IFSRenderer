@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
+using System;
 
 namespace WpfDisplay.Models
 {
@@ -21,6 +22,8 @@ namespace WpfDisplay.Models
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
 
         public readonly string TransformsDirectoryPath = @".\Functions\Transforms";
+        public event EventHandler<string> StatusTextChanged;
+
 
         private RendererGL renderer;
         public RendererGL Renderer
@@ -91,8 +94,12 @@ namespace WpfDisplay.Models
 
         public void TakeSnapshot()
         {
-            System.Diagnostics.Debug.WriteLine(IFS.Iterators.Count);
             tracker.TakeSnapshot(IFS);
+        }
+
+        public void UpdateStatusText(string statusText)
+        {
+            StatusTextChanged?.Invoke(this, statusText);
         }
 
     }

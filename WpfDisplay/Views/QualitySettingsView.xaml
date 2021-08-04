@@ -18,9 +18,6 @@
         <StackPanel>
             <md:Card Padding="3" Margin="4">
                 <StackPanel>
-                    <Button 
-                        Command="{Binding StartRenderingCommand}"
-                        Margin="12" HorizontalContentAlignment="Center">▶️ Start</Button>
                     <Label>Quality presets</Label>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -44,9 +41,11 @@
                             Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
                             Minimum="1" Increment="100"
                             Grid.Column="0" Margin="8" UpdateValueOnEnterKey="True"/>
-                        <ToggleButton 
+                        <ToggleButton
                             IsChecked="{Binding IsResolutionLinked}" 
-                            Margin="0,8,0,8" Style="{x:Null}" Grid.Column="1">🔗</ToggleButton>
+                            Width="20" Height="20" FontSize="12" Foreground="Gray"
+                            Style="{StaticResource MaterialDesignFlatToggleButton}"
+                            Margin="0,8,0,8" Grid.Column="1">🔗</ToggleButton>
                         <toolkit:IntegerUpDown 
                             Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
                             Minimum="1" Increment="100"

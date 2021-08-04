@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace WpfDisplay.ViewModels
 {
@@ -46,6 +47,7 @@ namespace WpfDisplay.ViewModels
         public MainViewModel(Workspace workspace)
         {
             this.workspace = workspace;
+            workspace.StatusTextChanged += (s, e) => StatusBarText = e;
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             PerformanceViewModel = new PerformanceViewModel(workspace);
             QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
@@ -54,28 +56,33 @@ namespace WpfDisplay.ViewModels
             CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
             ToneMappingViewModel = new ToneMappingViewModel(workspace);
             ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+            workspace.UpdateStatusText($"Initialized");
         }
 
         public void LoadParamsToWorkspace(IFS ifs)
         {
             workspace.TakeSnapshot();
             workspace.IFS = ifs;
+            if(!workspace.Renderer.IsRendering)
+                workspace.Renderer.StartRenderLoop();
         }
 
-        private AsyncRelayCommand _newCommand;
-        public AsyncRelayCommand NewCommand =>
-            _newCommand ??= new AsyncRelayCommand(OnNewCommand);
-        private async Task OnNewCommand()
+        private ICommand _newCommand;
+        public ICommand NewCommand =>
+            _newCommand ??= new RelayCommand(OnNewCommand);
+        private void OnNewCommand()
         {
             LoadParamsToWorkspace(new IFS());
+            workspace.UpdateStatusText($"Blank parameters loaded");
         }
 
-        private AsyncRelayCommand _loadRandomCommand;
-        public AsyncRelayCommand LoadRandomCommand =>
-            _loadRandomCommand ??= new AsyncRelayCommand(OnLoadRandomCommand);
-        private async Task OnLoadRandomCommand()
+        private ICommand _loadRandomCommand;
+        public ICommand LoadRandomCommand =>
+            _loadRandomCommand ??= new RelayCommand(OnLoadRandomCommand);
+        private void OnLoadRandomCommand()
         {
             LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
+            workspace.UpdateStatusText($"Randomly generated parameters loaded");
         }
 
         private AsyncRelayCommand _saveParamsCommand;
@@ -86,6 +93,7 @@ namespace WpfDisplay.ViewModels
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
             {
                 IfsSerializer.SaveJsonFile(workspace.IFS, path);
+                workspace.UpdateStatusText($"Parameters saved to {path}");
             }
         }
 
@@ -110,6 +118,7 @@ namespace WpfDisplay.ViewModels
                         return;
                 }
                 LoadParamsToWorkspace(ifs);
+                workspace.UpdateStatusText($"Parameters loaded from {path}");
             }
         }
 
@@ -156,6 +165,7 @@ namespace WpfDisplay.ViewModels
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
+            workspace.UpdateStatusText($"Image exported to clipboard");
         }
 
         private AsyncRelayCommand _saveImageCommand;
@@ -163,6 +173,7 @@ namespace WpfDisplay.ViewModels
             _saveImageCommand ??= new AsyncRelayCommand(OnSaveImageCommand);
         private async Task OnSaveImageCommand()
         {
+            workspace.UpdateStatusText($"Exporting...");
             var makeBitmapTask = GetExportBitmapSource();
 
             if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
@@ -176,6 +187,7 @@ namespace WpfDisplay.ViewModels
 
                 //open the image for viewing. TODO: optional..
                 Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                workspace.UpdateStatusText($"Image exported to {path}");
             }
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -187,6 +199,7 @@ namespace WpfDisplay.ViewModels
             _saveExrCommand ??= new AsyncRelayCommand(OnSaveExrCommand);
         private async Task OnSaveExrCommand()
         {
+            workspace.UpdateStatusText($"Exporting...");
             Task<float[,,]> getDataTask = Task.Run(async () =>
             {
                 return await workspace.Renderer.ReadHistogramData();
@@ -197,6 +210,7 @@ namespace WpfDisplay.ViewModels
                 var histogramData = await getDataTask;
                 using var fstream = File.Create(path);
                 OpenEXR.WriteStream(fstream, histogramData);
+                workspace.UpdateStatusText($"Image exported to {path}");
             }
 
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -222,5 +236,9 @@ namespace WpfDisplay.ViewModels
         {
             workspace.Renderer.Dispose();
         }
+
+        private string statusBarText;
+
+        public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
     }
 }

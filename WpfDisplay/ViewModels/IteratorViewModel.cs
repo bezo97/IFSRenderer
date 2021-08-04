@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media;
 using WpfDisplay.Models;
 
@@ -205,5 +206,28 @@ namespace WpfDisplay.ViewModels
         public RelayCommand TakeSnapshotCommand =>
             _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
 
+        private RelayCommand flipOpacityCommand;
+        public ICommand FlipOpacityCommand => flipOpacityCommand ??= new RelayCommand(FlipOpacity);
+        private void FlipOpacity()
+        {
+            workspace.TakeSnapshot();
+            if (Opacity > 0.0f)
+                Opacity = 0.0f;
+            else
+                Opacity = 1.0f;
+
+        }
+
+        private RelayCommand flipWeightCommand;
+        public ICommand FlipWeightCommand => flipWeightCommand ??= new RelayCommand(FlipWeight);
+
+        private void FlipWeight()
+        {
+            workspace.TakeSnapshot();
+            if (BaseWeight > 0.0f)
+                BaseWeight = 0.0f;
+            else
+                BaseWeight = 1.0f;
+        }
     }
 }
