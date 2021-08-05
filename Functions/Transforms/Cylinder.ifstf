@@ -1,9 +1,0 @@
-@Name: Cylinder
-@Version: test
-
-@Strength: 1
-@Radius: 1
-
-float r = 0.5 + 0.5*length(p.xz) * length(p.xz) / @Radius;
-vec3 cyl = vec3(p.x / r, p.y, p.z / r);
-return mix(p, cyl, @Strength);//lerp
