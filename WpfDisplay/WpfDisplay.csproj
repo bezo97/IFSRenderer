@@ -7,6 +7,7 @@
     <AssemblyName>WpfDisplay</AssemblyName>    
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +37,14 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Mark transform files as Content to be included in the Installer-->
+    <Content Include="..\IFSTransforms\**\*.ifstf">
+      <Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
