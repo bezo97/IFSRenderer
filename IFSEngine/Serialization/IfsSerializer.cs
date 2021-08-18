@@ -3,14 +3,15 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace IFSEngine.Serialization
 {
     public static class IfsSerializer
     {
-        private static IteratorConverter iteratorConverter = new IteratorConverter();
-        private static IfsConverter ifsConverter = new IfsConverter();
+        private static readonly IteratorConverter iteratorConverter = new();
+        private static readonly IfsConverter ifsConverter = new();
 
         public static IFS LoadJsonFile(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
         {
@@ -27,7 +28,15 @@ namespace IFSEngine.Serialization
         public static IFS DeserializeJsonString(string ifsState, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
         {
             JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, ignoreTransformVersions);
-            return JsonConvert.DeserializeObject<IFS>(ifsState, settings);
+            try
+            {
+                IFS result = JsonConvert.DeserializeObject<IFS>(ifsState, settings);
+                return result;
+            }
+            catch (Exception ex)
+            {//Custom JsonConverters may throw different Exceptions
+                throw new SerializationException("Serialization Exception", ex);
+            }
         }
 
         public static string SerializeJsonString(IFS ifs)

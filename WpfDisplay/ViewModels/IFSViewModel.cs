@@ -220,7 +220,7 @@ namespace WpfDisplay.ViewModels
         public AsyncRelayCommand LoadPaletteCommand => _loadPaletteCommand
             ??= new(async () =>
             {
-                if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenPalette, out string path))
+                if (DialogHelper.ShowOpenPaletteDialog(out string path))
                 {
                     var picker = new Views.PaletteDialogWindow
                     {

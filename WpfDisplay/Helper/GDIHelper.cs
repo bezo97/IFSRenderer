@@ -28,7 +28,7 @@ namespace WpfDisplay.Helper
 
             });
 
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
+            if (DialogHelper.ShowExportImageDialog(out string path))
             {
                 await genTask;
                 b.Save(path, ImageFormat.Png);

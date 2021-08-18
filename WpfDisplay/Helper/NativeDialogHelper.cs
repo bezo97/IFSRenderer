@@ -1,88 +1,86 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.Win32;
 using System;
-using System.Linq;
-using System.Windows;
 
 namespace WpfDisplay.Helper
 {
-    public static class NativeDialogHelper
+    public static class DialogHelper
     {
+        private static readonly string ParamsFilter = "IFSRenderer params|*.ifsjson;*.json";
+        private static readonly string ImageFilter = "PNG Images|*.png";
+        private static readonly string ExrFilter = "EXR Images|*.exr";
+        private static readonly string PaletteFilter = "Flame Palettes|*.gradient;*.ugr";
         private static readonly Guid OpenParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
         private static readonly Guid SaveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
-        private static readonly Guid SaveImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
-        private static readonly Guid SaveExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
+        private static readonly Guid ExportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
+        private static readonly Guid ExportExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
         private static readonly Guid OpenPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
-
-        public static bool ShowFileSelectorDialog(DialogSetting ds, out string DialogResult)
+        private static readonly OpenFileDialog OpenParamsDialog = new()
         {
-            DialogResult = System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                var dlg = new CommonOpenFileDialog //Save??
-                {
-                    Title = ds.ToString(),
-                    AddToMostRecentlyUsedList = true,
-                    EnsurePathExists = true,
-                    Multiselect = false,
-                    ShowPlacesList = true,
-                    CookieIdentifier =
-                        ds == DialogSetting.OpenParams ? OpenParamsGuid :
-                        ds == DialogSetting.SaveParams ? SaveParamsGuid :
-                        ds == DialogSetting.SaveImage ? SaveImageGuid :
-                        ds == DialogSetting.SaveExr ? SaveExrGuid :
-                        ds == DialogSetting.OpenPalette ? OpenPaletteGuid :
-                        Guid.Empty,
-                    DefaultExtension =
-                        ds == DialogSetting.OpenParams ? "json" :
-                        ds == DialogSetting.SaveParams ? "json" :
-                        ds == DialogSetting.SaveImage ? "png" :
-                        ds == DialogSetting.SaveExr ? "exr" :
-                        ds == DialogSetting.OpenPalette ? "gradient" :
-                        ""
-                };
+            CheckFileExists = true,
+            Filter = ParamsFilter,
+            Tag = OpenParamsGuid,
+            Title = "Open params"
+        };
+        private static readonly SaveFileDialog SaveParamsDialog = new()
+        {
+            DefaultExt = ".ifsjson",
+            Filter = ParamsFilter,
+            Tag = SaveParamsGuid,
+            Title = "Save params"
+        };
+        private static readonly SaveFileDialog ExportImageDialog = new()
+        {
+            DefaultExt = ".png",
+            Filter = ImageFilter,
+            Tag = ExportImageGuid,
+            Title = "Export image"
+        };
+        private static readonly SaveFileDialog ExportExrDialog = new()
+        {
+            DefaultExt = ".exr",
+            Filter = ExrFilter,
+            Tag = ExportExrGuid,
+            Title = "Export hdr image"
+        };
+        private static readonly OpenFileDialog OpenPaletteDialog = new()
+        {
+            CheckFileExists = true,
+            Filter = PaletteFilter,
+            Tag = OpenPaletteGuid,
+            Title = "Open palette"
+        };
 
-                switch (ds)
-                {
-                    case DialogSetting.OpenParams:
-                        dlg.Filters.Add(new CommonFileDialogFilter("JSON params", "*.json"));
-                        break;
-                    case DialogSetting.SaveParams:
-                        dlg.Filters.Add(new CommonFileDialogFilter("JSON params", "*.json"));
-                        break;
-                    case DialogSetting.SaveImage:
-                        dlg.Filters.Add(new CommonFileDialogFilter("PNG Image", "*.png"));
-                        break;
-                    case DialogSetting.SaveExr:
-                        dlg.Filters.Add(new CommonFileDialogFilter("OpenEXR Image", "*.exr"));
-                        break;
-                    case DialogSetting.OpenPalette:
-                        dlg.Filters.Add(new CommonFileDialogFilter("Palette", "*.gradient;*.ugr"));
-                        break;
-                    default:
-                        break;
-                }
-
-                if (dlg.ShowDialog(Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive)) == CommonFileDialogResult.Ok)
-                    return dlg.FileName;
-                else
-                    return null;
-
-            });
-
-            if (DialogResult is null)
-                return false;
-            else
-                return true;
+        public static bool ShowOpenParamsDialog(out string FilePath)
+        {
+            bool selected = OpenParamsDialog.ShowDialog() ?? false;
+            FilePath = OpenParamsDialog.FileName;
+            return selected;
         }
-    }
+        public static bool ShowSaveParamsDialog(out string FilePath)
+        {
+            bool selected = SaveParamsDialog.ShowDialog() ?? false;
+            FilePath = SaveParamsDialog.FileName;
+            return selected;
+        }
+        public static bool ShowExportImageDialog(out string FilePath)
+        {
+            bool selected = ExportImageDialog.ShowDialog() ?? false;
+            FilePath = ExportImageDialog.FileName;
+            return selected;
+        }
+        public static bool ShowExportExrDialog(out string FilePath)
+        {
+            bool selected = ExportExrDialog.ShowDialog() ?? false;
+            FilePath = ExportExrDialog.FileName;
+            return selected;
+        }
+        public static bool ShowOpenPaletteDialog(out string FilePath)
+        {
+            bool selected = OpenPaletteDialog.ShowDialog() ?? false;
+            FilePath = OpenPaletteDialog.FileName;
+            return selected;
+        }
 
-    //refactor..
-    public enum DialogSetting
-    {
-        OpenParams,
-        SaveParams,
-        SaveImage,
-        OpenPalette,
-        SaveExr
     }
 
 }

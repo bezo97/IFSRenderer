@@ -90,7 +90,7 @@ namespace WpfDisplay.ViewModels
             _saveParamsCommand ??= new AsyncRelayCommand(OnSaveParamsCommand);
         private async Task OnSaveParamsCommand()
         {
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveParams, out string path))
+            if (DialogHelper.ShowSaveParamsDialog(out string path))
             {
                 IfsSerializer.SaveJsonFile(workspace.IFS, path);
                 workspace.UpdateStatusText($"Parameters saved to {path}");
@@ -102,7 +102,7 @@ namespace WpfDisplay.ViewModels
             _loadParamsCommand ??= new AsyncRelayCommand(OnLoadParamsCommand);
         private async Task OnLoadParamsCommand()
         {
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.OpenParams, out string path))
+            if (DialogHelper.ShowOpenParamsDialog(out string path))
             {
                 var transforms = workspace.Renderer.RegisteredTransforms;
                 IFS ifs;
@@ -112,8 +112,18 @@ namespace WpfDisplay.ViewModels
                 }
                 catch (SerializationException)
                 {
-                    if (MessageBox.Show("Loading failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                        ifs = IfsSerializer.LoadJsonFile(path, transforms, true);
+                    if (MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                    {
+                        try
+                        {
+                            ifs = IfsSerializer.LoadJsonFile(path, transforms, true);
+                        }
+                        catch (SerializationException)
+                        {
+                            workspace.UpdateStatusText($"ERROR - Unable to load params: {path}");
+                            return;
+                        }
+                    }
                     else
                         return;
                 }
@@ -176,7 +186,7 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Exporting...");
             var makeBitmapTask = GetExportBitmapSource();
 
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveImage, out string path))
+            if (DialogHelper.ShowExportImageDialog(out string path))
             {
                 BitmapSource bs = await makeBitmapTask;
 
@@ -205,7 +215,7 @@ namespace WpfDisplay.ViewModels
                 return await workspace.Renderer.ReadHistogramData();
             });
 
-            if (NativeDialogHelper.ShowFileSelectorDialog(DialogSetting.SaveExr, out string path))
+            if (DialogHelper.ShowExportExrDialog(out string path))
             {
                 var histogramData = await getDataTask;
                 using var fstream = File.Create(path);
