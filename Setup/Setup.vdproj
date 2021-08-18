@@ -182,12 +182,12 @@
             "Name" = "8:ifsjson"
             "Description" = "8:IFS fractal params"
             "Extensions" = "8:.ifsjson"
-            "MIME" = "8:application/json"
+            "MIME" = "8:"
             "Icon" = "8:"
             "IconIndex" = "3:0"
                 "Command"
                 {
-                "Command" = "8:_530D2D14FC5E4DBBB47F02F78DE11737"
+                "Command" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
                 }
                 "Verbs"
                 {
@@ -298,7 +298,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IFSRenderer"
         "ProductCode" = "8:{5C9949AC-416D-477C-8DD0-4EC4B132E64A}"
-        "PackageCode" = "8:{ABD669BD-553E-4812-AA62-09A91D38E25D}"
+        "PackageCode" = "8:{E78DDCAE-5923-434E-B950-47273E1CD1CF}"
         "UpgradeCode" = "8:{4E458E2D-D700-48A5-954C-3D6975C54AA6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -306,7 +306,7 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:Zoltán Dócs"
+        "Manufacturer" = "8:bezo97"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/bezo97/IFSRenderer"
         "Title" = "8:IFSRenderer Setup"
@@ -1010,7 +1010,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DEC4FCE7C4354E8C8875ADF91D161DC0"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\WpfDisplay\\obj\\Release\\net5.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"

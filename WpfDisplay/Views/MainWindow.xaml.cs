@@ -1,4 +1,5 @@
 ﻿using IFSEngine.Rendering;
+using IFSEngine.Serialization;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
@@ -26,6 +27,11 @@ namespace WpfDisplay.Views
                 RendererGL renderer = new(mainDisplay.GraphicsContext);
                 mainDisplay.AttachRenderer(renderer);
                 Workspace workspace = new(renderer);
+                //handle open verb
+                if(App.OpenVerbPath is not null)
+                {
+                    workspace.IFS = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
+                }
                 //create viewmodel
                 var mainViewModel = new MainViewModel(workspace);
                 this.DataContext = mainViewModel;
