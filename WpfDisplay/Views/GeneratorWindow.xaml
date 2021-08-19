@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         mc:Ignorable="d"
-        Title="Generator Window" Height="450" Width="800"
+        Title="Generator" Height="450" Width="800"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"

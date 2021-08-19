@@ -10,7 +10,7 @@
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
         xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920"
+        Title="IFSRenderer" Height="1080" Width="1920"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
