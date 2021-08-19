@@ -22,5 +22,97 @@ namespace WpfDisplay.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Unknown Artist")]
+        public string ArtistName {
+            get {
+                return ((string)(this["ArtistName"]));
+            }
+            set {
+                this["ArtistName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-")]
+        public string ArtistLink {
+            get {
+                return ((string)(this["ArtistLink"]));
+            }
+            set {
+                this["ArtistLink"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ApplyWatermark {
+            get {
+                return ((bool)(this["ApplyWatermark"]));
+            }
+            set {
+                this["ApplyWatermark"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        public int WorkgroupCount {
+            get {
+                return ((int)(this["WorkgroupCount"]));
+            }
+            set {
+                this["WorkgroupCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NotifyRenderFinished {
+            get {
+                return ((bool)(this["NotifyRenderFinished"]));
+            }
+            set {
+                this["NotifyRenderFinished"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>Affine</string>\r\n  <string>Spherical</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection FavoriteTranforms {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["FavoriteTranforms"]));
+            }
+            set {
+                this["FavoriteTranforms"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>1280x720</string>
+  <string>1080x1080</string>
+  <string>1920x1080</string>
+  <string>3840x2160</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ResolutionPresets {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ResolutionPresets"]));
+            }
+            set {
+                this["ResolutionPresets"] = value;
+            }
+        }
     }
 }

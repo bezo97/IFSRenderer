@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>fractal, 3d, graphics, art, ifs, rendering</PackageTags>
-    <PackageReleaseNotes>test version</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
