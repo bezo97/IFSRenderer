@@ -58,7 +58,7 @@
                 <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
                 <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
-                <MenuItem Header="⚙️ Settings..."/>
+                <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
                 <Separator/>
                 <MenuItem Header="Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>

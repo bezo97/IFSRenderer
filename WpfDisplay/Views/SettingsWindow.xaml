@@ -1,0 +1,115 @@
+﻿<Window x:Class="WpfDisplay.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        WindowStartupLocation="CenterOwner" 
+        ShowInTaskbar="False"
+        WindowStyle="ToolWindow"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
+        Title="Settings" x:Name="settingsWindow"
+        Height="550" Width="400" MinWidth="400" MinHeight="550">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" MinHeight="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.66*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center">User settings</Label>
+        <!--Artist name-->
+        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Artist name
+        </TextBlock>
+        <Label Grid.Row="1" Grid.Column="1"
+               ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center">?</Label>
+        <TextBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                 Text="{Binding ArtistName}" md:HintAssist.Hint="Provide an artist name"/>
+        <!--Artist link-->
+        <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Artist link
+        </TextBlock>
+        <Label Grid.Row="2" Grid.Column="1"
+               ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                 Text="{Binding ArtistLink}" md:HintAssist.Hint="https://example.com"/>
+        <!--Watermark-->
+        <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Apply watermark
+        </TextBlock>
+        <Label Grid.Row="3" Grid.Column="1"
+               ToolTip="Print the artist name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 IsChecked="{Binding Watermark}" IsEnabled="False"/>
+        <!--Notification-->
+        <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Enable Notifications
+        </TextBlock>
+        <Label Grid.Row="4" Grid.Column="1"
+               ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 IsChecked="{Binding Notifications}" IsEnabled="False"/>
+        <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center">Performance settings</Label>
+        <!--Perceptually uniform updates-->
+        <TextBlock Grid.Row="6" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Perceptually uniform updates
+        </TextBlock>
+        <Label Grid.Row="6" Grid.Column="1"
+               ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <CheckBox Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 IsChecked="{Binding PerceptuallyUniformUpdates}"/>
+        <!--Target Framerate-->
+        <TextBlock Grid.Row="7" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Target Framerate
+        </TextBlock>
+        <Label Grid.Row="7" Grid.Column="1"
+               ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <local:ValueSlider Grid.Row="7" Grid.Column="3" 
+                           ValueName=""
+                           MinValue="5" MaxValue="144" Increment="30" 
+                           Value="{Binding DataContext.TargetFramerate, ElementName=settingsWindow}"/>
+        <!--Workgroup-->
+        <TextBlock Grid.Row="8" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            Workgroups
+        </TextBlock>
+        <Label Grid.Row="8" Grid.Column="1"
+               ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+        <local:ValueSlider Grid.Row="8" Grid.Column="3" 
+                           ValueName=""
+                           MinValue="1" MaxValue="5000" Increment="100" 
+                           Value="{Binding DataContext.WorkgroupCount, ElementName=settingsWindow}"/>
+        <!--Dialog Buttons-->
+        <Button Grid.Row="10" Grid.Column="0"
+                Command="{Binding CancelDialogCommand}"
+                IsCancel="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+            Cancel
+        </Button>
+        <Button Grid.Row="10" Grid.Column="2"
+                Command="{Binding OkDialogCommand}"
+                IsDefault="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
+            Save
+        </Button>
+    </Grid>
+</Window>

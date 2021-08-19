@@ -16,6 +16,7 @@ namespace WpfDisplay.Views
     {
         private EditorWindow editorWindow;
         private GeneratorWindow generatorWindow;
+        private SettingsWindow settingsWindow;
         private MainViewModel vm => (MainViewModel)DataContext;
 
         public MainWindow()
@@ -45,7 +46,6 @@ namespace WpfDisplay.Views
             {
                 generatorWindow = new GeneratorWindow();
                 generatorWindow.DataContext = new GeneratorViewModel(vm);
-                //generatorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = (DataContext as MainViewModel).IFSViewModel, Mode = BindingMode.TwoWay });
             }
 
             if (generatorWindow.ShowActivated)
@@ -69,6 +69,21 @@ namespace WpfDisplay.Views
             //bring to foreground
             if (!editorWindow.IsActive)
                 editorWindow.Activate();
+        }
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            //create window
+            if (settingsWindow == null || !settingsWindow.IsLoaded)
+            {
+                settingsWindow = new SettingsWindow();
+                settingsWindow.DataContext = new SettingsViewModel(vm);
+            }
+
+            if (settingsWindow.ShowActivated)
+                settingsWindow.Show();
+            //bring to foreground
+            if (!settingsWindow.IsActive)
+                settingsWindow.Activate();
         }
 
         protected override void OnClosing(CancelEventArgs e)
