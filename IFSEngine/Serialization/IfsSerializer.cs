@@ -45,12 +45,7 @@ namespace IFSEngine.Serialization
             return JsonConvert.SerializeObject(ifs, settings);
         }
 
-        /// <summary>
-        /// Extension method on <see cref="IFS"/> to <see cref="SaveJsonFile(IFS, string)"/>
-        /// </summary>
-        public static void Save(this IFS ifs, string path) => SaveJsonFile(ifs, path);
-
-        private static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
+        internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
         {
             return new JsonSerializerSettings
             {

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using OpenTK.Windowing.Desktop;
+using IFSEngine.Generation;
+using System.Threading.Tasks;
 
 namespace WpfDisplay.Models
 {
@@ -21,9 +23,10 @@ namespace WpfDisplay.Models
         public IReadOnlyList<IFS> GeneratedIFS => generatedIFS;
         public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => thumbnails;
 
-        public List<TransformFunction> LoadedTransforms { get; }
+        
 
         private RendererGL renderer;
+        private Generator generator;
         private Dictionary<IFS, ImageSource> thumbnails = new Dictionary<IFS, ImageSource>();
         private List<IFS> pinnedIFS = new List<IFS>();
         private List<IFS> generatedIFS = new List<IFS>();
@@ -32,31 +35,36 @@ namespace WpfDisplay.Models
         public GeneratorWorkspace()
         {
             //init thumbnail renderer
-            GameWindow hw = new GameWindow(new GameWindowSettings(), new NativeWindowSettings());
+            GameWindow hw = new(new GameWindowSettings
+            {
+                IsMultiThreaded=true
+            }, new NativeWindowSettings
+            {
+                Flags = OpenTK.Windowing.Common.ContextFlags.Offscreen,
+                IsEventDriven = true,
+                StartFocused = false,
+                StartVisible = false,
+                WindowState = OpenTK.Windowing.Common.WindowState.Minimized
+            });
             renderer = new RendererGL(hw.Context);
-            renderer.SetDisplayResolution(100, 100);
-            LoadedTransforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
+            renderer.SetDisplayResolution(200, 200);
+            var transforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
                 .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
-            renderer.Initialize(LoadedTransforms);
+            generator = new Generator(transforms);
+            renderer.Initialize(transforms);
             //performance settings
             renderer.SetWorkgroupCount(10).Wait();
         }
 
-        public void GenerateNewRandomBatch(int batchSize)
+        public async Task GenerateNewRandomBatch(GeneratorOptions options)
         {
+            options.baseParams = pinnedIFS.LastOrDefault() ?? new IFS();//TODO: use selection of pinned fractals
             generatedIFS.Clear();
-            for (int i = 0; i < batchSize; i++)
+            await foreach (IFS r in generator.GenerateBatch(options, 30))
             {
-                GenerateRandom();
+                generatedIFS.Add(r);
+                renderQueue.Enqueue(r);
             }
-        }
-
-        public void GenerateRandom()
-        {
-            var r = IFS.GenerateRandom(LoadedTransforms);
-            r.ImageResolution = new System.Drawing.Size(1080, 1080);
-            generatedIFS.Add(r);
-            renderQueue.Enqueue(r);
         }
 
         public void PinIFS(IFS ifs)

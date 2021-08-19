@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
+using IFSEngine.Generation;
+using IFSEngine.Utility;
 
 namespace WpfDisplay.ViewModels
 {
@@ -15,6 +17,14 @@ namespace WpfDisplay.ViewModels
     {
         private readonly MainViewModel mainvm;
         private readonly GeneratorWorkspace workspace = new GeneratorWorkspace();
+        private readonly GeneratorOptions options = new GeneratorOptions();
+
+        public bool MutateIterators { get => options.MutateIterators; set => SetProperty(ref options.MutateIterators, value); }
+        public bool MutateConnections { get => options.MutateConnections; set => SetProperty(ref options.MutateConnections, value); }
+        public bool MutateConnectionWeights { get => options.MutateConnectionWeights; set => SetProperty(ref options.MutateConnectionWeights, value); }
+        public bool MutateVariables { get => options.MutateVariables; set => SetProperty(ref options.MutateVariables, value); }
+        public bool MutatePalette { get => options.MutatePalette; set => SetProperty(ref options.MutatePalette, value); }
+        public bool MutateColoring { get => options.MutateColoring; set => SetProperty(ref options.MutateColoring, value); }
 
         //Linq magic to split an array into arrays of 3
         //This makes binding the thumbnails to the 3-wide gallery of images easy.
@@ -22,22 +32,19 @@ namespace WpfDisplay.ViewModels
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails => 
             workspace.PinnedIFS.ToArray()
             .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 3)//3 in a row
+            .GroupBy(x => x.Index / 1)
             .Select(grp => grp.Select(x => x.Value));
 
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
             workspace.GeneratedIFS.ToArray()
             .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 10)//10 in a row
+            .GroupBy(x => x.Index / 7)
             .Select(grp => grp.Select(x => x.Value));
 
         public GeneratorViewModel(MainViewModel mainvm)
         {
             this.mainvm = mainvm;
             workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);//tmp hack
-
-
-
         }
 
         private RelayCommand<IFS> _sendToMainCommand;
@@ -46,18 +53,17 @@ namespace WpfDisplay.ViewModels
             get => _sendToMainCommand ?? (
                 _sendToMainCommand = new RelayCommand<IFS>((IFS param) =>
                 {
-                    //copy?
-                    mainvm.LoadParamsToWorkspace(param);
+                    mainvm.LoadParamsToWorkspace(param.DeepClone());
                 }));
         }
 
-        private RelayCommand<IFS> _generateRandomBatchCommand;
-        public RelayCommand<IFS> GenerateRandomBatchCommand
+        private RelayCommand _generateRandomBatchCommand;
+        public RelayCommand GenerateRandomBatchCommand
         {
             get => _generateRandomBatchCommand ?? (
-                _generateRandomBatchCommand = new RelayCommand<IFS>((IFS param) =>
+                _generateRandomBatchCommand = new RelayCommand(() =>
                 {
-                    workspace.GenerateNewRandomBatch(30);
+                    workspace.GenerateNewRandomBatch(options).Wait();
                     //TODO: do not start if already processing
                     workspace.processQueue();
                     OnPropertyChanged(nameof(GeneratedIFSThumbnails));
@@ -76,7 +82,6 @@ namespace WpfDisplay.ViewModels
                     OnPropertyChanged(nameof(PinnedIFSThumbnails));
                 }));
         }
-
 
     }
 }

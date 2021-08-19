@@ -15,6 +15,7 @@ using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
 using System.Windows.Input;
+using IFSEngine.Generation;
 
 namespace WpfDisplay.ViewModels
 {
@@ -81,7 +82,8 @@ namespace WpfDisplay.ViewModels
             _loadRandomCommand ??= new RelayCommand(OnLoadRandomCommand);
         private void OnLoadRandomCommand()
         {
-            LoadParamsToWorkspace(IFS.GenerateRandom(workspace.Renderer.RegisteredTransforms));
+            Generator g = new Generator(workspace.Renderer.RegisteredTransforms);//
+            LoadParamsToWorkspace(g.GenerateOne(new GeneratorOptions()));
             workspace.UpdateStatusText($"Randomly generated parameters loaded");
         }
 
