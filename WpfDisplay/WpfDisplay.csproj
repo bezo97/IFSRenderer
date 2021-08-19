@@ -48,4 +48,12 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="SplashScreen.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="Resources\SplashScreen.png" />
+  </ItemGroup>
+
 </Project>
