@@ -15,6 +15,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
         ShowInTaskbar="False"
+        Topmost="True"
         WindowStyle="ToolWindow"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
         Title="Settings" x:Name="settingsWindow"
@@ -77,7 +78,7 @@
             Perceptually uniform updates
         </TextBlock>
         <Label Grid.Row="6" Grid.Column="1"
-               ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+               ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <CheckBox Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                  IsChecked="{Binding PerceptuallyUniformUpdates}"/>
         <!--Target Framerate-->
@@ -85,7 +86,7 @@
             Target Framerate
         </TextBlock>
         <Label Grid.Row="7" Grid.Column="1"
-               ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+               ToolTip="Define a target framerate (FPS) for interactive exploration. Default value is 60." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <local:ValueSlider Grid.Row="7" Grid.Column="3" 
                            ValueName=""
                            MinValue="5" MaxValue="144" Increment="30" 
@@ -95,7 +96,7 @@
             Workgroups
         </TextBlock>
         <Label Grid.Row="8" Grid.Column="1"
-               ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+               ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 300." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <local:ValueSlider Grid.Row="8" Grid.Column="3" 
                            ValueName=""
                            MinValue="1" MaxValue="5000" Increment="100" 

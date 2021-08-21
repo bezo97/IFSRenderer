@@ -16,7 +16,6 @@ namespace WpfDisplay.Views
     {
         private EditorWindow editorWindow;
         private GeneratorWindow generatorWindow;
-        private SettingsWindow settingsWindow;
         private MainViewModel vm => (MainViewModel)DataContext;
 
         public MainWindow()
@@ -72,18 +71,12 @@ namespace WpfDisplay.Views
         }
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            //create window
-            if (settingsWindow == null || !settingsWindow.IsLoaded)
+            var settingsWindow = new SettingsWindow
             {
-                settingsWindow = new SettingsWindow();
-                settingsWindow.DataContext = new SettingsViewModel(vm);
-            }
-
-            if (settingsWindow.ShowActivated)
-                settingsWindow.Show();
-            //bring to foreground
-            if (!settingsWindow.IsActive)
-                settingsWindow.Activate();
+                DataContext = new SettingsViewModel(vm)
+            };
+            if(settingsWindow.ShowDialog() == true)
+                vm.StatusBarText = "Settings saved.";
         }
 
         protected override void OnClosing(CancelEventArgs e)

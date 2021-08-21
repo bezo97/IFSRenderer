@@ -73,17 +73,6 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public bool EnablePerceptualUpdates
-        {
-            get => workspace.Renderer.EnablePerceptualUpdates;
-            set
-            {
-                workspace.Renderer.EnablePerceptualUpdates = value;
-                OnPropertyChanged(nameof(EnablePerceptualUpdates));
-                workspace.Renderer.InvalidateDisplay();
-            }
-        }
-
         public int EntropyInv
         {
             get => (int)(1.0 / workspace.Renderer.Entropy);
@@ -193,7 +182,6 @@ namespace WpfDisplay.ViewModels
             _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
         private async Task OnFinalPresetCommand()
         {
-            EnablePerceptualUpdates = true;
             EnableTAA = false;
             EnableDE = false;
             MaxFilterRadius = 3;

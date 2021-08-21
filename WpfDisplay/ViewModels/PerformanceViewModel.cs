@@ -19,37 +19,6 @@ namespace WpfDisplay.ViewModels
         public string IterationSpeed => (workspace.Renderer.TotalIterations - lastTotalIters).ToKMB() + " /s";
         public string TotalIterations => workspace.Renderer.TotalIterations.ToKMB();
 
-        public int TargetFramerate
-        {
-            get => workspace.Renderer.TargetFramerate;
-            set
-            {
-                workspace.Renderer.TargetFramerate = value;
-                OnPropertyChanged(nameof(TargetFramerate));
-            }
-        }
-
-        public double WorkgroupCount
-        {
-            get => workspace.Renderer.WorkgroupCount;
-            set
-            {
-                workspace.Renderer.SetWorkgroupCount((int)value).Wait();
-                OnPropertyChanged(nameof(WorkgroupCount));
-            }
-        }
-
-        public bool UpdateDisplay
-        {
-            get => workspace.Renderer.UpdateDisplayOnRender;
-            set
-            {
-                workspace.Renderer.UpdateDisplayOnRender = value;
-                OnPropertyChanged(nameof(UpdateDisplay));
-            }
-        }
-
-
         public PerformanceViewModel(Workspace workspace)
         {
             this.workspace = workspace;
@@ -70,7 +39,6 @@ namespace WpfDisplay.ViewModels
 
             OnPropertyChanged(nameof(TotalIterations));
             OnPropertyChanged(nameof(InvocationIters));
-            OnPropertyChanged(nameof(TargetFramerate));
         }
 
 

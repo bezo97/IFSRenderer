@@ -67,7 +67,7 @@ namespace IFSEngine.Rendering
         private bool invalidPointsStateBuffer = false;
 
         /// <summary>
-        /// TODO: make this adaptive, private
+        /// Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 300.
         /// </summary>
         public int WorkgroupCount { get; private set; } = 300;
         public async Task SetWorkgroupCount(int s)
@@ -91,9 +91,9 @@ namespace IFSEngine.Rendering
         /// </summary>
         /// <remarks>
         /// This is needed to avoid seeing the starting random points.
-        /// Also known as "fuse count". Defaults to 20, same as in flame.
+        /// Also known as "fuse count". This is 20 in Flame. Defaults to 0.
         /// </remarks>
-        public int Warmup { get; set; } = 20;
+        public int Warmup { get; set; } = 0;
 
         /// <summary>
         /// Number of iterations a single invocation performs.
@@ -106,25 +106,14 @@ namespace IFSEngine.Rendering
         /// </summary>
         public int TargetFramerate { get; set; } = 60;
 
-        // <summary>
-        // Number of iterations between resetting points.
-        // Apo/Chaotica: const 10000
-        // Zueuk: max 500 enough
-        // TODO: adaptive possible? Reset earlier if ... ?
-        // Gradually increase IterationDepth? x
-        // Make it an option for high quality renders?
-        // TODO: move reset to compute shader? adaptive for each thread
-        // </summary>
-        //public int IterationDepth { get; set; } = 1000;
-
         /// <summary>
         /// Entropy is the probability to reset on each iteration.
         /// </summary>
         /// <remarks>
-        /// Based on zy0rg's description.
-        /// The default 0.0001 value approximates flame's constant 10 000 iteration depth approach.
+        /// Based on zy0rg's description, but it applies to the whole system for now.
+        /// This replaces the constant 10 000 iteration depth in Flame. Defaults to 0.01.
         /// </remarks>
-        public double Entropy { get; set; } = 0.0001;
+        public double Entropy { get; set; } = 0.01;
 
         /// <summary>
         /// Total iterations since accumulation reset
@@ -136,6 +125,7 @@ namespace IFSEngine.Rendering
         /// Higher values are slow to render.
         /// </summary>
         public int MaxFilterRadius { get; set; } = 0;
+        public double HistogramScale { get; private set; } = 1.0;
 
         private bool updateDisplayNow = false;
         private readonly IGraphicsContext ctx;
@@ -287,8 +277,9 @@ namespace IFSEngine.Rendering
 
         public void SetHistogramScale(double scale)
         {
-            int newWidth = (int)(LoadedParams.ImageResolution.Width * scale);
-            int newHeight = (int)(LoadedParams.ImageResolution.Height * scale);
+            HistogramScale = scale; 
+            int newWidth = (int)(LoadedParams.ImageResolution.Width * HistogramScale);
+            int newHeight = (int)(LoadedParams.ImageResolution.Height * HistogramScale);
             if (newWidth != HistogramWidth || newHeight != HistogramHeight)
             {
                 HistogramWidth = newWidth;
@@ -494,7 +485,7 @@ namespace IFSEngine.Rendering
             GL.Uniform3(GL.GetUniformLocation(tonemapProgramHandle, "bg_color"), LoadedParams.BackgroundColor.R / 255.0f, LoadedParams.BackgroundColor.G / 255.0f, LoadedParams.BackgroundColor.B / 255.0f);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            if (EnableDE && dispatchCnt > 8)
+            if (EnableDE)
             {
                 GL.UseProgram(deProgramHandle);
                 GL.BindVertexArray(vao);

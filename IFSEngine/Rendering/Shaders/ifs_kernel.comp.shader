@@ -204,8 +204,8 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 	normalizedPoint.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
 	return vec2(
-		(normalizedPoint.x + 1) * width / 2.0f,
-		(normalizedPoint.y * ratio + 1) * height / 2.0f);
+		(normalizedPoint.x + 1) * width / 2.0f - 0.5,
+		(normalizedPoint.y * ratio + 1) * height / 2.0f - 0.5);
 }
 
 vec3 apply_transform(Iterator iter, vec3 p_input, inout uint next)

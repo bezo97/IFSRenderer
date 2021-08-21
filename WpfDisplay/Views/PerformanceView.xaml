@@ -13,13 +13,6 @@
     <md:Card Padding="10" Margin="8">
         <StackPanel>
             <TextBlock Text="Performance" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <local:ValueSlider ValueName="Target Framerate (fps)"
-                               MinValue="5" MaxValue="144" Increment="30" 
-                               Value="{Binding DataContext.TargetFramerate, ElementName=performanceView}"/>
-            <local:ValueSlider ValueName="Workgroup count"
-                               MinValue="1" MaxValue="5000" Increment="100" 
-                               Value="{Binding DataContext.WorkgroupCount, ElementName=performanceView}"/>
-            <CheckBox Foreground="White" IsChecked="{Binding UpdateDisplay}">Update Display</CheckBox>
             <TextBlock Foreground="White" FontSize="16">
                     Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/> fps
                     <LineBreak/>

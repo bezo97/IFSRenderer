@@ -102,11 +102,13 @@ namespace WpfDisplay.Views
         {
             if (e.Key == Key.Enter)
             {
+                e.Handled = true;
                 Editing = false;
                 valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             }
             else if (e.Key == Key.Escape)
             {
+                e.Handled = true;
                 Value = lastv;//restore
                 Editing = false;
             }

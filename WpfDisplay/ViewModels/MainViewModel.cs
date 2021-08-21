@@ -21,7 +21,7 @@ namespace WpfDisplay.ViewModels
 {
     public class MainViewModel : ObservableObject, IDisposable
     {
-        private readonly Workspace workspace;
+        internal readonly Workspace workspace;
 
         public ToneMappingViewModel ToneMappingViewModel { get; }
         public CameraSettingsViewModel CameraSettingsViewModel { get; }

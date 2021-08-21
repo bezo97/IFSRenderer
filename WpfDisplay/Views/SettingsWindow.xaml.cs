@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views
 {
@@ -22,6 +23,12 @@ namespace WpfDisplay.Views
         public SettingsWindow()
         {
             InitializeComponent();
+            Loaded += (s, e) =>
+            {
+                SettingsViewModel vm = (SettingsViewModel)DataContext;
+                vm.SettingsSaved += (s2, e2) => DialogResult = true;
+                vm.SettingsCanceled += (s2, e2) => DialogResult = false;
+            };
         }
     }
 }
