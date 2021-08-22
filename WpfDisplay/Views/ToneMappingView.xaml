@@ -19,7 +19,7 @@
             <local:ValueSlider ValueName="◑ Gamma" MinValue="0" Increment="0.005" 
                                Value="{Binding DataContext.Gamma, ElementName=toneMappingView}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="◓ Gamma threshold" MinValue="0.0" Increment="0.001"
+            <local:ValueSlider ValueName="◓ Gamma threshold" MinValue="0.0" Increment="0.0001"
                                Value="{Binding DataContext.GammaThreshold, ElementName=toneMappingView}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
             <local:ValueSlider ValueName="🌷 Vibrancy" Increment="0.05" 

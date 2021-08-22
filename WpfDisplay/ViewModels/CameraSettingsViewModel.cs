@@ -75,5 +75,11 @@ namespace WpfDisplay.ViewModels
             DepthOfField = 0.25;
             workspace.Renderer.InvalidateHistogramBuffer();
         }
+
+        public void RaisePropertyChanged()
+        {
+            OnPropertyChanged(string.Empty);
+        }
+
     }
 }

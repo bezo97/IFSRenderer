@@ -124,7 +124,8 @@
                     <disp:InteractiveDisplay
                         Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
                         x:Name="mainDisplay"
-                        InteractionStartedCommand="{Binding TakeSnapshotCommand}"/>
+                        InteractionStartedCommand="{Binding TakeSnapshotCommand}"
+                        InteractionFinishedCommand="{Binding InteractionFinishedCommand}"/>
                     <ProgressBar
                         Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
                         Width="100" Height="25"

@@ -43,6 +43,9 @@ namespace WpfDisplay.ViewModels
             }
         }
 
+        private string statusBarText;
+        public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
+
         public bool IsColorPickerEnabled => !TransparentBackground;
 
         public MainViewModel(Workspace workspace)
@@ -83,7 +86,9 @@ namespace WpfDisplay.ViewModels
         private void OnLoadRandomCommand()
         {
             Generator g = new Generator(workspace.Renderer.RegisteredTransforms);//
-            LoadParamsToWorkspace(g.GenerateOne(new GeneratorOptions()));
+            IFS r = g.GenerateOne(new GeneratorOptions());
+            r.ImageResolution = new System.Drawing.Size(1920, 1080);
+            LoadParamsToWorkspace(r);
             workspace.UpdateStatusText($"Randomly generated parameters loaded");
         }
 
@@ -237,6 +242,9 @@ namespace WpfDisplay.ViewModels
         public RelayCommand TakeSnapshotCommand =>
             _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
 
+        private RelayCommand _interactionFinishedCommand;
+        public ICommand InteractionFinishedCommand => _interactionFinishedCommand ??= new RelayCommand(CameraSettingsViewModel.RaisePropertyChanged);
+
         private async Task OnCloseWorkspaceCommand()
         {
             //TODO: prompt to save work?
@@ -249,8 +257,5 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.Dispose();
         }
 
-        private string statusBarText;
-
-        public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
     }
 }

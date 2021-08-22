@@ -29,7 +29,15 @@ namespace IFSEngine.WPF.InteractiveDisplay
         }
         public static readonly DependencyProperty InteractionStartedCommandProperty =
             DependencyProperty.Register("InteractionStartedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
-        
+
+        public ICommand InteractionFinishedCommand
+        {
+            get { return (ICommand)GetValue(InteractionFinishedCommandProperty); }
+            set { SetValue(InteractionFinishedCommandProperty, value); }
+        }
+        public static readonly DependencyProperty InteractionFinishedCommandProperty =
+            DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
+
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
@@ -69,6 +77,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                 InteractionStartedCommand?.Execute(null);
                 Renderer.LoadedParams.Camera.FocusDistance += e.Delta * Renderer.LoadedParams.Camera.FocusDistance * 0.001;
                 Renderer.InvalidateHistogramBuffer();
+                InteractionFinishedCommand?.Execute(null);
             }
         }
 
@@ -93,6 +102,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                     //    var pos = this.PointToScreen(new Point(Width / 2, Height / 2));
                     //    SetCursorPos((int)pos.X, (int)pos.Y);
                     //}
+                    InteractionFinishedCommand?.Execute(null);
                 }
                 else
                     Mouse.OverrideCursor = null;//no override

@@ -51,9 +51,11 @@ namespace WpfDisplay.ViewModels
         public RelayCommand<IFS> SendToMainCommand
         {
             get => _sendToMainCommand ?? (
-                _sendToMainCommand = new RelayCommand<IFS>((IFS param) =>
+                _sendToMainCommand = new RelayCommand<IFS>((IFS generated_params) =>
                 {
-                    mainvm.LoadParamsToWorkspace(param.DeepClone());
+                    var param = generated_params.DeepClone();
+                    param.ImageResolution = new System.Drawing.Size(1920, 1080);
+                    mainvm.LoadParamsToWorkspace(param);
                 }));
         }
 
@@ -82,6 +84,9 @@ namespace WpfDisplay.ViewModels
                     OnPropertyChanged(nameof(PinnedIFSThumbnails));
                 }));
         }
+
+        public double MutationChance { get => options.MutationChance; set => SetProperty(ref options.MutationChance, value); }
+        public double MutationStrength { get => options.MutationStrength; set => SetProperty(ref options.MutationStrength, value); }
 
     }
 }

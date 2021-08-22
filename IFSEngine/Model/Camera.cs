@@ -43,7 +43,8 @@ namespace IFSEngine.Model
         public void RotateWithSensitivity(Vector3 rotVector)
         {
             float rotSpeed = RotationSensitivity * FieldOfView / 180.0f;
-            RotateBy(rotSpeed * rotVector);
+            rotVector = Vector3.Multiply(rotVector, new Vector3(rotSpeed, rotSpeed, RotationSensitivity));
+            RotateBy(rotVector);
         }
 
         /// <summary>
