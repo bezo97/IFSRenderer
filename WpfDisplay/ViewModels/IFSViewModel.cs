@@ -1,13 +1,12 @@
 ﻿using IFSEngine.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
@@ -18,22 +17,22 @@ namespace WpfDisplay.ViewModels
     {
         private readonly Workspace workspace;
 
+        public CompositeCollection NodeMapElements { get; private set; }
         public IReadOnlyCollection<TransformFunction> RegisteredTransforms => workspace.LoadedTransforms;
-        public ObservableCollection<IteratorViewModel> IteratorViewModels { get; private set; } = new ObservableCollection<IteratorViewModel>();
-
-
+        private readonly ObservableCollection<IteratorViewModel> IteratorViewModels = new();
+        private readonly ObservableCollection<ConnectionViewModel> ConnectionViewModels = new();
         private IteratorViewModel connectingIterator;
-
         private IteratorViewModel selectedIterator;
         public IteratorViewModel SelectedIterator
         {
-            get => selectedIterator; 
+            get => selectedIterator;
             set
             {
-                if(selectedIterator != null)
+                if (selectedIterator != null)
                     selectedIterator.IsSelected = false;
 
                 SetProperty(ref selectedIterator, value);
+                OnPropertyChanged(nameof(IsIteratorEditorVisible));
 
                 if (selectedIterator != null)
                 {
@@ -69,7 +68,7 @@ namespace WpfDisplay.ViewModels
 
         public Color BackgroundColor
         {
-            get 
+            get
             {
                 var c = workspace.IFS.BackgroundColor;
                 return Color.FromRgb(c.R, c.G, c.B);
@@ -98,13 +97,21 @@ namespace WpfDisplay.ViewModels
         public IFSViewModel(Workspace workspace)
         {
             this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
             IteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParamsBuffer();
-            workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
-            workspace.PropertyChanged += (s, e) => {
+            workspace.PropertyChanged += (s, e) =>
+            {
                 SelectedIterator = null;
-                HandleIteratorsChanged(); 
+                HandleIteratorsChanged();
+                OnPropertyChanged(string.Empty);
             };
+
+            NodeMapElements = new CompositeCollection()
+            {
+                new CollectionContainer(){Collection=ConnectionViewModels },
+                new CollectionContainer(){Collection=IteratorViewModels },
+            };
+
+            workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             HandleIteratorsChanged();
         }
 
@@ -121,23 +128,24 @@ namespace WpfDisplay.ViewModels
             {
                 if (!finish)
                     connectingIterator = ivm;
-                else if(connectingIterator != null)
+                else if (connectingIterator != null)
                 {
                     workspace.TakeSnapshot();
-                    if (connectingIterator.iterator.WeightTo.ContainsKey(ivm.iterator))
-                        connectingIterator.iterator.WeightTo.Remove(ivm.iterator);
+                    if (connectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
+                        connectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
                     else
                         connectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
-                    HandleConnectionsChanged(connectingIterator);
-                    SelectedConnection = connectingIterator.ConnectionViewModels.FirstOrDefault(c=>c.to==ivm);
+                    HandleIteratorsChanged();
+                    SelectedConnection = ConnectionViewModels.FirstOrDefault(c => c.from == connectingIterator && c.to == ivm);
                     connectingIterator = null;
 
                 }
             };
             if (SelectedIterator != null)
             {
-                ivm.XCoord = SelectedIterator.XCoord + (float)SelectedIterator.WeightedSize / 1.5f + (float)ivm.WeightedSize / 1.5f;
-                ivm.YCoord = SelectedIterator.YCoord;
+                float XCoord = SelectedIterator.XCoord + (float)SelectedIterator.WeightedSize / 1.5f + (float)ivm.WeightedSize / 1.5f;
+                float YCoord = SelectedIterator.YCoord;
+                ivm.UpdatePosition(XCoord, YCoord);
             }
             IteratorViewModels.Add(ivm);
             SelectedIterator = ivm;
@@ -146,24 +154,38 @@ namespace WpfDisplay.ViewModels
 
         private void HandleIteratorsChanged()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
-                var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i));
-                removedIteratorVMs.ToList().ForEach(vm => IteratorViewModels.Remove(vm));
-                newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
-
-                //update connections vms:
-                IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
+            //remove nodes
+            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i)).ToList();
+            removedIteratorVMs.ForEach(vm => { 
+                IteratorViewModels.Remove(vm);
             });
+            //remove connections
+            var removedConnections = ConnectionViewModels.Where(c => !c.from.iterator.WeightTo.TryGetValue(c.to.iterator, out double ww) || ww == 0.0 || !IteratorViewModels.Any(i => i == c.from) || !IteratorViewModels.Any(i => i == c.to));
+            removedConnections.ToList().ForEach(vm2 => ConnectionViewModels.Remove(vm2));
+            //add nodes
+            var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
+            newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            //add connections:
+            IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
+            Redraw();
+            OnPropertyChanged(nameof(NodeMapElements));
         }
         private void HandleConnectionsChanged(IteratorViewModel vm)
         {
-            var newConnections = vm.iterator.WeightTo.Where(w => !vm.ConnectionViewModels.Any(c => c.to.iterator == w.Key && w.Value > 0.0));
-            var removedConnections = vm.ConnectionViewModels.Where(c => !vm.iterator.WeightTo.Any(i => c.to.iterator == i.Key && i.Value > 0.0));
-            removedConnections.ToList().ForEach(vm2 => vm.ConnectionViewModels.Remove(vm2));
-            newConnections.ToList().ForEach(c => vm.ConnectionViewModels.Add(new ConnectionViewModel(vm, IteratorViewModels.First(vm2=>vm2.iterator == c.Key), workspace)));
-            Redraw();
+            var newConnections = vm.iterator.WeightTo.Where(w => w.Value > 0.0 && !ConnectionViewModels.Any(c => c.from == vm && c.to.iterator == w.Key));
+            foreach (var c in newConnections)
+            {
+                var cvm = new ConnectionViewModel(ConnectionViewModels, vm, IteratorViewModels.First(vm2 => vm2.iterator == c.Key), workspace);
+                cvm.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == "Weight")
+                    {
+                        workspace.Renderer.InvalidateParamsBuffer();
+                        HandleIteratorsChanged();//ugh
+                    }
+                };
+                ConnectionViewModels.Add(cvm);
+            }
         }
 
         public void Redraw()
@@ -171,10 +193,10 @@ namespace WpfDisplay.ViewModels
             foreach (var i in IteratorViewModels)
             {
                 i.Redraw();
-                foreach (var con in i.ConnectionViewModels)
-                {
-                    con.UpdateGeometry();
-                }
+            }
+            foreach (var con in ConnectionViewModels)
+            {
+                con.UpdateGeometry();
             }
         }
 

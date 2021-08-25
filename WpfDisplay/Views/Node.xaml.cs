@@ -1,9 +1,4 @@
 ﻿using Microsoft.Toolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,26 +11,40 @@ namespace WpfDisplay.Views
     /// </summary>
     public partial class Node : UserControl
     {
-
+        private IteratorViewModel vm => (IteratorViewModel)DataContext;
+        private ContentPresenter ParentContainer;
+        private float tx, ty;
 
         public RelayCommand<IteratorViewModel> SelectCommand
         {
             get { return (RelayCommand<IteratorViewModel>)GetValue(SelectCommandProperty); }
             set { SetValue(SelectCommandProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for SelectCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectCommandProperty =
             DependencyProperty.Register("SelectCommand", typeof(RelayCommand<IteratorViewModel>), typeof(Node), new PropertyMetadata(null));
 
+        public float NodePositionX
+        {
+            get { return (float)Canvas.GetLeft(ParentContainer); }
+            set { Canvas.SetLeft(ParentContainer, value); }
+        }
 
+        public float NodePositionY
+        {
+            get { return (float)Canvas.GetTop(ParentContainer); }
+            set { Canvas.SetTop(ParentContainer, value); }
+        }
 
         public Node()
         {
             InitializeComponent();
+            Loaded += (s, e) =>
+            {
+                ParentContainer = (ContentPresenter)System.Windows.Media.VisualTreeHelper.GetParent(this);
+                NodePositionX = vm.XCoord;
+                NodePositionY = vm.YCoord;
+            };
         }
-
-        private float tx, ty;
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
@@ -73,11 +82,12 @@ namespace WpfDisplay.Views
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var vm = (IteratorViewModel)DataContext;
                 e.Handled = true;
-                vm.XCoord = /*e.GetPosition(Map).X + */tx + (float)e.GetPosition(null).X;
-                vm.YCoord = /*e.GetPosition(Map).Y + */ty + (float)e.GetPosition(null).Y;
-                vm.Redraw();//TODO: should call ifsvm.Redraw()
+                float XCoord = tx + (float)e.GetPosition(null).X;
+                float YCoord = ty + (float)e.GetPosition(null).Y;
+                vm.UpdatePosition(XCoord, YCoord);
+                NodePositionX = vm.XCoord;
+                NodePositionY = vm.YCoord;
             }
         }
 

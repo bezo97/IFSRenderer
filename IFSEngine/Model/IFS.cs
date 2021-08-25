@@ -30,32 +30,33 @@ namespace IFSEngine.Model
         public void AddIterator(Iterator newIterator, bool connect)
         {
             iterators.Add(newIterator);
-            if (connect)
+            double weight = connect ? 1.0 : 0.0;
+            foreach (var it in iterators)
             {
-                foreach (var it in iterators)
-                {
-                    newIterator.WeightTo[it] = 1.0;
-                    it.WeightTo[newIterator] = 1.0;
-                }
+                newIterator.WeightTo[it] = weight;
+                it.WeightTo[newIterator] = weight;
             }
         }
 
         public Iterator DuplicateIterator(Iterator a)
         {
             //clone first
-            Iterator d = new Iterator(a.TransformFunction)
+            Iterator d = new(a.TransformFunction)
             {
                 BaseWeight = a.BaseWeight,
                 ColorIndex = a.ColorIndex,
                 ColorSpeed = a.ColorSpeed,
                 Opacity = a.Opacity,
                 ShadingMode = a.ShadingMode,
+                InputWeight = a.InputWeight,
                 
             };
             //copy variable values
             foreach (var tv in a.TransformVariables)
                 d.TransformVariables[tv.Key] = tv.Value;
-            //connect weights
+            //add to the ifs
+            AddIterator(d, false);
+            //copy connection weights
             foreach(Iterator it in Iterators)
             {//'from' weights
                 if (it.WeightTo.TryGetValue(a, out double w))
@@ -68,12 +69,13 @@ namespace IFSEngine.Model
                 else
                     d.WeightTo[w.Key] = w.Value;
             }
-            //connect he original with the duplicate
+            //connect the original with the duplicate
             //d.WeightTo[a] = 1.0;
             //a.WeightTo[d] = 1.0;
-            a.WeightTo.Remove(d);
-
-            AddIterator(d, false);
+            a.WeightTo[d] = 0.0;
+            //split base weight
+            a.BaseWeight /= 2;
+            d.BaseWeight = a.BaseWeight;
             return d;
         }
 

@@ -4,7 +4,6 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -20,7 +19,6 @@ namespace WpfDisplay.ViewModels
         public static double BaseSize = 100;
         public event EventHandler ViewChanged;
         public event EventHandler<bool> ConnectEvent;
-        public ObservableCollection<ConnectionViewModel> ConnectionViewModels { get; set; } = new ObservableCollection<ConnectionViewModel>();
 
         public List<VariableViewModel> Variables { get; } = new List<VariableViewModel>();
 
@@ -52,10 +50,8 @@ namespace WpfDisplay.ViewModels
 
         public void Redraw()
         {
-            /*OnPropertyChanged(nameof(BaseWeight));
-            OnPropertyChanged(nameof(WeightedSize));
-            OnPropertyChanged(nameof(RenderTranslateValue));*/
             OnPropertyChanged(string.Empty);
+            OnPropertyChanged("NodePosition");
         }
 
         private bool isselected;
@@ -169,14 +165,22 @@ namespace WpfDisplay.ViewModels
         public float XCoord
         {
             get => xCoord;
-            set { SetProperty(ref xCoord, value); }
+            private set {SetProperty(ref xCoord, value); }
         }
-
+        
         private float yCoord = RandHelper.Next(500);
         public float YCoord
         {
             get => yCoord;
-            set { SetProperty(ref yCoord, value); }
+            private set { SetProperty(ref yCoord, value); }
+        }
+
+        public void UpdatePosition(float x, float y)
+        {
+            XCoord = x;
+            YCoord = y;
+            OnPropertyChanged("NodePosition");
+            ViewChanged?.Invoke(this, null);//refresh
         }
 
         //private RelayCommand _startConnectingCommand;
@@ -197,9 +201,9 @@ namespace WpfDisplay.ViewModels
         //}
         public void FinishConnecting()
         {
-            //
             ConnectEvent?.Invoke(this, true);
             workspace.Renderer.InvalidateParamsBuffer();
+            ViewChanged?.Invoke(this, null);//refresh
         }
 
         private RelayCommand _takeSnapshotCommand;

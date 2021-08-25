@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
 using System;
+using WpfDisplay.Properties;
 
 namespace WpfDisplay.Models
 {
@@ -59,6 +60,10 @@ namespace WpfDisplay.Models
             Renderer = r;
             Renderer.Initialize(loadedTransforms);
             IFS = new IFS();
+            //Load user settings
+            Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
+            Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
+            Renderer.TargetFramerate = Settings.Default.TargetFramerate;
         }
 
         public async Task ReloadTransforms()
