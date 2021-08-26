@@ -257,5 +257,23 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.Dispose();
         }
 
+        private RelayCommand visitIssuesCommand;
+        public ICommand VisitIssuesCommand => visitIssuesCommand ??= new RelayCommand(VisitIssues);
+        private void VisitIssues()
+        {
+            //Open the issue template in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/issues/new?assignees=&labels=&template=bug_report.md";
+            Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
+
+        private RelayCommand visitForumCommand;
+        public ICommand VisitForumCommand => visitForumCommand ??= new RelayCommand(VisitForum);
+        private void VisitForum()
+        {
+            //Open the Discussions panel in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/discussions";
+            Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
+
     }
 }

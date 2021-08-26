@@ -91,7 +91,7 @@
                     <local:NodeMap DataContext="{Binding}"/>
                 </md:Card>
             </Grid>
-            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="255">
+            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="270">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
                     <StackPanel>
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">

@@ -65,21 +65,21 @@
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
-            <MenuItem Header="🏗 Editor" Click="EditorButton_Click" />
-            <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" />
-            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" InputGestureText="Ctrl+R"/>
+            <MenuItem Header="🏗 Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
+            <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
+            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
             <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
             <MenuItem Header="🖬 E_xport">
-                <MenuItem Icon="🖼" Header="Export to _PNG" Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
-                <MenuItem Icon="📊" Header="Export to _EXR" Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                 <Separator/>
                 <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
             </MenuItem>
             <MenuItem Header="❓ Help" HorizontalAlignment="Right">
-                <MenuItem Icon="📚" Header="Manual" InputGestureText="F1" IsEnabled="False"/>
-                <MenuItem Icon="📚" Header="Tutorials" IsEnabled="False"/>
-                <MenuItem Icon="🤔" Header="Issues" Command=""/>
-                <MenuItem Icon="🙋" Header="Community" IsEnabled="False"/>
+                <MenuItem Icon="📚" Header="Manual..." InputGestureText="F1" IsEnabled="False"/>
+                <MenuItem Icon="📚" Header="Tutorials..." IsEnabled="False"/>
+                <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
+                <MenuItem Icon="🙋" Header="File an issue..." Command="{Binding VisitIssuesCommand}"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
