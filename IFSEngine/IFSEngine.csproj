@@ -26,8 +26,8 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="OpenTK.Graphics" Version="4.6.4" />
-    <PackageReference Include="OpenTK.Windowing.Common" Version="4.6.4" />
+    <PackageReference Include="OpenTK.Graphics" Version="4.4.0" />
+    <PackageReference Include="OpenTK.Windowing.Common" Version="4.4.0" />
   </ItemGroup>
 
 </Project>
