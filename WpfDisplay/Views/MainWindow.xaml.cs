@@ -23,18 +23,19 @@ namespace WpfDisplay.Views
             InitializeComponent();
             ContentRendered += (s, e) =>
             {
-                    //init workspace, tie renderer to display
-                    RendererGL renderer = new(mainDisplay.GraphicsContext);
-                    mainDisplay.AttachRenderer(renderer);
-                    Workspace workspace = new(renderer);
-                    //handle open verb
-                    if (App.OpenVerbPath is not null)
-                    {
-                        workspace.IFS = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
-                    }
-                    //create viewmodel
-                    var mainViewModel = new MainViewModel(workspace);
-                    this.DataContext = mainViewModel;
+                //init workspace, tie renderer to display
+                RendererGL renderer = new(mainDisplay.GraphicsContext);
+                mainDisplay.AttachRenderer(renderer);
+                Workspace workspace = new(renderer);
+                //handle open verb
+                if (App.OpenVerbPath is not null)
+                {
+                    workspace.IFS = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
+                    workspace.Renderer.StartRenderLoop();
+                }
+                //create viewmodel
+                var mainViewModel = new MainViewModel(workspace);
+                this.DataContext = mainViewModel;
             };
         }
 
@@ -62,7 +63,7 @@ namespace WpfDisplay.Views
             if (editorWindow == null || !editorWindow.IsLoaded)
             {
                 editorWindow = new EditorWindow();
-                editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode=BindingMode.TwoWay});
+                editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode = BindingMode.TwoWay });
             }
 
             if (editorWindow.ShowActivated)
@@ -79,7 +80,7 @@ namespace WpfDisplay.Views
             {
                 DataContext = new SettingsViewModel(vm)
             };
-            if(settingsWindow.ShowDialog() == true)
+            if (settingsWindow.ShowDialog() == true)
                 vm.StatusBarText = "Settings saved.";
         }
 

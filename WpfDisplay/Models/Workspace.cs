@@ -27,7 +27,7 @@ namespace WpfDisplay.Models
         public readonly string TransformsDirectoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"IFSRenderer\Transforms");
 #endif
 #if PORTABLE
-        public readonly string TransformsDirectoryPath = @".\Transforms";
+        public readonly string TransformsDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Transforms");
 #endif
 
 
