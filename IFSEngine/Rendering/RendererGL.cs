@@ -239,6 +239,7 @@ namespace IFSEngine.Rendering
         public void LoadParams(IFS p)
         {
             LoadedParams = p;
+            InvocationIters = 500;
             InvalidateParamsBuffer();
             SetHistogramScaleToDisplay();
         }
