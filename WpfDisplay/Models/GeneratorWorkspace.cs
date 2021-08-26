@@ -32,7 +32,7 @@ namespace WpfDisplay.Models
         private List<IFS> generatedIFS = new List<IFS>();
         private ConcurrentQueue<IFS> renderQueue = new ConcurrentQueue<IFS>();
 
-        public GeneratorWorkspace()
+        public GeneratorWorkspace(IReadOnlyCollection<TransformFunction> loadedTransforms)
         {
             //init thumbnail renderer
             GameWindow hw = new(new GameWindowSettings
@@ -48,8 +48,7 @@ namespace WpfDisplay.Models
             });
             renderer = new RendererGL(hw.Context);
             renderer.SetDisplayResolution(200, 200);
-            var transforms = System.IO.Directory.GetFiles(@".\Functions\Transforms")
-                .Select(file => TransformFunction.FromFile(file)).ToList();//TODO: use existing functions
+            var transforms = loadedTransforms.ToList();
             generator = new Generator(transforms);
             renderer.Initialize(transforms);
             //performance settings

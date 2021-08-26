@@ -10,6 +10,19 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <Win32Resource />
+    <Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">
+    <DefineConstants>TRACE;PORTABLE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseInstaller|AnyCPU'">
+    <DefineConstants>TRACE;INSTALLER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;PORTABLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,11 +52,19 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <!--Mark transform files as Content to be included in the Installer-->
+  <ItemGroup Condition="'$(Configuration)'=='ReleasePortable' OR '$(Configuration)'=='Debug'">
+    <!--Mark transform files as Content to be included next to the executable-->
     <Content Include="..\IFSTransforms\**\*.ifstf">
       <Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(Configuration)'=='ReleaseInstaller'">
+    <!--Mark transform files as Content to be included in the Installer-->
+    <Content Include="..\IFSTransforms\**\*.ifstf">
+      <Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

@@ -16,7 +16,7 @@ namespace WpfDisplay.ViewModels
     public class GeneratorViewModel : ObservableObject
     {
         private readonly MainViewModel mainvm;
-        private readonly GeneratorWorkspace workspace = new GeneratorWorkspace();
+        private readonly GeneratorWorkspace workspace;
         private readonly GeneratorOptions options = new GeneratorOptions();
 
         public bool MutateIterators { get => options.MutateIterators; set => SetProperty(ref options.MutateIterators, value); }
@@ -44,6 +44,7 @@ namespace WpfDisplay.ViewModels
         public GeneratorViewModel(MainViewModel mainvm)
         {
             this.mainvm = mainvm;
+            workspace = new GeneratorWorkspace(mainvm.workspace.LoadedTransforms);
             workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);//tmp hack
         }
 

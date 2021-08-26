@@ -21,9 +21,14 @@ namespace WpfDisplay.Models
         private List<TransformFunction> loadedTransforms = new List<TransformFunction>();
 
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
-
-        public readonly string TransformsDirectoryPath = @".\Functions\Transforms";
         public event EventHandler<string> StatusTextChanged;
+
+#if INSTALLER
+        public readonly string TransformsDirectoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"IFSRenderer\Transforms");
+#endif
+#if PORTABLE
+        public readonly string TransformsDirectoryPath = @".\Transforms";
+#endif
 
 
         private RendererGL renderer;

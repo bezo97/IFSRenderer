@@ -75,7 +75,7 @@
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:2"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -292,7 +292,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IFSRenderer"
         "ProductCode" = "8:{5C9949AC-416D-477C-8DD0-4EC4B132E64A}"
-        "PackageCode" = "8:{E4D0F48F-C9CC-47AC-A41C-4E0F542FE083}"
+        "PackageCode" = "8:{E1D4E56F-FAF4-428C-BE8F-6C6A5AF14B38}"
         "UpgradeCode" = "8:{4E458E2D-D700-48A5-954C-3D6975C54AA6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -976,7 +976,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DEC4FCE7C4354E8C8875ADF91D161DC0"
             {
-            "SourcePath" = "8:..\\WpfDisplay\\obj\\Release\\net5.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\WpfDisplay\\obj\\ReleasePortable\\net5.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
@@ -998,7 +998,7 @@
             "OutputGroupCanonicalName" = "8:PublishItems"
             "OutputProjectGuid" = "8:{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
             "ShowKeyOutput" = "11:TRUE"
-            "PublishProfilePath" = "8:Properties\\PublishProfiles\\FolderProfile.pubxml"
+            "PublishProfilePath" = "8:Properties\\PublishProfiles\\PublishInstaller.pubxml"
                 "ExcludeFilters"
                 {
                 }
