@@ -1,6 +1,5 @@
 ﻿using IFSEngine.Rendering;
 using OpenTK.Windowing.Common;
-using OpenTK.WinForms;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -9,7 +8,6 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
-using System.Windows.Media;
 using WpfDisplay.Helper;
 
 namespace IFSEngine.WPF.InteractiveDisplay
