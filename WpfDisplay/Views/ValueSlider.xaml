@@ -33,7 +33,7 @@
                    Content="{Binding Value}" 
                    ContentStringFormat="N4"
                    Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" 
-                   Background="#303030" 
+                   Background="#303030" Cursor="Hand"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp">
                 <Label.ContextMenu>

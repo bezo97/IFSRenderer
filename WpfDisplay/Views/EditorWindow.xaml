@@ -100,7 +100,7 @@
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>
                                 <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
-                                    Connection settings
+                                    Selected Connection
                                 </TextBlock>
                                 <local:ValueSlider
                                     ValueName="Weight"

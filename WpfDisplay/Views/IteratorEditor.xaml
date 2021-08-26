@@ -15,21 +15,9 @@
     </UserControl.Resources>
     <StackPanel>
         <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
-                Iterator settings
+                Selected Iterator
         </TextBlock>
         <StackPanel Orientation="Horizontal">
-            <Button
-                Command="{Binding FlipOpacityCommand}"
-                ToolTip="Show/Hide"
-                FontWeight="Bold" Margin="4" Padding="6">
-                👁️
-            </Button>
-            <Button
-                Command="{Binding FlipWeightCommand}"
-                ToolTip="Enable/Disable"
-                FontWeight="Bold" Margin="4" Padding="6">
-                ⚖
-            </Button>
             <Button 
                     Command="{Binding DuplicateCommand}"
                     ToolTip="Duplicate"
@@ -44,44 +32,57 @@
             </Button>
         </StackPanel>
         <StackPanel>
-            <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" 
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                    Command="{Binding FlipWeightCommand}"
+                    ToolTip="Enable/Disable"
+                    FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
+                    ⚖
+                </Button>
+                <local:ValueSlider ValueName="InputWeight" Grid.Column="1"
+                               MinValue="0" MaxValue="1" Increment="0.01" 
+                               Value="{Binding DataContext.InputWeight, ElementName=iteratorEditor}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Grid.Column="2"
                                Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                    Command="{Binding FlipOpacityCommand}"
+                    ToolTip="Show/Hide"
+                    FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
+                    👁️
+                </Button>
+                <local:ValueSlider ValueName="Opacity" Grid.Column="1"
+                                   MinValue="0" MaxValue="1" Increment="0.01" 
+                                   Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"
+                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+            </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <local:ValueSlider ValueName="InputWeight" 
-                                   MinValue="0" MaxValue="1" Increment="0.01" 
-                                   Value="{Binding DataContext.InputWeight, ElementName=iteratorEditor}"
-                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"    
-                                   Grid.Column="0"/>
-                <local:ValueSlider ValueName="Opacity" 
-                                   MinValue="0" MaxValue="1" Increment="0.01" 
-                                   Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"
-                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"
-                                   Grid.Column="1"/>
-            </Grid>
-            <local:ValueSlider ValueName="Color Index"
+                <local:ValueSlider ValueName="Color Index" Grid.Column="0"
                                MinValue="0" MaxValue="1" Increment="0.01" 
                                Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-            <Grid>
-                <!--TODO: nicer binding-->
-                <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
-                                     Height="20"/>
-                <!--<Label Margin="-1,0" Padding="0" Foreground="White">
-                        <Label.RenderTransform>
-                            <TranslateTransform X="{Binding ColorIndex}"/>
-                        </Label.RenderTransform>
-                       ||
-                </Label>-->
-            </Grid>
-            <local:ValueSlider ValueName="Color Speed" 
+                <local:ValueSlider ValueName="Color Speed"  Grid.Column="1"
                                Increment="0.01"
                                Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+            </Grid>
+            <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="20"/>
             <CheckBox Foreground="LightGray" IsChecked="{Binding DeltaColoring}">Delta Coloring Mode</CheckBox>
         </StackPanel>
         <StackPanel>
