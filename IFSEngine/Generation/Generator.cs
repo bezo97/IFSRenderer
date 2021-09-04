@@ -132,7 +132,9 @@ namespace IFSEngine.Generation
                     (float)Math.Cos(2 * Math.PI * (t * freq.Y + phase.Y)),
                     (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
                     1.0f);
-                //c = Vector4.Normalize(c);
+                float maxComponent = Math.Max(Math.Max(c.X, c.Y), c.Z);
+                c = Vector4.Divide(c, maxComponent);
+                c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
                 colors.Add(c);
             }
 
