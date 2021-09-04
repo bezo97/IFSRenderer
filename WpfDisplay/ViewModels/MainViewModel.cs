@@ -1,6 +1,4 @@
-﻿using IFSEngine.Model;
-using IFSEngine.Serialization;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using IFSEngine.Utility;
 using System;
@@ -15,7 +13,6 @@ using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
 using System.Windows.Input;
-using IFSEngine.Generation;
 
 namespace WpfDisplay.ViewModels
 {
@@ -63,20 +60,12 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Initialized");
         }
 
-        public void LoadParamsToWorkspace(IFS ifs)
-        {
-            workspace.TakeSnapshot();
-            workspace.IFS = ifs;
-            if(!workspace.Renderer.IsRendering)
-                workspace.Renderer.StartRenderLoop();
-        }
-
         private ICommand _newCommand;
         public ICommand NewCommand =>
             _newCommand ??= new RelayCommand(OnNewCommand);
         private void OnNewCommand()
         {
-            LoadParamsToWorkspace(new IFS());
+            workspace.LoadBlankParams();
             workspace.UpdateStatusText($"Blank parameters loaded");
         }
 
@@ -85,10 +74,7 @@ namespace WpfDisplay.ViewModels
             _loadRandomCommand ??= new RelayCommand(OnLoadRandomCommand);
         private void OnLoadRandomCommand()
         {
-            Generator g = new Generator(workspace.Renderer.RegisteredTransforms);//
-            IFS r = g.GenerateOne(new GeneratorOptions());
-            r.ImageResolution = new System.Drawing.Size(1920, 1080);
-            LoadParamsToWorkspace(r);
+            workspace.LoadRandomParams();
             workspace.UpdateStatusText($"Randomly generated parameters loaded");
         }
 
@@ -99,7 +85,7 @@ namespace WpfDisplay.ViewModels
         {
             if (DialogHelper.ShowSaveParamsDialog(out string path))
             {
-                IfsSerializer.SaveJsonFile(workspace.IFS, path);
+                await workspace.SaveParamsFileAsync(path);
                 workspace.UpdateStatusText($"Parameters saved to {path}");
             }
         }
@@ -111,31 +97,15 @@ namespace WpfDisplay.ViewModels
         {
             if (DialogHelper.ShowOpenParamsDialog(out string path))
             {
-                var transforms = workspace.Renderer.RegisteredTransforms;
-                IFS ifs;
                 try
                 {
-                    ifs = IfsSerializer.LoadJsonFile(path, transforms, false);
+                    await workspace.LoadParamsFileAsync(path);
+                    workspace.UpdateStatusText($"Parameters loaded from {path}");
                 }
                 catch (SerializationException)
                 {
-                    if (MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                    {
-                        try
-                        {
-                            ifs = IfsSerializer.LoadJsonFile(path, transforms, true);
-                        }
-                        catch (SerializationException)
-                        {
-                            workspace.UpdateStatusText($"ERROR - Unable to load params: {path}");
-                            return;
-                        }
-                    }
-                    else
-                        return;
+                    workspace.UpdateStatusText($"ERROR - Unable to load params: {path}");
                 }
-                LoadParamsToWorkspace(ifs);
-                workspace.UpdateStatusText($"Parameters loaded from {path}");
             }
         }
 

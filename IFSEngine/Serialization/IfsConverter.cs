@@ -21,6 +21,10 @@ namespace IFSEngine.Serialization
             serializer.Converters.Remove(this);
             var ifs = jo.ToObject<IFS>(serializer);
             serializer.Converters.Add(this);
+            //set authors
+            List<Author> authorsList = jo["Authors"].ToObject<List<Author>>();
+            foreach (var author in authorsList)
+                ifs.AddAuthor(author);
             //set iterators
             foreach (var i in iterators)
                 ifs.AddIterator(i, false);
@@ -51,7 +55,7 @@ namespace IFSEngine.Serialization
                 }
             }
             jo["xaos"] = JToken.FromObject(xaos, serializer);
-            jo.WriteTo(writer, serializer.Converters.ToArray());            
+            jo.WriteTo(writer, serializer.Converters.ToArray());
         }
     }
 }

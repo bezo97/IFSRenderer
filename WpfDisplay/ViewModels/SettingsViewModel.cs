@@ -25,6 +25,8 @@ namespace WpfDisplay.ViewModels
             mainvm.workspace.Renderer.EnablePerceptualUpdates = PerceptuallyUniformUpdates ?? false;
             mainvm.workspace.Renderer.SetWorkgroupCount(WorkgroupCount).Wait();
             mainvm.workspace.Renderer.TargetFramerate = TargetFramerate;
+            mainvm.workspace.CurrentUser.Name = AuthorName;
+            mainvm.workspace.CurrentUser.Link = AuthorLink;
             SettingsSaved?.Invoke(this, null);
         }
 
@@ -37,23 +39,23 @@ namespace WpfDisplay.ViewModels
             SettingsCanceled?.Invoke(this, null);
         }
 
-        public string ArtistName
+        public string AuthorName
         {
-            get => Settings.Default.ArtistName;
+            get => Settings.Default.AuthorName;
             set
             {
-                Settings.Default.ArtistName = value;
-                OnPropertyChanged(nameof(ArtistName));
+                Settings.Default.AuthorName = value;
+                OnPropertyChanged(nameof(AuthorName));
             }
         }
 
-        public string ArtistLink
+        public string AuthorLink
         {
-            get => Settings.Default.ArtistLink;
+            get => Settings.Default.AuthorLink;
             set
             {
-                Settings.Default.ArtistLink = value;
-                OnPropertyChanged(nameof(ArtistLink));
+                Settings.Default.AuthorLink = value;
+                OnPropertyChanged(nameof(AuthorLink));
             }
         }
 

@@ -27,15 +27,11 @@ namespace WpfDisplay.Views
                 RendererGL renderer = new(mainDisplay.GraphicsContext);
                 mainDisplay.AttachRenderer(renderer);
                 Workspace workspace = new(renderer);
-                //handle open verb
                 if (App.OpenVerbPath is not null)
-                {
-                    workspace.IFS = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
-                    workspace.Renderer.StartRenderLoop();
+                {//handle open verb
+                    workspace.LoadParams(IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true));
                 }
-                //create viewmodel
-                var mainViewModel = new MainViewModel(workspace);
-                this.DataContext = mainViewModel;
+                DataContext = new MainViewModel(workspace);
             };
         }
 

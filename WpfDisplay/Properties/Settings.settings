@@ -2,17 +2,17 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WpfDisplay.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ArtistName" Type="System.String" Scope="User">
+    <Setting Name="AuthorName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Unknown Artist</Value>
     </Setting>
-    <Setting Name="ArtistLink" Type="System.String" Scope="User">
+    <Setting Name="AuthorLink" Type="System.String" Scope="User">
       <Value Profile="(Default)">-</Value>
     </Setting>
     <Setting Name="ApplyWatermark" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="WorkgroupCount" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">300</Value>
+      <Value Profile="(Default)">256</Value>
     </Setting>
     <Setting Name="NotifyRenderFinished" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

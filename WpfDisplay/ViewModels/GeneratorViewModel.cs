@@ -17,7 +17,7 @@ namespace WpfDisplay.ViewModels
     {
         private readonly MainViewModel mainvm;
         private readonly GeneratorWorkspace workspace;
-        private readonly GeneratorOptions options = new GeneratorOptions();
+        private readonly GeneratorOptions options = new();
 
         public bool MutateIterators { get => options.MutateIterators; set => SetProperty(ref options.MutateIterators, value); }
         public bool MutateConnections { get => options.MutateConnections; set => SetProperty(ref options.MutateConnections, value); }
@@ -29,7 +29,7 @@ namespace WpfDisplay.ViewModels
         //Linq magic to split an array into arrays of 3
         //This makes binding the thumbnails to the 3-wide gallery of images easy.
         //based on https://stackoverflow.com/questions/11207526/how-to-split-an-array-into-chunks-of-specific-size
-        public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails => 
+        public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>
             workspace.PinnedIFS.ToArray()
             .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
             .GroupBy(x => x.Index / 1)
@@ -45,46 +45,39 @@ namespace WpfDisplay.ViewModels
         {
             this.mainvm = mainvm;
             workspace = new GeneratorWorkspace(mainvm.workspace.LoadedTransforms);
-            workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);//tmp hack
+            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);//tmp hack
         }
 
         private RelayCommand<IFS> _sendToMainCommand;
-        public RelayCommand<IFS> SendToMainCommand
-        {
-            get => _sendToMainCommand ?? (
-                _sendToMainCommand = new RelayCommand<IFS>((IFS generated_params) =>
-                {
-                    var param = generated_params.DeepClone();
-                    param.ImageResolution = new System.Drawing.Size(1920, 1080);
-                    mainvm.LoadParamsToWorkspace(param);
-                }));
-        }
+        public RelayCommand<IFS> SendToMainCommand =>
+            _sendToMainCommand ??= new RelayCommand<IFS>(
+            (IFS generated_params) =>
+            {
+                IFS param = generated_params.DeepClone();
+                param.ImageResolution = new System.Drawing.Size(1920, 1080);
+                mainvm.workspace.LoadParams(param);
+            });
+
 
         private RelayCommand _generateRandomBatchCommand;
-        public RelayCommand GenerateRandomBatchCommand
-        {
-            get => _generateRandomBatchCommand ?? (
-                _generateRandomBatchCommand = new RelayCommand(() =>
-                {
-                    workspace.GenerateNewRandomBatch(options).Wait();
-                    //TODO: do not start if already processing
-                    workspace.processQueue();
-                    OnPropertyChanged(nameof(GeneratedIFSThumbnails));
-                }));
-        }
+        public RelayCommand GenerateRandomBatchCommand =>
+            _generateRandomBatchCommand ??= new RelayCommand(() => 
+            {
+                workspace.GenerateNewRandomBatch(options).Wait();
+                //TODO: do not start if already processing
+                workspace.processQueue();
+                OnPropertyChanged(nameof(GeneratedIFSThumbnails));
+            });
 
         private RelayCommand<IFS> _pinGeneratedCommand;
-        public RelayCommand<IFS> PinGeneratedCommand
-        {
-            get => _pinGeneratedCommand ?? (
-                _pinGeneratedCommand = new RelayCommand<IFS>((IFS param) =>
-                {
-                    workspace.PinIFS(param);
-                    //TODO: do not start if already processing
-                    workspace.processQueue();
-                    OnPropertyChanged(nameof(PinnedIFSThumbnails));
-                }));
-        }
+        public RelayCommand<IFS> PinGeneratedCommand => 
+            _pinGeneratedCommand ??= new RelayCommand<IFS>((IFS param) =>
+            {
+                workspace.PinIFS(param);
+                //TODO: do not start if already processing
+                workspace.processQueue();
+                OnPropertyChanged(nameof(PinnedIFSThumbnails));
+            });
 
         public double MutationChance { get => options.MutationChance; set => SetProperty(ref options.MutationChance, value); }
         public double MutationStrength { get => options.MutationStrength; set => SetProperty(ref options.MutationStrength, value); }

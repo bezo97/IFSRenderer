@@ -56,7 +56,7 @@ namespace IFSEngine.Rendering
         public int DisplayWidth { get; private set; } = 1280;
         public int DisplayHeight { get; private set; } = 720;
 
-        public List<TransformFunction> RegisteredTransforms { get; private set; }
+        private List<TransformFunction> registeredTransforms;
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
@@ -67,9 +67,9 @@ namespace IFSEngine.Rendering
         private bool invalidPointsStateBuffer = false;
 
         /// <summary>
-        /// Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 300.
+        /// Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256.
         /// </summary>
-        public int WorkgroupCount { get; private set; } = 300;
+        public int WorkgroupCount { get; private set; } = 256;
         public async Task SetWorkgroupCount(int s)
         {
             WorkgroupCount = s;
@@ -199,7 +199,7 @@ namespace IFSEngine.Rendering
                 GL.Enable(EnableCap.DebugOutputSynchronous);
             }
 
-            RegisteredTransforms = transforms.ToList();
+            registeredTransforms = transforms.ToList();
 
             //attributeless rendering
             vao = GL.GenVertexArray();
@@ -230,7 +230,7 @@ namespace IFSEngine.Rendering
 
             await WithContext(() =>
             {
-                RegisteredTransforms = transformFunctions.ToList();
+                registeredTransforms = transformFunctions.ToList();
                 InitComputeProgram();
                 InvalidateParamsBuffer();
             });
@@ -398,7 +398,7 @@ namespace IFSEngine.Rendering
                     //iterators
                     its.Add(new IteratorStruct
                     {
-                        tfId = RegisteredTransforms.IndexOf(it.TransformFunction),
+                        tfId = registeredTransforms.IndexOf(it.TransformFunction),
                         tfParamsStart = tfsparams.Count,
                         color_speed = (float)it.ColorSpeed,
                         color_index = (float)it.ColorIndex,
@@ -828,9 +828,9 @@ namespace IFSEngine.Rendering
         {
             //load functions
             string transformsSource = "";
-            for(int tfIndex = 0; tfIndex < RegisteredTransforms.Count; tfIndex++)
+            for(int tfIndex = 0; tfIndex < registeredTransforms.Count; tfIndex++)
             {
-                var tf = RegisteredTransforms[tfIndex];
+                var tf = registeredTransforms[tfIndex];
                 transformsSource += $@"
 if (iter.tfId == {tfIndex})
 {{

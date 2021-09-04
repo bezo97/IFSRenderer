@@ -26,24 +26,24 @@ namespace WpfDisplay.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Unknown Artist")]
-        public string ArtistName {
+        public string AuthorName {
             get {
-                return ((string)(this["ArtistName"]));
+                return ((string)(this["AuthorName"]));
             }
             set {
-                this["ArtistName"] = value;
+                this["AuthorName"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-")]
-        public string ArtistLink {
+        public string AuthorLink {
             get {
-                return ((string)(this["ArtistLink"]));
+                return ((string)(this["AuthorLink"]));
             }
             set {
-                this["ArtistLink"] = value;
+                this["AuthorLink"] = value;
             }
         }
         
@@ -61,7 +61,7 @@ namespace WpfDisplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        [global::System.Configuration.DefaultSettingValueAttribute("256")]
         public int WorkgroupCount {
             get {
                 return ((int)(this["WorkgroupCount"]));

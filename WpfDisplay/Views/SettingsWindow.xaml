@@ -40,28 +40,28 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center">User settings</Label>
-        <!--Artist name-->
+        <!--Author name-->
         <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-            Artist name
+            Author name
         </TextBlock>
         <Label Grid.Row="1" Grid.Column="1"
                ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center">?</Label>
         <TextBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                 Text="{Binding ArtistName}" md:HintAssist.Hint="Provide an artist name"/>
-        <!--Artist link-->
+                 Text="{Binding AuthorName}" md:HintAssist.Hint="Provide an author name"/>
+        <!--Author link-->
         <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-            Artist link
+            Author link
         </TextBlock>
         <Label Grid.Row="2" Grid.Column="1"
                ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                 Text="{Binding ArtistLink}" md:HintAssist.Hint="https://example.com"/>
+                 Text="{Binding AuthorLink}" md:HintAssist.Hint="https://example.com"/>
         <!--Watermark-->
         <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
             Apply watermark
         </TextBlock>
         <Label Grid.Row="3" Grid.Column="1"
-               ToolTip="Print the artist name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+               ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                  IsChecked="{Binding Watermark}" IsEnabled="False"/>
         <!--Notification-->

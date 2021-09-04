@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace IFSEngine.Serialization
 {
@@ -23,6 +24,18 @@ namespace IFSEngine.Serialization
         {
             string fileContent = SerializeJsonString(ifs);
             File.WriteAllText(path, fileContent, Encoding.UTF8);
+        }
+
+        public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
+        {
+            string fileContent = await File.ReadAllTextAsync(path, Encoding.UTF8);
+            return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
+        }
+
+        public static async Task SaveJsonFileAsync(IFS ifs, string path)
+        {
+            string fileContent = SerializeJsonString(ifs);
+            await File.WriteAllTextAsync(path, fileContent, Encoding.UTF8);
         }
 
         public static IFS DeserializeJsonString(string ifsState, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)

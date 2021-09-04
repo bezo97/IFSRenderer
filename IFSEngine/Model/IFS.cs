@@ -13,6 +13,7 @@ namespace IFSEngine.Model
     /// </summary>
     public class IFS
     {
+        public IReadOnlyList<Author> Authors => authors;
         public IReadOnlySet<Iterator> Iterators => iterators;
         public double Brightness { get; set; } = 1.0;
         public double Gamma { get; set; } = 1.0;
@@ -24,7 +25,8 @@ namespace IFSEngine.Model
         public Size ImageResolution { get; set; } = new Size(1920, 1080);
         public FlamePalette Palette { get; set; } = FlamePalette.Default;
         
-        protected HashSet<Iterator> iterators = new HashSet<Iterator>();
+        protected HashSet<Iterator> iterators = new();
+        protected List<Author> authors = new();
 
         /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
         public void AddIterator(Iterator newIterator, bool connect)
@@ -101,6 +103,12 @@ namespace IFSEngine.Model
                     iterator.SetTransformFunction(newtf);
                 //leave old transform if a newer version is not found
             }
+        }
+
+        public void AddAuthor(Author author)
+        {
+            if(!authors.Contains(author))
+                authors.Add(author);
         }
 
     }

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using WpfDisplay.Helper;
 using System;
 using WpfDisplay.Properties;
+using IFSEngine.Serialization;
+using IFSEngine.Generation;
 
 namespace WpfDisplay.Models
 {
@@ -18,8 +20,9 @@ namespace WpfDisplay.Models
     public class Workspace : ObservableObject
     {
         private readonly IFSHistoryTracker tracker = new();
-        private List<TransformFunction> loadedTransforms = new List<TransformFunction>();
+        private List<TransformFunction> loadedTransforms = new();
 
+        public Author CurrentUser { get; set; } = Author.Unknown;
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
         public event EventHandler<string> StatusTextChanged;
 
@@ -48,12 +51,7 @@ namespace WpfDisplay.Models
         public IFS IFS
         {
             get => ifs;
-            set
-            {
-                SetProperty(ref ifs, value);
-                renderer?.LoadParams(ifs);
-                //ClearHistory();
-            }
+            private set => SetProperty(ref ifs, value);
         }
 
         public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
@@ -65,17 +63,23 @@ namespace WpfDisplay.Models
             Renderer = r;
             Renderer.Initialize(loadedTransforms);
             IFS = new IFS();
+            Renderer.LoadParams(ifs);
             //Load user settings
             Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
             Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
             Renderer.TargetFramerate = Settings.Default.TargetFramerate;
+            CurrentUser = new Author
+            {
+                Name = Settings.Default.AuthorName,
+                Link = Settings.Default.AuthorLink
+            };
         }
 
         public async Task ReloadTransforms()
         {
             LoadTransformLibrary();
-            IFS.ReloadTransforms(loadedTransforms);
-            await Renderer.LoadTransforms(loadedTransforms);
+            IFS.ReloadTransforms(LoadedTransforms);
+            await Renderer.LoadTransforms(LoadedTransforms);
             OnPropertyChanged(nameof(LoadedTransforms));
         }
 
@@ -87,6 +91,55 @@ namespace WpfDisplay.Models
                 .ToList();
             OnPropertyChanged(nameof(LoadedTransforms));
         }
+
+        public void LoadParams(IFS ifs)
+        {
+            TakeSnapshot();
+            IFS = ifs;
+            renderer?.LoadParams(ifs);
+            if (!Renderer.IsRendering)
+                Renderer.StartRenderLoop();
+        }
+
+        public async Task LoadParamsFileAsync(string path)
+        {
+            IFS ifs;
+            try
+            {
+                ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
+            }
+            catch (System.Runtime.Serialization.SerializationException)
+            {
+                if (System.Windows.MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", System.Windows.MessageBoxButton.OKCancel)
+                    == System.Windows.MessageBoxResult.OK)
+                {
+                    ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
+                }
+                else
+                    throw;
+            }
+            LoadParams(ifs);
+        }
+
+        public void LoadBlankParams()
+        {
+            LoadParams(new IFS());
+        }
+
+        public void LoadRandomParams()
+        {
+            Generator g = new Generator(LoadedTransforms);
+            IFS r = g.GenerateOne(new GeneratorOptions());
+            r.ImageResolution = new System.Drawing.Size(1920, 1080);
+            LoadParams(r);
+        }
+
+        public async Task SaveParamsFileAsync(string path)
+        {
+            IFS.AddAuthor(CurrentUser);
+            await IfsSerializer.SaveJsonFileAsync(IFS, path);
+        }
+
         public void UndoHistory()
         {
             IFS = tracker.Undo(IFS, LoadedTransforms);
