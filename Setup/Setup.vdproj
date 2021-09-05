@@ -21,13 +21,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+        "MsmKey" = "8:_E9241C9947B24400BE91A8C975439407"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E9241C9947B24400BE91A8C975439407"
+        "MsmKey" = "8:_F0943708ABF748BAB90D4F615173D8CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -177,11 +177,11 @@
             "Description" = "8:IFS fractal params"
             "Extensions" = "8:.ifsjson"
             "MIME" = "8:"
-            "Icon" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "IconIndex" = "3:32512"
                 "Command"
                 {
-                "Command" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+                "Command" = "8:_F0943708ABF748BAB90D4F615173D8CC"
                 }
                 "Verbs"
                 {
@@ -309,7 +309,7 @@
         "Keywords" = "8:fractal, 3d, graphics, art, ifs, rendering, editor"
         "ARPCOMMENTS" = "8:3D IFS fractal editor"
         "ARPURLINFOABOUT" = "8:https://github.com/bezo97/IFSRenderer"
-        "ARPPRODUCTICON" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+        "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:32512"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -420,10 +420,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Folder" = "8:_24360954C4F84D269FD1D973BD6955F2"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5F61FBFC2D3248FEABBAB882EAD5AA30"
@@ -434,10 +434,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Folder" = "8:_92D12AE8ABF8419F87BEC45290634D7C"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_87BC964CE9834EF687B2FBD7A5F5828B"
@@ -448,10 +448,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Folder" = "8:_3B537814397F4775A3641BF917FBE3DC"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
             "Feature" = "8:"
             }
         }
@@ -946,7 +946,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_43111CDB9F7441219ABB2B92FB5F49AC"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A5F96D2A29AC4F3AABD784A84B969851"
             {
             "SourcePath" = "8:"
             "TargetName" = "8:"
@@ -966,7 +966,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
+            "OutputConfiguration" = "8:ReleaseInstaller|Any CPU"
             "OutputGroupCanonicalName" = "8:ContentFiles"
             "OutputProjectGuid" = "8:{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
             "ShowKeyOutput" = "11:TRUE"
@@ -974,9 +974,9 @@
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DEC4FCE7C4354E8C8875ADF91D161DC0"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F0943708ABF748BAB90D4F615173D8CC"
             {
-            "SourcePath" = "8:..\\WpfDisplay\\obj\\ReleasePortable\\net5.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\WpfDisplay\\obj\\ReleaseInstaller\\net5.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
@@ -994,7 +994,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
+            "OutputConfiguration" = "8:ReleaseInstaller|Any CPU"
             "OutputGroupCanonicalName" = "8:PublishItems"
             "OutputProjectGuid" = "8:{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
             "ShowKeyOutput" = "11:TRUE"
