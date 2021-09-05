@@ -79,7 +79,13 @@
                 <MenuItem Icon="📚" Header="Manual..." InputGestureText="F1" IsEnabled="False"/>
                 <MenuItem Icon="📚" Header="Tutorials..." IsEnabled="False"/>
                 <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
-                <MenuItem Icon="🙋" Header="File an issue..." Command="{Binding VisitIssuesCommand}"/>
+                <MenuItem Icon="🙋" Header="Send Feedback">
+                    <MenuItem Icon="🐞" Header="Report a bug..." Command="{Binding ReportBugCommand}"/>
+                    <MenuItem Icon="🙋" Header="File an issue..." Command="{Binding VisitIssuesCommand}"/>
+                </MenuItem>
+                <Separator/>
+                <Label Content="{Binding AppVersion}"/>
+                <MenuItem Icon="💿" Header="Check for updates..." Command="{Binding CheckUpdatesCommand}"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">

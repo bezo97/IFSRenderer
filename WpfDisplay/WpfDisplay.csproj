@@ -4,13 +4,14 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>WpfDisplay</RootNamespace>
-    <AssemblyName>WpfDisplay</AssemblyName>    
+    <AssemblyName>IFSRenderer</AssemblyName>    
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <Win32Resource />
     <Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
+    <Version>1.0.0-pre.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">

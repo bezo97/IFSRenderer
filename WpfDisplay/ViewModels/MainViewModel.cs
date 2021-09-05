@@ -30,7 +30,7 @@ namespace WpfDisplay.ViewModels
         public bool TransparentBackground
         {
             get => transparentBackground;
-            set 
+            set
             {
                 workspace.TakeSnapshot();
                 if (value)
@@ -44,6 +44,7 @@ namespace WpfDisplay.ViewModels
         public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
 
         public bool IsColorPickerEnabled => !TransparentBackground;
+        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public MainViewModel(Workspace workspace)
         {
@@ -231,8 +232,8 @@ namespace WpfDisplay.ViewModels
         public ICommand VisitIssuesCommand => visitIssuesCommand ??= new RelayCommand(VisitIssues);
         private void VisitIssues()
         {
-            //Open the issue template in user's default browser
-            string link = "https://github.com/bezo97/IFSRenderer/issues/new?assignees=&labels=&template=bug_report.md";
+            //Open the Issues page in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/issues/";
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
@@ -240,8 +241,26 @@ namespace WpfDisplay.ViewModels
         public ICommand VisitForumCommand => visitForumCommand ??= new RelayCommand(VisitForum);
         private void VisitForum()
         {
-            //Open the Discussions panel in user's default browser
+            //Open the Discussions page in user's default browser
             string link = "https://github.com/bezo97/IFSRenderer/discussions";
+            Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
+
+        private RelayCommand reportBugCommand;
+        public ICommand ReportBugCommand => reportBugCommand ??= new RelayCommand(ReportBug);
+        private void ReportBug()
+        {
+            //Open the bug report template in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/issues/new?assignees=&labels=&template=bug_report.md";
+            Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
+
+        private RelayCommand checkUpdatesCommand;
+        public ICommand CheckUpdatesCommand => checkUpdatesCommand ??= new RelayCommand(CheckUpdates);
+        private void CheckUpdates()
+        {
+            //Open the Releases page in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/releases";
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
