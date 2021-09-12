@@ -80,6 +80,12 @@ namespace WpfDisplay.Views
                 vm.StatusBarText = "Settings saved.";
         }
 
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new AboutDialogWindow();
+            dialog.ShowDialog();
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             if (generatorWindow != null)

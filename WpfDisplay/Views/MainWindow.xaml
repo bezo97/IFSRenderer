@@ -84,7 +84,7 @@
                     <MenuItem Icon="🙋" Header="File an issue..." Command="{Binding VisitIssuesCommand}"/>
                 </MenuItem>
                 <Separator/>
-                <Label Content="{Binding AppVersion}"/>
+                <MenuItem Icon="👷" Header="About..." Click="AboutButton_Click"/>
                 <MenuItem Icon="💿" Header="Check for updates..." Command="{Binding CheckUpdatesCommand}"/>
             </MenuItem>
         </Menu>

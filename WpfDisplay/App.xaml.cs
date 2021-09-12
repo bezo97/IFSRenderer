@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Navigation;
 using WpfDisplay.Helper;
 
 namespace WpfDisplay
@@ -27,6 +30,15 @@ namespace WpfDisplay
             {
                 OpenVerbPath = e.Args[0];
             }
+
+            //Open URIs in <Hyperlink> tags
+            EventManager.RegisterClassHandler(typeof(Hyperlink), Hyperlink.RequestNavigateEvent,
+                new RequestNavigateEventHandler((s, e) =>
+                    Process.Start(new ProcessStartInfo(e.Uri.ToString())
+                    {
+                        UseShellExecute = true
+                    })));
+
         }
     }
 }

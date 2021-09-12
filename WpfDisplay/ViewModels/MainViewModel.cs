@@ -44,7 +44,6 @@ namespace WpfDisplay.ViewModels
         public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
 
         public bool IsColorPickerEnabled => !TransparentBackground;
-        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public MainViewModel(Workspace workspace)
         {

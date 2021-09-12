@@ -70,6 +70,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Resource Include="..\Assets\icon_128.png" Link="Resources\icon_128.png" />
     <Content Include="..\LICENSE" Link="LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
