@@ -16,6 +16,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine.WPF.InteractiveDi
 		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61} = {CD8AE533-71A9-4409-8C68-FE48F2F0FA61}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{F3FF3650-B674-4321-886B-F5ABE49FF727}"
+	ProjectSection(SolutionItems) = preProject
+		Assets\icon_128.png = Assets\icon_128.png
+	EndProjectSection
+EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{7CB9603C-3B8E-41F4-9335-6B05FA350A52}"
 EndProject
 Global

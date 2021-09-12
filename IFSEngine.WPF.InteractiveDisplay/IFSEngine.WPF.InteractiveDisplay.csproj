@@ -5,11 +5,19 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <Version>1.0.0-pre.3</Version>
-    <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <Authors>bezo97</Authors>
     <Company>bezo97</Company>
     <Description>WPF UIElement for IFSEngine, a 3D IFS fractal rendering engine.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon_128.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
+    <Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
+    <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fractal;3d;graphics;art;ifs;rendering;interactive</PackageTags>
+    <PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +33,18 @@
     <Page Update="InteractiveDisplay.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Assets\icon_128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Visible>False</Visible>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

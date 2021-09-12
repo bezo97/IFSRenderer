@@ -6,14 +6,16 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>bezo97</Authors>
     <Description>3D IFS fractal rendering engine.</Description>
-    <Copyright>Copyright 2021</Copyright>
+    <Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
     <Version>1.0.0-pre.4</Version>
-    <PackageLicenseExpression>Unlicensed</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>fractal, 3d, graphics, art, ifs, rendering</PackageTags>
+    <PackageTags>fractal;3d;graphics;art;ifs;rendering</PackageTags>
     <PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon_128.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +30,18 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OpenTK.Graphics" Version="4.6.4" />
     <PackageReference Include="OpenTK.Windowing.Common" Version="4.6.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Assets\icon_128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Visible>False</Visible>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,2 @@
+﻿A library to render 3D iterated function systems (IFS). See the [project wiki](https://github.com/bezo97/IFSRenderer/wiki) for more info.  
+See [IFSEngine.WPF.InteractiveDisplay](https://www.nuget.org/packages/IFSEngine.WPF.InteractiveDisplay/) package for a ready-made interactive WPF control.
