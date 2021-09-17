@@ -8,7 +8,7 @@
     <Description>3D IFS fractal rendering engine.</Description>
     <Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
     <Version>1.0.0-pre.4</Version>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

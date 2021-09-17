@@ -12,6 +12,7 @@
     <Win32Resource />
     <Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
     <Version>1.0.0-pre.1</Version>
+    <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">

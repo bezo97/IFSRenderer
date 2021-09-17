@@ -5,7 +5,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <Version>1.0.0-pre.3</Version>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
     <Authors>bezo97</Authors>
     <Company>bezo97</Company>
     <Description>WPF UIElement for IFSEngine, a 3D IFS fractal rendering engine.</Description>

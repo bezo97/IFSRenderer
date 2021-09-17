@@ -38,7 +38,7 @@
                         <LineBreak/>
                         Copyright © 2021 Dócs Zoltán &amp; contributors
                         <LineBreak/>
-                        License: <Hyperlink NavigateUri="LICENSE" Command="{Binding OpenLicenseCommand}">GNU GPLv3</Hyperlink> or later.
+                        License: <Hyperlink NavigateUri="LICENSE" Command="{Binding OpenLicenseCommand}">GNU GPLv3</Hyperlink>
                         <LineBreak/>
                         Project page: <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/">https://github.com/bezo97/IFSRenderer/</Hyperlink>
                     </TextBlock>
