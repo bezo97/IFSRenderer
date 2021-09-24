@@ -15,6 +15,24 @@ namespace IFSEngine.Model
     {
         public IReadOnlyList<Author> Authors => authors;
         public IReadOnlySet<Iterator> Iterators => iterators;
+
+        /// <summary>
+        /// Entropy is the probability to reset on each iteration.
+        /// </summary>
+        /// <remarks>
+        /// Based on zy0rg's description, but it applies to the whole system for now.
+        /// This replaces the constant 10 000 iteration depth in Flame. Defaults to 0.01.
+        /// </remarks>
+        public double Entropy { get; set; } = 0.01;
+
+        /// <summary>
+        /// Number of iterations to skip plotting after reset.
+        /// </summary>
+        /// <remarks>
+        /// This is needed to avoid seeing the starting random points.
+        /// Also known as "fuse count". This is 20 in Flame. Defaults to 0.
+        /// </remarks>
+        public int Warmup { get; set; } = 0;
         public double Brightness { get; set; } = 1.0;
         public double Gamma { get; set; } = 1.0;
         public double GammaThreshold { get; set; } = 0.0;

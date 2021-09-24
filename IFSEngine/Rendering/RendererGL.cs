@@ -87,15 +87,6 @@ namespace IFSEngine.Rendering
         public int InvocationCount => WorkgroupCount * workgroupSize;
 
         /// <summary>
-        /// Number of iterations to skip plotting after reset.
-        /// </summary>
-        /// <remarks>
-        /// This is needed to avoid seeing the starting random points.
-        /// Also known as "fuse count". This is 20 in Flame. Defaults to 0.
-        /// </remarks>
-        public int Warmup { get; set; } = 0;
-
-        /// <summary>
         /// Number of iterations a single invocation performs.
         /// This value is adjusted after each dispatch in order to approach <see cref="TargetFramerate"/>
         /// </summary>
@@ -105,15 +96,6 @@ namespace IFSEngine.Rendering
         /// The render loop aims to reach the specified framerate by measuring compute kernel execution time and adjusting the workload size. Measured in Fps.
         /// </summary>
         public int TargetFramerate { get; set; } = 60;
-
-        /// <summary>
-        /// Entropy is the probability to reset on each iteration.
-        /// </summary>
-        /// <remarks>
-        /// Based on zy0rg's description, but it applies to the whole system for now.
-        /// This replaces the constant 10 000 iteration depth in Flame. Defaults to 0.01.
-        /// </remarks>
-        public double Entropy { get; set; } = 0.01;
 
         /// <summary>
         /// Total iterations since accumulation reset
@@ -368,8 +350,8 @@ namespace IFSEngine.Rendering
                     itnum = LoadedParams.Iterators.Count,
                     fog_effect = (float)LoadedParams.FogEffect,
                     palettecnt = LoadedParams.Palette.Colors.Count,
-                    entropy = (float)Entropy,
-                    warmup = Warmup,
+                    entropy = (float)LoadedParams.Entropy,
+                    warmup = LoadedParams.Warmup,
                     max_filter_radius = MaxFilterRadius
                 };
                 GL.BindBuffer(BufferTarget.UniformBuffer, settingsBufferHandle);

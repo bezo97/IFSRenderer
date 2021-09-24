@@ -75,10 +75,10 @@ namespace WpfDisplay.ViewModels
 
         public int EntropyInv
         {
-            get => (int)(1.0 / workspace.Renderer.Entropy);
+            get => (int)(1.0 / workspace.IFS.Entropy);
             set
             {
-                workspace.Renderer.Entropy = 1.0 / value;
+                workspace.IFS.Entropy = 1.0 / value;
                 OnPropertyChanged(nameof(EntropyInv));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -86,10 +86,10 @@ namespace WpfDisplay.ViewModels
 
         public int Warmup
         {
-            get => workspace.Renderer.Warmup;
+            get => workspace.IFS.Warmup;
             set
             {
-                workspace.Renderer.Warmup = value;
+                workspace.IFS.Warmup = value;
                 OnPropertyChanged(nameof(Warmup));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
