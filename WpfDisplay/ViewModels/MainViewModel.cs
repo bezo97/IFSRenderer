@@ -85,8 +85,15 @@ namespace WpfDisplay.ViewModels
         {
             if (DialogHelper.ShowSaveParamsDialog(out string path))
             {
-                await workspace.SaveParamsFileAsync(path);
-                workspace.UpdateStatusText($"Parameters saved to {path}");
+                try
+                {
+                    await workspace.SaveParamsFileAsync(path);
+                    workspace.UpdateStatusText($"Parameters saved to {path}");
+                }
+                catch(Exception)
+                {
+                    workspace.UpdateStatusText($"ERROR - Failed to save params.");
+                }
             }
         }
 
@@ -104,7 +111,7 @@ namespace WpfDisplay.ViewModels
                 }
                 catch (SerializationException)
                 {
-                    workspace.UpdateStatusText($"ERROR - Unable to load params: {path}");
+                    workspace.UpdateStatusText($"ERROR - Failed to load params: {path}");
                 }
             }
         }

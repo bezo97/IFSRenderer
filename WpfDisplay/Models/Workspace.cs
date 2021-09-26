@@ -25,14 +25,7 @@ namespace WpfDisplay.Models
         public Author CurrentUser { get; set; } = Author.Unknown;
         public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
         public event EventHandler<string> StatusTextChanged;
-
-#if INSTALLER
-        public readonly string TransformsDirectoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"IFSRenderer\Transforms");
-#endif
-#if PORTABLE
-        public readonly string TransformsDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Transforms");
-#endif
-
+        public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
 
         private RendererGL renderer;
         public RendererGL Renderer

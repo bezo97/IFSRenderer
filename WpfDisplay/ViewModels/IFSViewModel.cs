@@ -1,6 +1,7 @@
 ﻿using IFSEngine.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -262,7 +263,17 @@ namespace WpfDisplay.ViewModels
         public AsyncRelayCommand ReloadTransformsCommand => _reloadTransformsCommand
             ??= new(async () =>
             {
-                await workspace.ReloadTransforms();
+                try
+                {
+                    await workspace.ReloadTransforms();
+                    workspace.UpdateStatusText("Transforms reloaded.");
+                }
+                catch (Exception ex)
+                {
+                    workspace.UpdateStatusText("Failed to reload transforms.");
+                    MessageBox.Show($"Failed to reload transforms.\r\n{ex.Message}", "Plugin error");
+                    return;
+                }
                 foreach (IteratorViewModel ivm in IteratorViewModels)
                     ivm.ReloadVariables();//handles when the number and names of variables have changed.
                 OnPropertyChanged(nameof(RegisteredTransforms));

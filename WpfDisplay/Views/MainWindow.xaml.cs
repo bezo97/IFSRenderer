@@ -1,6 +1,9 @@
-﻿using IFSEngine.Rendering;
+﻿using IFSEngine.Model;
+using IFSEngine.Rendering;
 using IFSEngine.Serialization;
+using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -21,18 +24,47 @@ namespace WpfDisplay.Views
         public MainWindow()
         {
             InitializeComponent();
-            ContentRendered += (s, e) =>
+            ContentRendered += MainWindow_ContentRendered;
+        }
+
+        private void MainWindow_ContentRendered(object sender, System.EventArgs e)
+        {
+            //init workspace
+            Workspace workspace = null;
+            try
             {
-                //init workspace, tie renderer to display
                 RendererGL renderer = new(mainDisplay.GraphicsContext);
                 mainDisplay.AttachRenderer(renderer);
-                Workspace workspace = new(renderer);
-                if (App.OpenVerbPath is not null)
-                {//handle open verb
-                    workspace.LoadParams(IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true));
+                workspace = new(renderer);
+            }
+            catch (Exception ex)
+            {
+                string logFilePath = App.LogException(ex);
+                MessageBox.Show(this, $"Failed to initialize renderer. Details:\r\n{logFilePath}");
+            }
+            finally
+            {
+                if(workspace is null)
+                    Environment.Exit(1);
+            }
+
+            //handle open verb
+            if (App.OpenVerbPath is not null)
+            {
+                IFS ifs;
+                try
+                {
+                    ifs = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
                 }
-                DataContext = new MainViewModel(workspace);
-            };
+                catch (SerializationException)
+                {
+                    MessageBox.Show(this, $"Failed to load params from '{App.OpenVerbPath}'");
+                    ifs = new IFS();
+                }
+                workspace.LoadParams(ifs);
+            }
+
+            DataContext = new MainViewModel(workspace);
         }
 
         private void GeneratorButton_Click(object sender, RoutedEventArgs e)
