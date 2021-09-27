@@ -141,36 +141,7 @@
             <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <md:Card Padding="6" Margin="8">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding IFSTitle}" x:Name="titleTextBox" ToolTip="Title"
-                                     TextAlignment="Center" FontWeight="Black" Grid.Column="0"
-                                     GotKeyboardFocus="titleTextBox_GotKeyboardFocus" KeyDown="titleTextBox_KeyDown"/>
-                            <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors"/>
-                            <Popup Grid.Column="2" IsOpen="{Binding IsChecked, ElementName=authorsToggle}" Width="300"
-                                   Placement="Bottom" PopupAnimation="Fade" StaysOpen="False" AllowsTransparency="True">
-                                <StackPanel Margin="8" Background="Gray">
-                                    <Label>Authors:</Label>
-                                    <ItemsControl ItemsSource="{Binding AuthorList}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Margin="8">
-                                                    <Hyperlink NavigateUri="{Binding Link}" ToolTip="{Binding Link}">
-                                                        <Run Text="{Binding Name}"/>
-                                                    </Hyperlink>
-                                                </TextBlock>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Popup>
-                        </Grid>
-                    </md:Card>
+                    <local:TitleBox/>
                     <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                     <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                 </StackPanel>
