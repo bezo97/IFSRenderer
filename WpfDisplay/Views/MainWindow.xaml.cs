@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -148,5 +149,23 @@ namespace WpfDisplay.Views
             e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
         }
 
+        private void titleTextBox_GotKeyboardFocus(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(titleTextBox.SelectAll);
+        }
+
+        private void titleTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Keyboard.ClearFocus();
+                titleTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                vm.IFSTitle = vm.workspace.IFS.Title;
+                Keyboard.ClearFocus();
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace IFSEngine.Model
 
         public bool Equals(Author other)
         {
-            return Name == other.Name;
+            return Name == other?.Name;
         }
         public override bool Equals(object obj)
         {

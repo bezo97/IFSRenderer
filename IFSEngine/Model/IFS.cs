@@ -13,6 +13,7 @@ namespace IFSEngine.Model
     /// </summary>
     public class IFS
     {
+        public string Title { get; set; } = "Untitled";
         public IReadOnlyList<Author> Authors => authors;
         public IReadOnlySet<Iterator> Iterators => iterators;
 

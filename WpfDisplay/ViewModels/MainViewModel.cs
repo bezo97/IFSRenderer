@@ -13,6 +13,8 @@ using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using System.Diagnostics;
 using System.Windows.Input;
+using System.Collections.Generic;
+using IFSEngine.Model;
 
 namespace WpfDisplay.ViewModels
 {
@@ -44,6 +46,19 @@ namespace WpfDisplay.ViewModels
         public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
 
         public bool IsColorPickerEnabled => !TransparentBackground;
+
+        public string WindowTitle => workspace.IFS is null ? "IFSRenderer" : $"{workspace.IFS.Title} - IFSRenderer";
+        public string IFSTitle
+        {
+            get => workspace.IFS.Title;
+            set
+            {
+                workspace.IFS.Title = value;
+                OnPropertyChanged(nameof(IFSTitle));
+                OnPropertyChanged(nameof(WindowTitle));
+            }
+        }
+        public IEnumerable<Author> AuthorList => workspace.IFS.Authors;
 
         public MainViewModel(Workspace workspace)
         {

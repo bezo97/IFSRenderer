@@ -40,15 +40,18 @@
                         <toolkit:IntegerUpDown 
                             Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
                             Minimum="1" Increment="100"
+                            ToolTip="Image width"
                             Grid.Column="0" Margin="8" UpdateValueOnEnterKey="True"/>
                         <ToggleButton
                             IsChecked="{Binding IsResolutionLinked}" 
                             Width="20" Height="20" FontSize="12" Foreground="Gray"
                             Style="{StaticResource MaterialDesignFlatToggleButton}"
+                            ToolTip="Lock aspect ratio"
                             Margin="0,8,0,8" Grid.Column="1">🔗</ToggleButton>
                         <toolkit:IntegerUpDown 
                             Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
                             Minimum="1" Increment="100"
+                            ToolTip="Image height"
                             Grid.Column="2" Margin="8" UpdateValueOnEnterKey="True"/>
                     </Grid>
                 </StackPanel>
