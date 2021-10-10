@@ -38,7 +38,7 @@
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp">
                 <Label.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Animate" Click="Animate_Click"/>
+                        <MenuItem Header="Animate" Click="Animate_Click" IsEnabled="False"/>
                     </ContextMenu>
                 </Label.ContextMenu>
             </Label>
@@ -53,7 +53,7 @@
                         <MenuItem Command="ApplicationCommands.Copy" />
                         <MenuItem Command="ApplicationCommands.Cut" />
                         <MenuItem Command="ApplicationCommands.Paste" />
-                        <MenuItem Header="Animate" Click="Animate_Click"/>
+                        <MenuItem Header="Animate" Click="Animate_Click" IsEnabled="False"/>
                     </ContextMenu>
                 </TextBox.ContextMenu>
             </TextBox>

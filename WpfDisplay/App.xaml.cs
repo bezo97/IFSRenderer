@@ -44,11 +44,16 @@ namespace WpfDisplay
 
             //Open URIs in <Hyperlink> tags
             EventManager.RegisterClassHandler(typeof(Hyperlink), Hyperlink.RequestNavigateEvent,
-                new RequestNavigateEventHandler((s, e) =>
-                    Process.Start(new ProcessStartInfo(e.Uri.ToString())
+                new RequestNavigateEventHandler((s, e) => {
+                    try
                     {
-                        UseShellExecute = true
-                    })));
+                        Process.Start(new ProcessStartInfo(e.Uri.ToString())
+                        {
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (System.ComponentModel.Win32Exception) { } //broken url format
+                }));
 
         }
 

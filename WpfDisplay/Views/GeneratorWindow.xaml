@@ -22,9 +22,9 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0">
+        <!--<Menu Grid.Row="0">
             <MenuItem Header="menu1"/>
-        </Menu>
+        </Menu>-->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350"/>

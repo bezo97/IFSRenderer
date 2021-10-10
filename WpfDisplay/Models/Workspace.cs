@@ -89,7 +89,7 @@ namespace WpfDisplay.Models
         {
             TakeSnapshot();
             IFS = ifs;
-            renderer?.LoadParams(ifs);
+            renderer?.LoadParams(IFS);
             if (!Renderer.IsRendering)
                 Renderer.StartRenderLoop();
         }
@@ -135,12 +135,16 @@ namespace WpfDisplay.Models
 
         public void UndoHistory()
         {
+            //LoadParams without taking snapshot
             IFS = tracker.Undo(IFS, LoadedTransforms);
+            renderer?.LoadParams(IFS);
         }
 
         public void RedoHistory()
         {
+            //LoadParams without taking snapshot
             IFS = tracker.Redo(IFS, LoadedTransforms);
+            renderer?.LoadParams(ifs);
         }
 
         public void ClearHistory()
