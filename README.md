@@ -53,6 +53,15 @@ Planned:
 Get the latest installer or portable version **[HERE](https://github.com/bezo97/IFSRenderer/releases/latest)**.  
 Previous versions can be found on the [Releases](https://github.com/bezo97/IFSRenderer/releases) tab.
 
+### Build instructions
+You may build the project yourself using Visual Studio 2019 (with .NET Desktop Development workload).
+Since the default transforms are hosted is a separate repo, use the `--recurse-submodules` switch when cloning:  
+```
+git clone --recurse-submodules https://github.com/bezo97/IFSRenderer.git
+```
+The Setup project uses a [VS extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects), 
+which is not required to build the portable IFSRenderer executable.
+
 ## 🕹️ Usage
 
 ### Using the editor
