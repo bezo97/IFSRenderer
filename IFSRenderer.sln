@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine", "IFSEngine\IFSEngine.csproj", "{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfDisplay", "WpfDisplay\WpfDisplay.csproj", "{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61} = {CD8AE533-71A9-4409-8C68-FE48F2F0FA61}
 		{1121F381-0FA3-4CF3-B94B-9B73DCBB62D1} = {1121F381-0FA3-4CF3-B94B-9B73DCBB62D1}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine", "IFSEngine\IFSEngine.csproj", "{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine.WPF.InteractiveDisplay", "IFSEngine.WPF.InteractiveDisplay\IFSEngine.WPF.InteractiveDisplay.csproj", "{1121F381-0FA3-4CF3-B94B-9B73DCBB62D1}"
 	ProjectSection(ProjectDependencies) = postProject
