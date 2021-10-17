@@ -64,13 +64,13 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public float InputWeight
+        public float StartWeight
         {
-            get => (float)iterator.InputWeight;
+            get => (float)iterator.StartWeight;
             set
             {
-                iterator.InputWeight = value;
-                OnPropertyChanged(nameof(InputWeight));
+                iterator.StartWeight = value;
+                OnPropertyChanged(nameof(StartWeight));
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }

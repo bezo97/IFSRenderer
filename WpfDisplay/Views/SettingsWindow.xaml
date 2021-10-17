@@ -96,7 +96,7 @@
             Workgroups
         </TextBlock>
         <Label Grid.Row="8" Grid.Column="1"
-               ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 300." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+               ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
         <local:ValueSlider Grid.Row="8" Grid.Column="3" 
                            ValueName=""
                            MinValue="1" MaxValue="5000" Increment="100" 

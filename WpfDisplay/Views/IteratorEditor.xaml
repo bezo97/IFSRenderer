@@ -44,9 +44,9 @@
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
-                <local:ValueSlider ValueName="InputWeight" Grid.Column="1"
+                <local:ValueSlider ValueName="Start Weight" Grid.Column="1"
                                MinValue="0" MaxValue="1" Increment="0.01" 
-                               Value="{Binding DataContext.InputWeight, ElementName=iteratorEditor}"
+                               Value="{Binding DataContext.StartWeight, ElementName=iteratorEditor}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
                 <local:ValueSlider ValueName="Base Weight" MinValue="0" Increment="0.001" Grid.Column="2"
                                Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"

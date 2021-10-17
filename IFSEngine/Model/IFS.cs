@@ -69,7 +69,7 @@ namespace IFSEngine.Model
                 ColorSpeed = a.ColorSpeed,
                 Opacity = a.Opacity,
                 ShadingMode = a.ShadingMode,
-                InputWeight = a.InputWeight,
+                StartWeight = a.StartWeight,
                 
             };
             //copy variable values

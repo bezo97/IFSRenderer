@@ -14,7 +14,7 @@ namespace IFSEngine.Model
         public double BaseWeight { get; set; } = 1.0;//not normalized
         public double ColorSpeed { get; set; } = 0.0;
         public double ColorIndex { get; set; } = 0.0;//0 - 1
-        public double InputWeight { get; set; } = 1.0;
+        public double StartWeight { get; set; } = 1.0;
         public double Opacity { get; set; } = 1.0;
         public ShadingMode ShadingMode { get; set; } = ShadingMode.Default;
 
@@ -43,7 +43,7 @@ namespace IFSEngine.Model
             {
                 ColorIndex = RandHelper.NextDouble(),
                 ColorSpeed = RandHelper.NextDouble(),
-                InputWeight = 1.0,
+                StartWeight = 1.0,
                 Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
                 BaseWeight = RandHelper.NextDouble()
             };

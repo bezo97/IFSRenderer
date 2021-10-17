@@ -365,15 +365,15 @@ namespace IFSEngine.Rendering
                 var its = new List<IteratorStruct>();
                 var tfsparams = new List<float>();
                 var currentIterators = LoadedParams.Iterators.ToList();
-                //input weights -> alias method tables
-                double sumInputWeights = currentIterators.Sum(i => i.InputWeight);
-                if (sumInputWeights == 0.0)
+                //start weights -> alias method tables
+                double sumStartWeights = currentIterators.Sum(i => i.StartWeight);
+                if (sumStartWeights == 0.0)
                 {
                     //TODO: throw new InvalidOperationException("Invalid params: No input iterator found.");
                     return;
                 }
-                var normalizedInputWeights = currentIterators.Select(i => i.InputWeight / sumInputWeights).ToList();
-                var aliasTables = AliasMethod.GenerateAliasTable(normalizedInputWeights).ToList();
+                var normalizedStartWeights = currentIterators.Select(i => i.StartWeight / sumStartWeights).ToList();
+                var aliasTables = AliasMethod.GenerateAliasTable(normalizedStartWeights).ToList();
                 for (int iti = 0; iti < currentIterators.Count; iti++)
                 {
                     var it = currentIterators[iti];
