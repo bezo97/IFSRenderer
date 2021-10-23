@@ -285,5 +285,14 @@ namespace WpfDisplay.ViewModels
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
+        private RelayCommand visitWikiCommand;
+        public ICommand VisitWikiCommand => visitWikiCommand ??= new RelayCommand(VisitWiki);
+
+        private void VisitWiki()
+        {
+            //Open the Wiki page in user's default browser
+            string link = "https://github.com/bezo97/IFSRenderer/wiki";
+            Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
     }
 }

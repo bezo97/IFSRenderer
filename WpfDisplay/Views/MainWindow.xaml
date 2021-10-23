@@ -36,7 +36,7 @@
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
-        <KeyBinding Gesture="F1"/>
+        <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -76,8 +76,7 @@
                 <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
             </MenuItem>
             <MenuItem Header="❓ Help" HorizontalAlignment="Right">
-                <MenuItem Icon="📚" Header="Manual..." InputGestureText="F1" IsEnabled="False"/>
-                <MenuItem Icon="📚" Header="Tutorials..." IsEnabled="False"/>
+                <MenuItem Icon="📚" Header="Wiki..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
                 <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
                 <MenuItem Icon="🙋" Header="Send Feedback">
                     <MenuItem Icon="🐞" Header="Report a bug..." Command="{Binding ReportBugCommand}"/>
