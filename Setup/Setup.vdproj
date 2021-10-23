@@ -318,7 +318,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IFSRenderer"
         "ProductCode" = "8:{5C9949AC-416D-477C-8DD0-4EC4B132E64A}"
-        "PackageCode" = "8:{554371D1-BE18-441A-B7FB-845AFF5843DC}"
+        "PackageCode" = "8:{EBB444EC-241A-447F-A012-09EF675ABE44}"
         "UpgradeCode" = "8:{4E458E2D-D700-48A5-954C-3D6975C54AA6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -692,7 +692,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:"
+                            "Value" = "8:This installer does not include the source code. It is available in the project repository: https://github.com/bezo97/IFSRenderer"
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1003,7 +1003,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F0943708ABF748BAB90D4F615173D8CC"
             {
-            "SourcePath" = "8:..\\WpfDisplay\\obj\\ReleaseInstaller\\net5.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\WpfDisplay\\bin\\Publish\\Installer\\IFSRenderer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
