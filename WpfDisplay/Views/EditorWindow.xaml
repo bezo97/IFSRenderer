@@ -77,6 +77,33 @@
                                                         Header="✏️ Edit source"
                                                         Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
                                                         CommandParameter="{Binding FilePath}"/>
+                                                    <MenuItem>
+                                                        <MenuItem.Header>
+                                                            <Hyperlink NavigateUri="{Binding ReferenceUrl}" ToolTip="{Binding ReferenceUrl}">ℹ️ Information...</Hyperlink>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <Separator/>
+                                                    <MenuItem Height="auto">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Vertical">
+                                                                <Label Content="{Binding Name}"/>
+                                                                <ItemsControl ItemsSource="{Binding Tags}">
+                                                                    <ItemsControl.ItemsPanel>
+                                                                        <ItemsPanelTemplate>
+                                                                            <StackPanel Orientation="Horizontal"/>
+                                                                        </ItemsPanelTemplate>
+                                                                    </ItemsControl.ItemsPanel>
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Button Content="{Binding}" Style="{DynamicResource MaterialDesignToolForegroundButton}" IsEnabled="False"/>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                                <Label FontWeight="Bold">Description</Label>
+                                                                <TextBlock Text="{Binding Description}" MaxWidth="200" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>
