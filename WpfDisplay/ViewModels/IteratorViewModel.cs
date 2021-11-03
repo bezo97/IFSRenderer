@@ -34,7 +34,7 @@ namespace WpfDisplay.ViewModels
         public void ReloadVariables()
         {
             Variables.Clear();
-            Variables.AddRange(iterator.TransformVariables.Select(v => new VariableViewModel(v.Key, iterator, workspace)));
+            Variables.AddRange(iterator.Variables.Select(v => new VariableViewModel(v.Key, iterator, workspace)));
             foreach (var v in Variables)
             {
                 v.PropertyChanged += (s, e) =>
@@ -156,7 +156,7 @@ namespace WpfDisplay.ViewModels
 
         public string TransformName
         {
-            get => iterator.TransformFunction.Name;
+            get => iterator.Transform.Name;
         }
 
         //TODO: string IteratorName

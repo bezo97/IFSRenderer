@@ -56,7 +56,7 @@ namespace IFSEngine.Rendering
         public int DisplayWidth { get; private set; } = 1280;
         public int DisplayHeight { get; private set; } = 720;
 
-        private List<TransformFunction> registeredTransforms;
+        private List<Transform> registeredTransforms;
 
         public AnimationManager AnimationManager { get; set; }//TODO: Remove
 
@@ -168,7 +168,7 @@ namespace IFSEngine.Rendering
             this.ctx = ctx;
         }
 
-        public void Initialize(IEnumerable<TransformFunction> transforms)
+        public void Initialize(IEnumerable<Transform> transforms)
         {
             if (IsInitialized)
                 throw new InvalidOperationException("Renderer is already initialized.");
@@ -205,14 +205,14 @@ namespace IFSEngine.Rendering
             InvalidateParamsBuffer();
         }
 
-        public async Task LoadTransforms(IEnumerable<TransformFunction> transformFunctions)
+        public async Task LoadTransforms(IEnumerable<Transform> transforms)
         {
             if(!IsInitialized)
                 throw NewNotInitializedException();
 
             await WithContext(() =>
             {
-                registeredTransforms = transformFunctions.ToList();
+                registeredTransforms = transforms.ToList();
                 InitComputeProgram();
                 InvalidateParamsBuffer();
             });
@@ -380,7 +380,7 @@ namespace IFSEngine.Rendering
                     //iterators
                     its.Add(new IteratorStruct
                     {
-                        tfId = registeredTransforms.IndexOf(it.TransformFunction),
+                        tfId = registeredTransforms.IndexOf(it.Transform),
                         tfParamsStart = tfsparams.Count,
                         color_speed = (float)it.ColorSpeed,
                         color_index = (float)it.ColorIndex,
@@ -390,7 +390,7 @@ namespace IFSEngine.Rendering
                         reset_prob = (float)aliasTables[iti].u
                     });
                     //transform params
-                    var varValues = it.TransformVariables.Values.ToArray();
+                    var varValues = it.Variables.Values.ToArray();
                     tfsparams.AddRange(varValues.Select(p => (float)p));
                 }
 

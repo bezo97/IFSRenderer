@@ -77,7 +77,7 @@ namespace WpfDisplay
                 var saveParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.IFS;
                 string recoveryFilePath = Path.Combine(AppDataPath, "recovery.ifsjson");
                 IFSEngine.Serialization.IfsSerializer.SaveJsonFile(saveParams, recoveryFilePath);
-                MessageBox.Show($"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\nA recovery file has been saved to\r\n{recoveryFilePath}");
+                MessageBox.Show(Application.Current.MainWindow, $"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\nA recovery file has been saved to\r\n{recoveryFilePath}");
             }
             finally
             {

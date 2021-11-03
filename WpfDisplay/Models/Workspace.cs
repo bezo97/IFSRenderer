@@ -20,10 +20,10 @@ namespace WpfDisplay.Models
     public class Workspace : ObservableObject
     {
         private readonly IFSHistoryTracker tracker = new();
-        private List<TransformFunction> loadedTransforms = new();
+        private List<Transform> loadedTransforms = new();
 
         public Author CurrentUser { get; set; } = Author.Unknown;
-        public IReadOnlyCollection<TransformFunction> LoadedTransforms => loadedTransforms;
+        public IReadOnlyCollection<Transform> LoadedTransforms => loadedTransforms;
         public event EventHandler<string> StatusTextChanged;
         public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
 
@@ -80,7 +80,7 @@ namespace WpfDisplay.Models
         {
             loadedTransforms = Directory
                 .GetFiles(TransformsDirectoryPath)
-                .Select(file => TransformFunction.FromFile(file))
+                .Select(file => Transform.FromFile(file))
                 .ToList();
             OnPropertyChanged(nameof(LoadedTransforms));
         }

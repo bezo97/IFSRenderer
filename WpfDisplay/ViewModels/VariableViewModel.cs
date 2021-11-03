@@ -12,10 +12,10 @@ namespace WpfDisplay.ViewModels
         public string Name { get; private set; }
         public double Value
         {
-            get => iterator.TransformVariables[Name];
+            get => iterator.Variables[Name];
             set
             {
-                iterator.TransformVariables[Name] = value;
+                iterator.Variables[Name] = value;
                 OnPropertyChanged(nameof(Value));
                 workspace.Renderer.InvalidateParamsBuffer();
             }

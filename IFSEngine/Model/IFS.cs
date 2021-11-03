@@ -62,7 +62,7 @@ namespace IFSEngine.Model
         public Iterator DuplicateIterator(Iterator a)
         {
             //clone first
-            Iterator d = new(a.TransformFunction)
+            Iterator d = new(a.Transform)
             {
                 BaseWeight = a.BaseWeight,
                 ColorIndex = a.ColorIndex,
@@ -73,8 +73,8 @@ namespace IFSEngine.Model
                 
             };
             //copy variable values
-            foreach (var tv in a.TransformVariables)
-                d.TransformVariables[tv.Key] = tv.Value;
+            foreach (var tv in a.Variables)
+                d.Variables[tv.Key] = tv.Value;
             //add to the ifs
             AddIterator(d, false);
             //copy connection weights
@@ -112,14 +112,14 @@ namespace IFSEngine.Model
             iterators.Remove(it1);
         }
 
-        public void ReloadTransforms(IEnumerable<TransformFunction> transforms)
+        public void ReloadTransforms(IEnumerable<Transform> transforms)
         {
             foreach (var iterator in iterators.ToList())
             {
                 //ignore transform version checking here so they are updated.
-                var newtf = transforms.FirstOrDefault(tf => tf.Name == iterator.TransformFunction.Name);
+                var newtf = transforms.FirstOrDefault(tf => tf.Name == iterator.Transform.Name);
                 if(newtf != null)
-                    iterator.SetTransformFunction(newtf);
+                    iterator.SetTransform(newtf);
                 //leave old transform if a newer version is not found
             }
         }

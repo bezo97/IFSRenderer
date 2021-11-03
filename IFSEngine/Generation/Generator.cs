@@ -11,9 +11,9 @@ namespace IFSEngine.Generation
 {
     public class Generator
     {
-        public List<TransformFunction> SelectedTransforms { get; set; }
+        public List<Transform> SelectedTransforms { get; set; }
 
-        public Generator(IEnumerable<TransformFunction> transforms)
+        public Generator(IEnumerable<Transform> transforms)
         {
             SelectedTransforms = transforms.ToList();
         }
@@ -53,9 +53,9 @@ namespace IFSEngine.Generation
             {
                 foreach (var it in gen.Iterators)
                 {
-                    foreach (var v in it.TransformVariables)
+                    foreach (var v in it.Variables)
                     {
-                        it.TransformVariables[v.Key] = MutateValue(it.TransformVariables[v.Key], options);
+                        it.Variables[v.Key] = MutateValue(it.Variables[v.Key], options);
                     }
                 }
             }

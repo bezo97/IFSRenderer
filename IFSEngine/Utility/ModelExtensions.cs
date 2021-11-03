@@ -22,7 +22,7 @@ namespace IFSEngine.Utility
         /// <returns>A new deep cloned instance.</returns>
         public static IFS DeepClone(this IFS ifs)
         {
-            var transforms = ifs.Iterators.Select(i => i.TransformFunction);
+            var transforms = ifs.Iterators.Select(i => i.Transform);
             var settings = IfsSerializer.GetJsonSerializerSettings(transforms, false);
             string serializedContent = JsonConvert.SerializeObject(ifs, settings);
             return JsonConvert.DeserializeObject<IFS>(serializedContent, settings);

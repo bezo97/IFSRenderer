@@ -17,7 +17,7 @@ namespace WpfDisplay.Helper
         public bool IsHistoryUndoable => UndoStack.Count > 0;
         public bool IsHistoryRedoable => RedoStack.Count > 0;
 
-        public IFS Undo(IFS current, IEnumerable<TransformFunction> transforms)
+        public IFS Undo(IFS current, IEnumerable<Transform> transforms)
         {
             if (!IsHistoryUndoable)
                 throw new InvalidOperationException();
@@ -28,7 +28,7 @@ namespace WpfDisplay.Helper
             return restoredObject;
         }
 
-        public IFS Redo(IFS current, IEnumerable<TransformFunction> transforms)
+        public IFS Redo(IFS current, IEnumerable<Transform> transforms)
         {
             if (!IsHistoryRedoable)
                 throw new InvalidOperationException();

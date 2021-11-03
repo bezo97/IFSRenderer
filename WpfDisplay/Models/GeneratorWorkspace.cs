@@ -32,7 +32,7 @@ namespace WpfDisplay.Models
         private List<IFS> generatedIFS = new List<IFS>();
         private ConcurrentQueue<IFS> renderQueue = new ConcurrentQueue<IFS>();
 
-        public GeneratorWorkspace(IReadOnlyCollection<TransformFunction> loadedTransforms)
+        public GeneratorWorkspace(IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
         {
             //init thumbnail renderer
             GameWindow hw = new(new GameWindowSettings

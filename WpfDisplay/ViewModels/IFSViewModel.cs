@@ -19,7 +19,7 @@ namespace WpfDisplay.ViewModels
         private readonly Workspace workspace;
 
         public CompositeCollection NodeMapElements { get; private set; }
-        public IReadOnlyCollection<TransformFunction> RegisteredTransforms => workspace.LoadedTransforms;
+        public IReadOnlyCollection<IFSEngine.Model.Transform> RegisteredTransforms => workspace.LoadedTransforms;
         private readonly ObservableCollection<IteratorViewModel> IteratorViewModels = new();
         private readonly ObservableCollection<ConnectionViewModel> ConnectionViewModels = new();
         private IteratorViewModel connectingIterator;
@@ -201,8 +201,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand<TransformFunction> _addIteratorCommand;
-        public RelayCommand<TransformFunction> AddIteratorCommand => _addIteratorCommand
+        private RelayCommand<IFSEngine.Model.Transform> _addIteratorCommand;
+        public RelayCommand<IFSEngine.Model.Transform> AddIteratorCommand => _addIteratorCommand
             ??= new((tf) =>
             {
                 workspace.TakeSnapshot();
