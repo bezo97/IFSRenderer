@@ -31,23 +31,9 @@ namespace WpfDisplay.Views
         private void MainWindow_ContentRendered(object sender, System.EventArgs e)
         {
             //init workspace
-            Workspace workspace = null;
-            try
-            {
-                RendererGL renderer = new(mainDisplay.GraphicsContext);
-                mainDisplay.AttachRenderer(renderer);
-                workspace = new(renderer);
-            }
-            catch (Exception ex)
-            {
-                string logFilePath = App.LogException(ex);
-                MessageBox.Show(this, $"Failed to initialize renderer. Details:\r\n{logFilePath}");
-            }
-            finally
-            {
-                if(workspace is null)
-                    Environment.Exit(1);
-            }
+            RendererGL renderer = new(mainDisplay.GraphicsContext);
+            mainDisplay.AttachRenderer(renderer);
+            Workspace workspace = new(renderer);
 
             //handle open verb
             if (App.OpenVerbPath is not null)
