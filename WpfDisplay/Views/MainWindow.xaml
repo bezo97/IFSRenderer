@@ -22,7 +22,7 @@
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
-        <conv:DataContextSetConverter x:Key="dataContextSetConverter"/>
+        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
@@ -127,12 +127,12 @@
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <Grid>
                     <disp:InteractiveDisplay
-                        Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
+                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
                         x:Name="mainDisplay"
                         InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                         InteractionFinishedCommand="{Binding InteractionFinishedCommand}"/>
                     <ProgressBar
-                        Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
+                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
                         Width="100" Height="25"
                         IsIndeterminate="True"/>
                 </Grid>

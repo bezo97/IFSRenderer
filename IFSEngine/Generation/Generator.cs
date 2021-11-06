@@ -49,13 +49,17 @@ namespace IFSEngine.Generation
                     gen.RemoveIterator(iter);
                 }
             }
-            if (options.MutateVariables)
+            if (options.MutateParameters)
             {
-                foreach (var it in gen.Iterators)
+                foreach (Iterator it in gen.Iterators)
                 {
-                    foreach (var v in it.Variables)
+                    foreach (var v in it.RealParams)
                     {
-                        it.Variables[v.Key] = MutateValue(it.Variables[v.Key], options);
+                        it.RealParams[v.Key] = MutateValue(it.RealParams[v.Key], options);
+                    }
+                    foreach (var v in it.Vec3Params)
+                    {
+                        it.Vec3Params[v.Key] = MutateVec3(it.Vec3Params[v.Key], options);
                     }
                 }
             }
@@ -106,11 +110,24 @@ namespace IFSEngine.Generation
             return gen;
         }
 
-        private double MutateValue(double val, GeneratorOptions o)
+        private static double MutateValue(double val, GeneratorOptions o)
         {
             if (o.MutationChance > RandHelper.NextDouble())
                 return val + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble();
             else 
+                return val;
+        }
+        private static Vector3 MutateVec3(Vector3 val, GeneratorOptions o)
+        {
+            if (o.MutationChance > RandHelper.NextDouble())
+            {
+                Vector3 v = val;
+                v.X = (float)(v.X + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
+                v.Y = (float)(v.Y + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
+                v.Z = (float)(v.Z + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
+                return v;
+            }
+            else
                 return val;
         }
 

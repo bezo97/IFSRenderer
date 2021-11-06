@@ -122,7 +122,8 @@ namespace IFSEngine.Rendering
         private int aliasBufferHandle;
         private int pointsBufferHandle;
         private int paletteBufferHandle;
-        private int transformParametersBufferHandle;
+        private int realParametersBufferHandle;
+        private int vec3ParametersBufferHandle;
         //fragment shader handles
         private int tonemapProgramHandle;
         private int deProgramHandle;
@@ -229,7 +230,7 @@ namespace IFSEngine.Rendering
         /// <summary>
         /// Invalidates the data in the parameter buffers, which causes the render thread to update them.
         /// Also invalidates the accumulation and state buffers.
-        /// Usually called whenever the loaded <see cref="IFS"/> structure or a variable changes.
+        /// Usually called whenever the loaded <see cref="IFS"/> structure or a parameter changes.
         /// </summary>
         public void InvalidateParamsBuffer()
         {
@@ -363,7 +364,8 @@ namespace IFSEngine.Rendering
             {
                 //generate iterator and transform structs
                 var its = new List<IteratorStruct>();
-                var tfsparams = new List<float>();
+                var allRealParams = new List<float>();
+                var allVec3Params = new List<Vector4>();
                 var currentIterators = LoadedParams.Iterators.ToList();
                 //start weights -> alias method tables
                 double sumStartWeights = currentIterators.Sum(i => i.StartWeight);
@@ -381,7 +383,8 @@ namespace IFSEngine.Rendering
                     its.Add(new IteratorStruct
                     {
                         tfId = registeredTransforms.IndexOf(it.Transform),
-                        tfParamsStart = tfsparams.Count,
+                        real_params_index = allRealParams.Count,
+                        vec3_params_index = allVec3Params.Count,
                         color_speed = (float)it.ColorSpeed,
                         color_index = (float)it.ColorIndex,
                         opacity = (float)it.Opacity,
@@ -389,16 +392,19 @@ namespace IFSEngine.Rendering
                         reset_alias = aliasTables[iti].k,
                         reset_prob = (float)aliasTables[iti].u
                     });
-                    //transform params
-                    var varValues = it.Variables.Values.ToArray();
-                    tfsparams.AddRange(varValues.Select(p => (float)p));
+                    //collect transform params
+                    allRealParams.AddRange(it.RealParams.Values.Select(p => (float)p).ToList());
+                    allVec3Params.AddRange(it.Vec3Params.Values.Select(p => new Vector4(p, 0.0f)).ToList());
                 }
 
                 GL.BindBuffer(BufferTarget.UniformBuffer, iteratorsBufferHandle);
                 GL.BufferData(BufferTarget.UniformBuffer, its.Count * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray(), BufferUsageHint.DynamicDraw);
 
-                GL.BindBuffer(BufferTarget.UniformBuffer, transformParametersBufferHandle);
-                GL.BufferData(BufferTarget.UniformBuffer, tfsparams.Count * sizeof(float), tfsparams.ToArray(), BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.UniformBuffer, realParametersBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, allRealParams.Count * sizeof(float), allRealParams.ToArray(), BufferUsageHint.DynamicDraw);
+
+                GL.BindBuffer(BufferTarget.UniformBuffer, vec3ParametersBufferHandle);
+                GL.BufferData(BufferTarget.UniformBuffer, allVec3Params.Count * 4 * sizeof(float), allVec3Params.ToArray(), BufferUsageHint.DynamicDraw);
 
                 //normalize base weights
                 double SumWeights = currentIterators.Sum(i => i.BaseWeight);
@@ -870,7 +876,8 @@ if (iter.tfId == {tfIndex})
             iteratorsBufferHandle = GL.GenBuffer();
             aliasBufferHandle = GL.GenBuffer();
             paletteBufferHandle = GL.GenBuffer();
-            transformParametersBufferHandle = GL.GenBuffer();
+            realParametersBufferHandle = GL.GenBuffer();
+            vec3ParametersBufferHandle = GL.GenBuffer();
 
             //bind layout:
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, histogramBufferHandle);
@@ -879,7 +886,8 @@ if (iter.tfId == {tfIndex})
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, iteratorsBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, aliasBufferHandle);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, paletteBufferHandle);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, transformParametersBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, realParametersBufferHandle);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 7, vec3ParametersBufferHandle);
 
         }
 

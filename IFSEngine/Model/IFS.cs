@@ -72,9 +72,11 @@ namespace IFSEngine.Model
                 StartWeight = a.StartWeight,
                 
             };
-            //copy variable values
-            foreach (var tv in a.Variables)
-                d.Variables[tv.Key] = tv.Value;
+            //copy parameter values
+            foreach (var tv in a.RealParams)
+                d.RealParams[tv.Key] = tv.Value;
+            foreach (var tv in a.Vec3Params)
+                d.Vec3Params[tv.Key] = tv.Value;
             //add to the ifs
             AddIterator(d, false);
             //copy connection weights

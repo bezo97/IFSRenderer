@@ -275,7 +275,7 @@ namespace WpfDisplay.ViewModels
                     return;
                 }
                 foreach (IteratorViewModel ivm in IteratorViewModels)
-                    ivm.ReloadVariables();//handles when the number and names of variables have changed.
+                    ivm.ReloadParameters();//handles when the number and names of parameters have changed.
                 OnPropertyChanged(nameof(RegisteredTransforms));
             });
 

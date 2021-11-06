@@ -22,7 +22,7 @@ namespace WpfDisplay.ViewModels
         public bool MutateIterators { get => options.MutateIterators; set => SetProperty(ref options.MutateIterators, value); }
         public bool MutateConnections { get => options.MutateConnections; set => SetProperty(ref options.MutateConnections, value); }
         public bool MutateConnectionWeights { get => options.MutateConnectionWeights; set => SetProperty(ref options.MutateConnectionWeights, value); }
-        public bool MutateVariables { get => options.MutateVariables; set => SetProperty(ref options.MutateVariables, value); }
+        public bool MutateParameters { get => options.MutateParameters; set => SetProperty(ref options.MutateParameters, value); }
         public bool MutatePalette { get => options.MutatePalette; set => SetProperty(ref options.MutatePalette, value); }
         public bool MutateColoring { get => options.MutateColoring; set => SetProperty(ref options.MutateColoring, value); }
 

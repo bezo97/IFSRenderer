@@ -13,9 +13,12 @@
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
         <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
+        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </UserControl.Resources>
     <StackPanel>
-        <Label Grid.Column="0" Content="{Binding ValueName}"/>
+        <Label Grid.Column="0" 
+               Content="{Binding ValueName}" 
+               Visibility="{Binding ValueName, Converter={StaticResource nullVisibilityConverter}}"/>
     
         <Grid>
             <Grid.ColumnDefinitions>

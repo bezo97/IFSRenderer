@@ -36,8 +36,12 @@ struct Iterator
 	float reset_prob;
 	int reset_alias;
 	int tfId;
-	int tfParamsStart;
+	int real_params_index;
+	int vec3_params_index;
 	int shading_mode;//0: default, 1: delta_p
+	int padding0;
+	int padding1;
+	int padding2;
 };
 
 struct p_state
@@ -101,15 +105,15 @@ layout(std140, binding = 5) uniform palette_ubo
 	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(binding = 6) uniform transform_params_ubo
+layout(binding = 6) uniform real_params_ubo
 {
-	float tfParams[MAX_PARAMS];//parameters of all transforms
+	float real_params[MAX_PARAMS];//real transform parameters of all iterators
 };
 
-/*layout(binding = 7) uniform xaos_ubo
+layout(binding = 7) uniform vec3_params_ubo
 {
-	float xaos[MAX_XAOS];//xaos matrix: weights to Iterators
-};*/
+	vec4 vec3_params[MAX_PARAMS];//vec3 transform parameters of all iterators
+};
 
 uniform int width;
 uniform int height;
@@ -211,7 +215,6 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 vec3 apply_transform(Iterator iter, vec3 p_input, inout uint next)
 {
 	vec3 p = p_input;
-	int p_cnt = iter.tfParamsStart;
 
 	//snippets inserted on initialization
 	@transforms

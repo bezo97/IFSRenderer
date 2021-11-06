@@ -13,7 +13,11 @@ namespace IFSEngine.Rendering.GpuStructs
         internal float reset_prob;
         internal int reset_alias;
         internal int tfId;
-        internal int tfParamsStart;
+        internal int real_params_index;
+        internal int vec3_params_index;
         internal int shading_mode;//0: default, 1: delta_p
+        internal int padding0;
+        internal int padding1;
+        internal int padding2;
     }
 }

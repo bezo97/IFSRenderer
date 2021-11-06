@@ -87,9 +87,10 @@
         </StackPanel>
         <StackPanel>
             <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
-            <ItemsControl ItemsSource="{Binding Variables}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+            <ItemsControl ItemsSource="{Binding Parameters}">
+                <ItemsControl.Resources>
+                    <!--real-->
+                    <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
                         <Grid DataContext="{Binding}" x:Name="dummy">
                             <local:ValueSlider
                                 Increment="0.001"
@@ -98,7 +99,25 @@
                                 ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
                         </Grid>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                    <!--vec3-->
+                    <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">
+                        <StackPanel DataContext="{Binding}" x:Name="dummy">
+                            <Label Content="{Binding Name}" />
+                            <local:ValueSlider
+                                Increment="0.001"
+                                Value="{Binding DataContext.ValueX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
+                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                            <local:ValueSlider
+                                Increment="0.001"
+                                Value="{Binding DataContext.ValueY, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
+                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                            <local:ValueSlider
+                                Increment="0.001"
+                                Value="{Binding DataContext.ValueZ, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
+                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.Resources>
             </ItemsControl>
         </StackPanel>
     </StackPanel>

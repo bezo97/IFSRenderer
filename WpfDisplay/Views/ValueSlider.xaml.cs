@@ -24,7 +24,7 @@ namespace WpfDisplay.Views
             set { SetValue(ValueNameProperty, value); }
         }
         public static readonly DependencyProperty ValueNameProperty =
-            DependencyProperty.Register("ValueName", typeof(string), typeof(ValueSlider), new PropertyMetadata("ValueName"));
+            DependencyProperty.Register("ValueName", typeof(string), typeof(ValueSlider), new PropertyMetadata(null));
         
         public double Value
         {

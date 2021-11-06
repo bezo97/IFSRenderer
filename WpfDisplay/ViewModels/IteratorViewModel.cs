@@ -20,22 +20,22 @@ namespace WpfDisplay.ViewModels
         public event EventHandler ViewChanged;
         public event EventHandler<bool> ConnectEvent;
 
-        public List<VariableViewModel> Variables { get; } = new List<VariableViewModel>();
-
+        public List<IParamViewModel> Parameters { get; } = new List<IParamViewModel>();
 
         public IteratorViewModel(Iterator iterator, Workspace workspace)
         {
             this.iterator = iterator;
             this.workspace = workspace;
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-            ReloadVariables();
+            ReloadParameters();
         }
 
-        public void ReloadVariables()
+        public void ReloadParameters()
         {
-            Variables.Clear();
-            Variables.AddRange(iterator.Variables.Select(v => new VariableViewModel(v.Key, iterator, workspace)));
-            foreach (var v in Variables)
+            Parameters.Clear();
+            Parameters.AddRange(iterator.RealParams.Select(v => new RealParamViewModel(v.Key, iterator, workspace)));
+            Parameters.AddRange(iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, iterator, workspace)));
+            foreach (var v in Parameters)
             {
                 v.PropertyChanged += (s, e) =>
                 {

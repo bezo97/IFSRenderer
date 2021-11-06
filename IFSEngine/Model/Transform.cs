@@ -16,13 +16,14 @@ namespace IFSEngine.Model
         public IEnumerable<string> Tags { get; private set; }
         public Uri ReferenceUrl { get; private set; }
         public string SourceCode { get; private set; }
-        public IReadOnlyDictionary<string, double> Variables { get; private set; }//name, default //type?
+        public IReadOnlyDictionary<string, double> RealParams { get; private set; }//name, default value
+        public IReadOnlyDictionary<string, Vector3> Vec3Params { get; private set; }//name, default value
         public string FilePath { get; private set; }
 
 
-        //These cannot be variable names:
+        //These cannot be parameter names:
         private static readonly List<string> reservedFields = new() { "Name", "Version", "Description", "Tags", "Reference" };
-        private const string regexVarDef = @"^(\s*)@.+:.+$";//@Var1: 0.0, 0 0 0, min 1
+        private const string regexFieldDef = @"^(\s*)@.+:.+$";//@Param1: 0.0, 0 0 0, min 1
         private const string defaultDescription = "Description not provided by the plugin developer";
 
         public static Transform FromFile(string path)
@@ -38,48 +39,48 @@ namespace IFSEngine.Model
             var lines = s.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                          .Select(l => l.Trim());
 
-            var fieldDefinitionLines = lines.Where(l => Regex.IsMatch(l, regexVarDef));
+            var fieldDefinitionLines = lines.Where(l => Regex.IsMatch(l, regexFieldDef));
             Dictionary<string, string> fields = fieldDefinitionLines.ToDictionary(
                 l => l.Split(":")[0].TrimStart('@').Trim(),
                 l => l.Split(":", 2)[1].Trim());
 
-            Dictionary<string, string> variableFields = fields
+            Dictionary<string, string> paramFields = fields
                 .Where(p => !reservedFields.Contains(p.Key))
                 .ToDictionary(p => p.Key, p => p.Value);
-            Dictionary<string, double> realVariables = new();
-            Dictionary<string, Vector3> vec3Variables = new();
-            foreach ((string varName, string varDef) in variableFields)
+            Dictionary<string, double> realParams = new();
+            Dictionary<string, Vector3> vec3Params = new();
+            foreach ((string paramName, string paramDef) in paramFields)
             {
-                var variableProps = varDef.Split(',');
-                string defaultValueString = variableProps[0].Trim();
+                var paramProps = paramDef.Split(',');
+                string defaultValueString = paramProps[0].Trim();
                 if (double.TryParse(defaultValueString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double realDefaultValue))
                 {//parse real
-                    realVariables[varName] = realDefaultValue;
+                    realParams[paramName] = realDefaultValue;
                 }
                 else if (defaultValueString.Count(c => c == ' ') == 2)
                 {//parse vec3
                     List<float> vec3Components = defaultValueString
-                        .Split(' ')
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
                         .Select(l => float.Parse(l, System.Globalization.CultureInfo.InvariantCulture))
                         .ToList();
-                    vec3Variables[varName] = new Vector3(vec3Components[0], vec3Components[1], vec3Components[2]);
+                    vec3Params[paramName] = new Vector3(vec3Components[0], vec3Components[1], vec3Components[2]);
                 }
 
-                //TODO: Handle parts after comma, such as min, max, increment, variable description, ..
+                //TODO: Handle parts after comma, such as min, max, increment, param description, ..
 
             }
 
-            string sourceCode = string.Join(Environment.NewLine, lines.Except(fieldDefinitionLines));
-            //replace real variables
-            for (int iVar = 0; iVar < realVariables.Count; iVar++)
+            string sourceCode = string.Join(Environment.NewLine, lines.Where(l => !fieldDefinitionLines.Contains(l)));
+            //replace real params
+            for (int ip = 0; ip < realParams.Count; ip++)
             {
-                sourceCode = sourceCode.Replace("@" + realVariables.Keys.ElementAt(iVar), $"(tfParams[p_cnt + {iVar}])");
+                sourceCode = sourceCode.Replace("@" + realParams.Keys.ElementAt(ip), $"(real_params[iter.real_params_index + {ip}])");
             }
-            //TODO: replace vec3 variables
-            //for (int iVar = 0; iVar < vec3Variables.Count; iVar++)
-            //{
-            //    sourceCode = sourceCode.Replace("@" + vec3Variables.Keys.ElementAt(iVar), $"(vars_vec3[p_cnt2 + {iVar}])");
-            //}
+            //replace vec3 params
+            for (int ip = 0; ip < vec3Params.Count; ip++)
+            {
+                sourceCode = sourceCode.Replace("@" + vec3Params.Keys.ElementAt(ip), $"(vec3_params[iter.vec3_params_index + {ip}].xyz)");
+            }
 
             return new Transform
             {
@@ -95,7 +96,8 @@ namespace IFSEngine.Model
                     .ToList() : new List<string>(),
                 ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString): null,
                 SourceCode = sourceCode,
-                Variables = realVariables,
+                RealParams = realParams,
+                Vec3Params = vec3Params,
                 FilePath = null
             };
         }

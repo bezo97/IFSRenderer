@@ -15,7 +15,7 @@ namespace IFSEngine.Generation
         public bool MutateIterators = true;
         public bool MutateConnections = true;
         public bool MutateConnectionWeights = true;
-        public bool MutateVariables = true;
+        public bool MutateParameters = true;
         public bool MutatePalette = true;
         public bool MutateColoring = true;
         public IFS baseParams = new IFS

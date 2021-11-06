@@ -100,7 +100,7 @@
                                 <StackPanel Grid.Column="2" Margin="8">
                                     <CheckBox IsEnabled="False">Transforms</CheckBox>
                                     <ListBox IsEnabled="False">Transforms</ListBox>
-                                    <CheckBox IsChecked="{Binding MutateVariables}">Variables</CheckBox>
+                                    <CheckBox IsChecked="{Binding MutateParameters}">Parameters</CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4" Margin="8">
                                     <local:ValueSlider ValueName="Mutation chance" 
