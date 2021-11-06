@@ -44,9 +44,9 @@ Planned:
 
 ## 📀 Installation
 
-### Requirements
+### Minimum Requirements
 - Windows 10
-- .NET 5.0 (included in installer)
+- .NET Desktop Runtime 5 (installed on demand)
 - OpenGL 4.5 capable graphics card
 
 ### Downloads
@@ -55,12 +55,12 @@ Previous versions can be found on the [Releases](https://github.com/bezo97/IFSRe
 
 ### Build instructions
 You may build the project yourself using Visual Studio 2019 (with .NET Desktop Development workload).
-Since the default transforms are hosted is a separate repo, use the `--recurse-submodules` switch when cloning:  
+Since the default transforms are hosted in a separate repo, use the `--recurse-submodules` switch when cloning:  
 ```
 git clone --recurse-submodules https://github.com/bezo97/IFSRenderer.git
 ```
 The Setup project uses a [VS extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects), 
-which is not required to build the portable IFSRenderer executable.
+which is not required to build the portable IFSRenderer executable. You can ignore the "unsupported" warning and keep the Setup project unloaded.
 
 ## 🕹️ Usage
 
