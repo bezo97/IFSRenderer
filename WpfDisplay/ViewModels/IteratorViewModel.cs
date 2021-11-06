@@ -108,6 +108,26 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+        public float Mix
+        {
+            get => (float)iterator.Mix;
+            set
+            {
+                iterator.Mix = value;
+                OnPropertyChanged(nameof(Mix));
+                workspace.Renderer.InvalidateParamsBuffer();
+            }
+        }
+        public float Add
+        {
+            get => (float)iterator.Add;
+            set
+            {
+                iterator.Add = value;
+                OnPropertyChanged(nameof(Add));
+                workspace.Renderer.InvalidateParamsBuffer();
+            }
+        }
 
         public bool DeltaColoring
         {

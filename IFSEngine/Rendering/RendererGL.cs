@@ -389,6 +389,8 @@ namespace IFSEngine.Rendering
                         color_index = (float)it.ColorIndex,
                         opacity = (float)it.Opacity,
                         shading_mode = (int)it.ShadingMode,
+                        tf_mix = (float)it.Mix,
+                        tf_add = (float)it.Add,
                         reset_alias = aliasTables[iti].k,
                         reset_prob = (float)aliasTables[iti].u
                     });

@@ -39,8 +39,8 @@ struct Iterator
 	int real_params_index;
 	int vec3_params_index;
 	int shading_mode;//0: default, 1: delta_p
-	int padding0;
-	int padding1;
+	float tf_mix;
+	float tf_add;
 	int padding2;
 };
 
@@ -381,7 +381,8 @@ void main() {
 		Iterator selected_iterator = iterators[p.iterator_index];
 
 		vec4 p0_pos = p.pos;
-		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz, next);//transform here
+		vec3 p_ret = apply_transform(selected_iterator, p.pos.xyz, next);//transform here
+		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.warmup_cnt++;
 

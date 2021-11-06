@@ -18,6 +18,8 @@ namespace IFSEngine.Model
         public double ColorIndex { get; set; } = 0.0;//0 - 1
         public double StartWeight { get; set; } = 1.0;
         public double Opacity { get; set; } = 1.0;
+        public double Mix { get; set; } = 1.0;
+        public double Add { get; set; } = 0.0;
         public ShadingMode ShadingMode { get; set; } = ShadingMode.Default;
 
         /// <remarks>Custom serialization logic implemented in <see cref="Serialization.IfsConverter"/></remarks>

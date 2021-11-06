@@ -16,8 +16,8 @@ namespace IFSEngine.Rendering.GpuStructs
         internal int real_params_index;
         internal int vec3_params_index;
         internal int shading_mode;//0: default, 1: delta_p
-        internal int padding0;
-        internal int padding1;
+        internal float tf_mix;
+        internal float tf_add;
         internal int padding2;
     }
 }

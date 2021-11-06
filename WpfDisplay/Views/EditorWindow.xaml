@@ -119,8 +119,8 @@
                 </md:Card>
             </Grid>
             <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="270">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                    <StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,25,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
                             <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
                         </Grid>
@@ -130,7 +130,7 @@
                                     Selected Connection
                                 </TextBlock>
                                 <local:ValueSlider
-                                    ValueName="Weight"
+                                    ValueName="Weight" ToolTip="The weight of the connection controls the transition probability between the two iterators. 0 weight means no connection."
                                     Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
                                     MinValue="0" Increment="0.01"
                                     ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=editorWindow}"/>
