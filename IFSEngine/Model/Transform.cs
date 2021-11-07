@@ -72,14 +72,14 @@ namespace IFSEngine.Model
 
             string sourceCode = string.Join(Environment.NewLine, lines.Where(l => !fieldDefinitionLines.Contains(l)));
             //replace real params
-            for (int ip = 0; ip < realParams.Count; ip++)
+            foreach((string pname, double pvalue) in realParams.OrderByDescending(n => n.Key.Length))
             {
-                sourceCode = sourceCode.Replace("@" + realParams.Keys.ElementAt(ip), $"(real_params[iter.real_params_index + {ip}])");
+                sourceCode = sourceCode.Replace("@" + pname, $"(real_params[iter.real_params_index + {realParams.Keys.ToList().IndexOf(pname)}])");
             }
             //replace vec3 params
-            for (int ip = 0; ip < vec3Params.Count; ip++)
+            foreach ((string pname, Vector3 pvalue) in vec3Params.OrderByDescending(n => n.Key.Length))
             {
-                sourceCode = sourceCode.Replace("@" + vec3Params.Keys.ElementAt(ip), $"(vec3_params[iter.vec3_params_index + {ip}].xyz)");
+                sourceCode = sourceCode.Replace("@" + pname, $"(vec3_params[iter.vec3_params_index + {vec3Params.Keys.ToList().IndexOf(pname)}].xyz)");
             }
 
             return new Transform

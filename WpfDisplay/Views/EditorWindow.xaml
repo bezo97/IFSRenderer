@@ -119,7 +119,7 @@
                 </md:Card>
             </Grid>
             <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="270">
-                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
                     <StackPanel Margin="0,0,25,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
                             <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>

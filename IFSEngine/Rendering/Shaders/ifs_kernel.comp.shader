@@ -8,13 +8,14 @@
 
 layout(local_size_x = 64) in;
 
-#define PI		3.14159265358f
-#define TWOPI	6.28318530718f
+#define PI			3.14159265358f
+#define TWOPI		6.28318530718f
+#define DEGTORAD	0.0174532925f
 
-#define MAX_ITERATORS 100
-#define MAX_PALETTE_COLORS 150
-#define MAX_PARAMS (2 * MAX_ITERATORS)
-#define MAX_XAOS (MAX_ITERATORS * MAX_ITERATORS)
+#define MAX_ITERATORS		100
+#define MAX_PALETTE_COLORS	150
+#define MAX_PARAMS			(2 * MAX_ITERATORS)
+#define MAX_XAOS			(MAX_ITERATORS * MAX_ITERATORS)
 
 struct camera_params
 {
@@ -120,6 +121,21 @@ uniform int height;
 uniform int dispatch_cnt;
 uniform int reset_points_state;
 uniform int invocation_iters;
+
+mat3 rotmat(vec3 v, float arad)
+{
+	float c = cos(arad);
+	float s = sin(arad);
+	return mat3(
+		c + (1.0 - c) * v.x * v.x, (1.0 - c) * v.x * v.y - s * v.z, (1.0 - c) * v.x * v.z + s * v.y,
+		(1.0 - c) * v.x * v.y + s * v.z, c + (1.0 - c) * v.y * v.y, (1.0 - c) * v.y * v.z - s * v.x,
+		(1.0 - c) * v.x * v.z - s * v.y, (1.0 - c) * v.y * v.z + s * v.x, c + (1.0 - c) * v.z * v.z
+	);
+}
+mat3 rotate_euler(vec3 euler_angles)
+{
+	return rotmat(vec3(1.0, 0.0, 0.0), euler_angles.x) * rotmat(vec3(0.0, 1.0, 0.0), euler_angles.y) * rotmat(vec3(0.0, 0.0, 1.0), euler_angles.z);
+}
 
 //pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
 uint pcg_hash(uint x)
