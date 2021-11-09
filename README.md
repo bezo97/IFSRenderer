@@ -17,10 +17,12 @@
 </p>
 <div align="center" markdown="1">
 
-[![license](https://img.shields.io/github/license/bezo97/IFSRenderer)](/LICENSE)
 [![release](https://img.shields.io/github/v/release/bezo97/IFSRenderer?include_prereleases&sort=semver)](https://github.com/bezo97/IFSRenderer/releases/latest)
 [![library](https://img.shields.io/nuget/vpre/IFSEngine?label=library)](https://www.nuget.org/packages/IFSEngine/)
+[![dotnet](https://img.shields.io/badge/.NET%206-WPF-blueviolet)]()  
+
 [![help](https://img.shields.io/github/labels/bezo97/IFSRenderer/help-wanted)](https://github.com/bezo97/IFSRenderer/issues)
+[![license](https://img.shields.io/github/license/bezo97/IFSRenderer)](/LICENSE)
 
 </div>
 
@@ -46,7 +48,7 @@ Planned:
 
 ### Minimum Requirements
 - Windows 10
-- .NET Desktop Runtime 5 (installed on demand)
+- .NET Desktop Runtime 6 (installed on demand)
 - OpenGL 4.5 capable graphics card
 
 ### Downloads
@@ -54,19 +56,19 @@ Get the latest installer or portable version **[HERE](https://github.com/bezo97/
 Previous versions can be found on the [Releases](https://github.com/bezo97/IFSRenderer/releases) tab.
 
 ### Build instructions
-You may build the project yourself using Visual Studio 2019 (with .NET Desktop Development workload).
+You may build the project yourself using Visual Studio 2022 (with .NET Desktop Development workload).
 Since the default transforms are hosted in a separate repo, use the `--recurse-submodules` switch when cloning:  
 ```
 git clone --recurse-submodules https://github.com/bezo97/IFSRenderer.git
 ```
-The Setup project uses a [VS extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects), 
+The Setup project uses a [VS extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects), 
 which is not required to build the portable IFSRenderer executable. You can ignore the "unsupported" warning and keep the Setup project unloaded.
 
 ## 🕹️ Usage
 
 ### Using the editor
 
-Beginners should start with the *[Getting Started Guide](https://github.com/bezo97/IFSRenderer/wiki)*. See the [Wiki](https://github.com/bezo97/IFSRenderer/wiki) for more.
+Beginners should start with the *[Getting Started Guide](https://github.com/bezo97/IFSRenderer/wiki/Getting-Started-Guide)*. See the [Wiki](https://github.com/bezo97/IFSRenderer/wiki) for more.
 
 ### Using the library
 Add the [latest NuGet package](https://www.nuget.org/packages/IFSEngine/) to your project. Here are some getting-started snippets.
