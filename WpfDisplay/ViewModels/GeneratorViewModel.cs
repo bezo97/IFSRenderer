@@ -26,20 +26,11 @@ namespace WpfDisplay.ViewModels
         public bool MutatePalette { get => options.MutatePalette; set => SetProperty(ref options.MutatePalette, value); }
         public bool MutateColoring { get => options.MutateColoring; set => SetProperty(ref options.MutateColoring, value); }
 
-        //Linq magic to split an array into arrays of 3
-        //This makes binding the thumbnails to the 3-wide gallery of images easy.
-        //based on https://stackoverflow.com/questions/11207526/how-to-split-an-array-into-chunks-of-specific-size
+        //n-wide grid gallery of images
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>
-            workspace.PinnedIFS.ToArray()
-            .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 1)
-            .Select(grp => grp.Select(x => x.Value));
-
+            workspace.PinnedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(1);
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
-            workspace.GeneratedIFS.ToArray()
-            .Select((s, i) => new { Value = new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.ContainsKey(s) ? workspace.Thumbnails[s] : null), Index = i })//get thumbnail and index
-            .GroupBy(x => x.Index / 7)
-            .Select(grp => grp.Select(x => x.Value));
+            workspace.GeneratedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(7);
 
         public GeneratorViewModel(MainViewModel mainvm)
         {

@@ -548,7 +548,7 @@ namespace IFSEngine.Rendering
 
                         AdjustWorkloadSize();
 
-                        bool isPerceptuallyEqualFrame = MathExtensions.IsPow2(dispatchCnt);
+                        bool isPerceptuallyEqualFrame = BitOperations.IsPow2(dispatchCnt);
                         if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                         {
                             //render image from histogram
