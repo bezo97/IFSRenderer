@@ -51,7 +51,7 @@ struct p_state
 	float color_index;
 	float dummy0;
 	int iterator_index;
-	int warmup_cnt;
+	int iteration_depth;
 };
 
 //Shader Storage Buffer Objects
@@ -228,9 +228,11 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 		(normalizedPoint.y * ratio + 1) * height / 2.0f - 0.5);
 }
 
-vec3 apply_transform(Iterator iter, vec3 p_input, inout uint next)
+vec3 apply_transform(Iterator iter, p_state _p_input, inout uint next)
 {
-	vec3 p = p_input;
+	//variables available in transforms:
+	vec3 p = _p_input.pos.xyz;
+	int iter_depth = _p_input.iteration_depth;
 
 	//snippets inserted on initialization
 	@transforms
@@ -316,7 +318,7 @@ p_state reset_state(inout uint next)
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
-	p.warmup_cnt = 0;
+	p.iteration_depth = 0;
 	return p;
 }
 
@@ -397,10 +399,10 @@ void main() {
 		Iterator selected_iterator = iterators[p.iterator_index];
 
 		vec4 p0_pos = p.pos;
-		vec3 p_ret = apply_transform(selected_iterator, p.pos.xyz, next);//transform here
+		vec3 p_ret = apply_transform(selected_iterator, p, next);//transform here
 		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
-		p.warmup_cnt++;
+		p.iteration_depth++;
 
 		if (selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
@@ -411,7 +413,7 @@ void main() {
 		vec2 proj_offset = projf - vec2(proj);
 	
 		//lands on the histogram && warmup
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.iteration_depth))
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 

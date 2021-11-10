@@ -79,7 +79,7 @@ namespace WpfDisplay.Models
         private void LoadTransformLibrary()
         {
             loadedTransforms = Directory
-                .GetFiles(TransformsDirectoryPath)
+                .GetFiles(TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
                 .Select(file => Transform.FromFile(file))
                 .ToList();
             OnPropertyChanged(nameof(LoadedTransforms));
