@@ -124,9 +124,10 @@ namespace WpfDisplay.ViewModels
                     await workspace.LoadParamsFileAsync(path);
                     workspace.UpdateStatusText($"Parameters loaded from {path}");
                 }
-                catch (SerializationException)
+                catch (SerializationException ex)
                 {
-                    workspace.UpdateStatusText($"ERROR - Failed to load params: {path}");
+                    string logFilePath = App.LogException(ex);
+                    workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
                 }
             }
         }

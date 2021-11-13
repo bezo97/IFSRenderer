@@ -85,10 +85,11 @@ namespace IFSEngine.WPF.InteractiveDisplay
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    if(Mouse.OverrideCursor == null)
+                    if (Mouse.OverrideCursor == null)
+                    {
                         Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
-                    else //HACK
-                         InteractionStartedCommand?.Execute(null);
+                        InteractionStartedCommand?.Execute(null);//Hack
+                    }
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));

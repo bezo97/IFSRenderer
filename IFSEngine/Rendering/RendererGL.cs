@@ -342,6 +342,7 @@ namespace IFSEngine.Rendering
                 invalidHistogramBuffer = false;
                 dispatchCnt = 0;
                 TotalIterations = 0;
+                InvalidateDisplay();
                 InvalidatePointsStateBuffer();//needed when IterationDepth is high
 
                 //update settings struct

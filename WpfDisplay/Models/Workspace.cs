@@ -88,8 +88,8 @@ namespace WpfDisplay.Models
         public void LoadParams(IFS ifs)
         {
             TakeSnapshot();
+            renderer?.LoadParams(ifs);
             IFS = ifs;
-            renderer?.LoadParams(IFS);
             if (!Renderer.IsRendering)
                 Renderer.StartRenderLoop();
         }

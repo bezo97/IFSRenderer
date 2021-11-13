@@ -29,6 +29,17 @@ namespace WpfDisplay.ViewModels
         }
         public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
 
+        public string PreviewResolutionText 
+        {
+            get
+            {
+                if (workspace.IFS.ImageResolution.Width == workspace.Renderer.HistogramWidth)
+                    return null;
+                else
+                    return $"{workspace.Renderer.HistogramWidth} x {workspace.Renderer.HistogramHeight}";
+            }
+        }
+
         public int DEMaxRadius
         {
             get => workspace.Renderer.DEMaxRadius;
@@ -175,6 +186,7 @@ namespace WpfDisplay.ViewModels
             //EnableTAA = true;
             //EnablePerceptualUpdates = false;
             MaxFilterRadius = 0;
+            OnPropertyChanged(nameof(PreviewResolutionText));
         }
 
         private AsyncRelayCommand _finalPresetCommand;
@@ -186,6 +198,7 @@ namespace WpfDisplay.ViewModels
             EnableDE = false;
             MaxFilterRadius = 3;
             workspace.Renderer.SetHistogramScale(1.0);
+            OnPropertyChanged(nameof(PreviewResolutionText));
         }
 
     }

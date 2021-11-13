@@ -13,6 +13,7 @@
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+        <conv:NullVisibilityConverter x:Key="NullVisConv"/>
     </UserControl.Resources>
     <md:Card Padding="6" Margin="8">
         <StackPanel>
@@ -54,6 +55,9 @@
                             ToolTip="Image height"
                             Grid.Column="2" Margin="8" UpdateValueOnEnterKey="True"/>
                     </Grid>
+                    <TextBlock Margin="5" HorizontalAlignment="Center" Visibility="{Binding PreviewResolutionText, Converter={StaticResource NullVisConv}}">
+                        Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
+                    </TextBlock>
                 </StackPanel>
             </md:Card>
             <md:Card Padding="3" Margin="4">
