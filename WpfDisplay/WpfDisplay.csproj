@@ -11,7 +11,7 @@
 		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
 		<Win32Resource />
 		<Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
-		<Version>1.0.0-pre.1</Version>
+		<Version>1.0.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	</PropertyGroup>
 
