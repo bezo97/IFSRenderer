@@ -21,7 +21,7 @@
 [![library](https://img.shields.io/nuget/vpre/IFSEngine?label=library)](https://www.nuget.org/packages/IFSEngine/)
 [![dotnet](https://img.shields.io/badge/.NET%206-WPF-blueviolet)]()  
 
-[![help](https://img.shields.io/github/labels/bezo97/IFSRenderer/help-wanted)](https://github.com/bezo97/IFSRenderer/issues)
+[![help](https://img.shields.io/github/issues/bezo97/IFSRenderer/help-wanted)](https://github.com/bezo97/IFSRenderer/issues)
 [![license](https://img.shields.io/github/license/bezo97/IFSRenderer)](/LICENSE)
 
 </div>
