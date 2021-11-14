@@ -21,14 +21,18 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
+ - IFSRenderer version: [e.g. 1.0.0 portable]
  - OS: [e.g. latest Windows 10]
- - Videocard [e.g. Nvidia GTX 970]
+ - Videocard: [e.g. Nvidia GTX 970]
 
 **Crash log**
 If the bug causes a crash, a useful log file can be found in either
 - the Logs directory (portable version)
 - or at C:\Users\username\AppData\Roaming\IFSRenderer\Logs\ (installer version)
-Use pastebin.com to attach a link to your report.
+Use pastebin.com / gist to attach a link to your report.
+
+**Additional files**
+- If applicable, use pastebin.com / gist to attach *.ifsjson or *.ifstf files to your report.
 
 **Additional context**
 Add any other context about the problem here.
