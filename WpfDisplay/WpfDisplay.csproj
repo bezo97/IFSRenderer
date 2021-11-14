@@ -12,20 +12,16 @@
 		<Win32Resource />
 		<Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
 		<Version>1.0.0-pre.1</Version>
-		<PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">
 		<DefineConstants>TRACE;PORTABLE</DefineConstants>
-		<DebugType>none</DebugType>
-		<DebugSymbols>false</DebugSymbols>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseInstaller|AnyCPU'">
 		<DefineConstants>TRACE;INSTALLER</DefineConstants>
-		<DebugType>none</DebugType>
-		<DebugSymbols>false</DebugSymbols>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
