@@ -21,7 +21,13 @@ namespace WpfDisplay.Views
         {
             InitializeComponent();
         }
-        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+#if INSTALLER
+        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (installed)";
+#endif
+#if PORTABLE
+        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (portable)";
+#endif
 
         private ICommand _okCommand;
         public ICommand OkCommand =>
