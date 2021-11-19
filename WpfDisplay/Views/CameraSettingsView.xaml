@@ -31,7 +31,7 @@
             </Grid>
             <!--TODO: Orthogrpahic, Stereographic, 360 Equirectangular etc. modes-->
             <local:ValueSlider ValueName="🔬 Field of View"
-                               MinValue="1" MaxValue="179" Increment="1"
+                               MinValue="1" MaxValue="179" Increment="0.1"
                                Value="{Binding DataContext.FieldOfView, ElementName=cameraSettingsView}"
                                ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
                 <!--<local:ValueSlider.ToolTip>
