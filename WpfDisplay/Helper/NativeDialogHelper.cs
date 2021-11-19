@@ -8,7 +8,7 @@ namespace WpfDisplay.Helper
         private static readonly string ParamsFilter = "IFSRenderer params|*.ifsjson;*.json";
         private static readonly string ImageFilter = "PNG Images|*.png";
         private static readonly string ExrFilter = "EXR Images|*.exr";
-        private static readonly string PaletteFilter = "Flame Palettes|*.gradient;*.ugr";
+        private static readonly string PaletteFilter = "Flame Palettes|*.gradient";
         private static readonly Guid OpenParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
         private static readonly Guid SaveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
         private static readonly Guid ExportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
