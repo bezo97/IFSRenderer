@@ -103,16 +103,17 @@ namespace WpfDisplay.Views
             if (e.Key == Key.Enter)
             {
                 e.Handled = true;
-                Editing = false;
-                valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                //valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                StartEditing();
             }
             else if (e.Key == Key.Escape)
             {
                 e.Handled = true;
                 Value = lastv;//restore
+                valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
                 Editing = false;
             }
-        }
+         }
 
         private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -158,9 +159,7 @@ namespace WpfDisplay.Views
 
             if (Math.Abs(delta)<1)
             {//click
-                Editing = true;
-                valueEditor.Focus();
-                valueEditor.SelectAll();
+                StartEditing();
             }
             Mouse.OverrideCursor = null;//no override
             displayLabel.ReleaseMouseCapture();
@@ -174,7 +173,21 @@ namespace WpfDisplay.Views
         public static readonly DependencyProperty ValueChangedCommandProperty =
             DependencyProperty.Register("ValueChangedCommand", typeof(RelayCommand), typeof(ValueSlider), new PropertyMetadata(null));
 
+        private void StartEditing()
+        {
+            valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            lastv = Value;
+            Editing = true;
+            valueEditor.Focus();
+            valueEditor.SelectAll();
+        }
 
-
+        private void valueSlider_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (e.OldFocus != e.NewFocus)
+            {
+                StartEditing();
+            }
+        }
     }
 }
