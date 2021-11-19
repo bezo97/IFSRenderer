@@ -17,8 +17,12 @@
         <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
     </Window.CommandBindings>
     <Window.InputBindings>
-        <KeyBinding Gesture="CTRL+P" Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}"/>
+        <KeyBinding Gesture="CTRL+P" Command="{Binding LoadPaletteCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding ReloadTransformsCommand}"/>
+        <KeyBinding Gesture="CTRL+W" Command="{Binding SelectedIterator.FlipWeightCommand}"/>
+        <KeyBinding Gesture="CTRL+O" Command="{Binding SelectedIterator.FlipOpacityCommand}"/>
+        <KeyBinding Gesture="CTRL+D" Command="{Binding DuplicateSelectedCommand}"/>
+        <KeyBinding Gesture="DELETE" Command="{Binding RemoveSelectedCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>

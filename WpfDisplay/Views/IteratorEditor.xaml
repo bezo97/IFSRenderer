@@ -20,13 +20,13 @@
         <StackPanel Orientation="Horizontal">
             <Button 
                     Command="{Binding DuplicateCommand}"
-                    ToolTip="Duplicate"
+                    ToolTip="Duplicate (Ctrl+D)"
                     FontWeight="Bold" Margin="4" Padding="6">
                 🗎🗎
             </Button>
             <Button 
                     Command="{Binding RemoveCommand}"
-                    ToolTip="Remove"
+                    ToolTip="Remove (Delete)"
                     Margin="4" Padding="6">
                 🗑️
             </Button>
@@ -40,7 +40,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                     Command="{Binding FlipWeightCommand}"
-                    ToolTip="Enable/Disable"
+                    ToolTip="Enable/Disable (Ctrl+W)"
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
@@ -60,7 +60,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                     Command="{Binding FlipOpacityCommand}"
-                    ToolTip="Show/Hide"
+                    ToolTip="Show/Hide (Ctrl+O)"
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
                 </Button>

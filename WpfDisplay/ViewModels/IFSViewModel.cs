@@ -221,22 +221,36 @@ namespace WpfDisplay.ViewModels
         public RelayCommand RemoveSelectedCommand => _removeSelectedCommand
             ??= new(() =>
             {
-                workspace.TakeSnapshot();
-                workspace.IFS.RemoveIterator(SelectedIterator.iterator);
-                workspace.Renderer.InvalidateParamsBuffer();
-                SelectedIterator = null;
-                HandleIteratorsChanged();
+                if (SelectedIterator != null)
+                {
+                    workspace.TakeSnapshot();
+                    workspace.IFS.RemoveIterator(SelectedIterator.iterator);
+                    workspace.Renderer.InvalidateParamsBuffer();
+                    SelectedIterator = null;
+                    HandleIteratorsChanged();
+                }
+                else if(SelectedConnection != null)
+                {
+                    workspace.TakeSnapshot();
+                    SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;
+                    workspace.Renderer.InvalidateParamsBuffer();
+                    SelectedConnection = null;
+                    HandleIteratorsChanged();
+                }
             });
 
         private RelayCommand _duplicateSelectedCommand;
         public RelayCommand DuplicateSelectedCommand => _duplicateSelectedCommand
             ??= new(() =>
             {
-                workspace.TakeSnapshot();
-                Iterator dupe = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
-                workspace.Renderer.InvalidateParamsBuffer();
-                HandleIteratorsChanged();
-                SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
+                if (SelectedIterator != null)
+                {
+                    workspace.TakeSnapshot();
+                    Iterator dupe = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
+                    workspace.Renderer.InvalidateParamsBuffer();
+                    HandleIteratorsChanged();
+                    SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
+                }
             });
 
         private AsyncRelayCommand _loadPaletteCommand;
