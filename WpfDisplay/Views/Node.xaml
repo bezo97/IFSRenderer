@@ -17,7 +17,10 @@
         <TranslateTransform X="{Binding RenderTranslateValue}" Y="{Binding RenderTranslateValue}"/>
     </UserControl.RenderTransform>
     <Grid>
-        <Ellipse Stretch="Fill" StrokeThickness="2" Cursor="Hand">
+        <Ellipse Stretch="Fill" StrokeThickness="3" Cursor="Hand">
+            <Ellipse.Stroke>
+                <SolidColorBrush Color="{Binding ColorRGB}"/>
+            </Ellipse.Stroke>
             <Ellipse.Fill>
                 <RadialGradientBrush>
                     <GradientStop Color="{Binding OpacityColor, UpdateSourceTrigger=PropertyChanged}" Offset="0.98"/>

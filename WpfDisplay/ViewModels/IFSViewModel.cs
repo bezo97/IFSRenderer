@@ -269,6 +269,7 @@ namespace WpfDisplay.ViewModels
                         workspace.IFS.Palette = picker.SelectedPalette;
                         workspace.Renderer.InvalidateParamsBuffer();
                         OnPropertyChanged(nameof(Palette));
+                        Redraw();//update ColorRGB prop for nodes
                     }
                 }
             });

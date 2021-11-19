@@ -94,6 +94,7 @@ namespace WpfDisplay.ViewModels
             {
                 iterator.ColorIndex = value;
                 OnPropertyChanged(nameof(ColorIndex));
+                OnPropertyChanged(nameof(ColorRGB));
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
@@ -108,6 +109,15 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
+        public Color ColorRGB {
+            get {
+                var colors = workspace.IFS.Palette.Colors;
+                var c = colors[(int)(colors.Count * (ColorIndex - Math.Floor(ColorIndex)))];
+                return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
+            }
+        }
+
         public float Mix
         {
             get => (float)iterator.Mix;
@@ -118,6 +128,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
         public float Add
         {
             get => (float)iterator.Add;
