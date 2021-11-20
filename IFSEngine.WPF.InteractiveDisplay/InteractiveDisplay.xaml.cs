@@ -83,7 +83,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
         {
             if (IsInteractionEnabled)
             {
-                if (e.Button == MouseButtons.Left)
+                if (e.Button == MouseButtons.Left && GLControl1.Capture)
                 {
                     if (Mouse.OverrideCursor == null)
                     {
@@ -141,6 +141,5 @@ namespace IFSEngine.WPF.InteractiveDisplay
                 }
             }
         }
-
     }
 }
