@@ -36,6 +36,34 @@ namespace IFSEngine.WPF.InteractiveDisplay
         public static readonly DependencyProperty InteractionFinishedCommandProperty =
             DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
 
+
+
+        public bool InvertRotationAxisX
+        {
+            get { return (bool)GetValue(InvertRotationAxisXProperty); }
+            set { SetValue(InvertRotationAxisXProperty, value); }
+        }
+        public static readonly DependencyProperty InvertRotationAxisXProperty =
+            DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+
+        public bool InvertRotationAxisY
+        {
+            get { return (bool)GetValue(InvertRotationAxisYProperty); }
+            set { SetValue(InvertRotationAxisYProperty, value); }
+        }
+        public static readonly DependencyProperty InvertRotationAxisYProperty =
+            DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+
+        public bool InvertRotationAxisZ
+        {
+            get { return (bool)GetValue(InvertRotationAxisZProperty); }
+            set { SetValue(InvertRotationAxisZProperty, value); }
+        }
+        public static readonly DependencyProperty InvertRotationAxisZProperty =
+            DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+
+
+
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
@@ -90,8 +118,14 @@ namespace IFSEngine.WPF.InteractiveDisplay
                         Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
                         InteractionStartedCommand?.Execute(null);//Hack
                     }
+
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
+                    if (InvertRotationAxisX)
+                        yawDelta = -yawDelta;
+                    if (InvertRotationAxisY)
+                        pitchDelta = -pitchDelta;
+
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
                     Renderer.InvalidateHistogramBuffer();
 
@@ -136,6 +170,13 @@ namespace IFSEngine.WPF.InteractiveDisplay
                         ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
                         ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                     );
+                    if(InvertRotationAxisX)
+                        direction.X = -direction.X;
+                    if (InvertRotationAxisY)
+                        direction.Y = -direction.Y;
+                    if (InvertRotationAxisZ)
+                        direction.Z = -direction.Z;
+
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(magnitude * direction);
                     Renderer.InvalidateHistogramBuffer();
                 }
