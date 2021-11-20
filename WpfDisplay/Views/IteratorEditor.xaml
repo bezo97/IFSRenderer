@@ -124,21 +124,9 @@
                     </DataTemplate>
                     <!--vec3-->
                     <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">
-                        <StackPanel DataContext="{Binding}" x:Name="dummy">
-                            <Label Content="{Binding Name}" />
-                            <local:ValueSlider
-                                    Increment="0.001"
-                                    Value="{Binding DataContext.ValueX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                            <local:ValueSlider
-                                    Increment="0.001"
-                                    Value="{Binding DataContext.ValueY, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                            <local:ValueSlider
-                                    Increment="0.001"
-                                    Value="{Binding DataContext.ValueZ, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                        </StackPanel>
+                        <local:Vec3Control 
+                            Increment="0.001"
+                            ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
                     </DataTemplate>
                 </ItemsControl.Resources>
             </ItemsControl>

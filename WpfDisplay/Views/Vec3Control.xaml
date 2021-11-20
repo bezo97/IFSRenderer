@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="WpfDisplay.Views.Vec3Control"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             mc:Ignorable="d" x:Name="vec3Control"
+             d:DataContext="{d:DesignInstance Type=vm:Vec3ParamViewModel}">
+    <StackPanel>
+        <Label Content="{Binding Name}"/>
+        <local:ValueSlider
+            Increment="{Binding Increment, ElementName=vec3Control}"
+            Value="{Binding DataContext.ValueX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
+            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
+        <local:ValueSlider
+            Increment="{Binding Increment, ElementName=vec3Control}"
+            Value="{Binding DataContext.ValueY, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
+            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
+        <local:ValueSlider
+            Increment="{Binding Increment, ElementName=vec3Control}"
+            Value="{Binding DataContext.ValueZ, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
+            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
+    </StackPanel>
+</UserControl>
