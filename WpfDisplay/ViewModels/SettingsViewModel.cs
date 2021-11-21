@@ -22,11 +22,7 @@ namespace WpfDisplay.ViewModels
         private void OkDialog()
         {
             Settings.Default.Save();//writes user.config in AppData
-            mainvm.workspace.Renderer.EnablePerceptualUpdates = PerceptuallyUniformUpdates ?? false;
-            mainvm.workspace.Renderer.SetWorkgroupCount(WorkgroupCount).Wait();
-            mainvm.workspace.Renderer.TargetFramerate = TargetFramerate;
-            mainvm.workspace.CurrentUser.Name = AuthorName;
-            mainvm.workspace.CurrentUser.Link = AuthorLink;
+            mainvm.workspace.LoadUserSettings();
             SettingsSaved?.Invoke(this, null);
         }
 
@@ -106,6 +102,36 @@ namespace WpfDisplay.ViewModels
             {
                 Settings.Default.WorkgroupCount = value;
                 OnPropertyChanged(nameof(WorkgroupCount));
+            }
+        }
+
+        public bool? InvertAxisX
+        {
+            get => Settings.Default.InvertAxisX;
+            set
+            {
+                Settings.Default.InvertAxisX = value ?? false;
+                OnPropertyChanged(nameof(InvertAxisX));
+            }
+        }
+
+        public bool? InvertAxisY
+        {
+            get => Settings.Default.InvertAxisY;
+            set
+            {
+                Settings.Default.InvertAxisY = value ?? false;
+                OnPropertyChanged(nameof(InvertAxisY));
+            }
+        }
+
+        public bool? InvertAxisZ
+        {
+            get => Settings.Default.InvertAxisZ;
+            set
+            {
+                Settings.Default.InvertAxisZ = value ?? false;
+                OnPropertyChanged(nameof(InvertAxisZ));
             }
         }
     }

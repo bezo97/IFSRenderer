@@ -22,10 +22,11 @@ namespace WpfDisplay.Models
         private readonly IFSHistoryTracker tracker = new();
         private List<Transform> loadedTransforms = new();
 
-        public Author CurrentUser { get; set; } = Author.Unknown;
-        public IReadOnlyCollection<Transform> LoadedTransforms => loadedTransforms;
         public event EventHandler<string> StatusTextChanged;
         public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
+        public IReadOnlyCollection<Transform> LoadedTransforms => loadedTransforms;
+        public Author CurrentUser { get; set; } = Author.Unknown;
+        public bool InvertAxisX, InvertAxisY, InvertAxisZ;
 
         private RendererGL renderer;
         public RendererGL Renderer
@@ -57,15 +58,7 @@ namespace WpfDisplay.Models
             Renderer.Initialize(loadedTransforms);
             IFS = new IFS();
             Renderer.LoadParams(ifs);
-            //Load user settings
-            Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
-            Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
-            Renderer.TargetFramerate = Settings.Default.TargetFramerate;
-            CurrentUser = new Author
-            {
-                Name = Settings.Default.AuthorName,
-                Link = Settings.Default.AuthorLink
-            };
+            LoadUserSettings();
         }
 
         public async Task ReloadTransforms()
@@ -155,6 +148,21 @@ namespace WpfDisplay.Models
         public void TakeSnapshot()
         {
             tracker.TakeSnapshot(IFS);
+        }
+
+        public void LoadUserSettings()
+        {
+            Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
+            Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
+            Renderer.TargetFramerate = Settings.Default.TargetFramerate;
+            InvertAxisX = Settings.Default.InvertAxisX;
+            InvertAxisY = Settings.Default.InvertAxisY;
+            InvertAxisZ = Settings.Default.InvertAxisZ;
+            CurrentUser = new Author
+            {
+                Name = Settings.Default.AuthorName,
+                Link = Settings.Default.AuthorLink
+            };
         }
 
         public void UpdateStatusText(string statusText)

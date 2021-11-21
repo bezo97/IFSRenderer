@@ -46,6 +46,10 @@ namespace WpfDisplay.ViewModels
         public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
 
         public bool IsColorPickerEnabled => !TransparentBackground;
+        public bool InvertAxisX => workspace.InvertAxisX;
+        public bool InvertAxisY => workspace.InvertAxisY;
+        public bool InvertAxisZ => workspace.InvertAxisZ;
+
 
         public string WindowTitle => workspace.IFS is null ? "IFSRenderer" : $"{workspace.IFS.Title} - IFSRenderer";
         public string IFSTitle

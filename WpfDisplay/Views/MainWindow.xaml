@@ -126,11 +126,11 @@
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
                 <Grid>
-                    <disp:InteractiveDisplay
+                    <disp:InteractiveDisplay x:Name="mainDisplay"
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
-                        x:Name="mainDisplay"
                         InteractionStartedCommand="{Binding TakeSnapshotCommand}"
-                        InteractionFinishedCommand="{Binding InteractionFinishedCommand}"/>
+                        InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
+                        InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
                     <ProgressBar
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
                         Width="100" Height="25"

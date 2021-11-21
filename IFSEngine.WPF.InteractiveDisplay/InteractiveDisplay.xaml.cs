@@ -36,31 +36,35 @@ namespace IFSEngine.WPF.InteractiveDisplay
         public static readonly DependencyProperty InteractionFinishedCommandProperty =
             DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
 
-
-
+        private bool invertX;
         public bool InvertRotationAxisX
         {
             get { return (bool)GetValue(InvertRotationAxisXProperty); }
             set { SetValue(InvertRotationAxisXProperty, value); }
         }
         public static readonly DependencyProperty InvertRotationAxisXProperty =
-            DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+            DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay),
+                new PropertyMetadata(false, (a,b) => { ((InteractiveDisplay)a).invertX = (bool)b.NewValue; }));
 
+        private bool invertY;
         public bool InvertRotationAxisY
         {
             get { return (bool)GetValue(InvertRotationAxisYProperty); }
             set { SetValue(InvertRotationAxisYProperty, value); }
         }
         public static readonly DependencyProperty InvertRotationAxisYProperty =
-            DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+            DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay),
+                new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertY = (bool)b.NewValue; }));
 
+        private bool invertZ;
         public bool InvertRotationAxisZ
         {
             get { return (bool)GetValue(InvertRotationAxisZProperty); }
             set { SetValue(InvertRotationAxisZProperty, value); }
         }
         public static readonly DependencyProperty InvertRotationAxisZProperty =
-            DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay), new PropertyMetadata(false));
+            DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay),
+                new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertZ = (bool)b.NewValue; }));
 
 
 
@@ -84,7 +88,6 @@ namespace IFSEngine.WPF.InteractiveDisplay
         public InteractiveDisplay()
         {
             InitializeComponent();
-
             keyboard = new KeyboardController(this);
             keyboard.KeyboardTick += KeydownHandler;
         }
@@ -121,9 +124,9 @@ namespace IFSEngine.WPF.InteractiveDisplay
 
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
-                    if (InvertRotationAxisX)
+                    if (invertX)
                         yawDelta = -yawDelta;
-                    if (InvertRotationAxisY)
+                    if (invertY)
                         pitchDelta = -pitchDelta;
 
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
@@ -170,11 +173,11 @@ namespace IFSEngine.WPF.InteractiveDisplay
                         ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
                         ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
                     );
-                    if(InvertRotationAxisX)
+                    if (invertX)
                         direction.X = -direction.X;
-                    if (InvertRotationAxisY)
+                    if (invertY)
                         direction.Y = -direction.Y;
-                    if (InvertRotationAxisZ)
+                    if (invertZ)
                         direction.Z = -direction.Z;
 
                     Renderer.LoadedParams.Camera.RotateWithSensitivity(magnitude * direction);
