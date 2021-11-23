@@ -141,4 +141,4 @@ IFSRenderer is licensed under [**GPLv3**](/LICENSE).
 ### Contributors
 
 [bezo97](https://github.com/bezo97) (Creator & Maintainer)  
-Contributors: [AliBee](https://github.com/BenjaminBako), [Sekkmer](https://github.com/TiborDravecz), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)
+Contributors: [AliBee](https://github.com/BenjaminBako), [Rychveldir](https://www.deviantart.com/rychveldir), [Sekkmer](https://github.com/TiborDravecz), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)

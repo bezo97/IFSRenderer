@@ -16,7 +16,7 @@
         ShowInTaskbar="False" Topmost="True"
         WindowStyle="ToolWindow"
         Title="About IFSRenderer"
-        Height="450" Width="600" MinHeight="450" MinWidth="600"
+        Height="500" Width="600" MinHeight="500" MinWidth="600"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -45,17 +45,19 @@
                     <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
                     <Label>Linked libraries</Label>
                     <TextBlock TextWrapping="Wrap">
-                        <Hyperlink NavigateUri="https://github.com/JamesNK/Newtonsoft.Json">Json.NET</Hyperlink>
+                        <Hyperlink NavigateUri="https://github.com/JamesNK/Newtonsoft.Json">Json.NET</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit">Material Design Themes</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/CommunityToolkit/WindowsCommunityToolkit">Mvvm Toolkit</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/opentk/opentk">OpenToolkit</Hyperlink>, 
-                        <Hyperlink NavigateUri="https://github.com/dotnetprojects/WpfExtendedToolkit">WPF Toolkit</Hyperlink>, 
+                        <Hyperlink NavigateUri="https://github.com/amerkoleci/Vortice.Windows">Vortice.XInput</Hyperlink>,
+                        <Hyperlink NavigateUri="https://github.com/dotnetprojects/WpfExtendedToolkit">WPF Toolkit</Hyperlink>
                     </TextBlock>
                     <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
                     <Label>Contributors</Label>
                     <TextBlock TextWrapping="Wrap">
                         <Hyperlink NavigateUri="https://github.com/bezo97">@bezo97</Hyperlink> (Maintainer), 
                         <Hyperlink NavigateUri="https://github.com/BenjaminBako">@AliBee42</Hyperlink>, 
+                        <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir">@Rychveldir</Hyperlink>,
                         <Hyperlink NavigateUri="https://github.com/TiborDravecz">@Sekkmer</Hyperlink>
                     </TextBlock>
                 </StackPanel>
