@@ -130,6 +130,7 @@
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
                         InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                         InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
+                        Sensitivity="1.0"
                         InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
                     <ProgressBar
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"

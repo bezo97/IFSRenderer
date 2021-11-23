@@ -6,27 +6,29 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
-namespace WpfDisplay.Helper
+namespace IFSEngine.WPF.InteractiveDisplay
 {
     //KeyboardDelay workaround
     //https://codereview.stackexchange.com/questions/44404/preventing-keydown-delay
-    public class KeyboardController
-    {
-        public event EventHandler KeyboardTick;
-        private Timer timer;
+    public class KeyboardHelper
+    {        
         private HashSet<Key> pressedKeys;
         private readonly object pressedKeysLock = new object();
 
-        public KeyboardController(UIElement c)
+        public KeyboardHelper(UIElement c)
         {
+            c.LostFocus += LostFocus;
             c.KeyDown += WinKeyDown;
             c.KeyUp += WinKeyUp;
             pressedKeys = new HashSet<Key>();
+        }
 
-            timer = new Timer();
-            timer.Elapsed += kbTimer_Tick;
-            timer.Interval = 10;//ms
-            timer.Start();
+        private void LostFocus(object sender, RoutedEventArgs e)
+        {
+            lock (pressedKeysLock)
+            {
+                pressedKeys.Clear();
+            }
         }
 
         public bool IsKeyDown(Key key)
@@ -53,9 +55,5 @@ namespace WpfDisplay.Helper
             }
         }
 
-        private void kbTimer_Tick(object sender, EventArgs e)
-        {   
-            KeyboardTick?.Invoke(this, EventArgs.Empty);
-        }
     }
 }

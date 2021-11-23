@@ -9,8 +9,6 @@ namespace IFSEngine.Model
     {
         public Quaternion Orientation { get; set; } = Quaternion.Identity;//no rotation
         public Vector3 Position { get; set; } = new Vector3(0.0f, 0.0f, -10.0f);
-        public float TranslationSensitivity { get; set; } = 0.005f;
-        public float RotationSensitivity { get; set; } = 0.01f;
         public Vector3 RightDirection { get; private set; } = new Vector3(1.0f, 0.0f, 0.0f);
         public Vector3 UpDirection { get; private set; } = new Vector3(0.0f, 1.0f, 0.0f);
         public Vector3 ForwardDirection { get; private set; } = new Vector3(0.0f, 0.0f, 1.0f);
@@ -25,41 +23,28 @@ namespace IFSEngine.Model
 
         /// <summary>
         /// Moves camera position by a translate vector given in camera space.
-        /// The vector is multiplied by <see cref="TranslationSensitivity"/>
         /// </summary>
         /// <param name="translateVector"></param>
-        public void TranslateWithSensitivity(Vector3 translateVector)
+        public void Translate(Vector3 translateVector)
         {
-            translateVector *= TranslationSensitivity;
             Position += RightDirection * translateVector.X
                      + UpDirection * translateVector.Y
                      + ForwardDirection * translateVector.Z;
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rotVector">Yaw, pitch and roll delta values relative to <see cref="CameraBase.RotationSensitivity"/></param>
-        public void RotateWithSensitivity(Vector3 rotVector)
-        {
-            float rotSpeed = RotationSensitivity * FieldOfView / 180.0f;
-            rotVector = Vector3.Multiply(rotVector, new Vector3(rotSpeed, rotSpeed, RotationSensitivity));
-            RotateBy(rotVector);
-        }
-
-        /// <summary>
         /// Rotates the camera orientation by the specified Euler angles.
         /// </summary>
         /// <param name="rotVector">Euler angle (Yaw, Pitch, Roll) deltas in radians.</param>
-        public void RotateBy(Vector3 rotVector)
+        public void Rotate(Vector3 rotVector)
         {
             Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X,rotVector.Y,rotVector.Z);
             Orientation *= rotq;
             Orientation = Quaternion.Normalize(Orientation);
-            updateDirectionVectors();
+            UpdateDirectionVectors();
         }
 
-        private void updateDirectionVectors()
+        private void UpdateDirectionVectors()
         {
             RightDirection = Vector3.Transform(new Vector3(1.0f, 0.0f, 0.0f), Orientation);
             UpDirection = Vector3.Transform(new Vector3(0.0f, 1.0f, 0.0f), Orientation);
@@ -76,7 +61,7 @@ namespace IFSEngine.Model
 
         internal CameraStruct GetCameraParameters()
         {
-            updateDirectionVectors();
+            UpdateDirectionVectors();
             return new CameraStruct
             {
                 position = new Vector4(Position, 1.0f),

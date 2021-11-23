@@ -4,11 +4,12 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Timers;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
-using WpfDisplay.Helper;
+using System.Windows.Threading;
+using Vortice.XInput;
 
 namespace IFSEngine.WPF.InteractiveDisplay
 {
@@ -66,30 +67,110 @@ namespace IFSEngine.WPF.InteractiveDisplay
             DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay),
                 new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertZ = (bool)b.NewValue; }));
 
-
+        private float sensitivity = 1.0f;
+        public float Sensitivity
+        {
+            get { return (float)GetValue(SensitivityProperty); }
+            set { SetValue(SensitivityProperty, value); }
+        }
+        public static readonly DependencyProperty SensitivityProperty =
+            DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay), 
+                new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a).sensitivity = (float)b.NewValue; }));
 
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
+        const float deadZoneMultiplier = 0.25f;
+        const float thumbstickValMax = 32768.0f;
         private bool IsInteractionEnabled => Renderer is not null && Renderer.IsRendering && Renderer.UpdateDisplayOnRender;
-        private KeyboardController keyboard;
+
+        private readonly Timer controlTimer;
+        private readonly KeyboardHelper keyboard;
         //last mouse position
         private float lastX;
         private float lastY;
-        private readonly Key[] translateKeys = 
-        {
-            Key.W, Key.S, Key.D, Key.A, Key.Q, Key.E
-        };
-        private readonly Key[] rotateKeys = 
-        {
-            Key.I, Key.K, Key.J, Key.L, Key.U, Key.O
-        };
 
         public InteractiveDisplay()
         {
             InitializeComponent();
-            keyboard = new KeyboardController(this);
-            keyboard.KeyboardTick += KeydownHandler;
+            //init keyboard + gamepad input
+            keyboard = new KeyboardHelper(this);
+            controlTimer = new Timer();
+            controlTimer.Elapsed += Control_Tick;
+            controlTimer.Interval = 16;//ms
+            controlTimer.Start();
+        }
+
+        private void Control_Tick(object sender, EventArgs e)
+        {
+            if (IsInteractionEnabled)
+            {
+                //TODO: InteractionStartedCommand?.Execute(null);
+                Vector3 translateVec = new();
+                Vector3 rotateVec = new();
+                float fdDelta = 0;
+
+                //keyboard input
+                translateVec += new Vector3(
+                    (keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0),
+                    (keyboard.IsKeyDown(Key.E) ? 1 : 0) - (keyboard.IsKeyDown(Key.Q) ? 1 : 0),
+                    (keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0)) * 0.005f;
+                rotateVec += new Vector3(
+                    (keyboard.IsKeyDown(Key.L) ? 1 : 0) - (keyboard.IsKeyDown(Key.J) ? 1 : 0),
+                    (keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0),
+                    (keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
+
+                //gamepad input
+                if (XInput.GetState(0, out State s))
+                {
+                    float sideDelta = 0.0f;
+                    if (Math.Abs(s.Gamepad.LeftThumbX + 1) > Gamepad.LeftThumbDeadZone * deadZoneMultiplier)
+                        sideDelta = s.Gamepad.LeftThumbX / thumbstickValMax;
+                    float forwardDelta = 0.0f;
+                    if (Math.Abs(s.Gamepad.LeftThumbY + 1) > Gamepad.LeftThumbDeadZone * deadZoneMultiplier)
+                        forwardDelta = s.Gamepad.LeftThumbY / thumbstickValMax;
+                    float yawDelta = 0.0f;
+                    if (Math.Abs(s.Gamepad.RightThumbX + 1) > Gamepad.RightThumbDeadZone * deadZoneMultiplier)
+                        yawDelta = s.Gamepad.RightThumbX / thumbstickValMax;
+                    float pitchDelta = 0.0f;
+                    if (Math.Abs(s.Gamepad.RightThumbY + 1) > Gamepad.RightThumbDeadZone * deadZoneMultiplier)
+                        pitchDelta = s.Gamepad.RightThumbY / thumbstickValMax;
+                    float rollDelta = 0.0f;
+                    if (s.Gamepad.Buttons.HasFlag(GamepadButtons.LeftShoulder))
+                        rollDelta -= 1.0f;
+                    if (s.Gamepad.Buttons.HasFlag(GamepadButtons.RightShoulder))
+                        rollDelta += 1.0f;
+                    translateVec += new Vector3(sideDelta, 0.0f, forwardDelta) * 0.01f;
+                    rotateVec += new Vector3(yawDelta, pitchDelta, rollDelta * 0.1f) * 0.1f;
+                    fdDelta += s.Gamepad.RightTrigger / 255.0f - s.Gamepad.LeftTrigger / 255.0f;
+                }
+
+                if ((translateVec + rotateVec).Length() + fdDelta == 0.0f)
+                    return;
+
+                //camera speed relates to focus distance
+                float cameraSpeed = (float)Math.Abs(Renderer.LoadedParams.Camera.FocusDistance) * 2;
+                translateVec *= cameraSpeed;
+
+                if (invertX)
+                    rotateVec.X = -rotateVec.X;
+                if (invertY)
+                    rotateVec.Y = -rotateVec.Y;
+                if (invertZ)
+                    rotateVec.Z = -rotateVec.Z;
+
+                //camera rotation speed depends on field of view
+                float rotateSpeed = Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+                rotateVec = Vector3.Multiply(rotateVec, new Vector3(rotateSpeed, rotateSpeed, 1.0f));
+
+                Renderer.LoadedParams.Camera.FocusDistance += fdDelta * Renderer.LoadedParams.Camera.FocusDistance * 0.03;
+                Renderer.LoadedParams.Camera.Translate(translateVec * sensitivity); 
+                Renderer.LoadedParams.Camera.Rotate(rotateVec * sensitivity);
+                Renderer.InvalidateHistogramBuffer();
+
+                Dispatcher.InvokeAsync(() => InteractionFinishedCommand?.Execute(null), DispatcherPriority.Input);
+
+            }
         }
 
         public void AttachRenderer(RendererGL renderer)
@@ -114,7 +195,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
         {
             if (IsInteractionEnabled)
             {
-                if (e.Button == MouseButtons.Left && GLControl1.Capture)
+                if (e.Button == System.Windows.Forms.MouseButtons.Left && GLControl1.Capture)
                 {
                     if (Mouse.OverrideCursor == null)
                     {
@@ -124,12 +205,19 @@ namespace IFSEngine.WPF.InteractiveDisplay
 
                     float yawDelta = e.X - lastX;
                     float pitchDelta = e.Y - lastY;
+
                     if (invertX)
                         yawDelta = -yawDelta;
                     if (invertY)
                         pitchDelta = -pitchDelta;
 
-                    Renderer.LoadedParams.Camera.RotateWithSensitivity(new Vector3(yawDelta, pitchDelta, 0.0f));
+                    //camera rotation speed depends on field of view
+                    float rotateSpeed = Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+                    yawDelta *= rotateSpeed;
+                    pitchDelta *= rotateSpeed;
+
+                    Vector3 rotateVec = new(yawDelta, pitchDelta, 0.0f);
+                    Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * sensitivity);
                     Renderer.InvalidateHistogramBuffer();
 
                     //TODO: Mouse position reset
@@ -147,43 +235,5 @@ namespace IFSEngine.WPF.InteractiveDisplay
             }
         }
 
-        private void KeydownHandler(object sender, EventArgs e)
-        {
-            if (IsInteractionEnabled)
-            {
-                //TODO: InteractionStartedCommand?.Execute(null);
-                if (translateKeys.Any(k => keyboard.IsKeyDown(k)))
-                {
-                    //camera speed relates to focus distance
-                    float magnitude = (float)Renderer.LoadedParams.Camera.FocusDistance * 2;
-                    var direction = new Vector3(
-                        ((keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0)),
-                        ((keyboard.IsKeyDown(Key.E) ? 1 : 0) - (keyboard.IsKeyDown(Key.Q) ? 1 : 0)),
-                        ((keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0))
-                    );
-                    Renderer.LoadedParams.Camera.TranslateWithSensitivity(magnitude * direction);
-                    Renderer.InvalidateHistogramBuffer();
-                }
-
-                if (rotateKeys.Any(k => keyboard.IsKeyDown(k)))
-                {
-                    float magnitude = 3.0f;
-                    var direction = new Vector3(
-                        ((keyboard.IsKeyDown(Key.L) ? 1 : 0) - (keyboard.IsKeyDown(Key.J) ? 1 : 0)),
-                        ((keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0)),
-                        ((keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0))
-                    );
-                    if (invertX)
-                        direction.X = -direction.X;
-                    if (invertY)
-                        direction.Y = -direction.Y;
-                    if (invertZ)
-                        direction.Z = -direction.Z;
-
-                    Renderer.LoadedParams.Camera.RotateWithSensitivity(magnitude * direction);
-                    Renderer.InvalidateHistogramBuffer();
-                }
-            }
-        }
     }
 }
