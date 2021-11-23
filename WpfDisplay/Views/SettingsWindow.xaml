@@ -80,6 +80,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.66*"/>
@@ -97,6 +98,15 @@
                         <CheckBox IsChecked="{Binding InvertAxisY}" ToolTip="Invert Pitch Axis" Margin="10">Y</CheckBox>
                         <CheckBox IsChecked="{Binding InvertAxisZ}" ToolTip="Invert Roll Axis" Margin="10">Z</CheckBox>
                     </StackPanel>
+                    <!--Sensitivity-->
+                    <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Sensitivity
+                    </TextBlock>
+                    <Label Grid.Row="2" Grid.Column="1"
+                        ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
+                        MinValue="0.1" MaxValue="10.0" Increment="0.1"
+                        Value="{Binding DataContext.Sensitivity, ElementName=settingsWindow}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="⏱️ Performance" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
@@ -127,8 +137,7 @@
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
                         ToolTip="Define a target framerate (FPS) for interactive exploration. Default value is 60." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
-                    <local:ValueSlider Grid.Row="2" Grid.Column="3" 
-                        ValueName=""
+                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
                         MinValue="5" MaxValue="144" Increment="30" 
                         Value="{Binding DataContext.TargetFramerate, ElementName=settingsWindow}"/>
                     <!--Workgroup-->
@@ -137,8 +146,7 @@
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
                         ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
-                    <local:ValueSlider Grid.Row="3" Grid.Column="3" 
-                        ValueName=""
+                    <local:ValueSlider Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"
                         MinValue="1" MaxValue="5000" Increment="100" 
                         Value="{Binding DataContext.WorkgroupCount, ElementName=settingsWindow}"/>
                 </Grid>

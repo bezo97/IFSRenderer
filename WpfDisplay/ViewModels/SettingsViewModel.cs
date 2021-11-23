@@ -134,5 +134,15 @@ namespace WpfDisplay.ViewModels
                 OnPropertyChanged(nameof(InvertAxisZ));
             }
         }
+
+        public double Sensitivity
+        {
+            get => Settings.Default.Sensitivity;
+            set
+            {
+                Settings.Default.Sensitivity = value;
+                OnPropertyChanged(nameof(Sensitivity));
+            }
+        }
     }
 }

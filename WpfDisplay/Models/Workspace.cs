@@ -27,6 +27,7 @@ namespace WpfDisplay.Models
         public IReadOnlyCollection<Transform> LoadedTransforms => loadedTransforms;
         public Author CurrentUser { get; set; } = Author.Unknown;
         public bool InvertAxisX, InvertAxisY, InvertAxisZ;
+        public double Sensitivity;
 
         private RendererGL renderer;
         public RendererGL Renderer
@@ -158,6 +159,7 @@ namespace WpfDisplay.Models
             InvertAxisX = Settings.Default.InvertAxisX;
             InvertAxisY = Settings.Default.InvertAxisY;
             InvertAxisZ = Settings.Default.InvertAxisZ;
+            Sensitivity = Settings.Default.Sensitivity;
             CurrentUser = new Author
             {
                 Name = Settings.Default.AuthorName,

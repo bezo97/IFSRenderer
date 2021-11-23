@@ -174,5 +174,17 @@ namespace WpfDisplay.Properties {
                 this["InvertAxisZ"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double Sensitivity {
+            get {
+                return ((double)(this["Sensitivity"]));
+            }
+            set {
+                this["Sensitivity"] = value;
+            }
+        }
     }
 }
