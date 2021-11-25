@@ -334,7 +334,10 @@ namespace IFSEngine.Rendering
             if (invalidHistogramBuffer)
             {
                 if (invalidHistogramResolution)
+                {
                     UpdateHistogramResolution();
+                    GL.UseProgram(computeProgramHandle);
+                }
 
                 //reset accumulation
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, histogramBufferHandle);
