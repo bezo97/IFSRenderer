@@ -17,23 +17,28 @@
     <Window.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="CTRL+M" Command="{Binding PinCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!--<Menu Grid.Row="0">
-            <MenuItem Header="menu1"/>
-        </Menu>-->
+        <Menu Grid.Row="0">
+            <MenuItem Header="📌 Pin Main" 
+                      Command="{Binding PinCommand}"
+                      ToolTip="Pin the fractal that is loaded in the main window. (Ctrl+M)"/>
+        </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="250"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <md:Card Grid.Column="0" Margin="8" Padding="8">
                 <ScrollViewer>
                     <StackPanel>
-                        <Label>Pinned fractals</Label>
+                        <Label>📌 Pinned fractals</Label>
                         <ItemsControl ItemsSource="{Binding PinnedIFSThumbnails}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -46,20 +51,29 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button 
-                                                    Width="200" Height="200"
-                                                    Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
-                                                    CommandParameter="{Binding Key}">
-                                                    <Button.Background>
-                                                        <ImageBrush 
-                                                            ImageSource="{Binding Value}" 
-                                                            Stretch="UniformToFill">
-                                                            <ImageBrush.RelativeTransform>
-                                                                <ScaleTransform ScaleY="-1" CenterY="0.5"/>
-                                                            </ImageBrush.RelativeTransform>
-                                                        </ImageBrush>
-                                                    </Button.Background>
-                                                </Button>
+                                                <DataTemplate.Resources>
+                                                    <ImageBrush x:Key="thumbnailBrush"
+                                                        ImageSource="{Binding Value}"
+                                                        Stretch="UniformToFill">
+                                                        <ImageBrush.RelativeTransform>
+                                                            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                                        </ImageBrush.RelativeTransform>
+                                                    </ImageBrush>
+                                                </DataTemplate.Resources>
+                                                <Grid Width="200" Height="200">
+                                                    <Button
+                                                        Width="200" Height="200"
+                                                        Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
+                                                        CommandParameter="{Binding Key}"
+                                                        Background="{StaticResource thumbnailBrush}">
+                                                    </Button>
+                                                    <Button
+                                                        Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
+                                                        CommandParameter="{Binding Key}"
+                                                        Width="20" Height="20" FontSize="10" Margin="8"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                        Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">📌</Button>
+                                                </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -78,7 +92,7 @@
                 <md:Card Grid.Row="0" Margin="8" Padding="8">
                     <Grid>
                         <StackPanel>
-                            <Label>Mutation options</Label>
+                            <Label>🔮 Mutation options</Label>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto"/>
@@ -119,7 +133,7 @@
                     <ScrollViewer>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <Label>Generated fractals</Label>
+                                <Label>🎲 Generated fractals</Label>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding GeneratedIFSThumbnails}">
                                 <ItemsControl.ItemTemplate>
@@ -135,7 +149,7 @@
                                                 <DataTemplate>
                                                     <Button 
                                                     Width="200" Height="200"
-                                                    Command="{Binding DataContext.PinGeneratedCommand, ElementName=generatorWindow}"
+                                                    Command="{Binding DataContext.PinCommand, ElementName=generatorWindow}"
                                                     CommandParameter="{Binding Key}">
                                                         <Button.Background>
                                                             <ImageBrush 

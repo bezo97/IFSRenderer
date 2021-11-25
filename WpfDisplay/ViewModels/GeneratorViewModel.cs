@@ -25,6 +25,8 @@ namespace WpfDisplay.ViewModels
         public bool MutateParameters { get => options.MutateParameters; set => SetProperty(ref options.MutateParameters, value); }
         public bool MutatePalette { get => options.MutatePalette; set => SetProperty(ref options.MutatePalette, value); }
         public bool MutateColoring { get => options.MutateColoring; set => SetProperty(ref options.MutateColoring, value); }
+        public double MutationChance { get => options.MutationChance; set => SetProperty(ref options.MutationChance, value); }
+        public double MutationStrength { get => options.MutationStrength; set => SetProperty(ref options.MutationStrength, value); }
 
         //n-wide grid gallery of images
         public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>
@@ -60,18 +62,26 @@ namespace WpfDisplay.ViewModels
                 OnPropertyChanged(nameof(GeneratedIFSThumbnails));
             });
 
-        private RelayCommand<IFS> _pinGeneratedCommand;
-        public RelayCommand<IFS> PinGeneratedCommand => 
-            _pinGeneratedCommand ??= new RelayCommand<IFS>((IFS param) =>
+        private RelayCommand<IFS> _pinCommand;
+        public RelayCommand<IFS> PinCommand => 
+            _pinCommand ??= new RelayCommand<IFS>((IFS param) =>
             {
+                if (param == null)//pin ifs from main if commandparam not provided
+                    param = mainvm.workspace.IFS.DeepClone();
                 workspace.PinIFS(param);
-                //TODO: do not start if already processing
                 workspace.processQueue();
+                SendToMainCommand.Execute(param);
+                //TODO: do not start if already processing
                 OnPropertyChanged(nameof(PinnedIFSThumbnails));
             });
 
-        public double MutationChance { get => options.MutationChance; set => SetProperty(ref options.MutationChance, value); }
-        public double MutationStrength { get => options.MutationStrength; set => SetProperty(ref options.MutationStrength, value); }
+        private RelayCommand<IFS> _unpinCommand;
+        public RelayCommand<IFS> UnpinCommand =>
+            _unpinCommand ??= new RelayCommand<IFS>((IFS param) =>
+            {
+                workspace.UnpinIFS(param);
+                OnPropertyChanged(nameof(PinnedIFSThumbnails));
+            });
 
     }
 }
