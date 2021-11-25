@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 
 namespace WpfDisplay.Helper
 {
@@ -56,20 +57,23 @@ namespace WpfDisplay.Helper
             FilePath = OpenParamsDialog.FileName;
             return selected;
         }
-        public static bool ShowSaveParamsDialog(out string FilePath)
+        public static bool ShowSaveParamsDialog(string filenameHint, out string FilePath)
         {
+            SaveParamsDialog.FileName = Path.Combine(SaveParamsDialog.InitialDirectory, filenameHint + ".ifsjson");
             bool selected = SaveParamsDialog.ShowDialog() ?? false;
             FilePath = SaveParamsDialog.FileName;
             return selected;
         }
-        public static bool ShowExportImageDialog(out string FilePath)
+        public static bool ShowExportImageDialog(string filenameHint, out string FilePath)
         {
+            ExportImageDialog.FileName = Path.Combine(ExportImageDialog.InitialDirectory, filenameHint + ".png");
             bool selected = ExportImageDialog.ShowDialog() ?? false;
             FilePath = ExportImageDialog.FileName;
             return selected;
         }
-        public static bool ShowExportExrDialog(out string FilePath)
+        public static bool ShowExportExrDialog(string filenameHint, out string FilePath)
         {
+            ExportExrDialog.FileName = Path.Combine(ExportExrDialog.InitialDirectory, filenameHint + ".exr");
             bool selected = ExportExrDialog.ShowDialog() ?? false;
             FilePath = ExportExrDialog.FileName;
             return selected;

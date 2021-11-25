@@ -104,8 +104,11 @@ namespace WpfDisplay.ViewModels
             _saveParamsCommand ??= new AsyncRelayCommand(OnSaveParamsCommand);
         private async Task OnSaveParamsCommand()
         {
-            if (DialogHelper.ShowSaveParamsDialog(out string path))
+            if (DialogHelper.ShowSaveParamsDialog(workspace.IFS.Title, out string path))
             {
+                if (IFSTitle == "Untitled")//Set the file name as title
+                    IFSTitle = Path.GetFileNameWithoutExtension(path);
+
                 try
                 {
                     await workspace.SaveParamsFileAsync(path);
@@ -192,7 +195,7 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Exporting...");
             var makeBitmapTask = GetExportBitmapSource();
 
-            if (DialogHelper.ShowExportImageDialog(out string path))
+            if (DialogHelper.ShowExportImageDialog(workspace.IFS.Title, out string path))
             {
                 BitmapSource bs = await makeBitmapTask;
 
@@ -221,7 +224,7 @@ namespace WpfDisplay.ViewModels
                 return await workspace.Renderer.ReadHistogramData();
             });
 
-            if (DialogHelper.ShowExportExrDialog(out string path))
+            if (DialogHelper.ShowExportExrDialog(workspace.IFS.Title, out string path))
             {
                 var histogramData = await getDataTask;
                 using var fstream = File.Create(path);

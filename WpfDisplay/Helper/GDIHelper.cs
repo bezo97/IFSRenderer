@@ -28,7 +28,7 @@ namespace WpfDisplay.Helper
 
             });
 
-            if (DialogHelper.ShowExportImageDialog(out string path))
+            if (DialogHelper.ShowExportImageDialog(renderer.LoadedParams.Title, out string path))
             {
                 await genTask;
                 b.Save(path, ImageFormat.Png);
