@@ -119,6 +119,17 @@ namespace IFSEngine.WPF.InteractiveDisplay
                     (keyboard.IsKeyDown(Key.L) ? 1 : 0) - (keyboard.IsKeyDown(Key.J) ? 1 : 0),
                     (keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0),
                     (keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
+                //keyboard sensitivity modifiers:
+                if (keyboard.IsKeyDown(Key.LeftAlt) || keyboard.IsKeyDown(Key.RightAlt))
+                {//TODO: LeftAlt is not caught (system key)
+                    translateVec *= 2.0f;
+                    rotateVec *= 2.0f;
+                }
+                if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift))
+                {
+                    translateVec *= 0.05f;
+                    rotateVec *= 0.05f;
+                }
 
                 //gamepad input
                 if (XInput.GetState(0, out State s))
