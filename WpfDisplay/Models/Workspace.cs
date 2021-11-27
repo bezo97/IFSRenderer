@@ -10,6 +10,7 @@ using System;
 using WpfDisplay.Properties;
 using IFSEngine.Serialization;
 using IFSEngine.Generation;
+using System.Configuration;
 
 namespace WpfDisplay.Models
 {
@@ -153,6 +154,11 @@ namespace WpfDisplay.Models
 
         public void LoadUserSettings()
         {
+            if (!ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).HasFile)
+            {//migrate user settings from previous version
+                Settings.Default.Upgrade();
+                Settings.Default.Save();
+            }
             Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
             Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
             Renderer.TargetFramerate = Settings.Default.TargetFramerate;
