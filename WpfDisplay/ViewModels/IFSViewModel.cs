@@ -149,7 +149,6 @@ namespace WpfDisplay.ViewModels
                 ivm.UpdatePosition(XCoord, YCoord);
             }
             IteratorViewModels.Add(ivm);
-            SelectedIterator = ivm;
             return ivm;
         }
 
@@ -215,6 +214,7 @@ namespace WpfDisplay.ViewModels
                 }
                 workspace.Renderer.InvalidateParamsBuffer();
                 HandleIteratorsChanged();
+                SelectedIterator = IteratorViewModels.First(vm=>vm.iterator==newIterator);
             });
 
         private RelayCommand _removeSelectedCommand;
