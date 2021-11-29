@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  Build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Chackout
+        uses: actions/checkout@v1
+        with:
+          submodules: 'true'
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v1
+
+      - name: Build
+        run: dotnet build
