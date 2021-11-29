@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Chackout
+      - name: Checkout
         uses: actions/checkout@v1
         with:
           submodules: 'true'
