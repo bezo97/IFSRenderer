@@ -1,12 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - "add-build-ci-to-prs"
   pull_request:
-    branches:
-      - "master"
 
 jobs:
   Build:
