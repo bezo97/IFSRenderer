@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - "master"
+      - "add-build-ci-to-prs"
   pull_request:
     branches:
       - "master"
