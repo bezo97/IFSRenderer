@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfDisplay.Helper
 {
@@ -17,7 +13,8 @@ namespace WpfDisplay.Helper
         static extern int LoadNvApi32();
 
         //To be called before first window creation
-        public static void InitializeDedicatedGraphics(){
+        public static void InitializeDedicatedGraphics()
+        {
             try
             {
                 if (Environment.Is64BitProcess)
