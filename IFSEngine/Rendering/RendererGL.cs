@@ -169,7 +169,7 @@ public sealed class RendererGL : IAsyncDisposable
         this.ctx = ctx;
     }
 
-    public void Initialize(IEnumerable<Transform> transforms)
+    public async Task Initialize(IEnumerable<Transform> transforms)
     {
         if (IsInitialized)
             throw new InvalidOperationException("Renderer is already initialized.");
@@ -201,7 +201,7 @@ public sealed class RendererGL : IAsyncDisposable
         SetHistogramScaleToDisplay();
 
         IsInitialized = true;
-        SetWorkgroupCount(WorkgroupCount).Wait();
+        await SetWorkgroupCount(WorkgroupCount);
 
         InvalidateParamsBuffer();
     }

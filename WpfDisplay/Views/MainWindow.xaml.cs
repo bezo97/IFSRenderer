@@ -32,6 +32,7 @@ public partial class MainWindow : Window
         var renderer = new RendererGL(mainDisplay.GraphicsContext);
         mainDisplay.AttachRenderer(renderer);
         var workspace = new Workspace(renderer);
+        await workspace.Initialize();
         await workspace.LoadUserSettings();
 
         //handle open verb
@@ -53,13 +54,16 @@ public partial class MainWindow : Window
         DataContext = new MainViewModel(workspace);
     }
 
-    private void GeneratorButton_Click(object sender, RoutedEventArgs e)
+    private async void GeneratorButton_Click(object sender, RoutedEventArgs e)
     {
         //create window
         if (generatorWindow == null || !generatorWindow.IsLoaded)
         {
             generatorWindow = new GeneratorWindow();
-            generatorWindow.DataContext = new GeneratorViewModel(vm);
+            var generatorViewModel = new GeneratorViewModel(vm);
+            generatorWindow.DataContext = generatorViewModel;
+
+            await generatorViewModel.Initialize();
         }
 
         if (generatorWindow.ShowActivated)

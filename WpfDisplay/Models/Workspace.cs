@@ -49,11 +49,20 @@ public partial class Workspace
     public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
     public bool IsHistoryRedoable => tracker.IsHistoryRedoable;
 
+    /// <summary>
+    /// Call <see cref="Initialize"/> before using
+    /// </summary>
+    /// <param name="r"></param>
     public Workspace(RendererGL r)
     {
         LoadTransformLibrary();
         Renderer = r;
-        Renderer.Initialize(loadedTransforms);
+    }
+
+    public async Task Initialize()
+    {
+        await Renderer.Initialize(loadedTransforms);
+
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
     }

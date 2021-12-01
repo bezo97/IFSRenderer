@@ -6,6 +6,7 @@ using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -29,6 +30,10 @@ public partial class GeneratorWorkspace
     private List<IFS> generatedIFS = new List<IFS>();
     private ConcurrentQueue<IFS> renderQueue = new ConcurrentQueue<IFS>();
 
+    /// <summary>
+    /// Call <see cref="Initialize"/> before using
+    /// </summary>
+    /// <param name="loadedTransforms"></param>
     public GeneratorWorkspace(IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
     {
         //init thumbnail renderer
@@ -47,9 +52,13 @@ public partial class GeneratorWorkspace
         renderer.SetDisplayResolution(200, 200);
         var transforms = loadedTransforms.ToList();
         generator = new Generator(transforms);
-        renderer.Initialize(transforms);
+    }
+
+    public async Task Initialize()
+    {
+        await renderer.Initialize(generator.SelectedTransforms);
         //performance settings
-        renderer.SetWorkgroupCount(10).Wait();
+        await renderer.SetWorkgroupCount(10);
     }
 
     public void GenerateNewRandomBatch(GeneratorOptions options)

@@ -5,6 +5,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
 
@@ -32,12 +33,18 @@ public partial class GeneratorViewModel
     public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
         workspace.GeneratedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(7);
 
+    /// <summary>
+    /// Call <see cref="Initialize"/> before using
+    /// </summary>
+    /// <param name="mainvm"></param>
     public GeneratorViewModel(MainViewModel mainvm)
     {
         this.mainvm = mainvm;
         workspace = new GeneratorWorkspace(mainvm.workspace.LoadedTransforms);
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);//tmp hack
     }
+
+    public async Task Initialize() => await workspace.Initialize();
 
     [ICommand]
     private void SendToMain(IFS generated_params)
