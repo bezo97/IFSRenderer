@@ -13,29 +13,28 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+public partial class AboutDialogWindow : Window
 {
-    public partial class AboutDialogWindow : Window
+    public AboutDialogWindow()
     {
-        public AboutDialogWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
 #if INSTALLER
         public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (installed)";
 #endif
 #if PORTABLE
-        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (portable)";
+    public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (portable)";
 #endif
 
-        private ICommand _okCommand;
-        public ICommand OkCommand =>
-            _okCommand ??= new RelayCommand(OnOkCommand);
-        private void OnOkCommand()
-        {
-            DialogResult = true;
-        }
-
+    private ICommand _okCommand;
+    public ICommand OkCommand =>
+        _okCommand ??= new RelayCommand(OnOkCommand);
+    private void OnOkCommand()
+    {
+        DialogResult = true;
     }
+
 }

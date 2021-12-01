@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for QualitySettingsView.xaml
+/// </summary>
+public partial class QualitySettingsView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for QualitySettingsView.xaml
-    /// </summary>
-    public partial class QualitySettingsView : UserControl
+    public QualitySettingsView()
     {
-        public QualitySettingsView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

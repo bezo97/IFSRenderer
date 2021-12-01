@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for ToneMappingView.xaml
+/// </summary>
+public partial class ToneMappingView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for ToneMappingView.xaml
-    /// </summary>
-    public partial class ToneMappingView : UserControl
+    public ToneMappingView()
     {
-        public ToneMappingView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
