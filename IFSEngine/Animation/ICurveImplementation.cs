@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Animation
+namespace IFSEngine.Animation;
+
+interface ICurveImplementation
 {
-    interface ICurveImplementation
-    {
-        float Evaluate(float t, List<ControlPoint> controlPoints);
-    }
+    float Evaluate(float t, List<ControlPoint> controlPoints);
 }

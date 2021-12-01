@@ -16,35 +16,34 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfDisplay.ViewModels;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for ConnectionArrow.xaml
+/// </summary>
+public partial class ConnectionArrow : UserControl
 {
-    /// <summary>
-    /// Interaction logic for ConnectionArrow.xaml
-    /// </summary>
-    public partial class ConnectionArrow : UserControl
+    public ConnectionArrow()
     {
-        public ConnectionArrow()
-        {
-            InitializeComponent();
-        }
-
-
-
-        public RelayCommand<ConnectionViewModel> SelectCommand
-        {
-            get { return (RelayCommand<ConnectionViewModel>)GetValue(SelectCommandProperty); }
-            set { SetValue(SelectCommandProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for SelectCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SelectCommandProperty =
-            DependencyProperty.Register("SelectCommand", typeof(RelayCommand<ConnectionViewModel>), typeof(ConnectionArrow), new PropertyMetadata(null));
-
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonDown(e);
-            SelectCommand?.Execute(DataContext);
-        }
-
+        InitializeComponent();
     }
+
+
+
+    public RelayCommand<ConnectionViewModel> SelectCommand
+    {
+        get { return (RelayCommand<ConnectionViewModel>)GetValue(SelectCommandProperty); }
+        set { SetValue(SelectCommandProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for SelectCommand.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty SelectCommandProperty =
+        DependencyProperty.Register("SelectCommand", typeof(RelayCommand<ConnectionViewModel>), typeof(ConnectionArrow), new PropertyMetadata(null));
+
+    protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+    {
+        base.OnMouseLeftButtonDown(e);
+        SelectCommand?.Execute(DataContext);
+    }
+
 }

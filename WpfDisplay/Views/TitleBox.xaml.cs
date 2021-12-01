@@ -14,36 +14,35 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfDisplay.ViewModels;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for TitleBox.xaml
+/// </summary>
+public partial class TitleBox : UserControl
 {
-    /// <summary>
-    /// Interaction logic for TitleBox.xaml
-    /// </summary>
-    public partial class TitleBox : UserControl
+    private MainViewModel vm => (MainViewModel)DataContext;
+    public TitleBox()
     {
-        private MainViewModel vm => (MainViewModel)DataContext;
-        public TitleBox()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void titleTextBox_GotKeyboardFocus(object sender, RoutedEventArgs e)
-        {
-            Dispatcher.InvokeAsync(titleTextBox.SelectAll);
-        }
+    private void titleTextBox_GotKeyboardFocus(object sender, RoutedEventArgs e)
+    {
+        Dispatcher.InvokeAsync(titleTextBox.SelectAll);
+    }
 
-        private void titleTextBox_KeyDown(object sender, KeyEventArgs e)
+    private void titleTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
         {
-            if (e.Key == Key.Enter)
-            {
-                Keyboard.ClearFocus();
-                titleTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            }
-            else if (e.Key == Key.Escape)
-            {
-                vm.IFSTitle = vm.workspace.IFS.Title;
-                Keyboard.ClearFocus();
-            }
+            Keyboard.ClearFocus();
+            titleTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+        else if (e.Key == Key.Escape)
+        {
+            vm.IFSTitle = vm.workspace.Ifs.Title;
+            Keyboard.ClearFocus();
         }
     }
 }

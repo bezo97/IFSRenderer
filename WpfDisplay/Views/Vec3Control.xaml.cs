@@ -14,33 +14,32 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for Vec3Control.xaml
+/// </summary>
+public partial class Vec3Control : UserControl
 {
-    /// <summary>
-    /// Interaction logic for Vec3Control.xaml
-    /// </summary>
-    public partial class Vec3Control : UserControl
+    public double Increment
     {
-        public double Increment
-        {
-            get { return (double)GetValue(IncrementProperty); }
-            set { SetValue(IncrementProperty, value); }
-        }
-        public static readonly DependencyProperty IncrementProperty =
-            DependencyProperty.Register("Increment", typeof(double), typeof(Vec3Control), new PropertyMetadata(0.1));
+        get { return (double)GetValue(IncrementProperty); }
+        set { SetValue(IncrementProperty, value); }
+    }
+    public static readonly DependencyProperty IncrementProperty =
+        DependencyProperty.Register("Increment", typeof(double), typeof(Vec3Control), new PropertyMetadata(0.1));
 
 
-        public RelayCommand ValueChangedCommand
-        {
-            get { return (RelayCommand)GetValue(ValueChangedCommandProperty); }
-            set { SetValue(ValueChangedCommandProperty, value); }
-        }
-        public static readonly DependencyProperty ValueChangedCommandProperty =
-            DependencyProperty.Register("ValueChangedCommand", typeof(RelayCommand), typeof(Vec3Control), new PropertyMetadata(null));
+    public RelayCommand ValueChangedCommand
+    {
+        get { return (RelayCommand)GetValue(ValueChangedCommandProperty); }
+        set { SetValue(ValueChangedCommandProperty, value); }
+    }
+    public static readonly DependencyProperty ValueChangedCommandProperty =
+        DependencyProperty.Register("ValueChangedCommand", typeof(RelayCommand), typeof(Vec3Control), new PropertyMetadata(null));
 
-        public Vec3Control()
-        {
-            InitializeComponent();
-        }
+    public Vec3Control()
+    {
+        InitializeComponent();
     }
 }

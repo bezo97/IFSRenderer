@@ -4,145 +4,143 @@ using System;
 using System.Windows.Input;
 using WpfDisplay.Properties;
 
-namespace WpfDisplay.ViewModels
+namespace WpfDisplay.ViewModels;
+
+[ObservableObject]
+internal partial class SettingsViewModel
 {
-    internal class SettingsViewModel : ObservableObject
+    private MainViewModel mainvm;
+    public event EventHandler SettingsSaved;
+    public event EventHandler SettingsCanceled;
+
+    public SettingsViewModel(MainViewModel mainvm)
     {
-        private MainViewModel mainvm;
-        public event EventHandler SettingsSaved;
-        public event EventHandler SettingsCanceled;
+        this.mainvm = mainvm;
+    }
 
-        public SettingsViewModel(MainViewModel mainvm)
+    [ICommand]
+    private void OkDialog()
+    {
+        Settings.Default.Save();//writes user.config in AppData
+        mainvm.workspace.LoadUserSettings();
+        SettingsSaved?.Invoke(this, null);
+    }
+
+    [ICommand]
+    private void CancelDialog()
+    {
+        Settings.Default.Reload();
+        OnPropertyChanged(string.Empty);
+        SettingsCanceled?.Invoke(this, null);
+    }
+
+    public string AuthorName
+    {
+        get => Settings.Default.AuthorName;
+        set
         {
-            this.mainvm = mainvm;
+            Settings.Default.AuthorName = value;
+            OnPropertyChanged(nameof(AuthorName));
         }
+    }
 
-        private RelayCommand okDialogCommand;
-        public ICommand OkDialogCommand => okDialogCommand ??= new RelayCommand(OkDialog);
-        private void OkDialog()
+    public string AuthorLink
+    {
+        get => Settings.Default.AuthorLink;
+        set
         {
-            Settings.Default.Save();//writes user.config in AppData
-            mainvm.workspace.LoadUserSettings();
-            SettingsSaved?.Invoke(this, null);
+            Settings.Default.AuthorLink = value;
+            OnPropertyChanged(nameof(AuthorLink));
         }
+    }
 
-        private RelayCommand cancelDialogCommand;
-        public ICommand CancelDialogCommand => cancelDialogCommand ??= new RelayCommand(CancelDialog);
-        private void CancelDialog()
+    public bool? Watermark
+    {
+        get => Settings.Default.ApplyWatermark;
+        set
         {
-            Settings.Default.Reload();
-            OnPropertyChanged(string.Empty);
-            SettingsCanceled?.Invoke(this, null);
+            Settings.Default.ApplyWatermark = value ?? false;
+            OnPropertyChanged(nameof(Watermark));
         }
+    }
 
-        public string AuthorName
+    public bool? Notifications
+    {
+        get => Settings.Default.NotifyRenderFinished;
+        set
         {
-            get => Settings.Default.AuthorName;
-            set
-            {
-                Settings.Default.AuthorName = value;
-                OnPropertyChanged(nameof(AuthorName));
-            }
+            Settings.Default.NotifyRenderFinished = value ?? false;
+            OnPropertyChanged(nameof(Notifications));
         }
+    }
 
-        public string AuthorLink
+    public bool? PerceptuallyUniformUpdates
+    {
+        get => Settings.Default.PerceptuallyUniformUpdates;
+        set
         {
-            get => Settings.Default.AuthorLink;
-            set
-            {
-                Settings.Default.AuthorLink = value;
-                OnPropertyChanged(nameof(AuthorLink));
-            }
+            Settings.Default.PerceptuallyUniformUpdates = value ?? false;
+            OnPropertyChanged(nameof(PerceptuallyUniformUpdates));
         }
+    }
 
-        public bool? Watermark
+    public int TargetFramerate
+    {
+        get => Settings.Default.TargetFramerate;
+        set
         {
-            get => Settings.Default.ApplyWatermark;
-            set
-            {
-                Settings.Default.ApplyWatermark = value ?? false;
-                OnPropertyChanged(nameof(Watermark));
-            }
+            Settings.Default.TargetFramerate = value;
+            OnPropertyChanged(nameof(TargetFramerate));
         }
+    }
 
-        public bool? Notifications
+    public int WorkgroupCount
+    {
+        get => Settings.Default.WorkgroupCount;
+        set
         {
-            get => Settings.Default.NotifyRenderFinished;
-            set
-            {
-                Settings.Default.NotifyRenderFinished = value ?? false;
-                OnPropertyChanged(nameof(Notifications));
-            }
+            Settings.Default.WorkgroupCount = value;
+            OnPropertyChanged(nameof(WorkgroupCount));
         }
+    }
 
-        public bool? PerceptuallyUniformUpdates
+    public bool? InvertAxisX
+    {
+        get => Settings.Default.InvertAxisX;
+        set
         {
-            get => Settings.Default.PerceptuallyUniformUpdates;
-            set
-            {
-                Settings.Default.PerceptuallyUniformUpdates = value ?? false;
-                OnPropertyChanged(nameof(PerceptuallyUniformUpdates));
-            }
+            Settings.Default.InvertAxisX = value ?? false;
+            OnPropertyChanged(nameof(InvertAxisX));
         }
+    }
 
-        public int TargetFramerate
+    public bool? InvertAxisY
+    {
+        get => Settings.Default.InvertAxisY;
+        set
         {
-            get => Settings.Default.TargetFramerate;
-            set
-            {
-                Settings.Default.TargetFramerate = value;
-                OnPropertyChanged(nameof(TargetFramerate));
-            }
+            Settings.Default.InvertAxisY = value ?? false;
+            OnPropertyChanged(nameof(InvertAxisY));
         }
+    }
 
-        public int WorkgroupCount
+    public bool? InvertAxisZ
+    {
+        get => Settings.Default.InvertAxisZ;
+        set
         {
-            get => Settings.Default.WorkgroupCount;
-            set
-            {
-                Settings.Default.WorkgroupCount = value;
-                OnPropertyChanged(nameof(WorkgroupCount));
-            }
+            Settings.Default.InvertAxisZ = value ?? false;
+            OnPropertyChanged(nameof(InvertAxisZ));
         }
+    }
 
-        public bool? InvertAxisX
+    public double Sensitivity
+    {
+        get => Settings.Default.Sensitivity;
+        set
         {
-            get => Settings.Default.InvertAxisX;
-            set
-            {
-                Settings.Default.InvertAxisX = value ?? false;
-                OnPropertyChanged(nameof(InvertAxisX));
-            }
-        }
-
-        public bool? InvertAxisY
-        {
-            get => Settings.Default.InvertAxisY;
-            set
-            {
-                Settings.Default.InvertAxisY = value ?? false;
-                OnPropertyChanged(nameof(InvertAxisY));
-            }
-        }
-
-        public bool? InvertAxisZ
-        {
-            get => Settings.Default.InvertAxisZ;
-            set
-            {
-                Settings.Default.InvertAxisZ = value ?? false;
-                OnPropertyChanged(nameof(InvertAxisZ));
-            }
-        }
-
-        public double Sensitivity
-        {
-            get => Settings.Default.Sensitivity;
-            set
-            {
-                Settings.Default.Sensitivity = value;
-                OnPropertyChanged(nameof(Sensitivity));
-            }
+            Settings.Default.Sensitivity = value;
+            OnPropertyChanged(nameof(Sensitivity));
         }
     }
 }
