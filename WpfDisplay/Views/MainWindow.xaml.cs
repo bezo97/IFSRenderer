@@ -105,13 +105,15 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    protected override async void OnClosing(CancelEventArgs e)
     {
         if (generatorWindow != null)
             generatorWindow.Close();
         if (editorWindow != null)
             editorWindow.Close();
-        vm.Dispose();
+
+        await vm.DisposeAsync();
+
         base.OnClosing(e);
     }
 

@@ -30,6 +30,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
 		<PackageReference Include="OpenTK.Graphics" Version="4.6.4" />
 		<PackageReference Include="OpenTK.Windowing.Common" Version="4.6.4" />
 	</ItemGroup>
