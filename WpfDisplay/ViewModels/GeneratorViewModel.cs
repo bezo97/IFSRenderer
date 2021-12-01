@@ -3,17 +3,15 @@ using IFSEngine.Model;
 using IFSEngine.Utility;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class GeneratorViewModel : ObservableObject
+    [ObservableObject]
+    public partial class GeneratorViewModel
     {
         private readonly MainViewModel mainvm;
         private readonly GeneratorWorkspace workspace;
@@ -41,47 +39,40 @@ namespace WpfDisplay.ViewModels
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);//tmp hack
         }
 
-        private RelayCommand<IFS> _sendToMainCommand;
-        public RelayCommand<IFS> SendToMainCommand =>
-            _sendToMainCommand ??= new RelayCommand<IFS>(
-            (IFS generated_params) =>
-            {
-                IFS param = generated_params.DeepClone();
-                param.ImageResolution = new System.Drawing.Size(1920, 1080);
-                mainvm.workspace.LoadParams(param);
-            });
+        [ICommand]
+        private void SendToMain(IFS generated_params)
+        {
+            IFS param = generated_params.DeepClone();
+            param.ImageResolution = new System.Drawing.Size(1920, 1080);
+            mainvm.workspace.LoadParams(param);
+        }
 
+        [ICommand]
+        private void GenerateRandomBatch()
+        {
+            workspace.GenerateNewRandomBatch(options).Wait();
+            //TODO: do not start if already processing
+            workspace.processQueue();
+            OnPropertyChanged(nameof(GeneratedIFSThumbnails));
+        }
 
-        private RelayCommand _generateRandomBatchCommand;
-        public RelayCommand GenerateRandomBatchCommand =>
-            _generateRandomBatchCommand ??= new RelayCommand(() =>
-            {
-                workspace.GenerateNewRandomBatch(options).Wait();
-                //TODO: do not start if already processing
-                workspace.processQueue();
-                OnPropertyChanged(nameof(GeneratedIFSThumbnails));
-            });
+        [ICommand]
+        private void Pin(IFS param)
+        {
+            if (param == null)//pin ifs from main if commandparam not provided
+                param = mainvm.workspace.Ifs.DeepClone();
+            workspace.PinIFS(param);
+            workspace.processQueue();
+            SendToMainCommand.Execute(param);
+            //TODO: do not start if already processing
+            OnPropertyChanged(nameof(PinnedIFSThumbnails));
+        }
 
-        private RelayCommand<IFS> _pinCommand;
-        public RelayCommand<IFS> PinCommand =>
-            _pinCommand ??= new RelayCommand<IFS>((IFS param) =>
-            {
-                if (param == null)//pin ifs from main if commandparam not provided
-                    param = mainvm.workspace.Ifs.DeepClone();
-                workspace.PinIFS(param);
-                workspace.processQueue();
-                SendToMainCommand.Execute(param);
-                //TODO: do not start if already processing
-                OnPropertyChanged(nameof(PinnedIFSThumbnails));
-            });
-
-        private RelayCommand<IFS> _unpinCommand;
-        public RelayCommand<IFS> UnpinCommand =>
-            _unpinCommand ??= new RelayCommand<IFS>((IFS param) =>
-            {
-                workspace.UnpinIFS(param);
-                OnPropertyChanged(nameof(PinnedIFSThumbnails));
-            });
-
+        [ICommand]
+        private void Unpin(IFS param)
+        {
+            workspace.UnpinIFS(param);
+            OnPropertyChanged(nameof(PinnedIFSThumbnails));
+        }
     }
 }
