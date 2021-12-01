@@ -20,7 +20,7 @@ jobs:
         run: dotnet tool restore
 
       - name: Check formatting
-        run: dotnet dotnet-format --check
+        run: dotnet dotnet-format --exclude "Setup" --folder -v diag 
 
   Build:
     runs-on: windows-latest
