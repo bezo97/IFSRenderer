@@ -6,9 +6,12 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class QualitySettingsViewModel : ObservableObject
+    [ObservableObject]
+    public partial class QualitySettingsViewModel
     {
         private readonly Workspace workspace;
+
+        [ObservableProperty] private bool _isResolutionLinked;
 
         public QualitySettingsViewModel(Workspace workspace)
         {
@@ -120,14 +123,6 @@ namespace WpfDisplay.ViewModels
 
         public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 0 ? "" : " (Off)");
 
-        private bool isResolutionLinked;
-        public bool IsResolutionLinked
-        {
-            get { return isResolutionLinked; }
-            set { SetProperty(ref isResolutionLinked, value); }
-        }
-
-
         public int ImageWidth
         {
             get
@@ -176,10 +171,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private AsyncRelayCommand _previewPresetCommand;
-        public AsyncRelayCommand PreviewPresetCommand =>
-            _previewPresetCommand ??= new AsyncRelayCommand(OnPreviewPresetCommand);
-        private async Task OnPreviewPresetCommand()
+        [ICommand]
+        private async Task PreviewPreset()
         {
             workspace.Renderer.SetHistogramScaleToDisplay();
             //EnableDE = true;
@@ -189,10 +182,8 @@ namespace WpfDisplay.ViewModels
             OnPropertyChanged(nameof(PreviewResolutionText));
         }
 
-        private AsyncRelayCommand _finalPresetCommand;
-        public AsyncRelayCommand FinalPresetCommand =>
-            _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
-        private async Task OnFinalPresetCommand()
+        [ICommand]
+        private async Task FinalPreset()
         {
             EnableTAA = false;
             EnableDE = false;
@@ -200,6 +191,5 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.SetHistogramScale(1.0);
             OnPropertyChanged(nameof(PreviewResolutionText));
         }
-
     }
 }
