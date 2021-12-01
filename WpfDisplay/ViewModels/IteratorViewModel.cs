@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -21,7 +22,7 @@ namespace WpfDisplay.ViewModels
         public event EventHandler ViewChanged;
         public event EventHandler<bool> ConnectEvent;
 
-        public List<IParamViewModel> Parameters { get; } = new List<IParamViewModel>();
+        public List<INotifyPropertyChanged> Parameters { get; } = new();
 
         public IteratorViewModel(Iterator iterator, Workspace workspace)
         {
@@ -216,7 +217,7 @@ namespace WpfDisplay.ViewModels
         }
 
         [ICommand]
-        private void TakeSnapshot() =>workspace.TakeSnapshot();
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
         [ICommand]
         private void FlipOpacity()
