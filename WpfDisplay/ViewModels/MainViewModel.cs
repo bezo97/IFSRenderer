@@ -43,7 +43,7 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        [ObservableProperty] private string statusBarText;
+        [ObservableProperty] private string _statusBarText;
 
         public bool IsColorPickerEnabled => !TransparentBackground;
         //Main display settings:
