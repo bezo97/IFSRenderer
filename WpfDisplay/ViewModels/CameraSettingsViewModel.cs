@@ -5,7 +5,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class CameraSettingsViewModel : ObservableObject
+    [ObservableObject]
+    public partial class CameraSettingsViewModel
     {
         private readonly Workspace workspace;
 
@@ -59,13 +60,10 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
-        private RelayCommand resetCameraCommand;
-        public ICommand ResetCameraCommand => resetCameraCommand ??= new RelayCommand(ResetCamera);
-
+        [ICommand]
         private void ResetCamera()
         {
             workspace.TakeSnapshot();
@@ -77,10 +75,6 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.InvalidateHistogramBuffer();
         }
 
-        public void RaisePropertyChanged()
-        {
-            OnPropertyChanged(string.Empty);
-        }
-
+        public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);
     }
 }
