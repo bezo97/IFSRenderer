@@ -10,13 +10,13 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 internal partial class SettingsViewModel
 {
-    private MainViewModel mainvm;
+    private readonly MainViewModel _mainvm;
     public event EventHandler SettingsSaved;
     public event EventHandler SettingsCanceled;
 
     public SettingsViewModel(MainViewModel mainvm)
     {
-        this.mainvm = mainvm;
+        _mainvm = mainvm;
     }
 
     [ICommand]
@@ -24,7 +24,7 @@ internal partial class SettingsViewModel
     {
         Settings.Default.Save();//writes user.config in AppData
 
-        await mainvm.workspace.LoadUserSettings();
+        await _mainvm.workspace.LoadUserSettings();
 
         SettingsSaved?.Invoke(this, null);
     }

@@ -12,46 +12,46 @@ namespace IFSEngine.WPF.InteractiveDisplay;
 //https://codereview.stackexchange.com/questions/44404/preventing-keydown-delay
 public class KeyboardHelper
 {
-    private HashSet<Key> pressedKeys;
-    private readonly object pressedKeysLock = new object();
+    private readonly HashSet<Key> _pressedKeys;
+    private readonly object _pressedKeysLock = new();
 
     public KeyboardHelper(UIElement c)
     {
         c.LostFocus += LostFocus;
         c.KeyDown += WinKeyDown;
         c.KeyUp += WinKeyUp;
-        pressedKeys = new HashSet<Key>();
+        _pressedKeys = new HashSet<Key>();
     }
 
     private void LostFocus(object sender, RoutedEventArgs e)
     {
-        lock (pressedKeysLock)
+        lock (_pressedKeysLock)
         {
-            pressedKeys.Clear();
+            _pressedKeys.Clear();
         }
     }
 
     public bool IsKeyDown(Key key)
     {
-        lock (pressedKeysLock)
+        lock (_pressedKeysLock)
         {
-            return pressedKeys.Contains(key);
+            return _pressedKeys.Contains(key);
         }
     }
 
     private void WinKeyDown(object sender, KeyEventArgs e)
     {
-        lock (pressedKeysLock)
+        lock (_pressedKeysLock)
         {
-            pressedKeys.Add(e.Key);
+            _pressedKeys.Add(e.Key);
         }
     }
 
     private void WinKeyUp(object sender, KeyEventArgs e)
     {
-        lock (pressedKeysLock)
+        lock (_pressedKeysLock)
         {
-            pressedKeys.Remove(e.Key);
+            _pressedKeys.Remove(e.Key);
         }
     }
 

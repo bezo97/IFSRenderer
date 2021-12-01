@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfDisplay.Helper;
 
@@ -13,23 +9,23 @@ public class InstanceProperty// : INotifyPropertyChanged
 
     public event /*PropertyChanged*/EventHandler PropertyChanged;
 
-    private readonly object instance;
-    private readonly PropertyInfo pi;
+    private readonly object _instance;
+    private readonly PropertyInfo _pi;
 
     public InstanceProperty(object instance, PropertyInfo pi)
     {
-        this.instance = instance;
-        this.pi = pi;
+        _instance = instance;
+        _pi = pi;
     }
 
-    public string PropertyName => pi.Name;
+    public string PropertyName => _pi.Name;
 
     public double PropertyValue
     {
-        get { return (double)pi.GetValue(instance); }
+        get { return (double)_pi.GetValue(_instance); }
         set
         {
-            pi.SetValue(instance, value);
+            _pi.SetValue(_instance, value);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }

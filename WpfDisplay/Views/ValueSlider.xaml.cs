@@ -114,7 +114,7 @@ public partial class ValueSlider : UserControl
         else if (e.Key == Key.Escape)
         {
             e.Handled = true;
-            Value = lastv;//restore
+            Value = _lastv;//restore
             valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
             Editing = false;
         }
@@ -125,16 +125,16 @@ public partial class ValueSlider : UserControl
         Editing = false;
     }
 
-    Point dragp;
-    double lastv;//value before editing
+    private Point _dragp;
+    private double _lastv;//value before editing
 
     private void DisplayLabel_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             ValueChangedCommand?.Execute(null);
-            dragp = e.GetPosition(Window.GetWindow(this));
-            lastv = Value;
+            _dragp = e.GetPosition(Window.GetWindow(this));
+            _lastv = Value;
             displayLabel.CaptureMouse();
             Mouse.OverrideCursor = Cursors.None;
         }
@@ -144,13 +144,13 @@ public partial class ValueSlider : UserControl
     {
         if (e.LeftButton == MouseButtonState.Pressed && displayLabel.IsMouseCaptured)
         {
-            double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
-            Value = lastv + delta * Increment * IncrementMultiplier;
+            double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
+            Value = _lastv + delta * Increment * IncrementMultiplier;
 
             //reset position on mouseleave
             if (VisualTreeHelper.HitTest(this, e.GetPosition(displayLabel)) == null)
             {
-                lastv = Value;
+                _lastv = Value;
                 var pos = displayLabel.PointToScreen(new Point(displayLabel.ActualWidth / 2, displayLabel.ActualHeight / 2));
                 SetCursorPos((int)pos.X, (int)pos.Y);
             }
@@ -160,7 +160,7 @@ public partial class ValueSlider : UserControl
 
     private void DisplayLabel_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
+        double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
 
         if (Math.Abs(delta) < 1)
         {//click
@@ -181,7 +181,7 @@ public partial class ValueSlider : UserControl
     private void StartEditing()
     {
         valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-        lastv = Value;
+        _lastv = Value;
         Editing = true;
         valueEditor.Focus();
         valueEditor.SelectAll();

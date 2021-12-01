@@ -16,8 +16,8 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private EditorWindow editorWindow;
-    private GeneratorWindow generatorWindow;
+    private EditorWindow _editorWindow;
+    private GeneratorWindow _generatorWindow;
     private MainViewModel vm => (MainViewModel)DataContext;
 
     public MainWindow()
@@ -57,40 +57,40 @@ public partial class MainWindow : Window
     private async void GeneratorButton_Click(object sender, RoutedEventArgs e)
     {
         //create window
-        if (generatorWindow == null || !generatorWindow.IsLoaded)
+        if (_generatorWindow == null || !_generatorWindow.IsLoaded)
         {
-            generatorWindow = new GeneratorWindow();
+            _generatorWindow = new GeneratorWindow();
             var generatorViewModel = new GeneratorViewModel(vm);
-            generatorWindow.DataContext = generatorViewModel;
+            _generatorWindow.DataContext = generatorViewModel;
 
             await generatorViewModel.Initialize();
         }
 
-        if (generatorWindow.ShowActivated)
-            generatorWindow.Show();
+        if (_generatorWindow.ShowActivated)
+            _generatorWindow.Show();
         //bring to foreground
-        if (!generatorWindow.IsActive)
-            generatorWindow.Activate();
+        if (!_generatorWindow.IsActive)
+            _generatorWindow.Activate();
 
-        generatorWindow.WindowState = WindowState.Normal;
+        _generatorWindow.WindowState = WindowState.Normal;
     }
 
     private void EditorButton_Click(object sender, RoutedEventArgs e)
     {
         //create window
-        if (editorWindow == null || !editorWindow.IsLoaded)
+        if (_editorWindow == null || !_editorWindow.IsLoaded)
         {
-            editorWindow = new EditorWindow();
-            editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode = BindingMode.TwoWay });
+            _editorWindow = new EditorWindow();
+            _editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode = BindingMode.TwoWay });
         }
 
-        if (editorWindow.ShowActivated)
-            editorWindow.Show();
+        if (_editorWindow.ShowActivated)
+            _editorWindow.Show();
         //bring to foreground
-        if (!editorWindow.IsActive)
-            editorWindow.Activate();
+        if (!_editorWindow.IsActive)
+            _editorWindow.Activate();
 
-        editorWindow.WindowState = WindowState.Normal;
+        _editorWindow.WindowState = WindowState.Normal;
     }
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
@@ -110,10 +110,10 @@ public partial class MainWindow : Window
 
     protected override async void OnClosing(CancelEventArgs e)
     {
-        if (generatorWindow != null)
-            generatorWindow.Close();
-        if (editorWindow != null)
-            editorWindow.Close();
+        if (_generatorWindow != null)
+            _generatorWindow.Close();
+        if (_editorWindow != null)
+            _editorWindow.Close();
 
         await vm.DisposeAsync();
 

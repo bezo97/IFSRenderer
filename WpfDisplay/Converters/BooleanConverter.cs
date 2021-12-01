@@ -21,11 +21,11 @@ public class BooleanConverter<T> : IValueConverter
 
     public virtual object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return value is bool && ((bool)value) ? True : False;
+        return value is bool boolean && boolean ? True : False;
     }
 
     public virtual object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return value is T && EqualityComparer<T>.Default.Equals((T)value, True);
+        return value is T t && EqualityComparer<T>.Default.Equals(t, True);
     }
 }

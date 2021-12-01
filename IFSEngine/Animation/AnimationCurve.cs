@@ -7,17 +7,17 @@ namespace IFSEngine.Animation;
 
 public class AnimationCurve
 {
-    private List<ControlPoint> controlPoints = new List<ControlPoint>();
-    private ICurveImplementation curveImplementation = new LinearCurveImplementation();
+    private readonly List<ControlPoint> _controlPoints = new();
+    private readonly ICurveImplementation _curveImplementation = new LinearCurveImplementation();
 
     public void AddControlPoint(ControlPoint newPoint)
     {
-        controlPoints.Add(newPoint);
-        controlPoints.Sort((x, y) => x.t < y.t ? -1 : 1);
+        _controlPoints.Add(newPoint);
+        _controlPoints.Sort((x, y) => x.t < y.t ? -1 : 1);
     }
     public float Evaluate(float t)
     {
-        return curveImplementation.Evaluate(t, controlPoints);
+        return _curveImplementation.Evaluate(t, _controlPoints);
     }
 
 }

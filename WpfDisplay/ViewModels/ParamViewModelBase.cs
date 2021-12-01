@@ -15,7 +15,7 @@ public abstract partial class ParamViewModelBase<T>
     //TODO: min, max, increment, ..
     public ParamViewModelBase(string name, Iterator iterator, Workspace workspace)
     {
-        this.Name = name;
+        Name = name;
         this.iterator = iterator;
         this.workspace = workspace;
     }

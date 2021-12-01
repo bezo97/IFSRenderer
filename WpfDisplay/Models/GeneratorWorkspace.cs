@@ -19,16 +19,16 @@ namespace WpfDisplay.Models;
 [ObservableObject]
 public partial class GeneratorWorkspace
 {
-    public IReadOnlyList<IFS> PinnedIFS => pinnedIFS;
-    public IReadOnlyList<IFS> GeneratedIFS => generatedIFS;
-    public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => thumbnails;
+    public IReadOnlyList<IFS> PinnedIFS => _pinnedIFS;
+    public IReadOnlyList<IFS> GeneratedIFS => _generatedIFS;
+    public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => _thumbnails;
 
-    private RendererGL renderer;
-    private Generator generator;
-    private Dictionary<IFS, ImageSource> thumbnails = new Dictionary<IFS, ImageSource>();
-    private List<IFS> pinnedIFS = new List<IFS>();
-    private List<IFS> generatedIFS = new List<IFS>();
-    private ConcurrentQueue<IFS> renderQueue = new ConcurrentQueue<IFS>();
+    private readonly RendererGL _renderer;
+    private readonly Generator _generator;
+    private readonly Dictionary<IFS, ImageSource> _thumbnails = new();
+    private readonly List<IFS> _pinnedIFS = new();
+    private readonly List<IFS> _generatedIFS = new();
+    private readonly ConcurrentQueue<IFS> _renderQueue = new();
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using
@@ -48,66 +48,66 @@ public partial class GeneratorWorkspace
             StartVisible = false,
             WindowState = OpenTK.Windowing.Common.WindowState.Minimized
         });
-        renderer = new RendererGL(hw.Context);
-        renderer.SetDisplayResolution(200, 200);
+        _renderer = new RendererGL(hw.Context);
+        _renderer.SetDisplayResolution(200, 200);
         var transforms = loadedTransforms.ToList();
-        generator = new Generator(transforms);
+        _generator = new Generator(transforms);
     }
 
     public async Task Initialize()
     {
-        await renderer.Initialize(generator.SelectedTransforms);
+        await _renderer.Initialize(_generator.SelectedTransforms);
         //performance settings
-        await renderer.SetWorkgroupCount(10);
+        await _renderer.SetWorkgroupCount(10);
     }
 
     public void GenerateNewRandomBatch(GeneratorOptions options)
     {
-        options.baseParams = pinnedIFS.LastOrDefault() ?? options.baseParams;//TODO: use selection of pinned fractals
-        generatedIFS.Clear();
+        options.baseParams = _pinnedIFS.LastOrDefault() ?? options.baseParams;//TODO: use selection of pinned fractals
+        _generatedIFS.Clear();
 
-        foreach (var r in generator.GenerateBatch(options, 30))
+        foreach (var r in _generator.GenerateBatch(options, 30))
         {
-            generatedIFS.Add(r);
-            renderQueue.Enqueue(r);
+            _generatedIFS.Add(r);
+            _renderQueue.Enqueue(r);
         }
     }
 
     public void PinIFS(IFS ifs)
     {
-        pinnedIFS.Add(ifs);
-        if (!thumbnails.ContainsKey(ifs))
-            renderQueue.Enqueue(ifs);
+        _pinnedIFS.Add(ifs);
+        if (!_thumbnails.ContainsKey(ifs))
+            _renderQueue.Enqueue(ifs);
     }
 
     public void UnpinIFS(IFS ifs)
     {
-        pinnedIFS.Remove(ifs);
+        _pinnedIFS.Remove(ifs);
     }
 
     public void processQueue()
     {
         //TODO: separate thread, make context current
-        lock (renderer)
+        lock (_renderer)
         {
-            while (renderQueue.TryDequeue(out IFS ifs))
+            while (_renderQueue.TryDequeue(out IFS ifs))
             {
-                renderer.LoadParams(ifs);
-                renderer.SetHistogramScaleToDisplay();
-                renderer.DispatchCompute();
-                renderer.RenderImage();
-                WriteableBitmap wbm = new WriteableBitmap(renderer.HistogramWidth, renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-                renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
+                _renderer.LoadParams(ifs);
+                _renderer.SetHistogramScaleToDisplay();
+                _renderer.DispatchCompute();
+                _renderer.RenderImage();
+                WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+                _renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
                 wbm.Freeze();
                 var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-                thumbnails[ifs] = thumbnail;
+                _thumbnails[ifs] = thumbnail;
                 OnPropertyChanged(nameof(Thumbnails));
             }
         }
         //cleanup old thumbnails
-        var removedParams = thumbnails.Keys.Where(k => !(pinnedIFS.Contains(k) || generatedIFS.Contains(k))).ToList();
+        var removedParams = _thumbnails.Keys.Where(k => !(_pinnedIFS.Contains(k) || _generatedIFS.Contains(k))).ToList();
         foreach (var t in removedParams)
-            thumbnails.Remove(t);
+            _thumbnails.Remove(t);
 
     }
 }

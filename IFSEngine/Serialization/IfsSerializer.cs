@@ -11,8 +11,8 @@ namespace IFSEngine.Serialization;
 
 public static class IfsSerializer
 {
-    private static readonly IteratorConverter iteratorConverter = new();
-    private static readonly IfsConverter ifsConverter = new();
+    private static readonly IteratorConverter _iteratorConverter = new();
+    private static readonly IfsConverter _ifsConverter = new();
 
     public static IFS LoadJsonFile(string path, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
     {
@@ -65,8 +65,8 @@ public static class IfsSerializer
             Converters = new List<JsonConverter>
                 {
                     new TransformConverter(transforms, ignoreVersion),
-                    iteratorConverter,
-                    ifsConverter
+                    _iteratorConverter,
+                    _ifsConverter
                 },
             ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
                                                                    //TypeNameHandling = TypeNameHandling.Auto

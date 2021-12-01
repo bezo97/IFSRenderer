@@ -7,55 +7,55 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class ToneMappingViewModel
 {
-    private readonly Workspace workspace;
+    private readonly Workspace _workspace;
 
     public ToneMappingViewModel(Workspace workspace)
     {
-        this.workspace = workspace;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace = workspace;
+        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
     public double Brightness
     {
-        get => workspace.Ifs.Brightness;
+        get => _workspace.Ifs.Brightness;
         set
         {
-            workspace.Ifs.Brightness = value;
+            _workspace.Ifs.Brightness = value;
             OnPropertyChanged(nameof(Brightness));
-            workspace.Renderer.InvalidateDisplay();
+            _workspace.Renderer.InvalidateDisplay();
         }
     }
     public double Gamma
     {
-        get => workspace.Ifs.Gamma;
+        get => _workspace.Ifs.Gamma;
         set
         {
-            workspace.Ifs.Gamma = value;
+            _workspace.Ifs.Gamma = value;
             OnPropertyChanged(nameof(Gamma));
-            workspace.Renderer.InvalidateDisplay();
+            _workspace.Renderer.InvalidateDisplay();
         }
     }
     public double GammaThreshold
     {
-        get => workspace.Ifs.GammaThreshold;
+        get => _workspace.Ifs.GammaThreshold;
         set
         {
-            workspace.Ifs.GammaThreshold = value;
+            _workspace.Ifs.GammaThreshold = value;
             OnPropertyChanged(nameof(GammaThreshold));
-            workspace.Renderer.InvalidateDisplay();
+            _workspace.Renderer.InvalidateDisplay();
         }
     }
     public double Vibrancy
     {
-        get => workspace.Ifs.Vibrancy;
+        get => _workspace.Ifs.Vibrancy;
         set
         {
-            workspace.Ifs.Vibrancy = value;
+            _workspace.Ifs.Vibrancy = value;
             OnPropertyChanged(nameof(Vibrancy));
-            workspace.Renderer.InvalidateDisplay();
+            _workspace.Renderer.InvalidateDisplay();
         }
     }
 
     [ICommand]
-    private void TakeSnapshot() => workspace.TakeSnapshot();
+    private void TakeSnapshot() => _workspace.TakeSnapshot();
 }

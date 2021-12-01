@@ -37,7 +37,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
     public static readonly DependencyProperty InteractionFinishedCommandProperty =
         DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
 
-    private bool invertX;
+    private bool _invertX;
     public bool InvertRotationAxisX
     {
         get { return (bool)GetValue(InvertRotationAxisXProperty); }
@@ -45,9 +45,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
     }
     public static readonly DependencyProperty InvertRotationAxisXProperty =
         DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay),
-            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertX = (bool)b.NewValue; }));
+            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertX = (bool)b.NewValue; }));
 
-    private bool invertY;
+    private bool _invertY;
     public bool InvertRotationAxisY
     {
         get { return (bool)GetValue(InvertRotationAxisYProperty); }
@@ -55,9 +55,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
     }
     public static readonly DependencyProperty InvertRotationAxisYProperty =
         DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay),
-            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertY = (bool)b.NewValue; }));
+            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertY = (bool)b.NewValue; }));
 
-    private bool invertZ;
+    private bool _invertZ;
     public bool InvertRotationAxisZ
     {
         get { return (bool)GetValue(InvertRotationAxisZProperty); }
@@ -65,9 +65,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
     }
     public static readonly DependencyProperty InvertRotationAxisZProperty =
         DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay),
-            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertZ = (bool)b.NewValue; }));
+            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertZ = (bool)b.NewValue; }));
 
-    private float sensitivity = 1.0f;
+    private float _sensitivity = 1.0f;
     public float Sensitivity
     {
         get { return (float)GetValue(SensitivityProperty); }
@@ -75,30 +75,30 @@ public partial class InteractiveDisplay : WindowsFormsHost
     }
     public static readonly DependencyProperty SensitivityProperty =
         DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay),
-            new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a).sensitivity = (float)b.NewValue; }));
+            new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a)._sensitivity = (float)b.NewValue; }));
 
     [DllImport("User32.dll")]
     private static extern bool SetCursorPos(int X, int Y);
 
-    const float deadZoneMultiplier = 0.25f;
-    const float thumbstickValMax = 32768.0f;
+    private const float DeadZoneMultiplier = 0.25f;
+    private const float ThumbstickValMax = 32768.0f;
     private bool IsInteractionEnabled => Renderer is not null && Renderer.IsRendering && Renderer.UpdateDisplayOnRender;
 
-    private readonly Timer controlTimer;
-    private readonly KeyboardHelper keyboard;
+    private readonly Timer _controlTimer;
+    private readonly KeyboardHelper _keyboard;
     //last mouse position
-    private float lastX;
-    private float lastY;
+    private float _lastX;
+    private float _lastY;
 
     public InteractiveDisplay()
     {
         InitializeComponent();
         //init keyboard + gamepad input
-        keyboard = new KeyboardHelper(this);
-        controlTimer = new Timer();
-        controlTimer.Elapsed += Control_Tick;
-        controlTimer.Interval = 16;//ms
-        controlTimer.Start();
+        _keyboard = new KeyboardHelper(this);
+        _controlTimer = new Timer();
+        _controlTimer.Elapsed += Control_Tick;
+        _controlTimer.Interval = 16;//ms
+        _controlTimer.Start();
     }
 
     private void Control_Tick(object sender, EventArgs e)
@@ -112,20 +112,20 @@ public partial class InteractiveDisplay : WindowsFormsHost
 
             //keyboard input
             translateVec += new Vector3(
-                (keyboard.IsKeyDown(Key.D) ? 1 : 0) - (keyboard.IsKeyDown(Key.A) ? 1 : 0),
-                (keyboard.IsKeyDown(Key.E) ? 1 : 0) - (keyboard.IsKeyDown(Key.Q) ? 1 : 0),
-                (keyboard.IsKeyDown(Key.W) ? 1 : 0) - (keyboard.IsKeyDown(Key.S) ? 1 : 0)) * 0.005f;
+                (_keyboard.IsKeyDown(Key.D) ? 1 : 0) - (_keyboard.IsKeyDown(Key.A) ? 1 : 0),
+                (_keyboard.IsKeyDown(Key.E) ? 1 : 0) - (_keyboard.IsKeyDown(Key.Q) ? 1 : 0),
+                (_keyboard.IsKeyDown(Key.W) ? 1 : 0) - (_keyboard.IsKeyDown(Key.S) ? 1 : 0)) * 0.005f;
             rotateVec += new Vector3(
-                (keyboard.IsKeyDown(Key.L) ? 1 : 0) - (keyboard.IsKeyDown(Key.J) ? 1 : 0),
-                (keyboard.IsKeyDown(Key.K) ? 1 : 0) - (keyboard.IsKeyDown(Key.I) ? 1 : 0),
-                (keyboard.IsKeyDown(Key.U) ? 1 : 0) - (keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
+                (_keyboard.IsKeyDown(Key.L) ? 1 : 0) - (_keyboard.IsKeyDown(Key.J) ? 1 : 0),
+                (_keyboard.IsKeyDown(Key.K) ? 1 : 0) - (_keyboard.IsKeyDown(Key.I) ? 1 : 0),
+                (_keyboard.IsKeyDown(Key.U) ? 1 : 0) - (_keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
             //keyboard sensitivity modifiers:
-            if (keyboard.IsKeyDown(Key.LeftAlt) || keyboard.IsKeyDown(Key.RightAlt))
+            if (_keyboard.IsKeyDown(Key.LeftAlt) || _keyboard.IsKeyDown(Key.RightAlt))
             {//TODO: LeftAlt is not caught (system key)
                 translateVec *= 2.0f;
                 rotateVec *= 2.0f;
             }
-            if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift))
+            if (_keyboard.IsKeyDown(Key.LeftShift) || _keyboard.IsKeyDown(Key.RightShift))
             {
                 translateVec *= 0.05f;
                 rotateVec *= 0.05f;
@@ -135,17 +135,17 @@ public partial class InteractiveDisplay : WindowsFormsHost
             if (XInput.GetState(0, out State s))
             {
                 float sideDelta = 0.0f;
-                if (Math.Abs(s.Gamepad.LeftThumbX + 1) > Gamepad.LeftThumbDeadZone * deadZoneMultiplier)
-                    sideDelta = s.Gamepad.LeftThumbX / thumbstickValMax;
+                if (Math.Abs(s.Gamepad.LeftThumbX + 1) > Gamepad.LeftThumbDeadZone * DeadZoneMultiplier)
+                    sideDelta = s.Gamepad.LeftThumbX / ThumbstickValMax;
                 float forwardDelta = 0.0f;
-                if (Math.Abs(s.Gamepad.LeftThumbY + 1) > Gamepad.LeftThumbDeadZone * deadZoneMultiplier)
-                    forwardDelta = s.Gamepad.LeftThumbY / thumbstickValMax;
+                if (Math.Abs(s.Gamepad.LeftThumbY + 1) > Gamepad.LeftThumbDeadZone * DeadZoneMultiplier)
+                    forwardDelta = s.Gamepad.LeftThumbY / ThumbstickValMax;
                 float yawDelta = 0.0f;
-                if (Math.Abs(s.Gamepad.RightThumbX + 1) > Gamepad.RightThumbDeadZone * deadZoneMultiplier)
-                    yawDelta = s.Gamepad.RightThumbX / thumbstickValMax;
+                if (Math.Abs(s.Gamepad.RightThumbX + 1) > Gamepad.RightThumbDeadZone * DeadZoneMultiplier)
+                    yawDelta = s.Gamepad.RightThumbX / ThumbstickValMax;
                 float pitchDelta = 0.0f;
-                if (Math.Abs(s.Gamepad.RightThumbY + 1) > Gamepad.RightThumbDeadZone * deadZoneMultiplier)
-                    pitchDelta = s.Gamepad.RightThumbY / thumbstickValMax;
+                if (Math.Abs(s.Gamepad.RightThumbY + 1) > Gamepad.RightThumbDeadZone * DeadZoneMultiplier)
+                    pitchDelta = s.Gamepad.RightThumbY / ThumbstickValMax;
                 float rollDelta = 0.0f;
                 if (s.Gamepad.Buttons.HasFlag(GamepadButtons.LeftShoulder))
                     rollDelta -= 1.0f;
@@ -163,11 +163,11 @@ public partial class InteractiveDisplay : WindowsFormsHost
             float cameraSpeed = (float)Math.Abs(Renderer.LoadedParams.Camera.FocusDistance) * 2;
             translateVec *= cameraSpeed;
 
-            if (invertX)
+            if (_invertX)
                 rotateVec.X = -rotateVec.X;
-            if (invertY)
+            if (_invertY)
                 rotateVec.Y = -rotateVec.Y;
-            if (invertZ)
+            if (_invertZ)
                 rotateVec.Z = -rotateVec.Z;
 
             //camera rotation speed depends on field of view
@@ -175,8 +175,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
             rotateVec = Vector3.Multiply(rotateVec, new Vector3(rotateSpeed, rotateSpeed, 1.0f));
 
             Renderer.LoadedParams.Camera.FocusDistance += fdDelta * Renderer.LoadedParams.Camera.FocusDistance * 0.03;
-            Renderer.LoadedParams.Camera.Translate(translateVec * sensitivity);
-            Renderer.LoadedParams.Camera.Rotate(rotateVec * sensitivity);
+            Renderer.LoadedParams.Camera.Translate(translateVec * _sensitivity);
+            Renderer.LoadedParams.Camera.Rotate(rotateVec * _sensitivity);
             Renderer.InvalidateHistogramBuffer();
 
             Dispatcher.InvokeAsync(() => InteractionFinishedCommand?.Execute(null), DispatcherPriority.Input);
@@ -214,12 +214,12 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     InteractionStartedCommand?.Execute(null);//Hack
                 }
 
-                float yawDelta = e.X - lastX;
-                float pitchDelta = e.Y - lastY;
+                float yawDelta = e.X - _lastX;
+                float pitchDelta = e.Y - _lastY;
 
-                if (invertX)
+                if (_invertX)
                     yawDelta = -yawDelta;
-                if (invertY)
+                if (_invertY)
                     pitchDelta = -pitchDelta;
 
                 //camera rotation speed depends on field of view
@@ -228,7 +228,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 pitchDelta *= rotateSpeed;
 
                 Vector3 rotateVec = new(yawDelta, pitchDelta, 0.0f);
-                Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * sensitivity);
+                Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * _sensitivity);
                 Renderer.InvalidateHistogramBuffer();
 
                 //TODO: Mouse position reset
@@ -241,8 +241,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
             }
             else
                 Mouse.OverrideCursor = null;//no override
-            lastX = e.X;
-            lastY = e.Y;
+            _lastX = e.X;
+            _lastY = e.Y;
         }
     }
 

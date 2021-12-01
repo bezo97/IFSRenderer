@@ -22,9 +22,9 @@ public class Transform
 
 
     //These cannot be parameter names:
-    private static readonly List<string> reservedFields = new() { "Name", "Version", "Description", "Tags", "Reference" };
-    private const string regexFieldDef = @"^(\s*)@.+:.+$";//@Param1: 0.0, 0 0 0, min 1
-    private const string defaultDescription = "Description not provided by the plugin developer";
+    private static readonly List<string> _reservedFields = new() { "Name", "Version", "Description", "Tags", "Reference" };
+    private const string RegexFieldDef = @"^(\s*)@.+:.+$";//@Param1: 0.0, 0 0 0, min 1
+    private const string DefaultDescription = "Description not provided by the plugin developer";
 
     public static Transform FromFile(string path)
     {
@@ -39,13 +39,13 @@ public class Transform
         var lines = s.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                      .Select(l => l.Trim());
 
-        var fieldDefinitionLines = lines.Where(l => Regex.IsMatch(l, regexFieldDef));
+        var fieldDefinitionLines = lines.Where(l => Regex.IsMatch(l, RegexFieldDef));
         Dictionary<string, string> fields = fieldDefinitionLines.ToDictionary(
             l => l.Split(":")[0].TrimStart('@').Trim(),
             l => l.Split(":", 2)[1].Trim());
 
         Dictionary<string, string> paramFields = fields
-            .Where(p => !reservedFields.Contains(p.Key))
+            .Where(p => !_reservedFields.Contains(p.Key))
             .ToDictionary(p => p.Key, p => p.Value);
         Dictionary<string, double> realParams = new();
         Dictionary<string, Vector3> vec3Params = new();
@@ -86,7 +86,7 @@ public class Transform
         {
             Name = fields["Name"],
             Version = fields["Version"],
-            Description = fields.TryGetValue("Description", out string descriptionString) ? descriptionString : defaultDescription,
+            Description = fields.TryGetValue("Description", out string descriptionString) ? descriptionString : DefaultDescription,
             Tags = fields.TryGetValue("Tags", out string tagsString) ?
                 tagsString
                 .Split(',')
