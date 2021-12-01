@@ -1,6 +1,8 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+﻿using IFSEngine.Generation;
 using IFSEngine.Model;
+using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using WpfDisplay.Models;
-using IFSEngine.Generation;
-using IFSEngine.Utility;
 
 namespace WpfDisplay.ViewModels
 {
@@ -54,7 +54,7 @@ namespace WpfDisplay.ViewModels
 
         private RelayCommand _generateRandomBatchCommand;
         public RelayCommand GenerateRandomBatchCommand =>
-            _generateRandomBatchCommand ??= new RelayCommand(() => 
+            _generateRandomBatchCommand ??= new RelayCommand(() =>
             {
                 workspace.GenerateNewRandomBatch(options).Wait();
                 //TODO: do not start if already processing
@@ -63,7 +63,7 @@ namespace WpfDisplay.ViewModels
             });
 
         private RelayCommand<IFS> _pinCommand;
-        public RelayCommand<IFS> PinCommand => 
+        public RelayCommand<IFS> PinCommand =>
             _pinCommand ??= new RelayCommand<IFS>((IFS param) =>
             {
                 if (param == null)//pin ifs from main if commandparam not provided

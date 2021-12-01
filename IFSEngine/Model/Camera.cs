@@ -38,7 +38,7 @@ namespace IFSEngine.Model
         /// <param name="rotVector">Euler angle (Yaw, Pitch, Roll) deltas in radians.</param>
         public void Rotate(Vector3 rotVector)
         {
-            Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X,rotVector.Y,rotVector.Z);
+            Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X, rotVector.Y, rotVector.Z);
             Orientation *= rotq;
             Orientation = Quaternion.Normalize(Orientation);
             UpdateDirectionVectors();

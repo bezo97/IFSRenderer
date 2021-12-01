@@ -1,20 +1,18 @@
-﻿using System;
+﻿using IFSEngine.Animation;
+using IFSEngine.Model;
+using IFSEngine.Rendering.GpuStructs;
+using IFSEngine.Utility;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Windowing.Common;
-
-using IFSEngine.Model;
-using IFSEngine.Rendering.GpuStructs;
-using IFSEngine.Animation;
-using IFSEngine.Utility;
-using System.Numerics;
-using System.Reflection;
 
 namespace IFSEngine.Rendering
 {
@@ -132,7 +130,7 @@ namespace IFSEngine.Rendering
         private int renderTextureHandle;
         private int taaTextureHandle;
 
-        private readonly AutoResetEvent stopRender = new(false); 
+        private readonly AutoResetEvent stopRender = new(false);
         private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
         private readonly string shadersPath = "IFSEngine.Rendering.Shaders.";
         private readonly bool debugFlag = false;
@@ -208,7 +206,7 @@ namespace IFSEngine.Rendering
 
         public async Task LoadTransforms(IEnumerable<Transform> transforms)
         {
-            if(!IsInitialized)
+            if (!IsInitialized)
                 throw NewNotInitializedException();
 
             await WithContext(() =>
@@ -261,7 +259,7 @@ namespace IFSEngine.Rendering
 
         public void SetHistogramScale(double scale)
         {
-            HistogramScale = scale; 
+            HistogramScale = scale;
             int newWidth = (int)(LoadedParams.ImageResolution.Width * HistogramScale);
             int newHeight = (int)(LoadedParams.ImageResolution.Height * HistogramScale);
             if (newWidth != HistogramWidth || newHeight != HistogramHeight)
@@ -306,7 +304,7 @@ namespace IFSEngine.Rendering
             GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, taaTextureHandle);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-            
+
             GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
 
             GL.ClearBuffer(ClearBuffer.Color, 0, bufferClearColor);
@@ -538,7 +536,7 @@ namespace IFSEngine.Rendering
             {
                 IsRendering = true;
 
-                if(ctx.IsCurrent)
+                if (ctx.IsCurrent)
                     ctx.MakeNoneCurrent();
 
                 new Thread(() =>
@@ -590,10 +588,10 @@ namespace IFSEngine.Rendering
         private async Task WithContext(Action action)
         {
             bool continueRendering = IsRendering;
-            if(IsRendering)
+            if (IsRendering)
                 await StopRenderLoop();
             bool wasCurrentContext = ctx.IsCurrent;
-            if(!ctx.IsCurrent)
+            if (!ctx.IsCurrent)
                 ctx.MakeCurrent();//acquire
             action();
             if (!wasCurrentContext)
@@ -620,7 +618,8 @@ namespace IFSEngine.Rendering
                 throw NewNotInitializedException();
 
             InvalidateDisplay();
-            await WithContext(() => {
+            await WithContext(() =>
+            {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);
                 GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Bgra, PixelType.UnsignedByte, ptr);
             });
@@ -652,7 +651,8 @@ namespace IFSEngine.Rendering
 
             InvalidateDisplay();
             float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
-            await WithContext(() => {
+            await WithContext(() =>
+            {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, offscreenFBOHandle);
                 GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, o);
             });
@@ -667,7 +667,8 @@ namespace IFSEngine.Rendering
 
             InvalidateDisplay();
             float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
-            await WithContext(() => {
+            await WithContext(() =>
+            {
                 GL.GetNamedBufferSubData<float>(histogramBufferHandle, IntPtr.Zero, HistogramWidth * HistogramHeight * 4 * sizeof(float), o);
                 GL.Finish();
             });
@@ -781,7 +782,7 @@ namespace IFSEngine.Rendering
                 throw new Exception(
                     String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
             }
-            
+
             //init display image texture
             renderTextureHandle = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -822,7 +823,7 @@ namespace IFSEngine.Rendering
         {
             //load functions
             string transformsSource = "";
-            for(int tfIndex = 0; tfIndex < registeredTransforms.Count; tfIndex++)
+            for (int tfIndex = 0; tfIndex < registeredTransforms.Count; tfIndex++)
             {
                 var tf = registeredTransforms[tfIndex];
                 transformsSource += $@"

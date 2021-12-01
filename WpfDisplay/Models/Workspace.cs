@@ -1,16 +1,16 @@
-﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using IFSEngine.Generation;
+using IFSEngine.Model;
 using IFSEngine.Rendering;
+using IFSEngine.Serialization;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
-using System;
 using WpfDisplay.Properties;
-using IFSEngine.Serialization;
-using IFSEngine.Generation;
-using System.Configuration;
 
 namespace WpfDisplay.Models
 {

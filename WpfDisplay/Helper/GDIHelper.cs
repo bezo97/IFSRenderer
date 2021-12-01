@@ -16,7 +16,8 @@ namespace WpfDisplay.Helper
         public static async Task SaveImageWithGDI(RendererGL renderer)
         {
             Bitmap b = null;
-            Task genTask = Task.Run(async () => {
+            Task genTask = Task.Run(async () =>
+            {
                 b = new Bitmap(renderer.HistogramWidth, renderer.HistogramHeight);
 
                 var bits = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);

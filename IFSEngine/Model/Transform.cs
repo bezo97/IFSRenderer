@@ -72,7 +72,7 @@ namespace IFSEngine.Model
 
             string sourceCode = string.Join(Environment.NewLine, lines.Where(l => !fieldDefinitionLines.Contains(l)));
             //replace real params
-            foreach((string pname, double pvalue) in realParams.OrderByDescending(n => n.Key.Length))
+            foreach ((string pname, double pvalue) in realParams.OrderByDescending(n => n.Key.Length))
             {
                 sourceCode = sourceCode.Replace("@" + pname, $"(real_params[iter.real_params_index + {realParams.Keys.ToList().IndexOf(pname)}])");
             }
@@ -94,7 +94,7 @@ namespace IFSEngine.Model
                         .Trim()
                         .ToLower(System.Globalization.CultureInfo.InvariantCulture))
                     .ToList() : new List<string>(),
-                ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString): null,
+                ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString) : null,
                 SourceCode = sourceCode,
                 RealParams = realParams,
                 Vec3Params = vec3Params,
