@@ -45,8 +45,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public RelayCommand RemoveCommand { get; set; }
-        public RelayCommand DuplicateCommand { get; set; }
+        public IRelayCommand RemoveCommand { get; set; }
+        public IRelayCommand DuplicateCommand { get; set; }
 
         public void Redraw()
         {
