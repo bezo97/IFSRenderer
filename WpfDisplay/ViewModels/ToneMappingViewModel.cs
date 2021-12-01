@@ -4,7 +4,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class ToneMappingViewModel : ObservableObject
+    [ObservableObject]
+    public partial class ToneMappingViewModel
     {
         private readonly Workspace workspace;
 
@@ -55,9 +56,7 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
-
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
     }
 }
