@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Model
+namespace IFSEngine.Model;
+
+//TODO: Generalize to custom shading functions
+public enum ShadingMode
 {
-    //TODO: Generalize to custom shading functions
-    public enum ShadingMode
-    {
-        Default = 0,
-        DeltaPSpeed = 1
-    }
+    Default = 0,
+    DeltaPSpeed = 1
 }

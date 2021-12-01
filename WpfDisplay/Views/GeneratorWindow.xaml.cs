@@ -13,24 +13,23 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfDisplay.ViewModels;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for GeneratorWindow.xaml
+/// </summary>
+public partial class GeneratorWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for GeneratorWindow.xaml
-    /// </summary>
-    public partial class GeneratorWindow : Window
+
+
+    public GeneratorWindow()
     {
+        InitializeComponent();
 
-
-        public GeneratorWindow()
+        ContentRendered += (s, e) =>
         {
-            InitializeComponent();
+            GeneratorViewModel vm = (GeneratorViewModel)DataContext;
+        };
 
-            ContentRendered += (s, e) =>
-            {
-                GeneratorViewModel vm = (GeneratorViewModel)DataContext;
-            };
-
-        }
     }
 }
