@@ -20,6 +20,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
         public float ValueY
         {
             get => iterator.Vec3Params[Name].Y;
@@ -30,6 +31,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
         public float ValueZ
         {
             get => iterator.Vec3Params[Name].Z;
@@ -40,6 +42,5 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
-
     }
 }

@@ -2,7 +2,6 @@
 using IFSEngine.Model;
 using IFSEngine.Rendering;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using OpenTK;
 using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,13 +16,12 @@ namespace WpfDisplay.Models
     /// The generator workspace model that contains a utility <see cref="RendererGL"/> 
     /// and lists of <see cref="IFSEngine.Model.IFS"/> that it is rendering.
     /// </summary>
-    public class GeneratorWorkspace : ObservableObject
+    [ObservableObject]
+    public partial class GeneratorWorkspace
     {
         public IReadOnlyList<IFS> PinnedIFS => pinnedIFS;
         public IReadOnlyList<IFS> GeneratedIFS => generatedIFS;
         public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => thumbnails;
-
-
 
         private RendererGL renderer;
         private Generator generator;
@@ -103,7 +101,5 @@ namespace WpfDisplay.Models
                 thumbnails.Remove(t);
 
         }
-
-
     }
 }

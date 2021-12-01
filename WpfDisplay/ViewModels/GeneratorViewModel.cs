@@ -67,7 +67,7 @@ namespace WpfDisplay.ViewModels
             _pinCommand ??= new RelayCommand<IFS>((IFS param) =>
             {
                 if (param == null)//pin ifs from main if commandparam not provided
-                    param = mainvm.workspace.IFS.DeepClone();
+                    param = mainvm.workspace.Ifs.DeepClone();
                 workspace.PinIFS(param);
                 workspace.processQueue();
                 SendToMainCommand.Execute(param);

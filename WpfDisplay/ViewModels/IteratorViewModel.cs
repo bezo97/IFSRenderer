@@ -108,7 +108,7 @@ namespace WpfDisplay.ViewModels
         {
             get
             {
-                var colors = workspace.IFS.Palette.Colors;
+                var colors = workspace.Ifs.Palette.Colors;
                 var c = colors[(int)(colors.Count * (ColorIndex - Math.Floor(ColorIndex)))];
                 return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
             }

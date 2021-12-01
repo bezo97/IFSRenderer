@@ -53,18 +53,18 @@ namespace WpfDisplay.ViewModels
         public float Sensitivity => (float)workspace.Sensitivity;
 
 
-        public string WindowTitle => workspace.IFS is null ? "IFSRenderer" : $"{workspace.IFS.Title} - IFSRenderer";
+        public string WindowTitle => workspace.Ifs is null ? "IFSRenderer" : $"{workspace.Ifs.Title} - IFSRenderer";
         public string IFSTitle
         {
-            get => workspace.IFS.Title;
+            get => workspace.Ifs.Title;
             set
             {
-                workspace.IFS.Title = value;
+                workspace.Ifs.Title = value;
                 OnPropertyChanged(nameof(IFSTitle));
                 OnPropertyChanged(nameof(WindowTitle));
             }
         }
-        public IEnumerable<Author> AuthorList => workspace.IFS.Authors;
+        public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
 
         public MainViewModel(Workspace workspace)
         {
@@ -98,7 +98,7 @@ namespace WpfDisplay.ViewModels
         [ICommand]
         private async Task SaveParams()
         {
-            if (DialogHelper.ShowSaveParamsDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowSaveParamsDialog(workspace.Ifs.Title, out string path))
             {
                 if (IFSTitle == "Untitled")//Set the file name as title
                     IFSTitle = Path.GetFileNameWithoutExtension(path);
@@ -183,7 +183,7 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Exporting...");
             var makeBitmapTask = GetExportBitmapSource();
 
-            if (DialogHelper.ShowExportImageDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowExportImageDialog(workspace.Ifs.Title, out string path))
             {
                 BitmapSource bs = await makeBitmapTask;
 
@@ -210,7 +210,7 @@ namespace WpfDisplay.ViewModels
                 return await workspace.Renderer.ReadHistogramData();
             });
 
-            if (DialogHelper.ShowExportExrDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowExportExrDialog(workspace.Ifs.Title, out string path))
             {
                 var histogramData = await getDataTask;
                 using var fstream = File.Create(path);

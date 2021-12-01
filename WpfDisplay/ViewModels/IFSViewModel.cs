@@ -74,25 +74,25 @@ namespace WpfDisplay.ViewModels
         {
             get
             {
-                var c = workspace.IFS.BackgroundColor;
+                var c = workspace.Ifs.BackgroundColor;
                 return Color.FromRgb(c.R, c.G, c.B);
             }
             set
             {
-                workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+                workspace.Ifs.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
                 workspace.Renderer.InvalidateDisplay();
                 OnPropertyChanged(nameof(BackgroundColor));
             }
         }
 
-        public FlamePalette Palette => workspace.IFS.Palette;
+        public FlamePalette Palette => workspace.Ifs.Palette;
 
         public double FogEffect
         {
-            get => workspace.IFS.FogEffect;
+            get => workspace.Ifs.FogEffect;
             set
             {
-                workspace.IFS.FogEffect = value;
+                workspace.Ifs.FogEffect = value;
                 workspace.Renderer.InvalidateHistogramBuffer();
                 OnPropertyChanged(nameof(FogEffect));
             }
@@ -115,7 +115,7 @@ namespace WpfDisplay.ViewModels
                 new CollectionContainer(){Collection=IteratorViewModels },
             };
 
-            workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            workspace.Ifs.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             HandleIteratorsChanged();
         }
 
@@ -158,7 +158,7 @@ namespace WpfDisplay.ViewModels
         private void HandleIteratorsChanged()
         {
             //remove nodes
-            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i)).ToList();
+            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.Ifs.Iterators.Any(i => vm.iterator == i)).ToList();
             removedIteratorVMs.ForEach(vm =>
             {
                 IteratorViewModels.Remove(vm);
@@ -167,7 +167,7 @@ namespace WpfDisplay.ViewModels
             var removedConnections = ConnectionViewModels.Where(c => !c.from.iterator.WeightTo.TryGetValue(c.to.iterator, out double ww) || ww == 0.0 || !IteratorViewModels.Any(i => i == c.from) || !IteratorViewModels.Any(i => i == c.to));
             removedConnections.ToList().ForEach(vm2 => ConnectionViewModels.Remove(vm2));
             //add nodes
-            var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
+            var newIterators = workspace.Ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
             newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
             //add connections:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
@@ -209,7 +209,7 @@ namespace WpfDisplay.ViewModels
         {
             workspace.TakeSnapshot();
             Iterator newIterator = new(tf);
-            workspace.IFS.AddIterator(newIterator, false);
+            workspace.Ifs.AddIterator(newIterator, false);
             if (SelectedIterator != null)
             {
                 SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
@@ -226,7 +226,7 @@ namespace WpfDisplay.ViewModels
             if (SelectedIterator != null)
             {
                 workspace.TakeSnapshot();
-                workspace.IFS.RemoveIterator(SelectedIterator.iterator);
+                workspace.Ifs.RemoveIterator(SelectedIterator.iterator);
                 workspace.Renderer.InvalidateParamsBuffer();
                 SelectedIterator = null;
                 HandleIteratorsChanged();
@@ -247,7 +247,7 @@ namespace WpfDisplay.ViewModels
             if (SelectedIterator != null)
             {
                 workspace.TakeSnapshot();
-                Iterator dupe = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
+                Iterator dupe = workspace.Ifs.DuplicateIterator(SelectedIterator.iterator);
                 workspace.Renderer.InvalidateParamsBuffer();
                 HandleIteratorsChanged();
                 SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
@@ -266,7 +266,7 @@ namespace WpfDisplay.ViewModels
                 if (picker.ShowDialog() == true)
                 {
                     workspace.TakeSnapshot();
-                    workspace.IFS.Palette = picker.SelectedPalette;
+                    workspace.Ifs.Palette = picker.SelectedPalette;
                     workspace.Renderer.InvalidateParamsBuffer();
                     OnPropertyChanged(nameof(Palette));
                     Redraw();//update ColorRGB prop for nodes
