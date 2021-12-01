@@ -50,7 +50,7 @@ public partial class GeneratorViewModel
     [ICommand]
     private void GenerateRandomBatch()
     {
-        workspace.GenerateNewRandomBatch(options).Wait();
+        workspace.GenerateNewRandomBatch(options);
         //TODO: do not start if already processing
         workspace.processQueue();
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));

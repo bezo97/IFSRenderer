@@ -18,7 +18,7 @@ public class Generator
         SelectedTransforms = transforms.ToList();
     }
 
-    public async IAsyncEnumerable<IFS> GenerateBatch(GeneratorOptions options, int batchSize)
+    public IEnumerable<IFS> GenerateBatch(GeneratorOptions options, int batchSize)
     {
         double max_strength = options.MutationStrength;
         for (int i = 0; i < batchSize; i++)
@@ -51,7 +51,7 @@ public class Generator
         }
         if (options.MutateParameters)
         {
-            foreach (Iterator it in gen.Iterators)
+            foreach (var it in gen.Iterators)
             {
                 foreach (var v in it.RealParams)
                 {
@@ -93,10 +93,10 @@ public class Generator
         if (options.MutatePalette)
         {
             //TODO: params
-            Vector4 bias = RandomVector(0.2f, 0.8f);
-            Vector4 mult = RandomVector(0.4f, 1.2f);
-            Vector4 freq = RandomVector(0.1f, 0.5f);
-            Vector4 phase = RandomVector(0.0f, 1.0f);
+            var bias = RandomVector(0.2f, 0.8f);
+            var mult = RandomVector(0.4f, 1.2f);
+            var freq = RandomVector(0.1f, 0.5f);
+            var phase = RandomVector(0.0f, 1.0f);
             gen.Palette = PaletteFromIqParams(bias, mult, freq, phase);
         }
         if (options.MutateColoring)

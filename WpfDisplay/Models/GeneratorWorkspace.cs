@@ -6,7 +6,6 @@ using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -53,11 +52,12 @@ public partial class GeneratorWorkspace
         renderer.SetWorkgroupCount(10).Wait();
     }
 
-    public async Task GenerateNewRandomBatch(GeneratorOptions options)
+    public void GenerateNewRandomBatch(GeneratorOptions options)
     {
         options.baseParams = pinnedIFS.LastOrDefault() ?? options.baseParams;//TODO: use selection of pinned fractals
         generatedIFS.Clear();
-        await foreach (IFS r in generator.GenerateBatch(options, 30))
+
+        foreach (var r in generator.GenerateBatch(options, 30))
         {
             generatedIFS.Add(r);
             renderQueue.Enqueue(r);
