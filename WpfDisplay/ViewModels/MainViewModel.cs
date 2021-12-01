@@ -43,7 +43,7 @@ public partial class MainViewModel : IDisposable
         }
     }
 
-    [ObservableProperty] private string statusBarText;
+    [ObservableProperty] private string _statusBarText;
 
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
@@ -154,7 +154,7 @@ public partial class MainViewModel : IDisposable
         //flip vertically
         await Application.Current.Dispatcher.InvokeAsync(() =>
         {//This transformation must happen on ui thread
-                var tb = new TransformedBitmap();
+            var tb = new TransformedBitmap();
             tb.BeginInit();
             tb.Source = bs;
             tb.Transform = new ScaleTransform(1, -1, 0, 0);
