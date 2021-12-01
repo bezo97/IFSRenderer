@@ -1,11 +1,9 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Rendering;
 using IFSEngine.Serialization;
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -28,12 +26,13 @@ public partial class MainWindow : Window
         ContentRendered += MainWindow_ContentRendered;
     }
 
-    private void MainWindow_ContentRendered(object sender, System.EventArgs e)
+    private async void MainWindow_ContentRendered(object sender, System.EventArgs e)
     {
         //init workspace
-        RendererGL renderer = new(mainDisplay.GraphicsContext);
+        var renderer = new RendererGL(mainDisplay.GraphicsContext);
         mainDisplay.AttachRenderer(renderer);
-        Workspace workspace = new(renderer);
+        var workspace = new Workspace(renderer);
+        await workspace.LoadUserSettings();
 
         //handle open verb
         if (App.OpenVerbPath is not null)
