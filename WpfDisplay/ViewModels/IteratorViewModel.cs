@@ -11,7 +11,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IteratorViewModel : ObservableObject
+    [ObservableObject]
+    public partial class IteratorViewModel
     {
         public readonly Iterator iterator;
         private readonly Workspace workspace;
@@ -54,15 +55,7 @@ namespace WpfDisplay.ViewModels
             OnPropertyChanged("NodePosition");
         }
 
-        private bool isselected;
-        public bool IsSelected
-        {
-            get => isselected;
-            set
-            {
-                SetProperty(ref isselected, value);
-            }
-        }
+        [ObservableProperty] private bool _isSelected;
 
         public float StartWeight
         {
@@ -187,26 +180,13 @@ namespace WpfDisplay.ViewModels
 
         public double RenderTranslateValue => -0.5 * WeightedSize;
 
-        public string TransformName
-        {
-            get => iterator.Transform.Name;
-        }
+        public string TransformName => iterator.Transform.Name;
 
         //TODO: string IteratorName
 
-        private float xCoord = RandHelper.Next(500);
-        public float XCoord
-        {
-            get => xCoord;
-            private set { SetProperty(ref xCoord, value); }
-        }
+        [ObservableProperty] private float _xCoord = RandHelper.Next(500);
 
-        private float yCoord = RandHelper.Next(500);
-        public float YCoord
-        {
-            get => yCoord;
-            private set { SetProperty(ref yCoord, value); }
-        }
+        [ObservableProperty] private float _yCoord = RandHelper.Next(500);
 
         public void UpdatePosition(float x, float y)
         {
@@ -221,11 +201,7 @@ namespace WpfDisplay.ViewModels
         //{
         //    get => _startConnectingCommand ?? (_startConnectingCommand = new RelayCommand(StartConnecting));
         //}
-        public void StartConnecting()
-        {
-            //
-            ConnectEvent?.Invoke(this, false);
-        }
+        public void StartConnecting() => ConnectEvent?.Invoke(this, false);
 
         //private RelayCommand _finishConnectingCommand;
         //public RelayCommand FinishConnectingCommand
@@ -239,12 +215,10 @@ namespace WpfDisplay.ViewModels
             ViewChanged?.Invoke(this, null);//refresh
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void TakeSnapshot() =>workspace.TakeSnapshot();
 
-        private RelayCommand flipOpacityCommand;
-        public ICommand FlipOpacityCommand => flipOpacityCommand ??= new RelayCommand(FlipOpacity);
+        [ICommand]
         private void FlipOpacity()
         {
             workspace.TakeSnapshot();
@@ -255,9 +229,7 @@ namespace WpfDisplay.ViewModels
 
         }
 
-        private RelayCommand flipWeightCommand;
-        public ICommand FlipWeightCommand => flipWeightCommand ??= new RelayCommand(FlipWeight);
-
+        [ICommand]
         private void FlipWeight()
         {
             workspace.TakeSnapshot();
