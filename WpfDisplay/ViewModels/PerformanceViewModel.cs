@@ -6,7 +6,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class PerformanceViewModel : ObservableObject
+    [ObservableObject]
+    public partial class PerformanceViewModel
     {
         private readonly Workspace workspace;
         private DispatcherTimer dt;
@@ -40,8 +41,5 @@ namespace WpfDisplay.ViewModels
             OnPropertyChanged(nameof(TotalIterations));
             OnPropertyChanged(nameof(InvocationIters));
         }
-
-
-
     }
 }
