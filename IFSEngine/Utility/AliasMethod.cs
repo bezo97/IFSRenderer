@@ -27,11 +27,11 @@ namespace IFSEngine.Utility
             //1 - overfull (Ui > 1)
             //-1 - underfull (Ui < 1)
             //0 - exactly full (Ui = 1 or Ki is initialized)
-            List<(double v, int group)> U = p.Select(pi => (n*pi, Math.Sign(n*pi-1))).ToList();//probability table
+            List<(double v, int group)> U = p.Select(pi => (n * pi, Math.Sign(n * pi - 1))).ToList();//probability table
             for (int i = 0; i < n; i++)
                 if (U[i].v == 1)
                     K[i] = i;//not important
-            while(U.Exists(u => u.group != 0))
+            while (U.Exists(u => u.group != 0))
             {
                 int i = U.FindIndex(u => u.group == 1);//overfull
                 int j = U.FindIndex(u => u.group == -1);//underfull
@@ -45,9 +45,9 @@ namespace IFSEngine.Utility
                 K[j] = i;
                 var newui = U[i].v + U[j].v - 1;
                 U[j] = (U[j].v, 0);
-                U[i] = (newui, Math.Sign(newui-1));
+                U[i] = (newui, Math.Sign(newui - 1));
             }
-            return Enumerable.Zip(U,K, (u,k)=>(u.v,k)).ToList();
+            return Enumerable.Zip(U, K, (u, k) => (u.v, k)).ToList();
         }
     }
 }

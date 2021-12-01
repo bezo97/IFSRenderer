@@ -25,11 +25,12 @@ namespace WpfDisplay.Views
         }
         public static readonly DependencyProperty ValueNameProperty =
             DependencyProperty.Register("ValueName", typeof(string), typeof(ValueSlider), new PropertyMetadata(null));
-        
+
         public double Value
         {
             get { return (double)GetValue(ValueProperty); }
-            set {
+            set
+            {
                 double constrainedValue = value;
                 if (MinValue != null)
                     constrainedValue = Math.Max(MinValue ?? 0, constrainedValue);
@@ -40,7 +41,7 @@ namespace WpfDisplay.Views
         }
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-        
+
         public double Increment
         {
             get { return (double)GetValue(IncrementProperty); }
@@ -99,7 +100,7 @@ namespace WpfDisplay.Views
 
         private void Animate_Click(object sender, RoutedEventArgs e)
         {
-           //((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
+            //((RendererGL)DataContext).AnimationManager.AddNewAnimation(SetValue);
         }
 
         private void ValueEditor_KeyDown(object sender, KeyEventArgs e)
@@ -117,7 +118,7 @@ namespace WpfDisplay.Views
                 valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
                 Editing = false;
             }
-         }
+        }
 
         private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -161,7 +162,7 @@ namespace WpfDisplay.Views
         {
             double delta = (e.GetPosition(Window.GetWindow(this)).X - dragp.X);
 
-            if (Math.Abs(delta)<1)
+            if (Math.Abs(delta) < 1)
             {//click
                 StartEditing();
             }

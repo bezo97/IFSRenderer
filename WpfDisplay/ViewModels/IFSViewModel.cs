@@ -6,20 +6,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
+using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IFSViewModel : ObservableObject
+    [ObservableObject]
+    public partial class IFSViewModel
     {
         private readonly Workspace workspace;
 
         public CompositeCollection NodeMapElements { get; private set; }
-        public IReadOnlyCollection<IFSEngine.Model.Transform> RegisteredTransforms => workspace.LoadedTransforms;
+        public IReadOnlyCollection<Transform> RegisteredTransforms => workspace.LoadedTransforms;
         private readonly ObservableCollection<IteratorViewModel> IteratorViewModels = new();
         private readonly ObservableCollection<ConnectionViewModel> ConnectionViewModels = new();
         private IteratorViewModel connectingIterator;
@@ -71,25 +74,25 @@ namespace WpfDisplay.ViewModels
         {
             get
             {
-                var c = workspace.IFS.BackgroundColor;
+                var c = workspace.Ifs.BackgroundColor;
                 return Color.FromRgb(c.R, c.G, c.B);
             }
             set
             {
-                workspace.IFS.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
+                workspace.Ifs.BackgroundColor = System.Drawing.Color.FromArgb(255, value.R, value.G, value.B);
                 workspace.Renderer.InvalidateDisplay();
                 OnPropertyChanged(nameof(BackgroundColor));
             }
         }
 
-        public FlamePalette Palette => workspace.IFS.Palette;
+        public FlamePalette Palette => workspace.Ifs.Palette;
 
         public double FogEffect
         {
-            get => workspace.IFS.FogEffect;
+            get => workspace.Ifs.FogEffect;
             set
             {
-                workspace.IFS.FogEffect = value;
+                workspace.Ifs.FogEffect = value;
                 workspace.Renderer.InvalidateHistogramBuffer();
                 OnPropertyChanged(nameof(FogEffect));
             }
@@ -112,7 +115,7 @@ namespace WpfDisplay.ViewModels
                 new CollectionContainer(){Collection=IteratorViewModels },
             };
 
-            workspace.IFS.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
+            workspace.Ifs.Iterators.ToList().ForEach(i => AddNewIteratorVM(i));
             HandleIteratorsChanged();
         }
 
@@ -155,15 +158,16 @@ namespace WpfDisplay.ViewModels
         private void HandleIteratorsChanged()
         {
             //remove nodes
-            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i)).ToList();
-            removedIteratorVMs.ForEach(vm => { 
+            var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.Ifs.Iterators.Any(i => vm.iterator == i)).ToList();
+            removedIteratorVMs.ForEach(vm =>
+            {
                 IteratorViewModels.Remove(vm);
             });
             //remove connections
             var removedConnections = ConnectionViewModels.Where(c => !c.from.iterator.WeightTo.TryGetValue(c.to.iterator, out double ww) || ww == 0.0 || !IteratorViewModels.Any(i => i == c.from) || !IteratorViewModels.Any(i => i == c.to));
             removedConnections.ToList().ForEach(vm2 => ConnectionViewModels.Remove(vm2));
             //add nodes
-            var newIterators = workspace.IFS.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
+            var newIterators = workspace.Ifs.Iterators.Where(i => !IteratorViewModels.Any(vm => vm.iterator == i));
             newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
             //add connections:
             IteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
@@ -200,137 +204,124 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private RelayCommand<IFSEngine.Model.Transform> _addIteratorCommand;
-        public RelayCommand<IFSEngine.Model.Transform> AddIteratorCommand => _addIteratorCommand
-            ??= new((tf) =>
+        [ICommand]
+        private void AddIterator(Transform tf)
+        {
+            workspace.TakeSnapshot();
+            Iterator newIterator = new(tf);
+            workspace.Ifs.AddIterator(newIterator, false);
+            if (SelectedIterator != null)
+            {
+                SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
+                newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
+            }
+            workspace.Renderer.InvalidateParamsBuffer();
+            HandleIteratorsChanged();
+            SelectedIterator = IteratorViewModels.First(vm => vm.iterator == newIterator);
+        }
+
+        [ICommand]
+        private void RemoveSelected()
+        {
+            if (SelectedIterator != null)
             {
                 workspace.TakeSnapshot();
-                Iterator newIterator = new(tf);
-                workspace.IFS.AddIterator(newIterator, false);
-                if (SelectedIterator != null)
-                {
-                    SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
-                    newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
-                }
+                workspace.Ifs.RemoveIterator(SelectedIterator.iterator);
+                workspace.Renderer.InvalidateParamsBuffer();
+                SelectedIterator = null;
+                HandleIteratorsChanged();
+            }
+            else if (SelectedConnection != null)
+            {
+                workspace.TakeSnapshot();
+                SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;
+                workspace.Renderer.InvalidateParamsBuffer();
+                SelectedConnection = null;
+                HandleIteratorsChanged();
+            }
+        }
+
+        [ICommand]
+        private void DuplicateSelected()
+        {
+            if (SelectedIterator != null)
+            {
+                workspace.TakeSnapshot();
+                Iterator dupe = workspace.Ifs.DuplicateIterator(SelectedIterator.iterator);
                 workspace.Renderer.InvalidateParamsBuffer();
                 HandleIteratorsChanged();
-                SelectedIterator = IteratorViewModels.First(vm=>vm.iterator==newIterator);
-            });
+                SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
+            }
+        }
 
-        private RelayCommand _removeSelectedCommand;
-        public RelayCommand RemoveSelectedCommand => _removeSelectedCommand
-            ??= new(() =>
+        [ICommand]
+        private async Task LoadPalette()
+        {
+            if (DialogHelper.ShowOpenPaletteDialog(out string path))
             {
-                if (SelectedIterator != null)
+                var picker = new Views.PaletteDialogWindow
+                {
+                    Palettes = await FlamePalette.FromFileAsync(path)
+                };
+                if (picker.ShowDialog() == true)
                 {
                     workspace.TakeSnapshot();
-                    workspace.IFS.RemoveIterator(SelectedIterator.iterator);
+                    workspace.Ifs.Palette = picker.SelectedPalette;
                     workspace.Renderer.InvalidateParamsBuffer();
-                    SelectedIterator = null;
-                    HandleIteratorsChanged();
+                    OnPropertyChanged(nameof(Palette));
+                    Redraw();//update ColorRGB prop for nodes
                 }
-                else if(SelectedConnection != null)
-                {
-                    workspace.TakeSnapshot();
-                    SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;
-                    workspace.Renderer.InvalidateParamsBuffer();
-                    SelectedConnection = null;
-                    HandleIteratorsChanged();
-                }
-            });
+            }
+        }
 
-        private RelayCommand _duplicateSelectedCommand;
-        public RelayCommand DuplicateSelectedCommand => _duplicateSelectedCommand
-            ??= new(() =>
+        [ICommand]
+        private async Task ReloadTransforms()
+        {
+            try
             {
-                if (SelectedIterator != null)
-                {
-                    workspace.TakeSnapshot();
-                    Iterator dupe = workspace.IFS.DuplicateIterator(SelectedIterator.iterator);
-                    workspace.Renderer.InvalidateParamsBuffer();
-                    HandleIteratorsChanged();
-                    SelectedIterator = IteratorViewModels.First(vm => vm.iterator == dupe);
-                }
-            });
+                await workspace.ReloadTransforms();
+                workspace.UpdateStatusText("Transforms reloaded.");
+            }
+            catch (Exception ex)
+            {
+                workspace.UpdateStatusText("Failed to reload transforms.");
+                MessageBox.Show($"Failed to reload transforms.\r\n{ex.Message}", "Plugin error");
+                return;
+            }
+            foreach (IteratorViewModel ivm in IteratorViewModels)
+                ivm.ReloadParameters();//handles when the number and names of parameters have changed.
+            OnPropertyChanged(nameof(RegisteredTransforms));
+        }
 
-        private AsyncRelayCommand _loadPaletteCommand;
-        public AsyncRelayCommand LoadPaletteCommand => _loadPaletteCommand
-            ??= new(async () =>
+        [ICommand]
+        private void OpenTransformsDirectory()
+        {
+            //show the directory with the os file explorer
+            Process.Start(new ProcessStartInfo
             {
-                if (DialogHelper.ShowOpenPaletteDialog(out string path))
-                {
-                    var picker = new Views.PaletteDialogWindow
-                    {
-                        Palettes = await FlamePalette.FromFileAsync(path)
-                    };
-                    if (picker.ShowDialog() == true)
-                    {
-                        workspace.TakeSnapshot();
-                        workspace.IFS.Palette = picker.SelectedPalette;
-                        workspace.Renderer.InvalidateParamsBuffer();
-                        OnPropertyChanged(nameof(Palette));
-                        Redraw();//update ColorRGB prop for nodes
-                    }
-                }
+                FileName = workspace.TransformsDirectoryPath,
+                UseShellExecute = true
             });
+        }
 
-        private AsyncRelayCommand _reloadTransformsCommand;
-        public AsyncRelayCommand ReloadTransformsCommand => _reloadTransformsCommand
-            ??= new(async () =>
+        [ICommand]
+        private void EditTransformSource(string filePath)
+        {
+            //open transform source file with the preferred text editor
+            Process.Start(new ProcessStartInfo
             {
-                try
-                {
-                    await workspace.ReloadTransforms();
-                    workspace.UpdateStatusText("Transforms reloaded.");
-                }
-                catch (Exception ex)
-                {
-                    workspace.UpdateStatusText("Failed to reload transforms.");
-                    MessageBox.Show($"Failed to reload transforms.\r\n{ex.Message}", "Plugin error");
-                    return;
-                }
-                foreach (IteratorViewModel ivm in IteratorViewModels)
-                    ivm.ReloadParameters();//handles when the number and names of parameters have changed.
-                OnPropertyChanged(nameof(RegisteredTransforms));
+                FileName = filePath,
+                UseShellExecute = true
             });
+        }
 
-        private RelayCommand _openTransformsDirectoryCommand;
-        public RelayCommand OpenTransformsDirectoryCommand => _openTransformsDirectoryCommand
-            ??= new(() =>
-            {
-                //show the directory with the os file explorer
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = workspace.TransformsDirectoryPath,
-                    UseShellExecute = true
-                });
-            });
+        [ICommand]
+        private void SelectConnection(ConnectionViewModel con) => SelectedConnection = con;
 
-        private RelayCommand<string> _editTransformSourceCommand;
-        public RelayCommand<string> EditTransformSourceCommand => _editTransformSourceCommand
-            ??= new((filePath) =>
-            {
-                //open transform source file with the preferred text editor
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = filePath,
-                    UseShellExecute = true
-                });
-            });
+        [ICommand]
+        private void SelectIterator(IteratorViewModel it) => SelectedIterator = it;
 
-        private RelayCommand<ConnectionViewModel> _selectConnectionCommand;
-        public RelayCommand<ConnectionViewModel> SelectConnectionCommand => _selectConnectionCommand
-            ??= new((con) =>
-            {
-                SelectedConnection = con;
-            });
-
-        private RelayCommand<IteratorViewModel> _selectIteratorCommand;
-        public RelayCommand<IteratorViewModel> SelectIteratorCommand => _selectIteratorCommand
-            ??= new((it) =>
-            {
-                SelectedIterator = it;
-            });
+        // TODO: Check how to update the canExecute delegate
 
         private RelayCommand _undoCommand;
         public RelayCommand UndoCommand => _undoCommand
@@ -346,9 +337,8 @@ namespace WpfDisplay.ViewModels
                 workspace.RedoHistory();
             }, () => workspace.IsHistoryRedoable);
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
     }
 }

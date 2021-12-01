@@ -1,16 +1,16 @@
-﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using IFSEngine.Generation;
+using IFSEngine.Model;
 using IFSEngine.Rendering;
+using IFSEngine.Serialization;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
-using System;
 using WpfDisplay.Properties;
-using IFSEngine.Serialization;
-using IFSEngine.Generation;
-using System.Configuration;
 
 namespace WpfDisplay.Models
 {
@@ -18,7 +18,8 @@ namespace WpfDisplay.Models
     /// The main workspace model that contains a <see cref="RendererGL"/> 
     /// and an <see cref="IFSEngine.Model.IFS"/> that it is rendering.
     /// </summary>
-    public class Workspace : ObservableObject
+    [ObservableObject]
+    public partial class Workspace
     {
         private readonly IFSHistoryTracker tracker = new();
         private List<Transform> loadedTransforms = new();
@@ -37,18 +38,13 @@ namespace WpfDisplay.Models
             set
             {
                 SetProperty(ref renderer, value);
-                if (ifs != null)
-                    renderer.LoadParams(ifs);
+                if (Ifs != null)
+                    renderer.LoadParams(Ifs);
             }
         }
 
 
-        private IFS ifs;
-        public IFS IFS
-        {
-            get => ifs;
-            private set => SetProperty(ref ifs, value);
-        }
+        [ObservableProperty] private IFS _ifs;
 
         public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
         public bool IsHistoryRedoable => tracker.IsHistoryRedoable;
@@ -58,15 +54,15 @@ namespace WpfDisplay.Models
             LoadTransformLibrary();
             Renderer = r;
             Renderer.Initialize(loadedTransforms);
-            IFS = new IFS();
-            Renderer.LoadParams(ifs);
+            Ifs = new IFS();
+            Renderer.LoadParams(Ifs);
             LoadUserSettings();
         }
 
         public async Task ReloadTransforms()
         {
             LoadTransformLibrary();
-            IFS.ReloadTransforms(LoadedTransforms);
+            Ifs.ReloadTransforms(LoadedTransforms);
             await Renderer.LoadTransforms(LoadedTransforms);
             OnPropertyChanged(nameof(LoadedTransforms));
         }
@@ -84,7 +80,7 @@ namespace WpfDisplay.Models
         {
             TakeSnapshot();
             renderer?.LoadParams(ifs);
-            IFS = ifs;
+            Ifs = ifs;
             if (!Renderer.IsRendering)
                 Renderer.StartRenderLoop();
         }
@@ -124,22 +120,22 @@ namespace WpfDisplay.Models
 
         public async Task SaveParamsFileAsync(string path)
         {
-            IFS.AddAuthor(CurrentUser);
-            await IfsSerializer.SaveJsonFileAsync(IFS, path);
+            Ifs.AddAuthor(CurrentUser);
+            await IfsSerializer.SaveJsonFileAsync(Ifs, path);
         }
 
         public void UndoHistory()
         {
             //LoadParams without taking snapshot
-            IFS = tracker.Undo(IFS, LoadedTransforms);
-            renderer?.LoadParams(IFS);
+            Ifs = tracker.Undo(Ifs, LoadedTransforms);
+            renderer?.LoadParams(Ifs);
         }
 
         public void RedoHistory()
         {
             //LoadParams without taking snapshot
-            IFS = tracker.Redo(IFS, LoadedTransforms);
-            renderer?.LoadParams(ifs);
+            Ifs = tracker.Redo(Ifs, LoadedTransforms);
+            renderer?.LoadParams(Ifs);
         }
 
         public void ClearHistory()
@@ -149,7 +145,7 @@ namespace WpfDisplay.Models
 
         public void TakeSnapshot()
         {
-            tracker.TakeSnapshot(IFS);
+            tracker.TakeSnapshot(Ifs);
         }
 
         public void LoadUserSettings()

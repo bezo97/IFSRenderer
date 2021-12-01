@@ -64,6 +64,19 @@ git clone --recurse-submodules https://github.com/bezo97/IFSRenderer.git
 The Setup project uses a [VS extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects), 
 which is not required to build the portable IFSRenderer executable. You can ignore the "unsupported" warning and keep the Setup project unloaded.
 
+### Contributing
+
+Please follow the `.editorconfig` file in the root of the repository. If you submit a pr it must have the right formatting, otherwise the PR fails. You can fix the formatting by using the cleanup found in Visual Studio / Visual Studio Code / Rider, which will respect the `editorconfig`.
+
+To fix the formatting through the CLI run the following in the root of the project:
+
+```bash
+# You only need to restore the first time, or when the tools change
+dotnet tool restore
+
+dotnet dotnet-format
+```
+
 ## 🕹️ Usage
 
 ### Using the editor

@@ -1,12 +1,11 @@
 ﻿using IFSEngine.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public interface IParamViewModel : INotifyPropertyChanged { }
-    public abstract class ParamViewModelBase<T> : ObservableObject, IParamViewModel
+    [ObservableObject]
+    public abstract partial class ParamViewModelBase<T>
     {
         protected readonly Iterator iterator;
         protected readonly Workspace workspace;

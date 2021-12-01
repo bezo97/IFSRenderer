@@ -44,7 +44,8 @@ namespace WpfDisplay
 
             //Open URIs in <Hyperlink> tags
             EventManager.RegisterClassHandler(typeof(Hyperlink), Hyperlink.RequestNavigateEvent,
-                new RequestNavigateEventHandler((s, e) => {
+                new RequestNavigateEventHandler((s, e) =>
+                {
                     try
                     {
                         Process.Start(new ProcessStartInfo(e.Uri.ToString())
@@ -74,7 +75,7 @@ namespace WpfDisplay
             try
             {
                 string logFilePath = LogException(ex);
-                var saveParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.IFS;
+                var saveParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.Ifs;
                 string recoveryFilePath = Path.Combine(AppDataPath, "recovery.ifsjson");
                 IFSEngine.Serialization.IfsSerializer.SaveJsonFile(saveParams, recoveryFilePath);
                 MessageBox.Show(Application.Current.MainWindow, $"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\nA recovery file has been saved to\r\n{recoveryFilePath}");

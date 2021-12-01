@@ -6,7 +6,8 @@ using WpfDisplay.Properties;
 
 namespace WpfDisplay.ViewModels
 {
-    internal class SettingsViewModel : ObservableObject
+    [ObservableObject]
+    internal partial class SettingsViewModel
     {
         private MainViewModel mainvm;
         public event EventHandler SettingsSaved;
@@ -17,8 +18,7 @@ namespace WpfDisplay.ViewModels
             this.mainvm = mainvm;
         }
 
-        private RelayCommand okDialogCommand;
-        public ICommand OkDialogCommand => okDialogCommand ??= new RelayCommand(OkDialog);
+        [ICommand]
         private void OkDialog()
         {
             Settings.Default.Save();//writes user.config in AppData
@@ -26,8 +26,7 @@ namespace WpfDisplay.ViewModels
             SettingsSaved?.Invoke(this, null);
         }
 
-        private RelayCommand cancelDialogCommand;
-        public ICommand CancelDialogCommand => cancelDialogCommand ??= new RelayCommand(CancelDialog);
+        [ICommand]
         private void CancelDialog()
         {
             Settings.Default.Reload();

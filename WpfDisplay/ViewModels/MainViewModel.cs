@@ -1,24 +1,25 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+﻿using IFSEngine.Model;
 using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
-using System.Diagnostics;
-using System.Windows.Input;
-using System.Collections.Generic;
-using IFSEngine.Model;
 
 namespace WpfDisplay.ViewModels
 {
-    public class MainViewModel : ObservableObject, IDisposable
+    [ObservableObject]
+    public partial class MainViewModel : IDisposable
     {
         internal readonly Workspace workspace;
 
@@ -42,8 +43,7 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private string statusBarText;
-        public string StatusBarText { get => statusBarText; set => SetProperty(ref statusBarText, value); }
+        [ObservableProperty] private string statusBarText;
 
         public bool IsColorPickerEnabled => !TransparentBackground;
         //Main display settings:
@@ -53,18 +53,18 @@ namespace WpfDisplay.ViewModels
         public float Sensitivity => (float)workspace.Sensitivity;
 
 
-        public string WindowTitle => workspace.IFS is null ? "IFSRenderer" : $"{workspace.IFS.Title} - IFSRenderer";
+        public string WindowTitle => workspace.Ifs is null ? "IFSRenderer" : $"{workspace.Ifs.Title} - IFSRenderer";
         public string IFSTitle
         {
-            get => workspace.IFS.Title;
+            get => workspace.Ifs.Title;
             set
             {
-                workspace.IFS.Title = value;
+                workspace.Ifs.Title = value;
                 OnPropertyChanged(nameof(IFSTitle));
                 OnPropertyChanged(nameof(WindowTitle));
             }
         }
-        public IEnumerable<Author> AuthorList => workspace.IFS.Authors;
+        public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
 
         public MainViewModel(Workspace workspace)
         {
@@ -81,30 +81,24 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Initialized");
         }
 
-        private ICommand _newCommand;
-        public ICommand NewCommand =>
-            _newCommand ??= new RelayCommand(OnNewCommand);
-        private void OnNewCommand()
+        [ICommand]
+        private void New()
         {
             workspace.LoadBlankParams();
             workspace.UpdateStatusText($"Blank parameters loaded");
         }
 
-        private ICommand _loadRandomCommand;
-        public ICommand LoadRandomCommand =>
-            _loadRandomCommand ??= new RelayCommand(OnLoadRandomCommand);
-        private void OnLoadRandomCommand()
+        [ICommand]
+        private void LoadRandom()
         {
             workspace.LoadRandomParams();
             workspace.UpdateStatusText($"Randomly generated parameters loaded");
         }
 
-        private AsyncRelayCommand _saveParamsCommand;
-        public AsyncRelayCommand SaveParamsCommand =>
-            _saveParamsCommand ??= new AsyncRelayCommand(OnSaveParamsCommand);
-        private async Task OnSaveParamsCommand()
+        [ICommand]
+        private async Task SaveParams()
         {
-            if (DialogHelper.ShowSaveParamsDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowSaveParamsDialog(workspace.Ifs.Title, out string path))
             {
                 if (IFSTitle == "Untitled")//Set the file name as title
                     IFSTitle = Path.GetFileNameWithoutExtension(path);
@@ -114,17 +108,15 @@ namespace WpfDisplay.ViewModels
                     await workspace.SaveParamsFileAsync(path);
                     workspace.UpdateStatusText($"Parameters saved to {path}");
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     workspace.UpdateStatusText($"ERROR - Failed to save params.");
                 }
             }
         }
 
-        private AsyncRelayCommand _loadParamsCommand;
-        public AsyncRelayCommand LoadParamsCommand =>
-            _loadParamsCommand ??= new AsyncRelayCommand(OnLoadParamsCommand);
-        private async Task OnLoadParamsCommand()
+        [ICommand]
+        private async Task LoadParams()
         {
             if (DialogHelper.ShowOpenParamsDialog(out string path))
             {
@@ -173,10 +165,8 @@ namespace WpfDisplay.ViewModels
             return bs;
         }
 
-        private AsyncRelayCommand _exportToClipboardCommand;
-        public AsyncRelayCommand ExportToClipboardCommand =>
-            _exportToClipboardCommand ??= new AsyncRelayCommand(OnExportToClipboardCommand);
-        private async Task OnExportToClipboardCommand()
+        [ICommand]
+        private async Task ExportToClipboard()
         {
             BitmapSource bs = await GetExportBitmapSource();
             Clipboard.SetImage(bs);
@@ -187,15 +177,13 @@ namespace WpfDisplay.ViewModels
             workspace.UpdateStatusText($"Image exported to clipboard");
         }
 
-        private AsyncRelayCommand _saveImageCommand;
-        public AsyncRelayCommand SaveImageCommand =>
-            _saveImageCommand ??= new AsyncRelayCommand(OnSaveImageCommand);
-        private async Task OnSaveImageCommand()
+        [ICommand]
+        private async Task SaveImage()
         {
             workspace.UpdateStatusText($"Exporting...");
             var makeBitmapTask = GetExportBitmapSource();
 
-            if (DialogHelper.ShowExportImageDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowExportImageDialog(workspace.Ifs.Title, out string path))
             {
                 BitmapSource bs = await makeBitmapTask;
 
@@ -213,10 +201,8 @@ namespace WpfDisplay.ViewModels
             GC.Collect();
         }
 
-        private AsyncRelayCommand _saveExrCommand;
-        public AsyncRelayCommand SaveExrCommand =>
-            _saveExrCommand ??= new AsyncRelayCommand(OnSaveExrCommand);
-        private async Task OnSaveExrCommand()
+        [ICommand]
+        private async Task SaveExr()
         {
             workspace.UpdateStatusText($"Exporting...");
             Task<float[,,]> getDataTask = Task.Run(async () =>
@@ -224,7 +210,7 @@ namespace WpfDisplay.ViewModels
                 return await workspace.Renderer.ReadHistogramData();
             });
 
-            if (DialogHelper.ShowExportExrDialog(workspace.IFS.Title, out string path))
+            if (DialogHelper.ShowExportExrDialog(workspace.Ifs.Title, out string path))
             {
                 var histogramData = await getDataTask;
                 using var fstream = File.Create(path);
@@ -236,18 +222,14 @@ namespace WpfDisplay.ViewModels
             GC.Collect();
         }
 
-        private AsyncRelayCommand _closeWorkspaceCommand;
-        public AsyncRelayCommand CloseWorkspaceCommand =>
-            _closeWorkspaceCommand ??= new AsyncRelayCommand(OnCloseWorkspaceCommand);
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();
 
-        private RelayCommand _interactionFinishedCommand;
-        public ICommand InteractionFinishedCommand => _interactionFinishedCommand ??= new RelayCommand(CameraSettingsViewModel.RaisePropertyChanged);
-
-        private async Task OnCloseWorkspaceCommand()
+        [ICommand]
+        private async Task CloseWorkspace()
         {
             //TODO: prompt to save work?
             Dispose();
@@ -259,8 +241,7 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.Dispose();
         }
 
-        private RelayCommand visitIssuesCommand;
-        public ICommand VisitIssuesCommand => visitIssuesCommand ??= new RelayCommand(VisitIssues);
+        [ICommand]
         private void VisitIssues()
         {
             //Open the Issues page in user's default browser
@@ -268,8 +249,7 @@ namespace WpfDisplay.ViewModels
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
-        private RelayCommand visitForumCommand;
-        public ICommand VisitForumCommand => visitForumCommand ??= new RelayCommand(VisitForum);
+        [ICommand]
         private void VisitForum()
         {
             //Open the Discussions page in user's default browser
@@ -277,8 +257,7 @@ namespace WpfDisplay.ViewModels
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
-        private RelayCommand reportBugCommand;
-        public ICommand ReportBugCommand => reportBugCommand ??= new RelayCommand(ReportBug);
+        [ICommand]
         private void ReportBug()
         {
             //Open the bug report template in user's default browser
@@ -286,8 +265,7 @@ namespace WpfDisplay.ViewModels
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
-        private RelayCommand checkUpdatesCommand;
-        public ICommand CheckUpdatesCommand => checkUpdatesCommand ??= new RelayCommand(CheckUpdates);
+        [ICommand]
         private void CheckUpdates()
         {
             //Open the Releases page in user's default browser
@@ -295,9 +273,7 @@ namespace WpfDisplay.ViewModels
             Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
         }
 
-        private RelayCommand visitWikiCommand;
-        public ICommand VisitWikiCommand => visitWikiCommand ??= new RelayCommand(VisitWiki);
-
+        [ICommand]
         private void VisitWiki()
         {
             //Open the Wiki page in user's default browser

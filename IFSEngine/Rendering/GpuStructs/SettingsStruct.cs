@@ -1,8 +1,8 @@
 ﻿#pragma warning disable CS0649
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Numerics;
+using System.Text;
 
 namespace IFSEngine.Rendering.GpuStructs
 {
@@ -19,7 +19,7 @@ namespace IFSEngine.Rendering.GpuStructs
         internal float entropy;
         internal int max_filter_radius;
         internal int padding0;
-        
+
         internal int filter_method;
         internal float filter_param0;
         internal float filter_param1;

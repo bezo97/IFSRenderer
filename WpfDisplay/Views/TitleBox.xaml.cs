@@ -41,7 +41,7 @@ namespace WpfDisplay.Views
             }
             else if (e.Key == Key.Escape)
             {
-                vm.IFSTitle = vm.workspace.IFS.Title;
+                vm.IFSTitle = vm.workspace.Ifs.Title;
                 Keyboard.ClearFocus();
             }
         }

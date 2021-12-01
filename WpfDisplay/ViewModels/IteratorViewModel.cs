@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -11,7 +12,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class IteratorViewModel : ObservableObject
+    [ObservableObject]
+    public partial class IteratorViewModel
     {
         public readonly Iterator iterator;
         private readonly Workspace workspace;
@@ -20,7 +22,7 @@ namespace WpfDisplay.ViewModels
         public event EventHandler ViewChanged;
         public event EventHandler<bool> ConnectEvent;
 
-        public List<IParamViewModel> Parameters { get; } = new List<IParamViewModel>();
+        public List<INotifyPropertyChanged> Parameters { get; } = new();
 
         public IteratorViewModel(Iterator iterator, Workspace workspace)
         {
@@ -45,8 +47,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public RelayCommand RemoveCommand { get; set; }
-        public RelayCommand DuplicateCommand { get; set; }
+        public IRelayCommand RemoveCommand { get; set; }
+        public IRelayCommand DuplicateCommand { get; set; }
 
         public void Redraw()
         {
@@ -54,15 +56,7 @@ namespace WpfDisplay.ViewModels
             OnPropertyChanged("NodePosition");
         }
 
-        private bool isselected;
-        public bool IsSelected
-        {
-            get => isselected;
-            set
-            {
-                SetProperty(ref isselected, value);
-            }
-        }
+        [ObservableProperty] private bool _isSelected;
 
         public float StartWeight
         {
@@ -110,9 +104,11 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public Color ColorRGB {
-            get {
-                var colors = workspace.IFS.Palette.Colors;
+        public Color ColorRGB
+        {
+            get
+            {
+                var colors = workspace.Ifs.Palette.Colors;
                 var c = colors[(int)(colors.Count * (ColorIndex - Math.Floor(ColorIndex)))];
                 return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
             }
@@ -185,26 +181,13 @@ namespace WpfDisplay.ViewModels
 
         public double RenderTranslateValue => -0.5 * WeightedSize;
 
-        public string TransformName
-        {
-            get => iterator.Transform.Name;
-        }
+        public string TransformName => iterator.Transform.Name;
 
         //TODO: string IteratorName
 
-        private float xCoord = RandHelper.Next(500);
-        public float XCoord
-        {
-            get => xCoord;
-            private set {SetProperty(ref xCoord, value); }
-        }
-        
-        private float yCoord = RandHelper.Next(500);
-        public float YCoord
-        {
-            get => yCoord;
-            private set { SetProperty(ref yCoord, value); }
-        }
+        [ObservableProperty] private float _xCoord = RandHelper.Next(500);
+
+        [ObservableProperty] private float _yCoord = RandHelper.Next(500);
 
         public void UpdatePosition(float x, float y)
         {
@@ -219,11 +202,7 @@ namespace WpfDisplay.ViewModels
         //{
         //    get => _startConnectingCommand ?? (_startConnectingCommand = new RelayCommand(StartConnecting));
         //}
-        public void StartConnecting()
-        {
-            //
-            ConnectEvent?.Invoke(this, false);
-        }
+        public void StartConnecting() => ConnectEvent?.Invoke(this, false);
 
         //private RelayCommand _finishConnectingCommand;
         //public RelayCommand FinishConnectingCommand
@@ -237,12 +216,10 @@ namespace WpfDisplay.ViewModels
             ViewChanged?.Invoke(this, null);//refresh
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
-        private RelayCommand flipOpacityCommand;
-        public ICommand FlipOpacityCommand => flipOpacityCommand ??= new RelayCommand(FlipOpacity);
+        [ICommand]
         private void FlipOpacity()
         {
             workspace.TakeSnapshot();
@@ -253,9 +230,7 @@ namespace WpfDisplay.ViewModels
 
         }
 
-        private RelayCommand flipWeightCommand;
-        public ICommand FlipWeightCommand => flipWeightCommand ??= new RelayCommand(FlipWeight);
-
+        [ICommand]
         private void FlipWeight()
         {
             workspace.TakeSnapshot();
