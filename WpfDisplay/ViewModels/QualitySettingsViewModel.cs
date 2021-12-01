@@ -29,7 +29,7 @@ namespace WpfDisplay.ViewModels
         }
         public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
 
-        public string PreviewResolutionText 
+        public string PreviewResolutionText
         {
             get
             {
@@ -128,18 +128,18 @@ namespace WpfDisplay.ViewModels
         }
 
 
-        public int ImageWidth 
-        { 
-            get 
+        public int ImageWidth
+        {
+            get
             {
                 return workspace.IFS.ImageResolution.Width;
-            } 
-            set 
+            }
+            set
             {
                 workspace.TakeSnapshot();
-                if(IsResolutionLinked)
+                if (IsResolutionLinked)
                 {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
+                    double ratio = workspace.IFS.ImageResolution.Width / (double)workspace.IFS.ImageResolution.Height;
                     workspace.IFS.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
                 }
                 else
@@ -163,7 +163,7 @@ namespace WpfDisplay.ViewModels
                 workspace.TakeSnapshot();
                 if (IsResolutionLinked)
                 {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
+                    double ratio = workspace.IFS.ImageResolution.Width / (double)workspace.IFS.ImageResolution.Height;
                     workspace.IFS.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
                 }
                 else

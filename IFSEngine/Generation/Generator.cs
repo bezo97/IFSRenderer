@@ -32,9 +32,9 @@ namespace IFSEngine.Generation
         public IFS GenerateOne(GeneratorOptions options)
         {
             IFS gen = options.baseParams.DeepClone();
-            if(options.MutateIterators)
+            if (options.MutateIterators)
             {
-                while(gen.Iterators.Count<4)
+                while (gen.Iterators.Count < 4)
                 {
                     gen.AddIterator(Iterator.RandomIterator(SelectedTransforms), true);
                 }
@@ -71,7 +71,7 @@ namespace IFSEngine.Generation
                     {
                         if (!it.WeightTo.TryGetValue(itTo, out _))
                             it.WeightTo[itTo] = 0.0;//hack
-                        if(options.MutationChance > RandHelper.NextDouble())
+                        if (options.MutationChance > RandHelper.NextDouble())
                         {
                             it.WeightTo[itTo] = 1.0 - (it.WeightTo[itTo] > 0.0 ? 1.0 : 0.0);
                         }
@@ -114,7 +114,7 @@ namespace IFSEngine.Generation
         {
             if (o.MutationChance > RandHelper.NextDouble())
                 return val + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble();
-            else 
+            else
                 return val;
         }
         private static Vector3 MutateVec3(Vector3 val, GeneratorOptions o)

@@ -11,7 +11,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
     //KeyboardDelay workaround
     //https://codereview.stackexchange.com/questions/44404/preventing-keydown-delay
     public class KeyboardHelper
-    {        
+    {
         private HashSet<Key> pressedKeys;
         private readonly object pressedKeysLock = new object();
 

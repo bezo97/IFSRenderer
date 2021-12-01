@@ -33,11 +33,11 @@ namespace WpfDisplay.Views
             set { SetValue(PaletteProperty, value); }
         }
         public static readonly DependencyProperty PaletteProperty =
-            DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteButton), 
+            DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteButton),
                 new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnPalettePropertyChanged)));
         private static void OnPalettePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            if(e.NewValue != null)
+            if (e.NewValue != null)
                 ((PaletteButton)sender).SetGradient((FlamePalette)e.NewValue);
         }
 
@@ -53,7 +53,7 @@ namespace WpfDisplay.Views
                         (byte)(fp.Colors[i].Z * 255)),
                     i / (double)fp.Colors.Count));
             }
-            
+
         }
 
 

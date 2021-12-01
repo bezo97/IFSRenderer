@@ -1,20 +1,20 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+﻿using IFSEngine.Model;
 using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
-using System.Diagnostics;
-using System.Windows.Input;
-using System.Collections.Generic;
-using IFSEngine.Model;
 
 namespace WpfDisplay.ViewModels
 {
@@ -114,7 +114,7 @@ namespace WpfDisplay.ViewModels
                     await workspace.SaveParamsFileAsync(path);
                     workspace.UpdateStatusText($"Parameters saved to {path}");
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     workspace.UpdateStatusText($"ERROR - Failed to save params.");
                 }

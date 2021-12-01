@@ -1,15 +1,15 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using OpenTK;
+using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using OpenTK.Windowing.Desktop;
-using IFSEngine.Generation;
-using System.Threading.Tasks;
 
 namespace WpfDisplay.Models
 {
@@ -23,7 +23,7 @@ namespace WpfDisplay.Models
         public IReadOnlyList<IFS> GeneratedIFS => generatedIFS;
         public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => thumbnails;
 
-        
+
 
         private RendererGL renderer;
         private Generator generator;
@@ -37,7 +37,7 @@ namespace WpfDisplay.Models
             //init thumbnail renderer
             GameWindow hw = new(new GameWindowSettings
             {
-                IsMultiThreaded=true
+                IsMultiThreaded = true
             }, new NativeWindowSettings
             {
                 Flags = OpenTK.Windowing.Common.ContextFlags.Offscreen,
@@ -69,7 +69,7 @@ namespace WpfDisplay.Models
         public void PinIFS(IFS ifs)
         {
             pinnedIFS.Add(ifs);
-            if(!thumbnails.ContainsKey(ifs))
+            if (!thumbnails.ContainsKey(ifs))
                 renderQueue.Enqueue(ifs);
         }
 

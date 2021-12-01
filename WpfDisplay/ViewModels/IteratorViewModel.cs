@@ -110,8 +110,10 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        public Color ColorRGB {
-            get {
+        public Color ColorRGB
+        {
+            get
+            {
                 var colors = workspace.IFS.Palette.Colors;
                 var c = colors[(int)(colors.Count * (ColorIndex - Math.Floor(ColorIndex)))];
                 return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
@@ -196,9 +198,9 @@ namespace WpfDisplay.ViewModels
         public float XCoord
         {
             get => xCoord;
-            private set {SetProperty(ref xCoord, value); }
+            private set { SetProperty(ref xCoord, value); }
         }
-        
+
         private float yCoord = RandHelper.Next(500);
         public float YCoord
         {

@@ -15,7 +15,7 @@ namespace WpfDisplay.ViewModels
         public readonly IteratorViewModel from;
         public readonly IteratorViewModel to;
         private readonly Workspace workspace;
-        
+
         public Point StartPoint => new Point(from.XCoord, from.YCoord);
         public Point EndPoint => new Point(to.XCoord, to.YCoord);
         public Point ArrowHeadMid { get; set; }

@@ -156,7 +156,8 @@ namespace WpfDisplay.ViewModels
         {
             //remove nodes
             var removedIteratorVMs = IteratorViewModels.Where(vm => !workspace.IFS.Iterators.Any(i => vm.iterator == i)).ToList();
-            removedIteratorVMs.ForEach(vm => { 
+            removedIteratorVMs.ForEach(vm =>
+            {
                 IteratorViewModels.Remove(vm);
             });
             //remove connections
@@ -214,7 +215,7 @@ namespace WpfDisplay.ViewModels
                 }
                 workspace.Renderer.InvalidateParamsBuffer();
                 HandleIteratorsChanged();
-                SelectedIterator = IteratorViewModels.First(vm=>vm.iterator==newIterator);
+                SelectedIterator = IteratorViewModels.First(vm => vm.iterator == newIterator);
             });
 
         private RelayCommand _removeSelectedCommand;
@@ -229,7 +230,7 @@ namespace WpfDisplay.ViewModels
                     SelectedIterator = null;
                     HandleIteratorsChanged();
                 }
-                else if(SelectedConnection != null)
+                else if (SelectedConnection != null)
                 {
                     workspace.TakeSnapshot();
                     SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;

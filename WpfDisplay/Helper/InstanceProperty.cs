@@ -10,7 +10,7 @@ namespace WpfDisplay.Helper
 {
     public class InstanceProperty// : INotifyPropertyChanged
     {
-        
+
         public event /*PropertyChanged*/EventHandler PropertyChanged;
 
         private readonly object instance;
@@ -26,8 +26,9 @@ namespace WpfDisplay.Helper
 
         public double PropertyValue
         {
-            get { return (double) pi.GetValue(instance); }
-            set { 
+            get { return (double)pi.GetValue(instance); }
+            set
+            {
                 pi.SetValue(instance, value);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
             }
