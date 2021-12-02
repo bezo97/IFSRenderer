@@ -25,7 +25,7 @@ namespace IFSEngine.Serialization
         public override Transform ReadJson(JsonReader reader, Type objectType, /*[AllowNullAttribute]*/ Transform existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             Transform tf;
-            (string Name, string Version) = serializer.Deserialize<ValueTuple<string,string>>(reader);
+            (string Name, string Version) = serializer.Deserialize<ValueTuple<string, string>>(reader);
             tf = loadedTransforms.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
             if (tf == null)
             {

@@ -6,7 +6,7 @@ namespace IFSEngine.Animation
 {
     class PropertyAnimation
     {
-        public AnimationCurve AnimationCurve=new AnimationCurve();
+        public AnimationCurve AnimationCurve = new AnimationCurve();
         private Action<float> ApplyValue;
 
         public PropertyAnimation(Action<float> ApplyValue)

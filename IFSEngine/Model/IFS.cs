@@ -1,9 +1,9 @@
-﻿using System;
+﻿using IFSEngine.Utility;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using IFSEngine.Utility;
 
 namespace IFSEngine.Model
 {
@@ -43,7 +43,7 @@ namespace IFSEngine.Model
         public Color BackgroundColor { get; set; } = Color.Black;
         public Size ImageResolution { get; set; } = new Size(1920, 1080);
         public FlamePalette Palette { get; set; } = FlamePalette.Default;
-        
+
         protected HashSet<Iterator> iterators = new();
         protected List<Author> authors = new();
 
@@ -70,7 +70,7 @@ namespace IFSEngine.Model
                 Opacity = a.Opacity,
                 ShadingMode = a.ShadingMode,
                 StartWeight = a.StartWeight,
-                
+
             };
             //copy parameter values
             foreach (var tv in a.RealParams)
@@ -80,14 +80,14 @@ namespace IFSEngine.Model
             //add to the ifs
             AddIterator(d, false);
             //copy connection weights
-            foreach(Iterator it in Iterators)
+            foreach (Iterator it in Iterators)
             {//'from' weights
                 if (it.WeightTo.TryGetValue(a, out double w))
                     it.WeightTo[d] = w;
             }
             foreach (var w in a.WeightTo)
             {//'to' weights
-                if(w.Key == a)//if self-connected, do the same on the duplicate
+                if (w.Key == a)//if self-connected, do the same on the duplicate
                     d.WeightTo[d] = w.Value;
                 else
                     d.WeightTo[w.Key] = w.Value;
@@ -120,7 +120,7 @@ namespace IFSEngine.Model
             {
                 //ignore transform version checking here so they are updated.
                 var newtf = transforms.FirstOrDefault(tf => tf.Name == iterator.Transform.Name);
-                if(newtf != null)
+                if (newtf != null)
                     iterator.SetTransform(newtf);
                 //leave old transform if a newer version is not found
             }
@@ -128,7 +128,7 @@ namespace IFSEngine.Model
 
         public void AddAuthor(Author author)
         {
-            if(!authors.Contains(author))
+            if (!authors.Contains(author))
                 authors.Add(author);
         }
 

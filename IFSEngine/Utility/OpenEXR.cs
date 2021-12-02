@@ -109,8 +109,8 @@ namespace IFSEngine.Utility
                     bw.Write(4 * 4);//4 ints
                     bw.Write(0);//xmin
                     bw.Write(0);//ymin
-                    bw.Write(histogramWidth-1);//xmax
-                    bw.Write(histogramHeight-1);//ymax
+                    bw.Write(histogramWidth - 1);//xmax
+                    bw.Write(histogramHeight - 1);//ymax
                 }
                 {
                     bw.WriteString0("displayWindow");
@@ -118,8 +118,8 @@ namespace IFSEngine.Utility
                     bw.Write(4 * 4);//4 ints
                     bw.Write(0);//xmin
                     bw.Write(0);//ymin
-                    bw.Write(histogramWidth-1);//xmax
-                    bw.Write(histogramHeight-1);//ymax
+                    bw.Write(histogramWidth - 1);//xmax
+                    bw.Write(histogramHeight - 1);//ymax
                 }
                 {
                     bw.WriteString0("lineOrder");

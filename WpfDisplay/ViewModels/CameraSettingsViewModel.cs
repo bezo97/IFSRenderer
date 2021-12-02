@@ -15,7 +15,8 @@ namespace WpfDisplay.ViewModels
             workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         }
 
-        public float FieldOfView {
+        public float FieldOfView
+        {
             get => workspace.IFS.Camera.FieldOfView;
             set
             {

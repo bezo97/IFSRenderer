@@ -44,7 +44,8 @@ namespace WpfDisplay
 
             //Open URIs in <Hyperlink> tags
             EventManager.RegisterClassHandler(typeof(Hyperlink), Hyperlink.RequestNavigateEvent,
-                new RequestNavigateEventHandler((s, e) => {
+                new RequestNavigateEventHandler((s, e) =>
+                {
                     try
                     {
                         Process.Start(new ProcessStartInfo(e.Uri.ToString())

@@ -45,7 +45,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
         }
         public static readonly DependencyProperty InvertRotationAxisXProperty =
             DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay),
-                new PropertyMetadata(false, (a,b) => { ((InteractiveDisplay)a).invertX = (bool)b.NewValue; }));
+                new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a).invertX = (bool)b.NewValue; }));
 
         private bool invertY;
         public bool InvertRotationAxisY
@@ -74,7 +74,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
             set { SetValue(SensitivityProperty, value); }
         }
         public static readonly DependencyProperty SensitivityProperty =
-            DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay), 
+            DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay),
                 new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a).sensitivity = (float)b.NewValue; }));
 
         [DllImport("User32.dll")]
@@ -175,7 +175,7 @@ namespace IFSEngine.WPF.InteractiveDisplay
                 rotateVec = Vector3.Multiply(rotateVec, new Vector3(rotateSpeed, rotateSpeed, 1.0f));
 
                 Renderer.LoadedParams.Camera.FocusDistance += fdDelta * Renderer.LoadedParams.Camera.FocusDistance * 0.03;
-                Renderer.LoadedParams.Camera.Translate(translateVec * sensitivity); 
+                Renderer.LoadedParams.Camera.Translate(translateVec * sensitivity);
                 Renderer.LoadedParams.Camera.Rotate(rotateVec * sensitivity);
                 Renderer.InvalidateHistogramBuffer();
 
