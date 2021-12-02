@@ -16,7 +16,7 @@ class LinearCurveImplementation : ICurveImplementation
         if (t <= controlPoints.First().t)
             return controlPoints.First().Value;
 
-        ControlPoint leftControlPoint = new ControlPoint(), rightControlPoint = new ControlPoint();
+        ControlPoint leftControlPoint = new(), rightControlPoint = new();
         for (int i = 0; i < controlPoints.Count - 1; i++)
         {
             if (t >= controlPoints[i].t && t <= controlPoints[i + 1].t)

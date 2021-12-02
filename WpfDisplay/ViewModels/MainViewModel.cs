@@ -29,16 +29,16 @@ public sealed partial class MainViewModel : IAsyncDisposable
     public QualitySettingsViewModel QualitySettingsViewModel { get; }
     public IFSViewModel IFSViewModel { get; }
 
-    private bool transparentBackground;
+    private bool _transparentBackground;
     public bool TransparentBackground
     {
-        get => transparentBackground;
+        get => _transparentBackground;
         set
         {
             workspace.TakeSnapshot();
             if (value)
                 IFSViewModel.BackgroundColor = Colors.Black;
-            SetProperty(ref transparentBackground, value);
+            SetProperty(ref _transparentBackground, value);
             OnPropertyChanged(nameof(IsColorPickerEnabled));
         }
     }

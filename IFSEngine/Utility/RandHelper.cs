@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IFSEngine.Utility;
 
 //global random state to avoid getting same values
 public static class RandHelper
 {
-    private static readonly Random random = new Random();
-    private static readonly object syncLock = new object();
+    private static readonly Random _random = new();
+    private static readonly object _syncLock = new();
     public static int Next(int max = int.MaxValue)
     {
-        lock (syncLock)
+        lock (_syncLock)
         { // synchronize
-            return random.Next(max);
+            return _random.Next(max);
         }
     }
 
     public static double NextDouble()
     {
-        lock (syncLock)
+        lock (_syncLock)
         { // synchronize
-            return random.NextDouble();
+            return _random.NextDouble();
         }
     }
 

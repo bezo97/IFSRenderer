@@ -21,10 +21,10 @@ public partial class EditorWindow : Window
     //fix laggy ui by disabling wpf hardware rendering
     protected override void OnSourceInitialized(EventArgs e)
     {
-        var hwndSource = PresentationSource.FromVisual(this) as HwndSource;
-
-        if (hwndSource != null)
+        if (PresentationSource.FromVisual(this) is HwndSource hwndSource)
+        {
             hwndSource.CompositionTarget.RenderMode = RenderMode.SoftwareOnly;
+        }
 
         base.OnSourceInitialized(e);
     }

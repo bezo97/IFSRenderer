@@ -18,7 +18,7 @@ public class GeneratorOptions
     public bool MutateParameters = true;
     public bool MutatePalette = true;
     public bool MutateColoring = true;
-    public IFS baseParams = new IFS
+    public IFS baseParams = new()
     {
         Brightness = 1,
         Gamma = 4,

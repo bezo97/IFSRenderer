@@ -70,7 +70,7 @@ public partial class App : Application
         dispatcherException.Handled = true;
     }
 
-    private void HandleUnexpectedException(Exception ex)
+    private static void HandleUnexpectedException(Exception ex)
     {
         try
         {

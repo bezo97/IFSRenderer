@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace IFSEngine.Serialization;
 
@@ -13,24 +12,23 @@ namespace IFSEngine.Serialization;
 /// </summary>
 internal class TransformConverter : JsonConverter<Transform>
 {
-    private readonly bool ignoreVersion;
-    private readonly IEnumerable<Transform> loadedTransforms;
+    private readonly bool _ignoreVersion;
+    private readonly IEnumerable<Transform> _loadedTransforms;
 
     public TransformConverter(IEnumerable<Transform> transforms, bool ignoreVersion)
     {
-        this.loadedTransforms = transforms;
-        this.ignoreVersion = ignoreVersion;
+        _loadedTransforms = transforms;
+        _ignoreVersion = ignoreVersion;
     }
 
     public override Transform ReadJson(JsonReader reader, Type objectType, /*[AllowNullAttribute]*/ Transform existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        Transform tf;
         (string Name, string Version) = serializer.Deserialize<ValueTuple<string, string>>(reader);
-        tf = loadedTransforms.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
+        var tf = _loadedTransforms.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
         if (tf == null)
         {
-            if (ignoreVersion)
-                return loadedTransforms.FirstOrDefault(i => i.Name == Name);
+            if (_ignoreVersion)
+                return _loadedTransforms.FirstOrDefault(i => i.Name == Name);
             else
                 throw new SerializationException($"The Transform '{Name}' (Version: {Version}) is unknown.");
         }

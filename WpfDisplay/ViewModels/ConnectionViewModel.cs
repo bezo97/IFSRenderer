@@ -12,15 +12,15 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class ConnectionViewModel
 {
-    private readonly IEnumerable<ConnectionViewModel> nodemapConnections;
+    private readonly IEnumerable<ConnectionViewModel> _nodemapConnections;
     public readonly IteratorViewModel from;
     public readonly IteratorViewModel to;
-    private readonly Workspace workspace;
+    private readonly Workspace _workspace;
 
     [ObservableProperty] private bool _isSelected;
 
-    public Point StartPoint => new Point(from.XCoord, from.YCoord);
-    public Point EndPoint => new Point(to.XCoord, to.YCoord);
+    public Point StartPoint => new(from.XCoord, from.YCoord);
+    public Point EndPoint => new(to.XCoord, to.YCoord);
     public Point ArrowHeadMid { get; set; }
     public Point ArrowHeadLeft { get; set; }
     public Point ArrowHeadRight { get; set; }
@@ -42,10 +42,10 @@ public partial class ConnectionViewModel
 
     public ConnectionViewModel(IEnumerable<ConnectionViewModel> nodemapConnections, IteratorViewModel from, IteratorViewModel to, Workspace workspace)
     {
-        this.nodemapConnections = nodemapConnections;
+        this._nodemapConnections = nodemapConnections;
         this.from = from;
         this.to = to;
-        this.workspace = workspace;
+        this._workspace = workspace;
         from.PropertyChanged += HandlePositionsChanged;
         to.PropertyChanged += HandlePositionsChanged;
         UpdateGeometry();
@@ -117,7 +117,7 @@ public partial class ConnectionViewModel
         //calc loopback angle
         double dirx = 0;
         double diry = 0;
-        foreach (ConnectionViewModel c in nodemapConnections.Where(nc => nc.from == from || nc.to == from))
+        foreach (ConnectionViewModel c in _nodemapConnections.Where(nc => nc.from == from || nc.to == from))
         {
             dirx += c.to.XCoord - from.XCoord;
             diry += c.to.YCoord - from.YCoord;

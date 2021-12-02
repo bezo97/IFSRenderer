@@ -16,9 +16,9 @@ namespace WpfDisplay.ViewModels;
 public partial class IteratorViewModel
 {
     public readonly Iterator iterator;
-    private readonly Workspace workspace;
+    private readonly Workspace _workspace;
 
-    public static double BaseSize = 100;
+    public static readonly double BaseSize = 100;
     public event EventHandler ViewChanged;
     public event EventHandler<bool> ConnectEvent;
 
@@ -27,7 +27,7 @@ public partial class IteratorViewModel
     public IteratorViewModel(Iterator iterator, Workspace workspace)
     {
         this.iterator = iterator;
-        this.workspace = workspace;
+        _workspace = workspace;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
     }
@@ -35,14 +35,14 @@ public partial class IteratorViewModel
     public void ReloadParameters()
     {
         Parameters.Clear();
-        Parameters.AddRange(iterator.RealParams.Select(v => new RealParamViewModel(v.Key, iterator, workspace)));
-        Parameters.AddRange(iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, iterator, workspace)));
+        Parameters.AddRange(iterator.RealParams.Select(v => new RealParamViewModel(v.Key, iterator, _workspace)));
+        Parameters.AddRange(iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, iterator, _workspace)));
         foreach (var v in Parameters)
         {
             v.PropertyChanged += (s, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
-                workspace.Renderer.InvalidateParamsBuffer();
+                _workspace.Renderer.InvalidateParamsBuffer();
             };
         }
     }
@@ -65,7 +65,7 @@ public partial class IteratorViewModel
         {
             iterator.StartWeight = value;
             OnPropertyChanged(nameof(StartWeight));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -77,7 +77,7 @@ public partial class IteratorViewModel
             iterator.Opacity = value;
             OnPropertyChanged(nameof(Opacity));
             OnPropertyChanged(nameof(OpacityColor));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -89,7 +89,7 @@ public partial class IteratorViewModel
             iterator.ColorIndex = value;
             OnPropertyChanged(nameof(ColorIndex));
             OnPropertyChanged(nameof(ColorRGB));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -100,7 +100,7 @@ public partial class IteratorViewModel
         {
             iterator.ColorSpeed = value;
             OnPropertyChanged(nameof(ColorSpeed));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -108,7 +108,7 @@ public partial class IteratorViewModel
     {
         get
         {
-            var colors = workspace.Ifs.Palette.Colors;
+            var colors = _workspace.Ifs.Palette.Colors;
             var c = colors[(int)(colors.Count * (ColorIndex - Math.Floor(ColorIndex)))];
             return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
         }
@@ -121,7 +121,7 @@ public partial class IteratorViewModel
         {
             iterator.Mix = value;
             OnPropertyChanged(nameof(Mix));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -132,7 +132,7 @@ public partial class IteratorViewModel
         {
             iterator.Add = value;
             OnPropertyChanged(nameof(Add));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -143,7 +143,7 @@ public partial class IteratorViewModel
         {
             iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
             OnPropertyChanged(nameof(DeltaColoring));
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -165,7 +165,7 @@ public partial class IteratorViewModel
             //ifsvm.ifs.NormalizeBaseWeights();
             //ifsvm.HandleConnectionsChanged(this);
             ViewChanged?.Invoke(this, null);//refresh
-            workspace.Renderer.InvalidateParamsBuffer();
+            _workspace.Renderer.InvalidateParamsBuffer();
         }
     }
 
@@ -212,17 +212,17 @@ public partial class IteratorViewModel
     public void FinishConnecting()
     {
         ConnectEvent?.Invoke(this, true);
-        workspace.Renderer.InvalidateParamsBuffer();
+        _workspace.Renderer.InvalidateParamsBuffer();
         ViewChanged?.Invoke(this, null);//refresh
     }
 
     [ICommand]
-    private void TakeSnapshot() => workspace.TakeSnapshot();
+    private void TakeSnapshot() => _workspace.TakeSnapshot();
 
     [ICommand]
     private void FlipOpacity()
     {
-        workspace.TakeSnapshot();
+        _workspace.TakeSnapshot();
         if (Opacity > 0.0f)
             Opacity = 0.0f;
         else
@@ -233,7 +233,7 @@ public partial class IteratorViewModel
     [ICommand]
     private void FlipWeight()
     {
-        workspace.TakeSnapshot();
+        _workspace.TakeSnapshot();
         if (BaseWeight > 0.0f)
             BaseWeight = 0.0f;
         else

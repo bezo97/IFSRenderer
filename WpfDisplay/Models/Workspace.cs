@@ -21,33 +21,33 @@ namespace WpfDisplay.Models;
 [ObservableObject]
 public partial class Workspace
 {
-    private readonly IFSHistoryTracker tracker = new();
-    private List<Transform> loadedTransforms = new();
+    private readonly IFSHistoryTracker _tracker = new();
+    private List<Transform> _loadedTransforms = new();
 
     public event EventHandler<string> StatusTextChanged;
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
-    public IReadOnlyCollection<Transform> LoadedTransforms => loadedTransforms;
+    public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisX, InvertAxisY, InvertAxisZ;
     public double Sensitivity;
 
-    private RendererGL renderer;
+    private RendererGL _renderer;
     public RendererGL Renderer
     {
-        get => renderer;
+        get => _renderer;
         set
         {
-            SetProperty(ref renderer, value);
+            SetProperty(ref _renderer, value);
             if (Ifs != null)
-                renderer.LoadParams(Ifs);
+                _renderer.LoadParams(Ifs);
         }
     }
 
 
     [ObservableProperty] private IFS _ifs;
 
-    public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
-    public bool IsHistoryRedoable => tracker.IsHistoryRedoable;
+    public bool IsHistoryUndoable => _tracker.IsHistoryUndoable;
+    public bool IsHistoryRedoable => _tracker.IsHistoryRedoable;
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using
@@ -61,7 +61,7 @@ public partial class Workspace
 
     public async Task Initialize()
     {
-        await Renderer.Initialize(loadedTransforms);
+        await Renderer.Initialize(_loadedTransforms);
 
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
@@ -77,7 +77,7 @@ public partial class Workspace
 
     private void LoadTransformLibrary()
     {
-        loadedTransforms = Directory
+        _loadedTransforms = Directory
             .GetFiles(TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
             .Select(file => Transform.FromFile(file))
             .ToList();
@@ -87,7 +87,7 @@ public partial class Workspace
     public void LoadParams(IFS ifs)
     {
         TakeSnapshot();
-        renderer?.LoadParams(ifs);
+        _renderer?.LoadParams(ifs);
         Ifs = ifs;
         if (!Renderer.IsRendering)
             Renderer.StartRenderLoop();
@@ -135,25 +135,25 @@ public partial class Workspace
     public void UndoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = tracker.Undo(Ifs, LoadedTransforms);
-        renderer?.LoadParams(Ifs);
+        Ifs = _tracker.Undo(Ifs, LoadedTransforms);
+        _renderer?.LoadParams(Ifs);
     }
 
     public void RedoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = tracker.Redo(Ifs, LoadedTransforms);
-        renderer?.LoadParams(Ifs);
+        Ifs = _tracker.Redo(Ifs, LoadedTransforms);
+        _renderer?.LoadParams(Ifs);
     }
 
     public void ClearHistory()
     {
-        tracker.Clear();
+        _tracker.Clear();
     }
 
     public void TakeSnapshot()
     {
-        tracker.TakeSnapshot(Ifs);
+        _tracker.TakeSnapshot(Ifs);
     }
 
     public async Task LoadUserSettings()
