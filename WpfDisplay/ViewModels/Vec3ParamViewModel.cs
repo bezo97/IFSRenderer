@@ -1,10 +1,12 @@
 ﻿using IFSEngine.Model;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Numerics;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class Vec3ParamViewModel : ParamViewModelBase<Vector3>
+    [ObservableObject]
+    public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     {
         public Vec3ParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
 
@@ -18,6 +20,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
         public float ValueY
         {
             get => iterator.Vec3Params[Name].Y;
@@ -28,6 +31,7 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
+
         public float ValueZ
         {
             get => iterator.Vec3Params[Name].Z;
@@ -38,6 +42,5 @@ namespace WpfDisplay.ViewModels
                 workspace.Renderer.InvalidateParamsBuffer();
             }
         }
-
     }
 }

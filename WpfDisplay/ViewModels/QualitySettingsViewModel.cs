@@ -6,9 +6,12 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class QualitySettingsViewModel : ObservableObject
+    [ObservableObject]
+    public partial class QualitySettingsViewModel
     {
         private readonly Workspace workspace;
+
+        [ObservableProperty] private bool _isResolutionLinked;
 
         public QualitySettingsViewModel(Workspace workspace)
         {
@@ -33,7 +36,7 @@ namespace WpfDisplay.ViewModels
         {
             get
             {
-                if (workspace.IFS.ImageResolution.Width == workspace.Renderer.HistogramWidth)
+                if (workspace.Ifs.ImageResolution.Width == workspace.Renderer.HistogramWidth)
                     return null;
                 else
                     return $"{workspace.Renderer.HistogramWidth} x {workspace.Renderer.HistogramHeight}";
@@ -86,10 +89,10 @@ namespace WpfDisplay.ViewModels
 
         public int EntropyInv
         {
-            get => (int)(1.0 / workspace.IFS.Entropy);
+            get => (int)(1.0 / workspace.Ifs.Entropy);
             set
             {
-                workspace.IFS.Entropy = 1.0 / value;
+                workspace.Ifs.Entropy = 1.0 / value;
                 OnPropertyChanged(nameof(EntropyInv));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -97,10 +100,10 @@ namespace WpfDisplay.ViewModels
 
         public int Warmup
         {
-            get => workspace.IFS.Warmup;
+            get => workspace.Ifs.Warmup;
             set
             {
-                workspace.IFS.Warmup = value;
+                workspace.Ifs.Warmup = value;
                 OnPropertyChanged(nameof(Warmup));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -120,31 +123,23 @@ namespace WpfDisplay.ViewModels
 
         public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 0 ? "" : " (Off)");
 
-        private bool isResolutionLinked;
-        public bool IsResolutionLinked
-        {
-            get { return isResolutionLinked; }
-            set { SetProperty(ref isResolutionLinked, value); }
-        }
-
-
         public int ImageWidth
         {
             get
             {
-                return workspace.IFS.ImageResolution.Width;
+                return workspace.Ifs.ImageResolution.Width;
             }
             set
             {
                 workspace.TakeSnapshot();
                 if (IsResolutionLinked)
                 {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double)workspace.IFS.ImageResolution.Height;
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
+                    double ratio = workspace.Ifs.ImageResolution.Width / (double)workspace.Ifs.ImageResolution.Height;
+                    workspace.Ifs.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
                 }
                 else
                 {
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, workspace.IFS.ImageResolution.Height);
+                    workspace.Ifs.ImageResolution = new System.Drawing.Size(value, workspace.Ifs.ImageResolution.Height);
                 }
                 workspace.Renderer.SetHistogramScale(1.0);
                 OnPropertyChanged(nameof(ImageWidth));
@@ -156,19 +151,19 @@ namespace WpfDisplay.ViewModels
         {
             get
             {
-                return workspace.IFS.ImageResolution.Height;
+                return workspace.Ifs.ImageResolution.Height;
             }
             set
             {
                 workspace.TakeSnapshot();
                 if (IsResolutionLinked)
                 {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double)workspace.IFS.ImageResolution.Height;
-                    workspace.IFS.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
+                    double ratio = workspace.Ifs.ImageResolution.Width / (double)workspace.Ifs.ImageResolution.Height;
+                    workspace.Ifs.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
                 }
                 else
                 {
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(workspace.IFS.ImageResolution.Width, value);
+                    workspace.Ifs.ImageResolution = new System.Drawing.Size(workspace.Ifs.ImageResolution.Width, value);
                 }
                 workspace.Renderer.SetHistogramScale(1.0);
                 OnPropertyChanged(nameof(ImageWidth));
@@ -176,10 +171,8 @@ namespace WpfDisplay.ViewModels
             }
         }
 
-        private AsyncRelayCommand _previewPresetCommand;
-        public AsyncRelayCommand PreviewPresetCommand =>
-            _previewPresetCommand ??= new AsyncRelayCommand(OnPreviewPresetCommand);
-        private async Task OnPreviewPresetCommand()
+        [ICommand]
+        private async Task PreviewPreset()
         {
             workspace.Renderer.SetHistogramScaleToDisplay();
             //EnableDE = true;
@@ -189,10 +182,8 @@ namespace WpfDisplay.ViewModels
             OnPropertyChanged(nameof(PreviewResolutionText));
         }
 
-        private AsyncRelayCommand _finalPresetCommand;
-        public AsyncRelayCommand FinalPresetCommand =>
-            _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
-        private async Task OnFinalPresetCommand()
+        [ICommand]
+        private async Task FinalPreset()
         {
             EnableTAA = false;
             EnableDE = false;
@@ -200,6 +191,5 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.SetHistogramScale(1.0);
             OnPropertyChanged(nameof(PreviewResolutionText));
         }
-
     }
 }

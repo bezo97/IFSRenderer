@@ -9,12 +9,15 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class ConnectionViewModel : ObservableObject
+    [ObservableObject]
+    public partial class ConnectionViewModel
     {
         private readonly IEnumerable<ConnectionViewModel> nodemapConnections;
         public readonly IteratorViewModel from;
         public readonly IteratorViewModel to;
         private readonly Workspace workspace;
+
+        [ObservableProperty] private bool _isSelected;
 
         public Point StartPoint => new Point(from.XCoord, from.YCoord);
         public Point EndPoint => new Point(to.XCoord, to.YCoord);
@@ -34,17 +37,6 @@ namespace WpfDisplay.ViewModels
             {
                 from.iterator.WeightTo[to.iterator] = value;
                 OnPropertyChanged(nameof(Weight));
-            }
-        }
-
-
-        private bool isselected;
-        public bool IsSelected
-        {
-            get => isselected;
-            set
-            {
-                SetProperty(ref isselected, value);
             }
         }
 

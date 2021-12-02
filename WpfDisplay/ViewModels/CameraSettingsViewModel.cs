@@ -5,7 +5,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class CameraSettingsViewModel : ObservableObject
+    [ObservableObject]
+    public partial class CameraSettingsViewModel
     {
         private readonly Workspace workspace;
 
@@ -17,10 +18,10 @@ namespace WpfDisplay.ViewModels
 
         public float FieldOfView
         {
-            get => workspace.IFS.Camera.FieldOfView;
+            get => workspace.Ifs.Camera.FieldOfView;
             set
             {
-                workspace.IFS.Camera.FieldOfView = value;
+                workspace.Ifs.Camera.FieldOfView = value;
                 OnPropertyChanged(nameof(FieldOfView));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -28,10 +29,10 @@ namespace WpfDisplay.ViewModels
 
         public double Aperture
         {
-            get => workspace.IFS.Camera.Aperture;
+            get => workspace.Ifs.Camera.Aperture;
             set
             {
-                workspace.IFS.Camera.Aperture = value;
+                workspace.Ifs.Camera.Aperture = value;
                 OnPropertyChanged(nameof(Aperture));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -39,10 +40,10 @@ namespace WpfDisplay.ViewModels
 
         public double FocusDistance
         {
-            get => workspace.IFS.Camera.FocusDistance;
+            get => workspace.Ifs.Camera.FocusDistance;
             set
             {
-                workspace.IFS.Camera.FocusDistance = value;
+                workspace.Ifs.Camera.FocusDistance = value;
                 OnPropertyChanged(nameof(FocusDistance));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
@@ -50,26 +51,23 @@ namespace WpfDisplay.ViewModels
 
         public double DepthOfField
         {
-            get => workspace.IFS.Camera.DepthOfField;
+            get => workspace.Ifs.Camera.DepthOfField;
             set
             {
-                workspace.IFS.Camera.DepthOfField = value;
+                workspace.Ifs.Camera.DepthOfField = value;
                 OnPropertyChanged(nameof(DepthOfField));
                 workspace.Renderer.InvalidateHistogramBuffer();
             }
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
 
-        private RelayCommand resetCameraCommand;
-        public ICommand ResetCameraCommand => resetCameraCommand ??= new RelayCommand(ResetCamera);
-
+        [ICommand]
         private void ResetCamera()
         {
             workspace.TakeSnapshot();
-            workspace.IFS.Camera = new IFSEngine.Model.Camera();
+            workspace.Ifs.Camera = new IFSEngine.Model.Camera();
             FieldOfView = 60;
             Aperture = 0.0;
             FocusDistance = 10.0;
@@ -77,10 +75,6 @@ namespace WpfDisplay.ViewModels
             workspace.Renderer.InvalidateHistogramBuffer();
         }
 
-        public void RaisePropertyChanged()
-        {
-            OnPropertyChanged(string.Empty);
-        }
-
+        public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);
     }
 }

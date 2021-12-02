@@ -4,7 +4,8 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels
 {
-    public class ToneMappingViewModel : ObservableObject
+    [ObservableObject]
+    public partial class ToneMappingViewModel
     {
         private readonly Workspace workspace;
 
@@ -16,48 +17,46 @@ namespace WpfDisplay.ViewModels
 
         public double Brightness
         {
-            get => workspace.IFS.Brightness;
+            get => workspace.Ifs.Brightness;
             set
             {
-                workspace.IFS.Brightness = value;
+                workspace.Ifs.Brightness = value;
                 OnPropertyChanged(nameof(Brightness));
                 workspace.Renderer.InvalidateDisplay();
             }
         }
         public double Gamma
         {
-            get => workspace.IFS.Gamma;
+            get => workspace.Ifs.Gamma;
             set
             {
-                workspace.IFS.Gamma = value;
+                workspace.Ifs.Gamma = value;
                 OnPropertyChanged(nameof(Gamma));
                 workspace.Renderer.InvalidateDisplay();
             }
         }
         public double GammaThreshold
         {
-            get => workspace.IFS.GammaThreshold;
+            get => workspace.Ifs.GammaThreshold;
             set
             {
-                workspace.IFS.GammaThreshold = value;
+                workspace.Ifs.GammaThreshold = value;
                 OnPropertyChanged(nameof(GammaThreshold));
                 workspace.Renderer.InvalidateDisplay();
             }
         }
         public double Vibrancy
         {
-            get => workspace.IFS.Vibrancy;
+            get => workspace.Ifs.Vibrancy;
             set
             {
-                workspace.IFS.Vibrancy = value;
+                workspace.Ifs.Vibrancy = value;
                 OnPropertyChanged(nameof(Vibrancy));
                 workspace.Renderer.InvalidateDisplay();
             }
         }
 
-        private RelayCommand _takeSnapshotCommand;
-        public RelayCommand TakeSnapshotCommand =>
-            _takeSnapshotCommand ??= new RelayCommand(workspace.TakeSnapshot);
-
+        [ICommand]
+        private void TakeSnapshot() => workspace.TakeSnapshot();
     }
 }
