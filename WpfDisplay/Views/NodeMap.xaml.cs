@@ -13,16 +13,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for NodeMap.xaml
+/// </summary>
+public partial class NodeMap : UserControl
 {
-    /// <summary>
-    /// Interaction logic for NodeMap.xaml
-    /// </summary>
-    public partial class NodeMap : UserControl
+    public NodeMap()
     {
-        public NodeMap()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WpfDisplay.Converters
-{
-    public class BetterBooleanToVisibilityConverter : BooleanConverter<Visibility>
-    {
+namespace WpfDisplay.Converters;
 
-        public BetterBooleanToVisibilityConverter() :
-            base(Visibility.Visible, Visibility.Collapsed)
-        { }
-    }
+public class BetterBooleanToVisibilityConverter : BooleanConverter<Visibility>
+{
+
+    public BetterBooleanToVisibilityConverter() :
+        base(Visibility.Visible, Visibility.Collapsed)
+    { }
 }

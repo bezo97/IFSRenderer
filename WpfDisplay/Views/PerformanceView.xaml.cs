@@ -13,16 +13,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for PerformanceView.xaml
+/// </summary>
+public partial class PerformanceView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for PerformanceView.xaml
-    /// </summary>
-    public partial class PerformanceView : UserControl
+    public PerformanceView()
     {
-        public PerformanceView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

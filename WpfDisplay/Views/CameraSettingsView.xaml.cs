@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for CameraSettingsView.xaml
+/// </summary>
+public partial class CameraSettingsView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for CameraSettingsView.xaml
-    /// </summary>
-    public partial class CameraSettingsView : UserControl
+    public CameraSettingsView()
     {
-        public CameraSettingsView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
