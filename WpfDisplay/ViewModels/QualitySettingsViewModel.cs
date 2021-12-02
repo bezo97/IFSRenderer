@@ -172,7 +172,7 @@ public partial class QualitySettingsViewModel
     }
 
     [ICommand]
-    private async Task PreviewPreset()
+    private void PreviewPreset()
     {
         workspace.Renderer.SetHistogramScaleToDisplay();
         //EnableDE = true;
@@ -183,7 +183,7 @@ public partial class QualitySettingsViewModel
     }
 
     [ICommand]
-    private async Task FinalPreset()
+    private void FinalPreset()
     {
         EnableTAA = false;
         EnableDE = false;

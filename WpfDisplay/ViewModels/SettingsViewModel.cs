@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using WpfDisplay.Properties;
 
@@ -19,10 +20,12 @@ internal partial class SettingsViewModel
     }
 
     [ICommand]
-    private void OkDialog()
+    private async Task OkDialog()
     {
         Settings.Default.Save();//writes user.config in AppData
-        mainvm.workspace.LoadUserSettings();
+
+        await mainvm.workspace.LoadUserSettings();
+
         SettingsSaved?.Invoke(this, null);
     }
 

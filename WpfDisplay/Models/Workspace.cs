@@ -49,14 +49,22 @@ public partial class Workspace
     public bool IsHistoryUndoable => tracker.IsHistoryUndoable;
     public bool IsHistoryRedoable => tracker.IsHistoryRedoable;
 
+    /// <summary>
+    /// Call <see cref="Initialize"/> before using
+    /// </summary>
+    /// <param name="r"></param>
     public Workspace(RendererGL r)
     {
         LoadTransformLibrary();
         Renderer = r;
-        Renderer.Initialize(loadedTransforms);
+    }
+
+    public async Task Initialize()
+    {
+        await Renderer.Initialize(loadedTransforms);
+
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
-        LoadUserSettings();
     }
 
     public async Task ReloadTransforms()
@@ -148,7 +156,7 @@ public partial class Workspace
         tracker.TakeSnapshot(Ifs);
     }
 
-    public void LoadUserSettings()
+    public async Task LoadUserSettings()
     {
         if (!ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).HasFile)
         {//migrate user settings from previous version
@@ -156,7 +164,9 @@ public partial class Workspace
             Settings.Default.Save();
         }
         Renderer.EnablePerceptualUpdates = Settings.Default.PerceptuallyUniformUpdates;
-        Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount).Wait();
+
+        await Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount);
+
         Renderer.TargetFramerate = Settings.Default.TargetFramerate;
         InvertAxisX = Settings.Default.InvertAxisX;
         InvertAxisY = Settings.Default.InvertAxisY;

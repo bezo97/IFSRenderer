@@ -2,6 +2,7 @@
 using IFSEngine.Model;
 using IFSEngine.Rendering.GpuStructs;
 using IFSEngine.Utility;
+using Nito.AsyncEx;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 using System;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace IFSEngine.Rendering;
 
-public sealed class RendererGL : IDisposable
+public sealed class RendererGL : IAsyncDisposable
 {
     public event EventHandler DisplayFramebufferUpdated;
 
@@ -130,7 +131,8 @@ public sealed class RendererGL : IDisposable
     private int renderTextureHandle;
     private int taaTextureHandle;
 
-    private readonly AutoResetEvent stopRender = new(false);
+    private readonly AsyncAutoResetEvent _stopRender = new(false);
+
     private readonly float[] bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
     private readonly string shadersPath = "IFSEngine.Rendering.Shaders.";
     private readonly bool debugFlag = false;
@@ -167,7 +169,7 @@ public sealed class RendererGL : IDisposable
         this.ctx = ctx;
     }
 
-    public void Initialize(IEnumerable<Transform> transforms)
+    public async Task Initialize(IEnumerable<Transform> transforms)
     {
         if (IsInitialized)
             throw new InvalidOperationException("Renderer is already initialized.");
@@ -199,7 +201,7 @@ public sealed class RendererGL : IDisposable
         SetHistogramScaleToDisplay();
 
         IsInitialized = true;
-        SetWorkgroupCount(WorkgroupCount).Wait();
+        await SetWorkgroupCount(WorkgroupCount);
 
         InvalidateParamsBuffer();
     }
@@ -546,17 +548,17 @@ public sealed class RendererGL : IDisposable
                 {
                     GL.BeginQuery(QueryTarget.TimeElapsed, timerQueryHandle);
                     DispatchCompute();//compute the histogram
-                        GL.EndQuery(QueryTarget.TimeElapsed);
+                    GL.EndQuery(QueryTarget.TimeElapsed);
 
                     AdjustWorkloadSize();
 
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(dispatchCnt);
                     if (updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                     {
-                            //render image from histogram
-                            RenderImage();
-                            //display the image
-                            BlitToDisplayFramebuffer();
+                        //render image from histogram
+                        RenderImage();
+                        //display the image
+                        BlitToDisplayFramebuffer();
                         ctx.SwapBuffers();
                         DisplayFramebufferUpdated?.Invoke(this, null);
                         updateDisplayNow = false;
@@ -564,7 +566,7 @@ public sealed class RendererGL : IDisposable
                 }
                 GL.Finish();
                 ctx.MakeNoneCurrent();
-                stopRender.Set();
+                _stopRender.Set();
             }).Start();
         }
     }
@@ -577,7 +579,7 @@ public sealed class RendererGL : IDisposable
         if (!IsRendering)
             throw new InvalidOperationException("The render loop is not running.");
         IsRendering = false;
-        stopRender.WaitOne(); //TODO: find async solution
+        await _stopRender.WaitAsync(); //TODO: find async solution
     }
 
     /// <summary>
@@ -903,13 +905,13 @@ if (iter.tfId == {tfIndex})
         return new InvalidOperationException("Renderer is not initialized.");
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         DisplayFramebufferUpdated = null;
         if (IsInitialized)
         {
             if (IsRendering)
-                StopRenderLoop().Wait();
+                await StopRenderLoop();
             if (debugFlag)
                 _debugProcCallbackHandle.Free();
             //TODO: dispose buffers

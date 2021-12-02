@@ -19,7 +19,7 @@ using WpfDisplay.Models;
 namespace WpfDisplay.ViewModels;
 
 [ObservableObject]
-public partial class MainViewModel : IDisposable
+public sealed partial class MainViewModel : IAsyncDisposable
 {
     internal readonly Workspace workspace;
 
@@ -232,14 +232,11 @@ public partial class MainViewModel : IDisposable
     private async Task CloseWorkspace()
     {
         //TODO: prompt to save work?
-        Dispose();
+        await DisposeAsync();
         Environment.Exit(0);
     }
 
-    public void Dispose()
-    {
-        workspace.Renderer.Dispose();
-    }
+    public async ValueTask DisposeAsync() => await workspace.Renderer.DisposeAsync();
 
     [ICommand]
     private void VisitIssues()

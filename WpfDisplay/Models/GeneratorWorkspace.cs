@@ -30,6 +30,10 @@ public partial class GeneratorWorkspace
     private List<IFS> generatedIFS = new List<IFS>();
     private ConcurrentQueue<IFS> renderQueue = new ConcurrentQueue<IFS>();
 
+    /// <summary>
+    /// Call <see cref="Initialize"/> before using
+    /// </summary>
+    /// <param name="loadedTransforms"></param>
     public GeneratorWorkspace(IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
     {
         //init thumbnail renderer
@@ -48,16 +52,21 @@ public partial class GeneratorWorkspace
         renderer.SetDisplayResolution(200, 200);
         var transforms = loadedTransforms.ToList();
         generator = new Generator(transforms);
-        renderer.Initialize(transforms);
-        //performance settings
-        renderer.SetWorkgroupCount(10).Wait();
     }
 
-    public async Task GenerateNewRandomBatch(GeneratorOptions options)
+    public async Task Initialize()
+    {
+        await renderer.Initialize(generator.SelectedTransforms);
+        //performance settings
+        await renderer.SetWorkgroupCount(10);
+    }
+
+    public void GenerateNewRandomBatch(GeneratorOptions options)
     {
         options.baseParams = pinnedIFS.LastOrDefault() ?? options.baseParams;//TODO: use selection of pinned fractals
         generatedIFS.Clear();
-        await foreach (IFS r in generator.GenerateBatch(options, 30))
+
+        foreach (var r in generator.GenerateBatch(options, 30))
         {
             generatedIFS.Add(r);
             renderQueue.Enqueue(r);

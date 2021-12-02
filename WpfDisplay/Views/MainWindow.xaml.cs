@@ -1,11 +1,9 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Rendering;
 using IFSEngine.Serialization;
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -28,12 +26,14 @@ public partial class MainWindow : Window
         ContentRendered += MainWindow_ContentRendered;
     }
 
-    private void MainWindow_ContentRendered(object sender, System.EventArgs e)
+    private async void MainWindow_ContentRendered(object sender, System.EventArgs e)
     {
         //init workspace
-        RendererGL renderer = new(mainDisplay.GraphicsContext);
+        var renderer = new RendererGL(mainDisplay.GraphicsContext);
         mainDisplay.AttachRenderer(renderer);
-        Workspace workspace = new(renderer);
+        var workspace = new Workspace(renderer);
+        await workspace.Initialize();
+        await workspace.LoadUserSettings();
 
         //handle open verb
         if (App.OpenVerbPath is not null)
@@ -54,13 +54,16 @@ public partial class MainWindow : Window
         DataContext = new MainViewModel(workspace);
     }
 
-    private void GeneratorButton_Click(object sender, RoutedEventArgs e)
+    private async void GeneratorButton_Click(object sender, RoutedEventArgs e)
     {
         //create window
         if (generatorWindow == null || !generatorWindow.IsLoaded)
         {
             generatorWindow = new GeneratorWindow();
-            generatorWindow.DataContext = new GeneratorViewModel(vm);
+            var generatorViewModel = new GeneratorViewModel(vm);
+            generatorWindow.DataContext = generatorViewModel;
+
+            await generatorViewModel.Initialize();
         }
 
         if (generatorWindow.ShowActivated)
@@ -105,13 +108,15 @@ public partial class MainWindow : Window
         dialog.ShowDialog();
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    protected override async void OnClosing(CancelEventArgs e)
     {
         if (generatorWindow != null)
             generatorWindow.Close();
         if (editorWindow != null)
             editorWindow.Close();
-        vm.Dispose();
+
+        await vm.DisposeAsync();
+
         base.OnClosing(e);
     }
 
