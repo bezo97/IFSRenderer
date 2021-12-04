@@ -45,4 +45,9 @@ public partial class TitleBox : UserControl
             Keyboard.ClearFocus();
         }
     }
+
+    private void authorsToggle_Checked(object sender, RoutedEventArgs e)
+    {
+
+    }
 }
