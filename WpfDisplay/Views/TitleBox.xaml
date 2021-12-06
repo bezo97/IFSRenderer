@@ -19,7 +19,7 @@
             <TextBox Text="{Binding IFSTitle}" x:Name="titleTextBox" ToolTip="Title"
                                      TextAlignment="Center" FontWeight="Black" Grid.Column="0"
                                      GotKeyboardFocus="titleTextBox_GotKeyboardFocus" KeyDown="titleTextBox_KeyDown"/>
-            <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors"/>
+            <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors" Foreground="White"/>
             <Popup Grid.Column="2" IsOpen="{Binding IsChecked, ElementName=authorsToggle}" Width="300"
                     Placement="Bottom" PopupAnimation="Fade" StaysOpen="False" AllowsTransparency="True">
                 <StackPanel Margin="8" Background="Gray">
