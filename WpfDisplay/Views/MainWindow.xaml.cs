@@ -33,7 +33,6 @@ public partial class MainWindow : Window
         mainDisplay.AttachRenderer(renderer);
         var workspace = new Workspace(renderer);
         await workspace.Initialize();
-        await workspace.LoadUserSettings();
 
         //handle open verb
         if (App.OpenVerbPath is not null)

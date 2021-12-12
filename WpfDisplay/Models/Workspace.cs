@@ -55,12 +55,13 @@ public partial class Workspace
     /// <param name="r"></param>
     public Workspace(RendererGL r)
     {
-        LoadTransformLibrary();
         Renderer = r;
     }
 
     public async Task Initialize()
     {
+        await LoadUserSettings();
+        await LoadTransformLibrary();
         await Renderer.Initialize(_loadedTransforms);
 
         Ifs = new IFS();
@@ -69,18 +70,18 @@ public partial class Workspace
 
     public async Task ReloadTransforms()
     {
-        LoadTransformLibrary();
+        await LoadTransformLibrary();
         Ifs.ReloadTransforms(LoadedTransforms);
         await Renderer.LoadTransforms(LoadedTransforms);
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
-    private void LoadTransformLibrary()
+    private async Task LoadTransformLibrary()
     {
-        _loadedTransforms = Directory
+        var loadTasks = Directory
             .GetFiles(TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
-            .Select(file => Transform.FromFile(file))
-            .ToList();
+            .Select(file => Transform.FromFile(file));
+        _loadedTransforms = (await Task.WhenAll(loadTasks)).ToList();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
