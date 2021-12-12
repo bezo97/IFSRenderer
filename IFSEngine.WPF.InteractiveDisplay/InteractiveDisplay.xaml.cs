@@ -101,6 +101,11 @@ public partial class InteractiveDisplay : WindowsFormsHost
         _controlTimer.Start();
     }
 
+    public void GLControl1_OnPaint(object sender, EventArgs e)
+    {
+        GLControl1.SwapBuffers();
+    }
+
     private void Control_Tick(object sender, EventArgs e)
     {
         if (IsInteractionEnabled)
