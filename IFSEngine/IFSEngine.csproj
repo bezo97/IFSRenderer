@@ -22,6 +22,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Rendering\Shaders\de.frag.shader" />
+		<EmbeddedResource Include="Rendering\Shaders\reproject.frag.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\tonemap.frag.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\quad.vert.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\ifs_kernel.comp.shader" />

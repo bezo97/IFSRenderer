@@ -35,6 +35,7 @@ public sealed class RendererGL : IAsyncDisposable
     /// Enable Density Estimation.
     /// </summary>
     public bool EnableDE { get; set; } = false;
+    public bool EnableReprojection { get; set; } = true;
     public int DEMaxRadius { get; set; } = 9;
     public double DEPower { get; set; } = 0.2;
     public double DEThreshold { get; set; } = 0.4;
@@ -126,10 +127,12 @@ public sealed class RendererGL : IAsyncDisposable
     //fragment shader handles
     private int _tonemapProgramHandle;
     private int _deProgramHandle;
-    private int _taaProgramHandle;
+    //private int _taaProgramHandle;
+    private int _reprojectionProgramHandle;
     private int _offscreenFBOHandle;
     private int _renderTextureHandle;
-    private int _taaTextureHandle;
+    //private int _taaTextureHandle;
+    private int _reprojectionTextureHandle;
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
@@ -193,7 +196,8 @@ public sealed class RendererGL : IAsyncDisposable
         InitTonemapPass();
         InitDEPass();
         InitComputeProgram();
-        InitTAAPass();
+        InitReprojectionPass();
+        //InitTAAPass();
         GL.DeleteShader(_vertexShaderHandle);
 
         _timerQueryHandle = GL.GenQuery();
@@ -296,15 +300,18 @@ public sealed class RendererGL : IAsyncDisposable
         GL.UseProgram(_deProgramHandle);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "width"), HistogramWidth);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "height"), HistogramHeight);
-        GL.UseProgram(_taaProgramHandle);
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "width"), HistogramWidth);
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "height"), HistogramHeight);
+        //GL.UseProgram(_taaProgramHandle);
+        //GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "width"), HistogramWidth);
+        //GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "height"), HistogramHeight);
+        GL.UseProgram(_reprojectionProgramHandle);
+        GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "width"), HistogramWidth);
+        GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "height"), HistogramHeight);
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _renderTextureHandle);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
         GL.ActiveTexture(TextureUnit.Texture2);
-        GL.BindTexture(TextureTarget.Texture2D, _taaTextureHandle);
+        GL.BindTexture(TextureTarget.Texture2D, _reprojectionTextureHandle);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
         GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
@@ -463,6 +470,9 @@ public sealed class RendererGL : IAsyncDisposable
 
     }
 
+    //store last frame camera matrix
+    private OpenTK.Mathematics.Matrix4 _previousCameraMatrix;
+
     public void RenderImage()
     {
         if (!IsInitialized)
@@ -491,16 +501,39 @@ public sealed class RendererGL : IAsyncDisposable
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
         }
 
-        if (EnableTAA)
+        if(EnableReprojection)
         {
-            GL.UseProgram(_taaProgramHandle);
+
+            //convert .Net Matrix4x4 to OpenTK Matrix4
+            var m = LoadedParams.Camera.GetCameraParameters().viewProjMatrix;
+            var currentMatrix = new OpenTK.Mathematics.Matrix4(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
+
+            GL.UseProgram(_reprojectionProgramHandle);
             GL.BindVertexArray(_vao);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "width"), HistogramWidth);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "height"), HistogramHeight);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "new_frame_tex"), 0);
-            GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
+            //TODO: 2nd param is transpose option, not sure if needed
+            GL.UniformMatrix4(GL.GetUniformLocation(_reprojectionProgramHandle, "prev_frame_mat"), false, ref _previousCameraMatrix);
+            GL.UniformMatrix4(GL.GetUniformLocation(_reprojectionProgramHandle, "current_frame_mat"), false, ref currentMatrix);
+            
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+
+            //save matrix for next frame
+            _previousCameraMatrix = currentMatrix;
         }
+
+        //if (EnableTAA)
+        //{
+        //    GL.UseProgram(_reprojectionProgramHandle);
+        //    GL.BindVertexArray(_vao);
+        //    GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "width"), HistogramWidth);
+        //    GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "height"), HistogramHeight);
+        //    GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "new_frame_tex"), 0);
+        //    GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
+        //    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+        //}
     }
 
     private void BlitToDisplayFramebuffer()
@@ -678,7 +711,7 @@ public sealed class RendererGL : IAsyncDisposable
         return o;
     }
 
-    private void InitTAAPass()
+    /*private void InitTAAPass()
     {
 
         var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(_shadersPath + "taa.frag.shader");
@@ -695,34 +728,80 @@ public sealed class RendererGL : IAsyncDisposable
         }
 
         //init taa image texture
-        _taaTextureHandle = GL.GenTexture();
+        _reprojectionTextureHandle = GL.GenTexture();
         GL.ActiveTexture(TextureUnit.Texture2);//1
-        GL.BindTexture(TextureTarget.Texture2D, _taaTextureHandle);
+        GL.BindTexture(TextureTarget.Texture2D, _reprojectionTextureHandle);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         //TODO: display resolution?
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-        GL.BindImageTexture(0, _taaTextureHandle, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
+        GL.BindImageTexture(0, _reprojectionTextureHandle, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
 
-        _taaProgramHandle = GL.CreateProgram();
-        GL.AttachShader(_taaProgramHandle, _vertexShaderHandle);
-        GL.AttachShader(_taaProgramHandle, taaShaderH);
-        GL.LinkProgram(_taaProgramHandle);
-        GL.GetProgram(_taaProgramHandle, GetProgramParameterName.LinkStatus, out status);
+        _reprojectionProgramHandle = GL.CreateProgram();
+        GL.AttachShader(_reprojectionProgramHandle, _vertexShaderHandle);
+        GL.AttachShader(_reprojectionProgramHandle, taaShaderH);
+        GL.LinkProgram(_reprojectionProgramHandle);
+        GL.GetProgram(_reprojectionProgramHandle, GetProgramParameterName.LinkStatus, out status);
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error linking taa program: {0}", GL.GetProgramInfoLog(_taaProgramHandle)));
+                String.Format("Error linking taa program: {0}", GL.GetProgramInfoLog(_reprojectionProgramHandle)));
         }
 
-        GL.DetachShader(_taaProgramHandle, _vertexShaderHandle);
-        GL.DetachShader(_taaProgramHandle, taaShaderH);
+        GL.DetachShader(_reprojectionProgramHandle, _vertexShaderHandle);
+        GL.DetachShader(_reprojectionProgramHandle, taaShaderH);
         GL.DeleteShader(_vertexShaderHandle);
         GL.DeleteShader(taaShaderH);
 
-        GL.UseProgram(_taaProgramHandle);
+        GL.UseProgram(_reprojectionProgramHandle);
 
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "new_frame_tex"), 0);
+        GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "new_frame_tex"), 0);
+    }*/
+
+    private void InitReprojectionPass()
+    {
+
+        var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(_shadersPath + "reproject.frag.shader");
+        string reprojectShaderSource = new StreamReader(resource).ReadToEnd();
+        //compile reprojection shader
+        int reprojectShaderH = GL.CreateShader(ShaderType.FragmentShader);
+        GL.ShaderSource(reprojectShaderH, reprojectShaderSource);
+        GL.CompileShader(reprojectShaderH);
+        GL.GetShader(reprojectShaderH, ShaderParameter.CompileStatus, out int status);
+        if (status == 0)
+        {
+            throw new Exception(
+                String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(reprojectShaderH)));
+        }
+
+        //init reprojection image texture
+        _reprojectionTextureHandle = GL.GenTexture();
+        GL.ActiveTexture(TextureUnit.Texture2);//1
+        GL.BindTexture(TextureTarget.Texture2D, _reprojectionTextureHandle);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+        GL.BindImageTexture(0, _reprojectionTextureHandle, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
+
+        _reprojectionProgramHandle = GL.CreateProgram();
+        GL.AttachShader(_reprojectionProgramHandle, _vertexShaderHandle);
+        GL.AttachShader(_reprojectionProgramHandle, reprojectShaderH);
+        GL.LinkProgram(_reprojectionProgramHandle);
+        GL.GetProgram(_reprojectionProgramHandle, GetProgramParameterName.LinkStatus, out status);
+        if (status == 0)
+        {
+            throw new Exception(
+                String.Format("Error linking reprojection program: {0}", GL.GetProgramInfoLog(_reprojectionProgramHandle)));
+        }
+
+        GL.DetachShader(_reprojectionProgramHandle, _vertexShaderHandle);
+        GL.DetachShader(_reprojectionProgramHandle, reprojectShaderH);
+        GL.DeleteShader(_vertexShaderHandle);
+        GL.DeleteShader(reprojectShaderH);
+
+        GL.UseProgram(_reprojectionProgramHandle);
+
+        GL.Uniform1(GL.GetUniformLocation(_reprojectionProgramHandle, "new_frame_tex"), 0);
     }
 
     private void InitDEPass()
