@@ -15,59 +15,46 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for PaletteButton.xaml
+/// </summary>
+public partial class PaletteButton : Button
 {
-    /// <summary>
-    /// Interaction logic for PaletteButton.xaml
-    /// </summary>
-    public partial class PaletteButton : Button
+    public PaletteButton()
     {
-        public PaletteButton()
+        InitializeComponent();
+    }
+
+    public FlamePalette Palette
+    {
+        get { return (FlamePalette)GetValue(PaletteProperty); }
+        set { SetValue(PaletteProperty, value); }
+    }
+    public static readonly DependencyProperty PaletteProperty =
+        DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteButton),
+            new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnPalettePropertyChanged)));
+    private static void OnPalettePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue != null)
+            ((PaletteButton)sender).SetGradient((FlamePalette)e.NewValue);
+    }
+
+    private void SetGradient(FlamePalette fp)
+    {
+        gradientStops.Clear();
+        for (int i = 0; i < fp.Colors.Count; i++)
         {
-            InitializeComponent();
+            gradientStops.Add(new GradientStop(
+                Color.FromRgb(
+                    (byte)(fp.Colors[i].X * 255),
+                    (byte)(fp.Colors[i].Y * 255),
+                    (byte)(fp.Colors[i].Z * 255)),
+                i / (double)fp.Colors.Count));
         }
-
-        public FlamePalette Palette
-        {
-            get { return (FlamePalette)GetValue(PaletteProperty); }
-            set { SetValue(PaletteProperty, value); }
-        }
-        public static readonly DependencyProperty PaletteProperty =
-            DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteButton), 
-                new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnPalettePropertyChanged)));
-        private static void OnPalettePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            if(e.NewValue != null)
-                ((PaletteButton)sender).SetGradient((FlamePalette)e.NewValue);
-        }
-
-        private void SetGradient(FlamePalette fp)
-        {
-
-            gradientStops.Clear();
-            for (int i = 0; i < fp.Colors.Count; i++)
-            {
-                gradientStops.Add(new GradientStop(
-                    Color.FromRgb(
-                        (byte)(fp.Colors[i].X * 255),
-                        (byte)(fp.Colors[i].Y * 255),
-                        (byte)(fp.Colors[i].Z * 255)),
-                    i / (double)fp.Colors.Count));
-            }
-            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GradientStops)));
-        }
-
-        /*protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);
-            if (Palette == null)
-                return;
-            foreach (var c in Palette.Colors)
-            {
-
-                drawingContext.DrawRectangle(brush, null, rect);
-            }
-        }*/
 
     }
+
+
 }

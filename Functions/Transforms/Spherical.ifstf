@@ -1,4 +1,0 @@
-@Name: Spherical
-@Version: 1.0
-
-return 1.0 * p / dot(p, p);

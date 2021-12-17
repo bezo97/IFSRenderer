@@ -13,14 +13,12 @@
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+        <conv:NullVisibilityConverter x:Key="NullVisConv"/>
     </UserControl.Resources>
     <md:Card Padding="6" Margin="8">
         <StackPanel>
             <md:Card Padding="3" Margin="4">
                 <StackPanel>
-                    <Button 
-                        Command="{Binding StartRenderingCommand}"
-                        Margin="12" HorizontalContentAlignment="Center">▶️ Start</Button>
                     <Label>Quality presets</Label>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -43,19 +41,37 @@
                         <toolkit:IntegerUpDown 
                             Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
                             Minimum="1" Increment="100"
+                            ToolTip="Image width"
                             Grid.Column="0" Margin="8" UpdateValueOnEnterKey="True"/>
-                        <ToggleButton 
+                        <ToggleButton
                             IsChecked="{Binding IsResolutionLinked}" 
-                            Margin="0,8,0,8" Style="{x:Null}" Grid.Column="1">🔗</ToggleButton>
+                            Width="20" Height="20" FontSize="12" Foreground="Gray"
+                            Style="{StaticResource MaterialDesignFlatToggleButton}"
+                            ToolTip="Lock aspect ratio"
+                            Margin="0,8,0,8" Grid.Column="1">🔗</ToggleButton>
                         <toolkit:IntegerUpDown 
                             Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
                             Minimum="1" Increment="100"
+                            ToolTip="Image height"
                             Grid.Column="2" Margin="8" UpdateValueOnEnterKey="True"/>
                     </Grid>
+                    <TextBlock Margin="5" HorizontalAlignment="Center" Visibility="{Binding PreviewResolutionText, Converter={StaticResource NullVisConv}}">
+                        Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
+                    </TextBlock>
                 </StackPanel>
             </md:Card>
             <md:Card Padding="3" Margin="4">
                 <StackPanel>
+                    <local:ValueSlider ValueName="1 / Entropy" ToolTip="Entropy is the chance to reset the point state in each iteration. This replaces the constant 10 000 iteration depth in Flame. Default value is 1/100."
+                                       MinValue="10" MaxValue="10000" Increment="10"
+                                       Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider ValueName="Warmup" ToolTip="A.k.a. 'fuse count', the number of iterations before plotting starts. Default is 0."
+                                       MinValue="0" Increment="10"
+                                       Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider ValueName="{Binding DataContext.FilterText, ElementName=qualitySettingsView}"
+                                       MinValue="0" MaxValue="3" Increment="1"
+                                       Value="{Binding DataContext.MaxFilterRadius, ElementName=qualitySettingsView}"/>
+                    <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
                     <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
                     <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
                         <local:ValueSlider ValueName="Radius"
@@ -68,18 +84,6 @@
                                            MinValue="0" MaxValue="1" Increment="0.01" 
                                            Value="{Binding DataContext.DEThreshold, ElementName=qualitySettingsView}"/>
                     </StackPanel>
-                    <CheckBox IsChecked="{Binding EnablePerceptualUpdates}">Perceptually Equal Updates</CheckBox>
-                    <local:ValueSlider ValueName="1 / Entropy"
-                                       MinValue="1" MaxValue="10000" Increment="10"
-                                       Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
-                    <local:ValueSlider ValueName="Warmup"
-                                       MinValue="0" Increment="10"
-                                       Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
-                    <local:ValueSlider ValueName="{Binding DataContext.FilterText, ElementName=qualitySettingsView}"
-                                       MinValue="0" MaxValue="3" Increment="1"
-                                       Value="{Binding DataContext.MaxFilterRadius, ElementName=qualitySettingsView}"/>
-                    <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
-
                 </StackPanel>
             </md:Card>
         </StackPanel>

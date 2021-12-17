@@ -13,16 +13,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfDisplay.Views
+namespace WpfDisplay.Views;
+
+/// <summary>
+/// Interaction logic for IteratorEditor.xaml
+/// </summary>
+public partial class IteratorEditor : UserControl
 {
-    /// <summary>
-    /// Interaction logic for IteratorEditor.xaml
-    /// </summary>
-    public partial class IteratorEditor : UserControl
+    public IteratorEditor()
     {
-        public IteratorEditor()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

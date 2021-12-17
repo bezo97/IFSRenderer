@@ -12,7 +12,7 @@ namespace WpfDisplay.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,6 +20,170 @@ namespace WpfDisplay.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Unknown Artist")]
+        public string AuthorName {
+            get {
+                return ((string)(this["AuthorName"]));
+            }
+            set {
+                this["AuthorName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-")]
+        public string AuthorLink {
+            get {
+                return ((string)(this["AuthorLink"]));
+            }
+            set {
+                this["AuthorLink"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ApplyWatermark {
+            get {
+                return ((bool)(this["ApplyWatermark"]));
+            }
+            set {
+                this["ApplyWatermark"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("256")]
+        public int WorkgroupCount {
+            get {
+                return ((int)(this["WorkgroupCount"]));
+            }
+            set {
+                this["WorkgroupCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NotifyRenderFinished {
+            get {
+                return ((bool)(this["NotifyRenderFinished"]));
+            }
+            set {
+                this["NotifyRenderFinished"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>Affine</string>\r\n  <string>Spherical</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection FavoriteTranforms {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["FavoriteTranforms"]));
+            }
+            set {
+                this["FavoriteTranforms"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>1280x720</string>
+  <string>1080x1080</string>
+  <string>1920x1080</string>
+  <string>3840x2160</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ResolutionPresets {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ResolutionPresets"]));
+            }
+            set {
+                this["ResolutionPresets"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int TargetFramerate {
+            get {
+                return ((int)(this["TargetFramerate"]));
+            }
+            set {
+                this["TargetFramerate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PerceptuallyUniformUpdates {
+            get {
+                return ((bool)(this["PerceptuallyUniformUpdates"]));
+            }
+            set {
+                this["PerceptuallyUniformUpdates"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool InvertAxisX {
+            get {
+                return ((bool)(this["InvertAxisX"]));
+            }
+            set {
+                this["InvertAxisX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool InvertAxisY {
+            get {
+                return ((bool)(this["InvertAxisY"]));
+            }
+            set {
+                this["InvertAxisY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool InvertAxisZ {
+            get {
+                return ((bool)(this["InvertAxisZ"]));
+            }
+            set {
+                this["InvertAxisZ"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double Sensitivity {
+            get {
+                return ((double)(this["Sensitivity"]));
+            }
+            set {
+                this["Sensitivity"] = value;
             }
         }
     }

@@ -1,6 +1,0 @@
-@Name: Sinusoidal
-@Version: test
-
-@Strength: 1.0
-
-return mix(p, sin(p), @Strength);//lerp

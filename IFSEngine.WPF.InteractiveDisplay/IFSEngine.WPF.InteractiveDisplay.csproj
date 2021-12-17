@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Version>1.1.0</Version>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<Authors>bezo97</Authors>
+		<Company>bezo97</Company>
+		<Description>WPF UIElement for IFSEngine, a 3D IFS fractal rendering engine.</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageIcon>icon_128.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
+		<Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
+		<RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageTags>fractal;3d;graphics;art;ifs;rendering;interactive</PackageTags>
+		<PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OpenTK.Windowing.Common" Version="4.6.4" />
+		<PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.6" />
+		<PackageReference Include="Vortice.XInput" Version="2.1.0-beta4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\IFSEngine\IFSEngine.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="InteractiveDisplay.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\Assets\icon_128.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+			<Visible>False</Visible>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

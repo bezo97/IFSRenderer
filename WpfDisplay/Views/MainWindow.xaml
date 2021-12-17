@@ -7,23 +7,29 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
-        xmlns:conv="clr-namespace:WpfDisplay.Converters"
+        xmlns:conv="clr-namespace:WpfDisplay.Converters" 
+        xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920"
+        Title="{Binding WindowTitle}"
+        Width="1920" Height="1080" WindowState="Maximized"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}" WindowState="Maximized"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
         xmlns:animation="clr-namespace:WpfDisplay.Controls.Animation"
         >
     <Window.Resources>
-        <conv:DataContextSetConverter x:Key="dataContextSetConverter"/>
+        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
+    </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
         <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
@@ -32,32 +38,55 @@
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
+        <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
             <MenuItem Header="📑 _File">
                 <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
                 <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
+                <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
+                <Separator/>
                 <MenuItem Header="Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>
-            <MenuItem Header="🏗️ Editor" Click="EditorButton_Click" />
-            <MenuItem Header="🎲 Generator" Click="GeneratorButton_Click" />
-            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" InputGestureText="Ctrl+R"/>
-            <Separator Margin="25"/>
+            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
+            <MenuItem Header="🏗 Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
+            <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
+            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
+            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
             <MenuItem Header="🖬 E_xport">
-                <MenuItem Icon="🖼" Header="Export to _PNG" Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
-                <MenuItem Icon="📊" Header="Export to _EXR" Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                 <Separator/>
                 <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
+            </MenuItem>
+            <MenuItem Header="❓ Help" HorizontalAlignment="Right">
+                <MenuItem Icon="📚" Header="Wiki..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
+                <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
+                <MenuItem Icon="🙋" Header="Send Feedback">
+                    <MenuItem Icon="🐞" Header="Report a bug..." Command="{Binding ReportBugCommand}"/>
+                    <MenuItem Icon="🙋" Header="File an issue..." Command="{Binding VisitIssuesCommand}"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Icon="👷" Header="About..." Click="AboutButton_Click"/>
+                <MenuItem Icon="💿" Header="Check for updates..." Command="{Binding CheckUpdatesCommand}"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -89,7 +118,8 @@
                             </Grid>
                             <local:ValueSlider ValueName="Fog effect"
                                     MinValue="0"
-                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"/>
+                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"
+                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=mainWindow}"/>
                         </StackPanel>
                     </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
@@ -97,23 +127,23 @@
             </ScrollViewer>
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
-                <DockPanel Name="Docker">
-                    <Grid>
-                        <local:RenderDisplay
-                            Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}}"
-                            x:Name="renderDisplay"
-                            Height="{Binding ElementName=Docker, Path=ActualHeight}" 
-                            Width="{Binding ElementName=Docker, Path=ActualWidth}"/>
-                        <ProgressBar
-                            Visibility="{Binding Path=., Converter={StaticResource dataContextSetConverter}, ConverterParameter=true}"
-                            Width="100" Height="25"
-                            IsIndeterminate="True"/>
-                    </Grid>
-                </DockPanel>
+                <Grid>
+                    <disp:InteractiveDisplay x:Name="mainDisplay"
+                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
+                        InteractionStartedCommand="{Binding TakeSnapshotCommand}"
+                        InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
+                        Sensitivity="{Binding Sensitivity}"
+                        InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
+                    <ProgressBar
+                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
+                        Width="100" Height="25"
+                        IsIndeterminate="True"/>
+                </Grid>
             </md:Card>
             <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
+                    <local:TitleBox/>
                     <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                     <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                 </StackPanel>
@@ -129,6 +159,25 @@
                 <TextBlock Grid.Row="0" Text="Animation" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
                 <animation:AnimationPanel Grid.Row="1" DataContext="{Binding AnimationViewModel}"/>
             </Grid>
+        </md:Card>
+        <md:Card Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
+            <StatusBar Background="Transparent">
+                <StatusBarItem>
+                    <TextBlock
+                        Text="{Binding StatusBarText, NotifyOnTargetUpdated=True}"
+                        Foreground="LightGray">
+                        <!--<TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" BeginTime="0:0:0" Duration="0:0:1" From="0.0" To="1.0"  />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>-->
+                    </TextBlock>
+                </StatusBarItem>
+            </StatusBar>
         </md:Card>
     </Grid>
 </Window>

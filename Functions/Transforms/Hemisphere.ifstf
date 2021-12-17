@@ -1,8 +1,0 @@
-@Name: Hemisphere
-@Version: test
-
-@Strength: 1
-@Radius: 1
-
-vec3 hs = p * (@Radius / sqrt(dot(p,p) + 1.0));
-return mix(p, hs, @Strength);

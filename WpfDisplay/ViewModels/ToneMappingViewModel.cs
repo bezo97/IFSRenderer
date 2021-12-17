@@ -1,58 +1,61 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using WpfDisplay.Models;
 
-namespace WpfDisplay.ViewModels
+namespace WpfDisplay.ViewModels;
+
+[ObservableObject]
+public partial class ToneMappingViewModel
 {
-    public class ToneMappingViewModel : ObservableObject
+    private readonly Workspace _workspace;
+
+    public ToneMappingViewModel(Workspace workspace)
     {
-        private readonly Workspace workspace;
-
-        public ToneMappingViewModel(Workspace workspace)
-        {
-            this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-        }
-
-        public double Brightness
-        {
-            get => workspace.IFS.Brightness;
-            set
-            {
-                workspace.IFS.Brightness = value;
-                OnPropertyChanged(nameof(Brightness));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-        public double Gamma
-        {
-            get => workspace.IFS.Gamma;
-            set
-            {
-                workspace.IFS.Gamma = value;
-                OnPropertyChanged(nameof(Gamma));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-        public double GammaThreshold
-        {
-            get => workspace.IFS.GammaThreshold;
-            set
-            {
-                workspace.IFS.GammaThreshold = value;
-                OnPropertyChanged(nameof(GammaThreshold));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-        public double Vibrancy
-        {
-            get => workspace.IFS.Vibrancy;
-            set
-            {
-                workspace.IFS.Vibrancy = value;
-                OnPropertyChanged(nameof(Vibrancy));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
+        _workspace = workspace;
+        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
+
+    public double Brightness
+    {
+        get => _workspace.Ifs.Brightness;
+        set
+        {
+            _workspace.Ifs.Brightness = value;
+            OnPropertyChanged(nameof(Brightness));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+    public double Gamma
+    {
+        get => _workspace.Ifs.Gamma;
+        set
+        {
+            _workspace.Ifs.Gamma = value;
+            OnPropertyChanged(nameof(Gamma));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+    public double GammaThreshold
+    {
+        get => _workspace.Ifs.GammaThreshold;
+        set
+        {
+            _workspace.Ifs.GammaThreshold = value;
+            OnPropertyChanged(nameof(GammaThreshold));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+    public double Vibrancy
+    {
+        get => _workspace.Ifs.Vibrancy;
+        set
+        {
+            _workspace.Ifs.Vibrancy = value;
+            OnPropertyChanged(nameof(Vibrancy));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+
+    [ICommand]
+    private void TakeSnapshot() => _workspace.TakeSnapshot();
 }

@@ -2,19 +2,20 @@
 //#version 430 compatibility
 //#extension GL_ARB_compute_shader : enable
 //#extension GL_ARB_shader_storage_buffer_object : enable
-//#extension GL_NV_shader_atomic_float : enable
+#extension GL_NV_shader_atomic_float : enable
 
 //precision highp float;
 
 layout(local_size_x = 64) in;
 
-#define PI		3.14159265358f
-#define TWOPI	6.28318530718f
+#define PI			3.14159265358f
+#define TWOPI		6.28318530718f
+#define DEGTORAD	0.0174532925f
 
-#define MAX_ITERATORS 100
-#define MAX_PALETTE_COLORS 150
-#define MAX_PARAMS (2 * MAX_ITERATORS)
-#define MAX_XAOS (MAX_ITERATORS * MAX_ITERATORS)
+#define MAX_ITERATORS		100
+#define MAX_PALETTE_COLORS	150
+#define MAX_PARAMS			(2 * MAX_ITERATORS)
+#define MAX_XAOS			(MAX_ITERATORS * MAX_ITERATORS)
 
 struct camera_params
 {
@@ -22,9 +23,9 @@ struct camera_params
 	vec4 position;
 	vec4 forward;
 	vec4 focus_point;
-	float depth_of_field;
+	float aperture;
 	float focus_distance;
-	float focus_area;
+	float depth_of_field;
 	float padding0;
 };
 
@@ -36,8 +37,12 @@ struct Iterator
 	float reset_prob;
 	int reset_alias;
 	int tfId;
-	int tfParamsStart;
+	int real_params_index;
+	int vec3_params_index;
 	int shading_mode;//0: default, 1: delta_p
+	float tf_mix;
+	float tf_add;
+	int padding2;
 };
 
 struct p_state
@@ -46,7 +51,7 @@ struct p_state
 	float color_index;
 	float dummy0;
 	int iterator_index;
-	int warmup_cnt;
+	int iteration_depth;
 };
 
 //Shader Storage Buffer Objects
@@ -72,8 +77,8 @@ layout(std140, binding = 2) uniform settings_ubo
 
 	float fog_effect;
 	int itnum;//number of iterators
-	int pass_iters;//iterations per pass
 	int palettecnt;
+	int padding1;
 
 	int warmup;
 	float entropy;
@@ -101,23 +106,46 @@ layout(std140, binding = 5) uniform palette_ubo
 	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(binding = 6) uniform transform_params_ubo
+layout(binding = 6) uniform real_params_ubo
 {
-	float tfParams[MAX_PARAMS];//parameters of all transforms
+	float real_params[MAX_PARAMS];//real transform parameters of all iterators
 };
 
-/*layout(binding = 7) uniform xaos_ubo
+layout(binding = 7) uniform vec3_params_ubo
 {
-	float xaos[MAX_XAOS];//xaos matrix: weights to Iterators
-};*/
+	vec4 vec3_params[MAX_PARAMS];//vec3 transform parameters of all iterators
+};
 
 uniform int width;
 uniform int height;
 uniform int dispatch_cnt;
 uniform int reset_points_state;
+uniform int invocation_iters;
 
+mat3 rotmat(vec3 v, float arad)
+{
+	float c = cos(arad);
+	float s = sin(arad);
+	return mat3(
+		c + (1.0 - c) * v.x * v.x, (1.0 - c) * v.x * v.y - s * v.z, (1.0 - c) * v.x * v.z + s * v.y,
+		(1.0 - c) * v.x * v.y + s * v.z, c + (1.0 - c) * v.y * v.y, (1.0 - c) * v.y * v.z - s * v.x,
+		(1.0 - c) * v.x * v.z - s * v.y, (1.0 - c) * v.y * v.z + s * v.x, c + (1.0 - c) * v.z * v.z
+	);
+}
+mat3 rotate_euler(vec3 euler_angles)
+{
+	return rotmat(vec3(1.0, 0.0, 0.0), euler_angles.x) * rotmat(vec3(0.0, 1.0, 0.0), euler_angles.y) * rotmat(vec3(0.0, 0.0, 1.0), euler_angles.z);
+}
+
+//pcg: https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
+uint pcg_hash(uint x)
+{
+	uint state = x * 747796405u + 2891336453u;
+	uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+	return (word >> 22u) ^ word;
+}
 //random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
-uint hash(uint x) {
+uint no_sin_hash(uint x) {
 	x += (x << 10u);
 	x ^= (x >> 6u);
 	x += (x << 3u);
@@ -125,44 +153,48 @@ uint hash(uint x) {
 	x += (x << 15u);
 	return x;
 }
-uint hash(uvec2 v) {
-	return hash(v.x ^ hash(v.y));
+uint hash1(uint x)
+{
+	return pcg_hash(x);
+}
+uint hash2(uvec2 v) {
+	return hash1(v.x ^ hash1(v.y));
 }
 
-uint hash(uvec3 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z));
+uint hash3(uvec3 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z));
 }
 
-uint hash(uvec4 v) {
-	return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w));
+uint hash4(uvec4 v) {
+	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z) ^ hash1(v.w));
 }
-float f_hash_1(float f) {
+float f_hash1(float f) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(floatBitsToUint(f));
+	uint h = hash1(floatBitsToUint(f));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash_2(float f1, float f2, uint nextSample) {
+float f_hash21(float f1, float f2, uint nextSample) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
 	h &= mantissaMask;
 	h |= one;
 
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash_3(float f1, float f2, float f3) {
+float f_hash3(float f1, float f2, float f3) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
 
-	uint h = hash(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
 	h &= mantissaMask;
 	h |= one;
 
@@ -172,7 +204,7 @@ float f_hash_3(float f1, float f2, float f3) {
 
 float random(inout uint nextSample)
 {
-	return f_hash_2(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash21(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
@@ -186,20 +218,21 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 
 	//dof
 	float ratio = width / float(height);
-	float dof = c.depth_of_field * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.focus_area); //use focalplane normal
+	float blur = c.aperture * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
 	float ra = random(next);
 	float rl = random(next);
-	normalizedPoint.xy += pow(rl, 0.5f) * dof * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+	normalizedPoint.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
 	return vec2(
-		(normalizedPoint.x + 1) * width / 2.0f,
-		(normalizedPoint.y * ratio + 1) * height / 2.0f);
+		(normalizedPoint.x + 1) * width / 2.0f - 0.5,
+		(normalizedPoint.y * ratio + 1) * height / 2.0f - 0.5);
 }
 
-vec3 apply_transform(Iterator iter, vec3 inputP, inout uint next)
+vec3 apply_transform(Iterator iter, p_state _p_input, inout uint next)
 {
-	vec3 p = inputP;
-	int p_cnt = iter.tfParamsStart;
+	//variables available in transforms:
+	vec3 p = _p_input.pos.xyz;
+	int iter_depth = _p_input.iteration_depth;
 
 	//snippets inserted on initialization
 	@transforms
@@ -281,11 +314,11 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash_2(gl_WorkGroupID.x, dispatch_cnt, next);
+	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
-	p.warmup_cnt = 0;
+	p.iteration_depth = 0;
 	return p;
 }
 
@@ -347,15 +380,15 @@ void main() {
 		p = reset_state(next);
 	else
 		p = state[gid];
-
-	for (int i = 0; i < settings.pass_iters; i++)
+	
+	for (int i = 0; i < invocation_iters; i++)
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash_2(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
-			random(next) < settings.entropy || //chance to reset by entropy
+			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy || //chance to reset by entropy
 			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
 			p = reset_state(next);
@@ -366,9 +399,10 @@ void main() {
 		Iterator selected_iterator = iterators[p.iterator_index];
 
 		vec4 p0_pos = p.pos;
-		p.pos.xyz = apply_transform(selected_iterator, p.pos.xyz, next);//transform here
+		vec3 p_ret = apply_transform(selected_iterator, p, next);//transform here
+		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
-		p.warmup_cnt++;
+		p.iteration_depth++;
 
 		if (selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
@@ -379,16 +413,16 @@ void main() {
 		vec2 proj_offset = projf - vec2(proj);
 	
 		//lands on the histogram && warmup
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.warmup_cnt))
+		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.iteration_depth))
 		{
 			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 
 			//TODO: this is the same as dof
-			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.focus_area);
+			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.depth_of_field);
 
 			if (settings.fog_effect > 0.0f)
 			{//optional fog effect
-				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.focus_area)));
+				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.depth_of_field)));
 				fog_mask = clamp(fog_mask, 0.0, 1.0);
 				color.w *= fog_mask;
 			}

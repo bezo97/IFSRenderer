@@ -1,0 +1,173 @@
+﻿<Window x:Class="WpfDisplay.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        WindowStartupLocation="CenterOwner" 
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStyle="ToolWindow"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
+        Title="Settings" x:Name="settingsWindow"
+        Height="500" Width="400" MinWidth="400" MinHeight="500">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" MinHeight="50"/>
+        </Grid.RowDefinitions>
+        <TabControl Grid.Row="0" Background="#333333" BorderThickness="0">
+            <TabItem Header="👤 User Settings" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">User settings</Label>
+                    <!--Author name-->
+                    <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Author name
+                    </TextBlock>
+                    <Label Grid.Row="1" Grid.Column="1"
+                        ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center">?</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                        Text="{Binding AuthorName}" md:HintAssist.Hint="Provide an author name"/>
+                    <!--Author link-->
+                    <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Author link
+                    </TextBlock>
+                    <Label Grid.Row="2" Grid.Column="1"
+                        ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                        Text="{Binding AuthorLink}" md:HintAssist.Hint="https://example.com"/>
+                    <!--Watermark-->
+                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Apply watermark
+                    </TextBlock>
+                    <Label Grid.Row="3" Grid.Column="1"
+                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding Watermark}" IsEnabled="False"/>
+                    <!--Notification-->
+                    <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Enable Notifications
+                    </TextBlock>
+                    <Label Grid.Row="4" Grid.Column="1"
+                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding Notifications}" IsEnabled="False"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="🕹️ Controls" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">Controls</Label>
+                    <!--Invert Axis-->
+                    <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Invert axis
+                    </TextBlock>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding InvertAxisX}" ToolTip="Invert Yaw Axis" Margin="10">X</CheckBox>
+                        <CheckBox IsChecked="{Binding InvertAxisY}" ToolTip="Invert Pitch Axis" Margin="10">Y</CheckBox>
+                        <CheckBox IsChecked="{Binding InvertAxisZ}" ToolTip="Invert Roll Axis" Margin="10">Z</CheckBox>
+                    </StackPanel>
+                    <!--Sensitivity-->
+                    <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Sensitivity
+                    </TextBlock>
+                    <Label Grid.Row="2" Grid.Column="1"
+                        ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
+                        MinValue="0.1" MaxValue="10.0" Increment="0.1"
+                        Value="{Binding DataContext.Sensitivity, ElementName=settingsWindow}"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="⏱️ Performance" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">Performance settings</Label>
+                    <!--Perceptually uniform updates-->
+                    <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Perceptually uniform updates
+                    </TextBlock>
+                    <Label Grid.Row="1" Grid.Column="1"
+                        ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding PerceptuallyUniformUpdates}"/>
+                    <!--Target Framerate-->
+                    <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Target Framerate
+                    </TextBlock>
+                    <Label Grid.Row="2" Grid.Column="1"
+                        ToolTip="Define a target framerate (FPS) for interactive exploration. Default value is 60." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
+                        MinValue="5" MaxValue="144" Increment="30" 
+                        Value="{Binding DataContext.TargetFramerate, ElementName=settingsWindow}"/>
+                    <!--Workgroup-->
+                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Workgroups
+                    </TextBlock>
+                    <Label Grid.Row="3" Grid.Column="1"
+                        ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"
+                        MinValue="1" MaxValue="5000" Increment="100" 
+                        Value="{Binding DataContext.WorkgroupCount, ElementName=settingsWindow}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!--Dialog Buttons-->
+            <Button Grid.Column="0"
+                    Command="{Binding CancelDialogCommand}"
+                    IsCancel="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Cancel
+            </Button>
+            <Button Grid.Column="1"
+                    Command="{Binding OkDialogCommand}"
+                    IsDefault="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15">
+                Save
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

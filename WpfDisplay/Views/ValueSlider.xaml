@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="50" d:DesignWidth="125"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              x:Name="valueSlider"
@@ -13,9 +13,12 @@
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
         <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
+        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </UserControl.Resources>
     <StackPanel>
-        <Label Grid.Column="0" Content="{Binding ValueName}"/>
+        <Label Grid.Column="0" IsTabStop="False"
+               Content="{Binding ValueName}" 
+               Visibility="{Binding ValueName, Converter={StaticResource nullVisibilityConverter}}"/>
     
         <Grid>
             <Grid.ColumnDefinitions>
@@ -25,7 +28,7 @@
             </Grid.ColumnDefinitions>
             <Button 
                 Grid.Column="0" 
-                Padding="10,0,10,0" 
+                Padding="10,0,10,0" IsTabStop="False"
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Down_Click">-</Button>
@@ -33,7 +36,8 @@
                    Content="{Binding Value}" 
                    ContentStringFormat="N4"
                    Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" 
-                   Background="#303030" 
+                   Background="#303030" Cursor="Hand"
+                   IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp">
                 <Label.ContextMenu>
@@ -45,7 +49,7 @@
             <TextBox x:Name="valueEditor" Grid.Column="1" 
                      Text="{Binding Value, StringFormat=N4}" 
                      Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" 
-                     Background="#606060" 
+                     Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
@@ -57,9 +61,9 @@
                     </ContextMenu>
                 </TextBox.ContextMenu>
             </TextBox>
-            <Button 
+            <Button
                 Grid.Column="2" 
-                Padding="10,0,10,0"
+                Padding="10,0,10,0" IsTabStop="False"
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>

@@ -7,27 +7,71 @@
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="250" d:DesignWidth="200"
+             d:DesignHeight="300" d:DesignWidth="200"
              x:Name="cameraSettingsView"
              d:DataContext="{d:DesignInstance Type=vm:CameraSettingsViewModel, IsDesignTimeCreatable=False}">
     <!--TODO: add pictograms and tooltips-->
     <md:Card Padding="6" Margin="8">
         <StackPanel>
-            <TextBlock Text="Camera" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock 
+                    Text="Camera"
+                    Grid.Column="0" Foreground="Gray" FontWeight="Bold" VerticalAlignment="Center"/>
+                <Button
+                    Command="{Binding ResetCameraCommand}"
+                    ToolTip="Reset Camera"
+                    Width="20" Height="20" FontSize="10"
+                    Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton }">
+                    ↩️
+                </Button>
+            </Grid>
             <!--TODO: Orthogrpahic, Stereographic, 360 Equirectangular etc. modes-->
-            <local:ValueSlider ValueName="Field Of View"
-                               MinValue="1" MaxValue="179" Increment="1"
-                               Value="{Binding DataContext.FieldOfView, ElementName=cameraSettingsView}"/>
-            <local:ValueSlider ValueName="Depth Of Field"
+            <local:ValueSlider ValueName="🔬 Field of View"
+                               MinValue="1" MaxValue="179" Increment="0.1"
+                               Value="{Binding DataContext.FieldOfView, ElementName=cameraSettingsView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+                <!--<local:ValueSlider.ToolTip>
+                    <MediaElement
+                        LoadedBehavior="Play"
+                        Width="200"
+                        Height="200"
+                        Source=""/>
+                </local:ValueSlider.ToolTip>-->
+            </local:ValueSlider>
+            <local:ValueSlider ValueName="✨ Aperture"
                                MinValue="0" Increment="0.0001"
-                               Value="{Binding DataContext.DepthOfField, ElementName=cameraSettingsView}"/>
-            <local:ValueSlider ValueName="Focus Distance"
-                               Value="{Binding DataContext.FocusDistance, ElementName=cameraSettingsView}"/>
+                               Value="{Binding DataContext.Aperture, ElementName=cameraSettingsView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+                <local:ValueSlider.ToolTip>
+                    <MediaElement
+                        LoadedBehavior="Play"
+                        Width="200"
+                        Height="200"
+                        Source="https://upload.wikimedia.org/wikipedia/commons/4/4f/Aperture_Helios_44M-4.gif"/>
+                </local:ValueSlider.ToolTip>
+            </local:ValueSlider>
+            <local:ValueSlider ValueName="📏 Focus Distance"
+                               Value="{Binding DataContext.FocusDistance, ElementName=cameraSettingsView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+                <!--<local:ValueSlider.ToolTip>
+                    <MediaElement
+                        LoadedBehavior="Play"
+                        Width="200"
+                        Height="200"
+                        Source=""/>
+                </local:ValueSlider.ToolTip>-->
+            </local:ValueSlider>
             <!--TODO: Ability to lock focus on current focus point-->
-            <CheckBox IsEnabled="False" Foreground="White">🔒 Lock focus point</CheckBox>
-            <local:ValueSlider ValueName="Focus Area" 
+            <CheckBox IsEnabled="False" ToolTip="🛠️ Under Construction" Foreground="White">🔒 Lock focus point</CheckBox>
+            <local:ValueSlider ValueName="🔾 Depth of Field" 
+                               ToolTip="a.k.a. Range of focus"
                                MinValue="0" 
-                               Value="{Binding DataContext.FocusArea, ElementName=cameraSettingsView}"/>
+                               Value="{Binding DataContext.DepthOfField, ElementName=cameraSettingsView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}"/>
         </StackPanel>
     </md:Card>
 </UserControl>

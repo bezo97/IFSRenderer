@@ -4,214 +4,191 @@ using System.Threading.Tasks;
 using System.Windows;
 using WpfDisplay.Models;
 
-namespace WpfDisplay.ViewModels
+namespace WpfDisplay.ViewModels;
+
+[ObservableObject]
+public partial class QualitySettingsViewModel
 {
-    public class QualitySettingsViewModel : ObservableObject
+    private readonly Workspace _workspace;
+
+    [ObservableProperty] private bool _isResolutionLinked;
+
+    public QualitySettingsViewModel(Workspace workspace)
     {
-        private readonly Workspace workspace;
+        _workspace = workspace;
+        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+    }
 
-        public QualitySettingsViewModel(Workspace workspace)
-        {
-            this.workspace = workspace;
-            workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-        }
-
-        private AsyncRelayCommand _startRenderingCommand;
-        public AsyncRelayCommand StartRenderingCommand =>
-            _startRenderingCommand ??= new AsyncRelayCommand(OnStartRenderingCommand);
-        private async Task OnStartRenderingCommand()
-        {
-            workspace.Renderer.StartRenderLoop();
-        }
-
-        public bool EnableDE
-        {
-            get => workspace.Renderer.EnableDE;
-            set
-            {
-                workspace.Renderer.EnableDE = value;
-                OnPropertyChanged(nameof(EnableDE));
-                OnPropertyChanged(nameof(DEPanelVisibility));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-        public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
-
-        public int DEMaxRadius
-        {
-            get => workspace.Renderer.DEMaxRadius;
-            set
-            {
-                workspace.Renderer.DEMaxRadius = value;
-                OnPropertyChanged(nameof(DEMaxRadius));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
-        public double DEThreshold
-        {
-            get => workspace.Renderer.DEThreshold;
-            set
-            {
-                workspace.Renderer.DEThreshold = value;
-                OnPropertyChanged(nameof(DEThreshold));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
-        public double DEPower
-        {
-            get => workspace.Renderer.DEPower;
-            set
-            {
-                workspace.Renderer.DEPower = value;
-                OnPropertyChanged(nameof(DEPower));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
-        public bool EnableTAA
-        {
-            get => workspace.Renderer.EnableTAA;
-            set
-            {
-                workspace.Renderer.EnableTAA = value;
-                OnPropertyChanged(nameof(EnableTAA));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
-        public bool EnablePerceptualUpdates
-        {
-            get => workspace.Renderer.EnablePerceptualUpdates;
-            set
-            {
-                workspace.Renderer.EnablePerceptualUpdates = value;
-                OnPropertyChanged(nameof(EnablePerceptualUpdates));
-                workspace.Renderer.UpdateDisplay();
-            }
-        }
-
-        public int EntropyInv
-        {
-            get => (int)(1.0 / workspace.Renderer.Entropy);
-            set
-            {
-                workspace.Renderer.Entropy = 1.0 / value;
-                OnPropertyChanged(nameof(EntropyInv));
-                workspace.Renderer.InvalidateAccumulation();
-            }
-        }
-
-        public int Warmup
-        {
-            get => workspace.Renderer.Warmup;
-            set
-            {
-                workspace.Renderer.Warmup = value;
-                OnPropertyChanged(nameof(Warmup));
-                workspace.Renderer.InvalidateAccumulation();
-            }
-        }
-
-        public int MaxFilterRadius
-        {
-            get => workspace.Renderer.MaxFilterRadius;
-            set
-            {
-                workspace.Renderer.MaxFilterRadius = value;
-                OnPropertyChanged(nameof(MaxFilterRadius));
-                OnPropertyChanged(nameof(FilterText));
-                workspace.Renderer.InvalidateAccumulation();
-            }
-        }
-
-        public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 0 ? "" : " (Off)");
-
-        private bool isResolutionLinked;
-        public bool IsResolutionLinked
-        {
-            get { return isResolutionLinked; }
-            set { SetProperty(ref isResolutionLinked, value); }
-        }
-
-
-        public int ImageWidth 
-        { 
-            get 
-            {
-                return workspace.IFS.ImageResolution.Width;
-            } 
-            set 
-            {
-                if(IsResolutionLinked)
-                {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
-                }
-                else
-                {
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(value, workspace.IFS.ImageResolution.Height);
-                }
-                workspace.Renderer.SetHistogramScale(1.0);
-                OnPropertyChanged(nameof(ImageWidth));
-                OnPropertyChanged(nameof(ImageHeight));
-            }
-        }
-
-        public int ImageHeight
-        {
-            get
-            {
-                return workspace.IFS.ImageResolution.Height;
-            }
-            set
-            {
-                if (IsResolutionLinked)
-                {
-                    double ratio = workspace.IFS.ImageResolution.Width / (double) workspace.IFS.ImageResolution.Height;
-                    workspace.IFS.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
-                }
-                else
-                {
-                    workspace.IFS.ImageResolution = new System.Drawing.Size(workspace.IFS.ImageResolution.Width, value);
-                }
-                workspace.Renderer.SetHistogramScale(1.0);
-                OnPropertyChanged(nameof(ImageWidth));
-                OnPropertyChanged(nameof(ImageHeight));
-            }
-        }
-
-        private AsyncRelayCommand _previewPresetCommand;
-        public AsyncRelayCommand PreviewPresetCommand =>
-            _previewPresetCommand ??= new AsyncRelayCommand(OnPreviewPresetCommand);
-        private async Task OnPreviewPresetCommand()
-        {
-            workspace.Renderer.SetHistogramScaleToDisplay();
-
-                    //EnableDE = true;
-                    //EnableTAA = true;
-                    //EnablePerceptualUpdates = false;
-                    //PassIters = 100;
-                    //Warmup = 10;
-                    EntropyInv = 100;
-                    MaxFilterRadius = 0;
-        }
-
-    private AsyncRelayCommand _finalPresetCommand;
-    public AsyncRelayCommand FinalPresetCommand =>
-        _finalPresetCommand ??= new AsyncRelayCommand(OnFinalPresetCommand);
-    private async Task OnFinalPresetCommand()
+    public bool EnableDE
     {
-        EnablePerceptualUpdates = true;
-                    EnableTAA = false;
-                    EnableDE = false;
-                    //PassIters = 500;
-                    //Warmup = 30;
-                    EntropyInv = 10000;
-                    MaxFilterRadius = 3;
-                    workspace.Renderer.SetHistogramScale(1.0);
+        get => _workspace.Renderer.EnableDE;
+        set
+        {
+            _workspace.Renderer.EnableDE = value;
+            OnPropertyChanged(nameof(EnableDE));
+            OnPropertyChanged(nameof(DEPanelVisibility));
+            _workspace.Renderer.InvalidateDisplay();
         }
+    }
+    public Visibility DEPanelVisibility => EnableDE ? Visibility.Visible : Visibility.Collapsed;
 
+    public string PreviewResolutionText
+    {
+        get
+        {
+            if (_workspace.Ifs.ImageResolution.Width == _workspace.Renderer.HistogramWidth)
+                return null;
+            else
+                return $"{_workspace.Renderer.HistogramWidth} x {_workspace.Renderer.HistogramHeight}";
+        }
+    }
+
+    public int DEMaxRadius
+    {
+        get => _workspace.Renderer.DEMaxRadius;
+        set
+        {
+            _workspace.Renderer.DEMaxRadius = value;
+            OnPropertyChanged(nameof(DEMaxRadius));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+
+    public double DEThreshold
+    {
+        get => _workspace.Renderer.DEThreshold;
+        set
+        {
+            _workspace.Renderer.DEThreshold = value;
+            OnPropertyChanged(nameof(DEThreshold));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+
+    public double DEPower
+    {
+        get => _workspace.Renderer.DEPower;
+        set
+        {
+            _workspace.Renderer.DEPower = value;
+            OnPropertyChanged(nameof(DEPower));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+
+    public bool EnableTAA
+    {
+        get => _workspace.Renderer.EnableTAA;
+        set
+        {
+            _workspace.Renderer.EnableTAA = value;
+            OnPropertyChanged(nameof(EnableTAA));
+            _workspace.Renderer.InvalidateDisplay();
+        }
+    }
+
+    public int EntropyInv
+    {
+        get => (int)(1.0 / _workspace.Ifs.Entropy);
+        set
+        {
+            _workspace.Ifs.Entropy = 1.0 / value;
+            OnPropertyChanged(nameof(EntropyInv));
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        }
+    }
+
+    public int Warmup
+    {
+        get => _workspace.Ifs.Warmup;
+        set
+        {
+            _workspace.Ifs.Warmup = value;
+            OnPropertyChanged(nameof(Warmup));
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        }
+    }
+
+    public int MaxFilterRadius
+    {
+        get => _workspace.Renderer.MaxFilterRadius;
+        set
+        {
+            _workspace.Renderer.MaxFilterRadius = value;
+            OnPropertyChanged(nameof(MaxFilterRadius));
+            OnPropertyChanged(nameof(FilterText));
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        }
+    }
+
+    public string FilterText => "Max Filter Radius" + (MaxFilterRadius > 0 ? "" : " (Off)");
+
+    public int ImageWidth
+    {
+        get
+        {
+            return _workspace.Ifs.ImageResolution.Width;
+        }
+        set
+        {
+            _workspace.TakeSnapshot();
+            if (IsResolutionLinked)
+            {
+                double ratio = _workspace.Ifs.ImageResolution.Width / (double)_workspace.Ifs.ImageResolution.Height;
+                _workspace.Ifs.ImageResolution = new System.Drawing.Size(value, (int)(value / ratio));
+            }
+            else
+            {
+                _workspace.Ifs.ImageResolution = new System.Drawing.Size(value, _workspace.Ifs.ImageResolution.Height);
+            }
+            _workspace.Renderer.SetHistogramScale(1.0);
+            OnPropertyChanged(nameof(ImageWidth));
+            OnPropertyChanged(nameof(ImageHeight));
+        }
+    }
+
+    public int ImageHeight
+    {
+        get
+        {
+            return _workspace.Ifs.ImageResolution.Height;
+        }
+        set
+        {
+            _workspace.TakeSnapshot();
+            if (IsResolutionLinked)
+            {
+                double ratio = _workspace.Ifs.ImageResolution.Width / (double)_workspace.Ifs.ImageResolution.Height;
+                _workspace.Ifs.ImageResolution = new System.Drawing.Size((int)(value * ratio), value);
+            }
+            else
+            {
+                _workspace.Ifs.ImageResolution = new System.Drawing.Size(_workspace.Ifs.ImageResolution.Width, value);
+            }
+            _workspace.Renderer.SetHistogramScale(1.0);
+            OnPropertyChanged(nameof(ImageWidth));
+            OnPropertyChanged(nameof(ImageHeight));
+        }
+    }
+
+    [ICommand]
+    private void PreviewPreset()
+    {
+        _workspace.Renderer.SetHistogramScaleToDisplay();
+        //EnableDE = true;
+        //EnableTAA = true;
+        //EnablePerceptualUpdates = false;
+        MaxFilterRadius = 0;
+        OnPropertyChanged(nameof(PreviewResolutionText));
+    }
+
+    [ICommand]
+    private void FinalPreset()
+    {
+        EnableTAA = false;
+        EnableDE = false;
+        MaxFilterRadius = 3;
+        _workspace.Renderer.SetHistogramScale(1.0);
+        OnPropertyChanged(nameof(PreviewResolutionText));
     }
 }

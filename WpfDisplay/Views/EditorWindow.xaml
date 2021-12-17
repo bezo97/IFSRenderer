@@ -8,23 +8,37 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Background="{DynamicResource MaterialDesignPaper}"
         mc:Ignorable="d"
-        Title="EditorWindow" 
+        Title="Editor" 
         Width="1280" Height="720"
         x:Name="editorWindow"
         d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Gesture="CTRL+P" Command="{Binding LoadPaletteCommand}"/>
+        <KeyBinding Gesture="CTRL+R" Command="{Binding ReloadTransformsCommand}"/>
+        <KeyBinding Gesture="CTRL+W" Command="{Binding SelectedIterator.FlipWeightCommand}"/>
+        <KeyBinding Gesture="CTRL+O" Command="{Binding SelectedIterator.FlipOpacityCommand}"/>
+        <KeyBinding Gesture="CTRL+D" Command="{Binding DuplicateSelectedCommand}"/>
+        <KeyBinding Gesture="DELETE" Command="{Binding RemoveSelectedCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel  Orientation="Horizontal" Grid.Row="0">
+        <Menu Grid.Row="0">
+            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <local:PaletteButton
                 Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 
                 Palette="{Binding DataContext.Palette, ElementName=editorWindow}"
-                ToolTip="Load Palette"
-                Margin="8" Padding="30,8,30,8">🎨</local:PaletteButton>
-        </StackPanel>
+                ToolTip="Load Palette (Ctrl+P)"
+                Padding="30,8,30,8">🎨</local:PaletteButton>
+        </Menu>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -44,7 +58,7 @@
                         <Label>Transforms</Label>
                         <Button
                             Command="{Binding ReloadTransformsCommand}"
-                            ToolTip="Reload plugins"
+                            ToolTip="Reload plugins (Ctrl+R)"
                             Padding="2">🔄</Button>
                         <Button
                             Command="{Binding OpenTransformsDirectoryCommand}"
@@ -63,11 +77,37 @@
                                                 Content="{Binding Name}">
                                             <Button.ContextMenu>
                                                 <ContextMenu>
-                                                    <!--TODO: this binding breaks design-time preview-->
                                                     <MenuItem
                                                         Header="✏️ Edit source"
                                                         Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
                                                         CommandParameter="{Binding FilePath}"/>
+                                                    <MenuItem>
+                                                        <MenuItem.Header>
+                                                            <Hyperlink NavigateUri="{Binding ReferenceUrl}" ToolTip="{Binding ReferenceUrl}">ℹ️ Information...</Hyperlink>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <Separator/>
+                                                    <MenuItem Height="auto">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Vertical">
+                                                                <Label Content="{Binding Name}"/>
+                                                                <ItemsControl ItemsSource="{Binding Tags}">
+                                                                    <ItemsControl.ItemsPanel>
+                                                                        <ItemsPanelTemplate>
+                                                                            <StackPanel Orientation="Horizontal"/>
+                                                                        </ItemsPanelTemplate>
+                                                                    </ItemsControl.ItemsPanel>
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Button Content="{Binding}" Style="{DynamicResource MaterialDesignToolForegroundButton}" IsEnabled="False"/>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                                <Label FontWeight="Bold">Description</Label>
+                                                                <TextBlock Text="{Binding Description}" MaxWidth="200" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>
@@ -82,21 +122,22 @@
                     <local:NodeMap DataContext="{Binding}"/>
                 </md:Card>
             </Grid>
-            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="255">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                    <StackPanel>
+            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="270">
+                <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+                    <StackPanel Margin="0,0,25,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
                             <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
                         </Grid>
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>
                                 <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
-                                    Connection settings
+                                    Selected Connection
                                 </TextBlock>
                                 <local:ValueSlider
-                                    ValueName="Weight"
+                                    ValueName="Weight" ToolTip="The weight of the connection controls the transition probability between the two iterators. 0 weight means no connection."
                                     Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
-                                    MinValue="0" Increment="0.01"/>
+                                    MinValue="0" Increment="0.01"
+                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=editorWindow}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

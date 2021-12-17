@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IFSEngine.Utility
+namespace IFSEngine.Utility;
+
+internal static class NumericExtensions
 {
-    internal static class NumericExtensions
+    public static float ToRadians(float val)
     {
-        public static float ToRadians(float val)
-        {
-            return ((float)Math.PI / 180.0f) * val;
-        }
+        return ((float)Math.PI / 180.0f) * val;
     }
 }

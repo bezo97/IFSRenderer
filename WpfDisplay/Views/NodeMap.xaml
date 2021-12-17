@@ -11,94 +11,40 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
     <xc:Zoombox
-        x:Name="ZoomBorder"
-        IsAnimated="True"
-        KeepContentInBounds="False" 
-        DragModifiers="None"
-        RelativeZoomModifiers="None"
-        Background="#FF888888" 
-        ZoomOnPreview="False"
-        Cursor="SizeAll"
-        Position="0,0"
-        Scale="1"
-        >
-        <Canvas x:Name="MapCanvas"
-            Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
-            Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"
+            x:Name="ZoomBorder" 
+            IsAnimated="True"
+            AnimationDuration="0:0:0.05"
+            KeepContentInBounds="False" 
+            DragModifiers="None"
+            RelativeZoomModifiers="None"
+            Background="Gray" 
+            Cursor="Arrow"
+            ZoomOnPreview="False"
+            Position="0,0"
+            Scale="1"
             >
-            <!--Connection Arrows-->
-
-            <ItemsControl ItemsSource="{Binding IteratorViewModels}">
-                <ItemsControl.ItemsPanel>
+        <ItemsControl ItemsSource="{Binding NodeMapElements}">
+            <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas                     
-                                    Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
-                                    Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
+                        <Canvas 
+                                Background="DimGray"
+                                Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+                                Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                <!--<ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>-->
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ItemsControl ItemsSource="{Binding ConnectionViewModels}" >
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas                     
-                        Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
-                        Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <!--<ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
-                                    <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>-->
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:ConnectionArrow 
-                                        DataContext="{Binding}"
-                                        SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-
-            <!--Nodes-->
-            <ItemsControl ItemsSource="{Binding IteratorViewModels}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas                     
-                        Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
-                        Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:Node 
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
+                    <local:Node
                             DataContext="{Binding}"
                             SelectCommand="{Binding DataContext.SelectIteratorCommand, ElementName=nodeMap}">
-                            <!--<Style TargetType="local:Node">
-                                <Setter Property="Canvas.Left" Value="{Binding XCoord}"/>
-                                <Setter Property="Canvas.Top" Value="{Binding YCoord}"/>
-                            </Style>-->
-                        </local:Node>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Canvas>
+                    </local:Node>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                    <local:ConnectionArrow 
+                            DataContext="{Binding}"
+                            SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
+                </DataTemplate>
+            </ItemsControl.Resources>
+        </ItemsControl>
     </xc:Zoombox>
 </UserControl>

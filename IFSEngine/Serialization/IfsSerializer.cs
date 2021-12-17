@@ -3,47 +3,75 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace IFSEngine.Serialization
+namespace IFSEngine.Serialization;
+
+public static class IfsSerializer
 {
-    public static class IfsSerializer
+    private static readonly IteratorConverter _iteratorConverter = new();
+    private static readonly IfsConverter _ifsConverter = new();
+
+    public static IFS LoadJsonFile(string path, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
     {
-        private static IteratorConverter iteratorConverter = new IteratorConverter();
-        private static IfsConverter ifsConverter = new IfsConverter();
-
-        public static IFS LoadJson(string path, IEnumerable<TransformFunction> transforms, bool ignoreTransformVersions)
-        {
-            var fileContent = File.ReadAllText(path, Encoding.UTF8);
-            var settings = getJsonSerializerSettings(transforms, ignoreTransformVersions);
-            return JsonConvert.DeserializeObject<IFS>(fileContent, settings);
-        }
-
-        public static void SaveJson(IFS ifs, string path)
-        {
-            File.WriteAllText(path, JsonConvert.SerializeObject(ifs, getJsonSerializerSettings(null, false)), Encoding.UTF8);
-        }
-
-        /// <summary>
-        /// Extension method on <see cref="IFS"/> to <see cref="SaveJson(IFS, string)"/>
-        /// </summary>
-        public static void Save(this IFS ifs, string path) => SaveJson(ifs, path);
-
-        private static JsonSerializerSettings getJsonSerializerSettings(IEnumerable<TransformFunction> transforms, bool ignoreVersion)
-        {
-            return new JsonSerializerSettings
-            {
-                Converters = new List<JsonConverter>
-                {
-                    new TransformFunctionConverter(transforms, ignoreVersion),
-                    iteratorConverter,
-                    ifsConverter
-                },
-                ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
-                //TypeNameHandling = TypeNameHandling.Auto
-            };
-        }
-
-
+        string fileContent = File.ReadAllText(path, Encoding.UTF8);
+        return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
     }
+
+    public static void SaveJsonFile(IFS ifs, string path)
+    {
+        string fileContent = SerializeJsonString(ifs);
+        File.WriteAllText(path, fileContent, Encoding.UTF8);
+    }
+
+    public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
+    {
+        string fileContent = await File.ReadAllTextAsync(path, Encoding.UTF8);
+        return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
+    }
+
+    public static async Task SaveJsonFileAsync(IFS ifs, string path)
+    {
+        string fileContent = SerializeJsonString(ifs);
+        await File.WriteAllTextAsync(path, fileContent, Encoding.UTF8);
+    }
+
+    public static IFS DeserializeJsonString(string ifsState, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
+    {
+        JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, ignoreTransformVersions);
+        try
+        {
+            IFS result = JsonConvert.DeserializeObject<IFS>(ifsState, settings);
+            return result;
+        }
+        catch (Exception ex)
+        {//Custom JsonConverters may throw different Exceptions
+            throw new SerializationException("Serialization Exception", ex);
+        }
+    }
+
+    public static string SerializeJsonString(IFS ifs)
+    {
+        JsonSerializerSettings settings = GetJsonSerializerSettings(null, false);
+        return JsonConvert.SerializeObject(ifs, settings);
+    }
+
+    internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<Transform> transforms, bool ignoreVersion)
+    {
+        return new JsonSerializerSettings
+        {
+            Converters = new List<JsonConverter>
+                {
+                    new TransformConverter(transforms, ignoreVersion),
+                    _iteratorConverter,
+                    _ifsConverter
+                },
+            ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
+                                                                   //TypeNameHandling = TypeNameHandling.Auto
+        };
+    }
+
+
 }

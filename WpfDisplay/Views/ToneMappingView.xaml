@@ -7,20 +7,24 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="250"
+             d:DesignHeight="300" d:DesignWidth="250"
              x:Name="toneMappingView"
              d:DataContext="{d:DesignInstance Type=vm:ToneMappingViewModel, IsDesignTimeCreatable=False}">
     <md:Card Padding="6" Margin="8">
         <StackPanel>
             <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <local:ValueSlider ValueName="Brightness" MinValue="0" Increment="0.05" 
-                               Value="{Binding DataContext.Brightness, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="Gamma" MinValue="0" Increment="0.005" 
-                               Value="{Binding DataContext.Gamma, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="Gamma threshold" MinValue="0.0" Increment="0.001"
-                               Value="{Binding DataContext.GammaThreshold, ElementName=toneMappingView}"/>
-            <local:ValueSlider ValueName="Vibrancy" Increment="0.05" 
-                               Value="{Binding DataContext.Vibrancy, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="💡 Brightness" MinValue="0" Increment="0.05" 
+                               Value="{Binding DataContext.Brightness, ElementName=toneMappingView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="◑ Gamma" MinValue="0" Increment="0.005" 
+                               Value="{Binding DataContext.Gamma, ElementName=toneMappingView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="◓ Gamma threshold" MinValue="0.0" Increment="0.0001"
+                               Value="{Binding DataContext.GammaThreshold, ElementName=toneMappingView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
+            <local:ValueSlider ValueName="🌷 Vibrancy" Increment="0.05" 
+                               Value="{Binding DataContext.Vibrancy, ElementName=toneMappingView}"
+                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=toneMappingView}"/>
         </StackPanel>
     </md:Card>
 </UserControl>

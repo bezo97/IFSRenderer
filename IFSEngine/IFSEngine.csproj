@@ -1,37 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>IFSEngine</RootNamespace>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Authors>bezo97</Authors>
-    <Description>3D IFS fractal rendering engine.</Description>
-    <Copyright>Copyright 2021</Copyright>
-    <Version></Version>
-    <PackageLicenseExpression>TODO</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>fractal, 3d, graphics, art, ifs, rendering</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>IFSEngine</RootNamespace>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<Authors>bezo97</Authors>
+		<Description>3D IFS fractal rendering engine.</Description>
+		<Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
+		<Version>1.0.1</Version>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageTags>fractal;3d;graphics;art;ifs;rendering</PackageTags>
+		<PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon_128.png</PackageIcon>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Rendering\Shaders\de.frag.shader" />
-    <EmbeddedResource Include="Rendering\Shaders\tonemap.frag.shader" />
-    <EmbeddedResource Include="Rendering\Shaders\quad.vert.shader" />
-    <EmbeddedResource Include="Rendering\Shaders\ifs_kernel.comp.shader" />
-    <EmbeddedResource Include="Rendering\Shaders\taa.frag.shader" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Rendering\Shaders\de.frag.shader" />
+		<EmbeddedResource Include="Rendering\Shaders\tonemap.frag.shader" />
+		<EmbeddedResource Include="Rendering\Shaders\quad.vert.shader" />
+		<EmbeddedResource Include="Rendering\Shaders\ifs_kernel.comp.shader" />
+		<EmbeddedResource Include="Rendering\Shaders\taa.frag.shader" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="OpenTK.Graphics" Version="4.5.0" />
-    <PackageReference Include="OpenTK.Windowing.Common" Version="4.5.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
+		<PackageReference Include="OpenTK.Graphics" Version="4.6.4" />
+		<PackageReference Include="OpenTK.Windowing.Common" Version="4.6.4" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\IFSEngine.Util\IFSEngine.Util.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\Assets\icon_128.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+			<Visible>False</Visible>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
