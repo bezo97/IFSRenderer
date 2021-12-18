@@ -15,8 +15,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
-using System.Diagnostics;
-using IFSEngine.Animation;
 
 namespace WpfDisplay.ViewModels;
 

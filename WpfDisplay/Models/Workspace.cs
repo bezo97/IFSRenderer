@@ -1,4 +1,5 @@
-﻿using IFSEngine.Generation;
+﻿using IFSEngine.Animation;
+using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
 using IFSEngine.Serialization;
@@ -11,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
 using WpfDisplay.Properties;
-using IFSEngine.Animation;
 
 namespace WpfDisplay.Models;
 
@@ -22,9 +22,9 @@ namespace WpfDisplay.Models;
 [ObservableObject]
 public partial class Workspace
 {
-    private readonly IFSHistoryTracker _tracker = new(); 
+    private readonly IFSHistoryTracker _tracker = new();
     private List<Transform> _loadedTransforms = new();
-    public readonly AnimationManager AnimationManager = new AnimationManager();
+    public readonly AnimationManager AnimationManager = new();
 
     public event EventHandler<string> StatusTextChanged;
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");

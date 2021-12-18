@@ -21,7 +21,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
-        xmlns:animation="clr-namespace:WpfDisplay.Controls.Animation"
+        xmlns:animation="clr-namespace:WpfDisplay.Views.Animation"
         >
     <Window.Resources>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
