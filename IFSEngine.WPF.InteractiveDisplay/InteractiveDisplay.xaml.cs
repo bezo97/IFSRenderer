@@ -125,8 +125,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 (_keyboard.IsKeyDown(Key.K) ? 1 : 0) - (_keyboard.IsKeyDown(Key.I) ? 1 : 0),
                 (_keyboard.IsKeyDown(Key.U) ? 1 : 0) - (_keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
             //keyboard sensitivity modifiers:
-            if (_keyboard.IsKeyDown(Key.LeftAlt) || _keyboard.IsKeyDown(Key.RightAlt))
-            {//TODO: LeftAlt is not caught (system key)
+            if (_keyboard.IsKeyDown(Key.LeftCtrl) || _keyboard.IsKeyDown(Key.RightCtrl))
+            {
                 translateVec *= 2.0f;
                 rotateVec *= 2.0f;
             }

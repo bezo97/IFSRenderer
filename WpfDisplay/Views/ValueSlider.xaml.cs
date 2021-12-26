@@ -78,7 +78,7 @@ public partial class ValueSlider : UserControl
         DependencyProperty.Register("MaxValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
 
     private static double IncrementMultiplier => 1.0
-        * (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt) ? 10 : 1)
+        * (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? 10 : 1)
         * (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? 0.1 : 1);
 
     public ValueSlider()
@@ -86,16 +86,26 @@ public partial class ValueSlider : UserControl
         InitializeComponent();
     }
 
-    private void Down_Click(object sender, RoutedEventArgs e)
+    public void IncreaseValue()
     {
         ValueChangedCommand?.Execute(null);
-        Value = Math.Round(Value - Increment * IncrementMultiplier, 3);
+        Value += Increment * IncrementMultiplier;
+    }
+
+    public void DecreaseValue()
+    {
+        ValueChangedCommand?.Execute(null);
+        Value -= Increment * IncrementMultiplier;
     }
 
     private void Up_Click(object sender, RoutedEventArgs e)
     {
-        ValueChangedCommand?.Execute(null);
-        Value = Math.Round(Value + Increment * IncrementMultiplier, 3);
+        IncreaseValue();
+    }
+
+    private void Down_Click(object sender, RoutedEventArgs e)
+    {
+        DecreaseValue();
     }
 
     private void Animate_Click(object sender, RoutedEventArgs e)
@@ -110,6 +120,16 @@ public partial class ValueSlider : UserControl
             e.Handled = true;
             //valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             StartEditing();
+        }
+        else if (e.Key == Key.Up)
+        {
+            e.Handled = true;
+            IncreaseValue();
+        }
+        else if (e.Key == Key.Down)
+        {
+            e.Handled = true;
+            DecreaseValue();
         }
         else if (e.Key == Key.Escape)
         {

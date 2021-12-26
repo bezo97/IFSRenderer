@@ -51,7 +51,7 @@
                      Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" 
                      Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                     KeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
+                     PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Copy" />
