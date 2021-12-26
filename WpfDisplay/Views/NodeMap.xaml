@@ -26,7 +26,7 @@
         <ItemsControl ItemsSource="{Binding NodeMapElements}">
             <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas 
+                        <Canvas x:Name="itemsPanel"
                                 Background="DimGray"
                                 Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
                                 Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
@@ -35,6 +35,7 @@
             <ItemsControl.Resources>
                 <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
                     <local:Node
+                            ParentCanvas="{Binding ElementName=itemsPanel}"
                             DataContext="{Binding}"
                             SelectCommand="{Binding DataContext.SelectIteratorCommand, ElementName=nodeMap}">
                     </local:Node>

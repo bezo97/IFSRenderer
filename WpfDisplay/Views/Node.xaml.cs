@@ -35,6 +35,15 @@ public partial class Node : UserControl
         set { Canvas.SetTop(_parentContainer, value); }
     }
 
+    //Positioning is relative to this element
+    public FrameworkElement ParentCanvas
+    {
+        get { return (FrameworkElement)GetValue(ParentCanvasProperty); }
+        set { SetValue(ParentCanvasProperty, value); }
+    }
+    public static readonly DependencyProperty ParentCanvasProperty =
+        DependencyProperty.Register("ParentCanvas", typeof(FrameworkElement), typeof(Node), new PropertyMetadata(null));
+
     public Node()
     {
         InitializeComponent();
@@ -54,8 +63,8 @@ public partial class Node : UserControl
         var vm = (IteratorViewModel)DataContext;
         if (e.ChangedButton == MouseButton.Left)
         {
-            _tx = vm.XCoord - (float)e.GetPosition(null).X;//vm.XCoord - e.GetPosition(Map).X;
-            _ty = vm.YCoord - (float)e.GetPosition(null).Y;//vm.YCoord - e.GetPosition(Map).Y;
+            _tx = vm.XCoord - (float)e.GetPosition(ParentCanvas).X;
+            _ty = vm.YCoord - (float)e.GetPosition(ParentCanvas).Y;
             SelectCommand.Execute(vm);
         }
         else if (e.ChangedButton == MouseButton.Right)
@@ -83,8 +92,8 @@ public partial class Node : UserControl
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             e.Handled = true;
-            float XCoord = _tx + (float)e.GetPosition(null).X;
-            float YCoord = _ty + (float)e.GetPosition(null).Y;
+            float XCoord = _tx + (float)e.GetPosition(ParentCanvas).X;
+            float YCoord = _ty + (float)e.GetPosition(ParentCanvas).Y;
             vm.UpdatePosition(XCoord, YCoord);
             NodePositionX = vm.XCoord;
             NodePositionY = vm.YCoord;
