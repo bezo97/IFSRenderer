@@ -80,7 +80,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
     [DllImport("User32.dll")]
     private static extern bool SetCursorPos(int X, int Y);
 
-    private const float DeadZoneMultiplier = 0.25f;
+    private const float DeadZoneMultiplier = 1.0f;
     private const float ThumbstickValMax = 32768.0f;
     private bool IsInteractionEnabled => Renderer is not null && Renderer.IsRendering && Renderer.UpdateDisplayOnRender;
 
