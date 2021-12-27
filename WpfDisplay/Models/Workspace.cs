@@ -133,6 +133,19 @@ public partial class Workspace
         await IfsSerializer.SaveJsonFileAsync(Ifs, path);
     }
 
+    public void CopyToClipboard()
+    {
+        string jsonData = IfsSerializer.SerializeJsonString(Ifs);
+        System.Windows.Clipboard.SetText(jsonData);
+    }
+
+    public void PasteFromClipboard()
+    {
+        string jsonData = System.Windows.Clipboard.GetText();
+        IFS ifs = IfsSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
+        LoadParams(ifs);
+    }
+
     public void UndoHistory()
     {
         //LoadParams without taking snapshot

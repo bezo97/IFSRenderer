@@ -133,6 +133,27 @@ public sealed partial class MainViewModel : IAsyncDisposable
         }
     }
 
+    [ICommand]
+    private void CopyClipboardParams()
+    {
+        workspace.CopyToClipboard();
+        workspace.UpdateStatusText("Parameters copied to Clipboard");
+    }
+
+    [ICommand]
+    private void PasteClipboardParams()
+    {
+        try
+        {
+            workspace.PasteFromClipboard();
+            workspace.UpdateStatusText("Parameters pasted from Clipboard");
+        }
+        catch (SerializationException)
+        {
+            workspace.UpdateStatusText("ERROR - Failed to paste params from Clipboard");
+        }
+    }
+
     /// <summary>
     /// Converts the raw pixel data into a BitmapSource with WPF specific calls.
     /// The Alpha channel is optionally removed and the image is flipped vertically, as required by CopyPixelDataToBitmap()

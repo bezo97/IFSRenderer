@@ -139,4 +139,24 @@ public partial class MainWindow : Window
         e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
     }
 
+    private void Copy_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        vm.CopyClipboardParamsCommand.Execute(null);
+    }
+
+    private void Copy_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = vm?.CopyClipboardParamsCommand.CanExecute(null) ?? false;
+    }
+
+    private void Paste_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        vm.PasteClipboardParamsCommand.Execute(null);
+    }
+
+    private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = vm?.PasteClipboardParamsCommand.CanExecute(null) ?? false;
+    }
+
 }
