@@ -145,13 +145,15 @@ await renderer.CopyPixelDataToBitmap(myBitmapPtr);
 - [Report a bug](https://github.com/bezo97/IFSRenderer/issues/new?assignees=&labels=&template=bug_report.md)
 - Discuss issues on the [Forum](https://github.com/bezo97/IFSRenderer/discussions)
 
+##  Acknowledgements
+Below is a list of awesome people who contributed to IFSRenderer, thank you!
+I'd like to also mention people who indirectly helped the project succeed through teachings/mentorship/advices/etc.: 
+[ancientc](https://github.com/ancientc), [BenceKovari](https://github.com/BenceKovari), [drecouse](https://github.com/drecouse), [lycium](https://github.com/lycium), [tibitoth](https://github.com/tibitoth)
+### Contributors
+[bezo97](https://github.com/bezo97) (Creator & Maintainer), [AliBee](https://github.com/BenjaminBako), [KuraiAndras](https://github.com/KuraiAndras), [Rychveldir](https://www.deviantart.com/rychveldir), [Sekkmer](https://github.com/TiborDravecz), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)
+
 ---
 
 ## ⚖️ License
 Copyright (C) 2021 Dócs Zoltán & contributors  
 IFSRenderer is licensed under [**GPLv3**](/LICENSE).
-
-### Contributors
-
-[bezo97](https://github.com/bezo97) (Creator & Maintainer)  
-Contributors: [AliBee](https://github.com/BenjaminBako), [Rychveldir](https://www.deviantart.com/rychveldir), [Sekkmer](https://github.com/TiborDravecz), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)
