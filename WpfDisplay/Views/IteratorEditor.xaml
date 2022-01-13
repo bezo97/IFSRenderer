@@ -40,7 +40,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                     Command="{Binding FlipWeightCommand}"
-                    ToolTip="Enable/Disable (Ctrl+W)"
+                    ToolTip="Enable/Disable (Ctrl+W)" IsTabStop="False"
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
@@ -60,7 +60,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                     Command="{Binding FlipOpacityCommand}"
-                    ToolTip="Show/Hide (Ctrl+O)"
+                    ToolTip="Show/Hide (Ctrl+O)" IsTabStop="False"
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
                 </Button>
@@ -90,7 +90,7 @@
                                        Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"
                                        ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
                 </Grid>
-                <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="20"/>
+                <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="20" IsTabStop="False"/>
             </StackPanel>
         </StackPanel>
         <Separator Margin="10"/>
@@ -110,7 +110,7 @@
                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
             </Grid>
             <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
-            <ItemsControl ItemsSource="{Binding Parameters}">
+            <ItemsControl ItemsSource="{Binding Parameters}" IsTabStop="False">
                 <ItemsControl.Resources>
                     <!--real-->
                     <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
