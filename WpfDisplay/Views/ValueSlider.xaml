@@ -17,6 +17,12 @@
         <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </UserControl.Resources>
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
+            <MenuItem Header="Animate" Icon="🎬" Click="Animate_Click" IsEnabled="False"/>
+        </ContextMenu>
+    </UserControl.ContextMenu>
     <StackPanel>
         <Label Grid.Column="0" IsTabStop="False"
                Content="{Binding Label}" 
@@ -40,25 +46,24 @@
                    Background="#303030" Cursor="Hand"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                   PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp">
-                <Label.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Animate" Click="Animate_Click" IsEnabled="False"/>
-                    </ContextMenu>
-                </Label.ContextMenu>
-            </Label>
+                   PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
                      Text="{Binding Value, StringFormat=N4}" 
                      Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
                      Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                     MouseDoubleClick="valueEditor_MouseDoubleClick"
                      PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Command="ApplicationCommands.Copy" />
-                        <MenuItem Command="ApplicationCommands.Cut" />
-                        <MenuItem Command="ApplicationCommands.Paste" />
-                        <MenuItem Header="Animate" Click="Animate_Click" IsEnabled="False"/>
+                        <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
+                        <MenuItem Header="Animate" Icon="🎬" Click="Animate_Click" IsEnabled="False"/>
+                        <Separator/>
+                        <!--Must recreate native items to extend context menu-->
+                        <MenuItem Command="ApplicationCommands.Cut"/>
+                        <MenuItem Command="ApplicationCommands.Copy"/>
+                        <MenuItem Command="ApplicationCommands.Paste"/>
+                        <MenuItem Command="ApplicationCommands.SelectAll"/>
                     </ContextMenu>
                 </TextBox.ContextMenu>
             </TextBox>

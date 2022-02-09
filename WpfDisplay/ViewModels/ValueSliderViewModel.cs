@@ -58,9 +58,13 @@ public partial class ValueSliderViewModel
     }
 
     [ICommand]
-    private void ResetValue()
+    public void ResetValue()
     {
         ValueWillChange?.Invoke();
-        Value = DefaultValue;
+        //Same as in Apophysis: reset to default value, or zero if value is already the default.
+        if (Value == DefaultValue)
+            Value = 0.0;
+        else
+            Value = DefaultValue;
     }
 }

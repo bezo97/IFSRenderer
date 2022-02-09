@@ -141,4 +141,10 @@ public partial class ValueSlider : UserControl
             StartEditing();
         }
     }
+
+    private void valueEditor_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        vm.ResetValue();
+        StartEditing();
+    }
 }
