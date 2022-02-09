@@ -86,17 +86,21 @@ public partial class IFSViewModel
     }
 
     public FlamePalette Palette => _workspace.Ifs.Palette;
-
-    public double FogEffect
+    
+    private ValueSliderViewModel _fogEffect;
+    public ValueSliderViewModel FogEffect => _fogEffect ??= new ValueSliderViewModel(_workspace)
     {
-        get => _workspace.Ifs.FogEffect;
-        set
-        {
+        Label = "🌫 Fog effect",
+        ToolTip = "Fades parts that are out of focus.",
+        DefaultValue = IFS.Default.FogEffect,
+        GetV = () => _workspace.Ifs.FogEffect,
+        SetV = (value) => {
             _workspace.Ifs.FogEffect = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
-            OnPropertyChanged(nameof(FogEffect));
-        }
-    }
+        },
+        ValueWillChange = _workspace.TakeSnapshot,
+        MinValue = 0,
+    };
 
     public IFSViewModel(Workspace workspace)
     {

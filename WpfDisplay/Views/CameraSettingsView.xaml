@@ -30,10 +30,7 @@
                 </Button>
             </Grid>
             <!--TODO: Orthogrpahic, Stereographic, 360 Equirectangular etc. modes-->
-            <local:ValueSlider ValueName="🔬 Field of View"
-                               MinValue="1" MaxValue="179" Increment="0.1"
-                               Value="{Binding DataContext.FieldOfView, ElementName=cameraSettingsView}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+            <local:ValueSlider DataContext="{Binding FieldOfView}">
                 <!--<local:ValueSlider.ToolTip>
                     <MediaElement
                         LoadedBehavior="Play"
@@ -42,10 +39,7 @@
                         Source=""/>
                 </local:ValueSlider.ToolTip>-->
             </local:ValueSlider>
-            <local:ValueSlider ValueName="✨ Aperture"
-                               MinValue="0" Increment="0.0001"
-                               Value="{Binding DataContext.Aperture, ElementName=cameraSettingsView}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+            <local:ValueSlider DataContext="{Binding Aperture}">
                 <local:ValueSlider.ToolTip>
                     <MediaElement
                         LoadedBehavior="Play"
@@ -54,9 +48,7 @@
                         Source="https://upload.wikimedia.org/wikipedia/commons/4/4f/Aperture_Helios_44M-4.gif"/>
                 </local:ValueSlider.ToolTip>
             </local:ValueSlider>
-            <local:ValueSlider ValueName="📏 Focus Distance"
-                               Value="{Binding DataContext.FocusDistance, ElementName=cameraSettingsView}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}">
+            <local:ValueSlider DataContext="{Binding FocusDistance}">
                 <!--<local:ValueSlider.ToolTip>
                     <MediaElement
                         LoadedBehavior="Play"
@@ -67,11 +59,7 @@
             </local:ValueSlider>
             <!--TODO: Ability to lock focus on current focus point-->
             <CheckBox IsEnabled="False" ToolTip="🛠️ Under Construction" Foreground="White">🔒 Lock focus point</CheckBox>
-            <local:ValueSlider ValueName="🔾 Depth of Field" 
-                               ToolTip="a.k.a. Range of focus"
-                               MinValue="0" 
-                               Value="{Binding DataContext.DepthOfField, ElementName=cameraSettingsView}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=cameraSettingsView}"/>
+            <local:ValueSlider DataContext="{Binding DepthOfField}"/>
         </StackPanel>
     </md:Card>
 </UserControl>

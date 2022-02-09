@@ -117,12 +117,8 @@
                                     <CheckBox IsChecked="{Binding MutateParameters}">Parameters</CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4" Margin="8">
-                                    <local:ValueSlider ValueName="Mutation chance" 
-                                                       MinValue="0.0" MaxValue="1.0" Increment="0.01"
-                                                       Value="{Binding DataContext.MutationChance, ElementName=generatorWindow}"/>
-                                    <local:ValueSlider ValueName="Mutation strength" 
-                                                       MinValue="0.0" Increment="0.1"
-                                                       Value="{Binding DataContext.MutationStrength, ElementName=generatorWindow}"/>
+                                    <local:ValueSlider DataContext="{Binding MutationChance}"/>
+                                    <local:ValueSlider DataContext="{Binding MutationStrength}"/>
                                 </StackPanel>
                             </Grid>
                             <Button HorizontalAlignment="Center" Command="{Binding GenerateRandomBatchCommand}">New batch</Button>

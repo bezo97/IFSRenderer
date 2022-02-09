@@ -44,14 +44,8 @@
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
-                <local:ValueSlider ValueName="Start Weight" ToolTip="Controls the probability that the iteration starts in this state." Grid.Column="1"
-                               MinValue="0" Increment="0.01" 
-                               Value="{Binding DataContext.StartWeight, ElementName=iteratorEditor}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                <local:ValueSlider ValueName="Base Weight" ToolTip="Multiplies incoming connection weights for ease of use. 0 base weight means this iterator does not take part in the iteration process, because the IFS never transitions here." Grid.Column="2"
-                               MinValue="0" Increment="0.01" 
-                               Value="{Binding DataContext.BaseWeight, ElementName=iteratorEditor}"
-                               ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                <local:ValueSlider Grid.Column="1" DataContext="{Binding StartWeight}"/>
+                <local:ValueSlider Grid.Column="2" DataContext="{Binding BaseWeight}"/>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -64,10 +58,7 @@
                     FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
                 </Button>
-                <local:ValueSlider ValueName="Opacity" ToolTip="Setting this to 0 means this iterator will not draw anything." Grid.Column="1"
-                                   MinValue="0" MaxValue="1" Increment="0.01" 
-                                   Value="{Binding DataContext.Opacity, ElementName=iteratorEditor}"
-                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                <local:ValueSlider Grid.Column="1" DataContext="{Binding Opacity}"/>
             </Grid>
             <Separator Margin="10"/>
             <StackPanel>
@@ -81,14 +72,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <local:ValueSlider ValueName="Color Index" ToolTip="Indexes to the color on the palette. 0 -> Left most color, 1 -> Right most color." Grid.Column="0"
-                                       MinValue="0" MaxValue="1" Increment="0.01" 
-                                       Value="{Binding DataContext.ColorIndex, ElementName=iteratorEditor}"
-                                       ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                    <local:ValueSlider ValueName="Color Speed" ToolTip="The Color Speed controls how fast the color state of the IFS progresses towards this iterator's Color Index. 0 -> no effect on colors. 1 -> Draw with the selected color index immediately."  Grid.Column="1"
-                                       Increment="0.01"
-                                       Value="{Binding DataContext.ColorSpeed, ElementName=iteratorEditor}"
-                                       ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                    <local:ValueSlider Grid.Column="0" DataContext="{Binding ColorIndex}"/>
+                    <local:ValueSlider Grid.Column="1" DataContext="{Binding ColorSpeed}"/>
                 </Grid>
                 <local:PaletteButton Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="20" IsTabStop="False"/>
             </StackPanel>
@@ -100,33 +85,19 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <local:ValueSlider ValueName="Mix" ToolTip="Linearly interpolate between the states before/after the transform. 0 -> The transform has no effect on the position. 1 -> Default." Grid.Column="0"
-                                   Increment="0.001" 
-                                   Value="{Binding DataContext.Mix, ElementName=iteratorEditor}"
-                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                <local:ValueSlider ValueName="Add" ToolTip="Add up the positions before/after the transform." Grid.Column="1"
-                                   Increment="0.001"
-                                   Value="{Binding DataContext.Add, ElementName=iteratorEditor}"
-                                   ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                <local:ValueSlider DataContext="{Binding Mix}" Grid.Column="0"/>
+                <local:ValueSlider DataContext="{Binding Add}" Grid.Column="1"/>
             </Grid>
             <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
             <ItemsControl ItemsSource="{Binding Parameters}" IsTabStop="False">
                 <ItemsControl.Resources>
                     <!--real-->
                     <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
-                        <Grid DataContext="{Binding}" x:Name="dummy">
-                            <local:ValueSlider
-                                    Increment="0.001"
-                                    ValueName="{Binding DataContext.Name, ElementName=dummy}" 
-                                    Value="{Binding DataContext.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=dummy}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
-                        </Grid>
+                        <local:ValueSlider DataContext="{Binding SliderViewModel}"/>
                     </DataTemplate>
                     <!--vec3-->
                     <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">
-                        <local:Vec3Control 
-                            Increment="0.001"
-                            ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=iteratorEditor}"/>
+                        <local:Vec3Control DataContext="{Binding}"/>
                     </DataTemplate>
                 </ItemsControl.Resources>
             </ItemsControl>

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
 
@@ -14,42 +15,10 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class ValueSlider : UserControl
 {
-
     [DllImport("User32.dll")]
     private static extern bool SetCursorPos(int X, int Y);
 
-    public string ValueName
-    {
-        get { return (string)GetValue(ValueNameProperty); }
-        set { SetValue(ValueNameProperty, value); }
-    }
-    public static readonly DependencyProperty ValueNameProperty =
-        DependencyProperty.Register("ValueName", typeof(string), typeof(ValueSlider), new PropertyMetadata(null));
-
-    public double Value
-    {
-        get { return (double)GetValue(ValueProperty); }
-        set
-        {
-            double constrainedValue = value;
-            if (MinValue != null)
-                constrainedValue = Math.Max(MinValue ?? 0, constrainedValue);
-            if (MaxValue != null)
-                constrainedValue = Math.Min(MaxValue ?? 0, constrainedValue);
-            SetValue(ValueProperty, constrainedValue);
-        }
-    }
-    public static readonly DependencyProperty ValueProperty =
-        DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-
-    public double Increment
-    {
-        get { return (double)GetValue(IncrementProperty); }
-        set { SetValue(IncrementProperty, value); }
-    }
-    public static readonly DependencyProperty IncrementProperty =
-        DependencyProperty.Register("Increment", typeof(double), typeof(ValueSlider), new PropertyMetadata(0.1));
-
+    private ValueSliderViewModel vm => (ValueSliderViewModel)DataContext;
 
     public bool Editing
     {
@@ -59,53 +28,19 @@ public partial class ValueSlider : UserControl
     public static readonly DependencyProperty EditingProperty =
         DependencyProperty.Register("Editing", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
 
-
-    public double? MinValue
-    {
-        get { return (double?)GetValue(MinValueProperty); }
-        set { SetValue(MinValueProperty, value); }
-    }
-    public static readonly DependencyProperty MinValueProperty =
-        DependencyProperty.Register("MinValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
-
-
-    public double? MaxValue
-    {
-        get { return (double?)GetValue(MaxValueProperty); }
-        set { SetValue(MaxValueProperty, value); }
-    }
-    public static readonly DependencyProperty MaxValueProperty =
-        DependencyProperty.Register("MaxValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
-
-    private static double IncrementMultiplier => 1.0
-        * (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? 10 : 1)
-        * (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? 0.1 : 1);
-
     public ValueSlider()
     {
         InitializeComponent();
     }
 
-    public void IncreaseValue()
-    {
-        ValueChangedCommand?.Execute(null);
-        Value += Increment * IncrementMultiplier;
-    }
-
-    public void DecreaseValue()
-    {
-        ValueChangedCommand?.Execute(null);
-        Value -= Increment * IncrementMultiplier;
-    }
-
     private void Up_Click(object sender, RoutedEventArgs e)
     {
-        IncreaseValue();
+        vm.IncreaseValue();
     }
 
     private void Down_Click(object sender, RoutedEventArgs e)
     {
-        DecreaseValue();
+        vm.DecreaseValue();
     }
 
     private void Animate_Click(object sender, RoutedEventArgs e)
@@ -124,17 +59,17 @@ public partial class ValueSlider : UserControl
         else if (e.Key == Key.Up)
         {
             e.Handled = true;
-            IncreaseValue();
+            vm.IncreaseValue();
         }
         else if (e.Key == Key.Down)
         {
             e.Handled = true;
-            DecreaseValue();
+            vm.DecreaseValue();
         }
         else if (e.Key == Key.Escape)
         {
             e.Handled = true;
-            Value = _lastv;//restore
+            vm.Value = _lastv;//restore
             valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
             Editing = false;
         }
@@ -152,9 +87,9 @@ public partial class ValueSlider : UserControl
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            ValueChangedCommand?.Execute(null);
+            vm.ValueWillChange?.Invoke();
             _dragp = e.GetPosition(Window.GetWindow(this));
-            _lastv = Value;
+            _lastv = vm.Value;
             displayLabel.CaptureMouse();
             Mouse.OverrideCursor = Cursors.None;
         }
@@ -165,12 +100,12 @@ public partial class ValueSlider : UserControl
         if (e.LeftButton == MouseButtonState.Pressed && displayLabel.IsMouseCaptured)
         {
             double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
-            Value = _lastv + delta * Increment * IncrementMultiplier;
+            vm.Value = _lastv + delta * vm.Increment * ValueSliderViewModel.IncrementMultiplier;
 
             //reset position on mouseleave
             if (VisualTreeHelper.HitTest(this, e.GetPosition(displayLabel)) == null)
             {
-                _lastv = Value;
+                _lastv = vm.Value;
                 var pos = displayLabel.PointToScreen(new Point(displayLabel.ActualWidth / 2, displayLabel.ActualHeight / 2));
                 SetCursorPos((int)pos.X, (int)pos.Y);
             }
@@ -190,18 +125,10 @@ public partial class ValueSlider : UserControl
         displayLabel.ReleaseMouseCapture();
     }
 
-    public RelayCommand ValueChangedCommand
-    {
-        get { return (RelayCommand)GetValue(ValueChangedCommandProperty); }
-        set { SetValue(ValueChangedCommandProperty, value); }
-    }
-    public static readonly DependencyProperty ValueChangedCommandProperty =
-        DependencyProperty.Register("ValueChangedCommand", typeof(RelayCommand), typeof(ValueSlider), new PropertyMetadata(null));
-
     private void StartEditing()
     {
         valueEditor.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-        _lastv = Value;
+        _lastv = vm.Value;
         Editing = true;
         valueEditor.Focus();
         valueEditor.SelectAll();

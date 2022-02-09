@@ -133,11 +133,7 @@
                                 <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
                                     Selected Connection
                                 </TextBlock>
-                                <local:ValueSlider
-                                    ValueName="Weight" ToolTip="The weight of the connection controls the transition probability between the two iterators. 0 weight means no connection."
-                                    Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
-                                    MinValue="0" Increment="0.01"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=editorWindow}"/>
+                                <local:ValueSlider DataContext="{Binding SelectedConnection.Weight}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

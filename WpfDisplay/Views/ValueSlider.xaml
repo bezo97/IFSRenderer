@@ -5,10 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d"
              d:DesignHeight="50" d:DesignWidth="125"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             d:DataContext="{d:DesignInstance Type=vm:ValueSliderViewModel, IsDesignTimeCreatable=False}"
              x:Name="valueSlider"
+             ToolTip="{Binding ToolTip}"
              >
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
@@ -17,9 +19,8 @@
     </UserControl.Resources>
     <StackPanel>
         <Label Grid.Column="0" IsTabStop="False"
-               Content="{Binding ValueName}" 
-               Visibility="{Binding ValueName, Converter={StaticResource nullVisibilityConverter}}"/>
-    
+               Content="{Binding Label}" 
+               Visibility="{Binding Label, Converter={StaticResource nullVisibilityConverter}}"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
@@ -33,9 +34,9 @@
                 Background="#303030"
                 Click="Down_Click">-</Button>
             <Label x:Name="displayLabel" Grid.Column="1" 
-                   Content="{Binding Value}" 
+                   Content="{Binding Value}"
                    ContentStringFormat="N4"
-                   Visibility="{Binding Editing, Converter={StaticResource invVisibilityConverter}}" 
+                   Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}" 
                    Background="#303030" Cursor="Hand"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
@@ -48,7 +49,7 @@
             </Label>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
                      Text="{Binding Value, StringFormat=N4}" 
-                     Visibility="{Binding Editing, Converter={StaticResource visibilityConverter}}" 
+                     Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
                      Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">

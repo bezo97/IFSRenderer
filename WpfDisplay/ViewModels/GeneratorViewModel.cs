@@ -24,8 +24,31 @@ public partial class GeneratorViewModel
     public bool MutateParameters { get => _options.MutateParameters; set => SetProperty(ref _options.MutateParameters, value); }
     public bool MutatePalette { get => _options.MutatePalette; set => SetProperty(ref _options.MutatePalette, value); }
     public bool MutateColoring { get => _options.MutateColoring; set => SetProperty(ref _options.MutateColoring, value); }
-    public double MutationChance { get => _options.MutationChance; set => SetProperty(ref _options.MutationChance, value); }
-    public double MutationStrength { get => _options.MutationStrength; set => SetProperty(ref _options.MutationStrength, value); }
+    private ValueSliderViewModel _mutationChance;
+    public ValueSliderViewModel MutationChance => _mutationChance ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Mutation chance",
+        DefaultValue = 0.5,
+        GetV = () => _options.MutationChance,
+        SetV = (value) => {
+            _options.MutationChance = value;
+        },
+        MinValue = 0,
+        MaxValue = 1,
+        Increment = 0.01,
+    };
+    private ValueSliderViewModel _mutationStrength;
+    public ValueSliderViewModel MutationStrength => _mutationStrength ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Mutation strength",
+        DefaultValue = 1.0,
+        GetV = () => _options.MutationStrength,
+        SetV = (value) => {
+            _options.MutationStrength = value;
+        },
+        MinValue = 0,
+        Increment = 0.1,
+    };
 
     //n-wide grid gallery of images
     public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>

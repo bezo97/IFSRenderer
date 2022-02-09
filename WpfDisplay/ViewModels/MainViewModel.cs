@@ -298,4 +298,5 @@ public sealed partial class MainViewModel : IAsyncDisposable
         string link = "https://github.com/bezo97/IFSRenderer/wiki";
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
+
 }

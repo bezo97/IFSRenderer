@@ -29,16 +29,22 @@ public partial class ConnectionViewModel
     public bool IsLoopback => (from == to);
     public double EllipseRadius { get; set; }
     public Point EllipseMid { get; set; }
-
-    public double Weight
+    
+    private ValueSliderViewModel _weight;
+    public ValueSliderViewModel Weight => _weight ??= new ValueSliderViewModel(_workspace)
     {
-        get => from.iterator.WeightTo[to.iterator];
-        set
-        {
+        Label = "Weight",
+        ToolTip = "The weight of the connection controls the transition probability between the two iterators. 0 weight means no connection.",
+        DefaultValue = 1.0,
+        GetV = () => from.iterator.WeightTo[to.iterator],
+        SetV = (value) => {
             from.iterator.WeightTo[to.iterator] = value;
-            OnPropertyChanged(nameof(Weight));
-        }
-    }
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        },
+        MinValue = 0,
+        Increment = 0.01,
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
     public ConnectionViewModel(IEnumerable<ConnectionViewModel> nodemapConnections, IteratorViewModel from, IteratorViewModel to, Workspace workspace)
     {

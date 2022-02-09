@@ -9,17 +9,8 @@
              d:DataContext="{d:DesignInstance Type=vm:Vec3ParamViewModel}">
     <StackPanel>
         <Label Content="{Binding Name}"/>
-        <local:ValueSlider
-            Increment="{Binding Increment, ElementName=vec3Control}"
-            Value="{Binding DataContext.ValueX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
-            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
-        <local:ValueSlider
-            Increment="{Binding Increment, ElementName=vec3Control}"
-            Value="{Binding DataContext.ValueY, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
-            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
-        <local:ValueSlider
-            Increment="{Binding Increment, ElementName=vec3Control}"
-            Value="{Binding DataContext.ValueZ, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ElementName=vec3Control}"
-            ValueChangedCommand="{Binding ValueChangedCommand, ElementName=vec3Control}"/>
+        <local:ValueSlider DataContext="{Binding XSliderViewModel}"/>
+        <local:ValueSlider DataContext="{Binding YSliderViewModel}"/>
+        <local:ValueSlider DataContext="{Binding ZSliderViewModel}"/>
     </StackPanel>
 </UserControl>

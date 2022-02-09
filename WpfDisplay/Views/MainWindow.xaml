@@ -119,10 +119,7 @@
                                 <CheckBox Grid.Column="1" ToolTip="Transparent background"
                                     IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
                             </Grid>
-                            <local:ValueSlider ValueName="Fog effect"
-                                    MinValue="0"
-                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=mainWindow}"/>
+                            <local:ValueSlider DataContext="{Binding IFSViewModel.FogEffect}"/>
                         </StackPanel>
                     </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>

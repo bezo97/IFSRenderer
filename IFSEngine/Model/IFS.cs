@@ -132,4 +132,6 @@ public class IFS
             authors.Add(author);
     }
 
+    public static readonly IFS Default = new();
+
 }
