@@ -131,32 +131,36 @@ public partial class IFSViewModel
             DuplicateCommand = DuplicateSelectedCommand
         };
         ivm.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
-        ivm.ViewChanged += (s, e) => { Redraw(); };
-        ivm.ConnectEvent += (s, finish) =>
-        {
-            if (!finish)
-                _connectingIterator = ivm;
-            else if (_connectingIterator != null)
-            {
-                _workspace.TakeSnapshot();
-                if (_connectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
-                    _connectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
-                else
-                    _connectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
-                HandleIteratorsChanged();
-                SelectedConnection = _connectionViewModels.FirstOrDefault(c => c.from == _connectingIterator && c.to == ivm);
-                _connectingIterator = null;
-
-            }
-        };
+        ivm.ConnectingStarted += Iterator_ConnectingStarted;
+        ivm.ConnectingEnded += Iterator_ConnectingEnded;
         if (SelectedIterator != null)
         {
-            float XCoord = SelectedIterator.XCoord + (float)SelectedIterator.WeightedSize / 1.5f + (float)ivm.WeightedSize / 1.5f;
+            float XCoord = SelectedIterator.XCoord + (float)SelectedIterator.NodeSize / 1.5f + (float)ivm.NodeSize / 1.5f;
             float YCoord = SelectedIterator.YCoord;
             ivm.UpdatePosition(XCoord, YCoord);
         }
         _iteratorViewModels.Add(ivm);
         return ivm;
+    }
+
+    private void Iterator_ConnectingStarted(object sender, EventArgs e)
+    {
+        _connectingIterator = (IteratorViewModel)sender;
+    }
+
+    private void Iterator_ConnectingEnded(object sender, EventArgs e)
+    {
+        var ivm = (IteratorViewModel)sender;
+        _workspace.TakeSnapshot();
+        if (_connectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
+            _connectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
+        else
+            _connectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
+        _workspace.Renderer.InvalidateParamsBuffer();
+
+        HandleIteratorsChanged();
+        SelectedConnection = _connectionViewModels.FirstOrDefault(c => c.from == _connectingIterator && c.to == ivm);
+        _connectingIterator = null;
     }
 
     private void HandleIteratorsChanged()
@@ -190,10 +194,11 @@ public partial class IFSViewModel
                 {
                     _workspace.Renderer.InvalidateParamsBuffer();
                     HandleIteratorsChanged();//ugh
-                    }
+                }
             };
             _connectionViewModels.Add(cvm);
         }
+        vm.RaiseConnectionPropertyChanged();
     }
 
     public void Redraw()
@@ -201,10 +206,6 @@ public partial class IFSViewModel
         foreach (var i in _iteratorViewModels)
         {
             i.Redraw();
-        }
-        foreach (var con in _connectionViewModels)
-        {
-            con.UpdateGeometry();
         }
     }
 

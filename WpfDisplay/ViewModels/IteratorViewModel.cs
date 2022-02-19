@@ -18,9 +18,8 @@ public partial class IteratorViewModel
     public readonly Iterator iterator;
     private readonly Workspace _workspace;
 
-    public static readonly double BaseSize = 100;
-    public event EventHandler ViewChanged;
-    public event EventHandler<bool> ConnectEvent;
+    public event EventHandler ConnectingStarted;
+    public event EventHandler ConnectingEnded;
 
     public List<INotifyPropertyChanged> Parameters { get; } = new();
 
@@ -28,6 +27,7 @@ public partial class IteratorViewModel
     {
         this.iterator = iterator;
         _workspace = workspace;
+        IteratorLabel = iterator.Transform.Name;//TODO: iterator.Label?? transformName;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
     }
@@ -53,7 +53,12 @@ public partial class IteratorViewModel
     public void Redraw()
     {
         OnPropertyChanged(string.Empty);
-        OnPropertyChanged("NodePosition");
+        RaiseConnectionPropertyChanged();
+    }
+
+    public void RaiseConnectionPropertyChanged()
+    {
+        OnPropertyChanged("ConnectionProps");
     }
 
     [ObservableProperty] private bool _isSelected;
@@ -196,29 +201,29 @@ public partial class IteratorViewModel
         SetV = (value) => {
             iterator.BaseWeight = value;
             _workspace.Renderer.InvalidateParamsBuffer();
-            ViewChanged?.Invoke(this, null);//TODO: remove?
-            OnPropertyChanged(nameof(WeightedSize));
+            OnPropertyChanged(nameof(NodeSize));
+            OnPropertyChanged(nameof(RenderTranslateValue));
+            RaiseConnectionPropertyChanged();
         },
         MinValue = 0,
         Increment = 0.01,
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    public double WeightedSize
+    public double NodeSize
     {
         get
         {
             //if (!EnableWeightedSize)
             //    return BaseSize;
-            return (0.5f + Math.Sqrt(BaseWeight.Value < 10 ? BaseWeight.Value : 10)) * BaseSize;
+            return 100 + Math.Clamp(10*BaseWeight.Value, 0.0, 50.0) * 2;
         }
     }
 
-    public double RenderTranslateValue => -0.5 * WeightedSize;
+    public double RenderTranslateValue => -0.5 * NodeSize;
 
+    [ObservableProperty] private string _iteratorLabel;
     public string TransformName => iterator.Transform.Name;
-
-    //TODO: string IteratorName
 
     [ObservableProperty] private float _xCoord = RandHelper.Next(500);
 
@@ -227,29 +232,13 @@ public partial class IteratorViewModel
     public void UpdatePosition(float x, float y)
     {
         XCoord = x;
-        YCoord = y;
-        OnPropertyChanged("NodePosition");
-        ViewChanged?.Invoke(this, null);//refresh
+        YCoord = y; 
+        Redraw();
     }
 
-    //private RelayCommand _startConnectingCommand;
-    //public RelayCommand StartConnectingCommand
-    //{
-    //    get => _startConnectingCommand ?? (_startConnectingCommand = new RelayCommand(StartConnecting));
-    //}
-    public void StartConnecting() => ConnectEvent?.Invoke(this, false);
+    public void StartConnecting() => ConnectingStarted?.Invoke(this, null);
 
-    //private RelayCommand _finishConnectingCommand;
-    //public RelayCommand FinishConnectingCommand
-    //{
-    //    get => _finishConnectingCommand ?? (_finishConnectingCommand = new RelayCommand(FinishConnecting));
-    //}
-    public void FinishConnecting()
-    {
-        ConnectEvent?.Invoke(this, true);
-        _workspace.Renderer.InvalidateParamsBuffer();
-        ViewChanged?.Invoke(this, null);//refresh
-    }
+    public void FinishConnecting() => ConnectingEnded?.Invoke(this, null);
 
     [ICommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();

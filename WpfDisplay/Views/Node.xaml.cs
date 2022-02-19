@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.Input;
+﻿using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,7 +14,7 @@ public partial class Node : UserControl
 {
     private IteratorViewModel vm => (IteratorViewModel)DataContext;
     private ContentPresenter _parentContainer;
-    private float _tx, _ty;
+    private Vector _t;
 
     public RelayCommand<IteratorViewModel> SelectCommand
     {
@@ -23,17 +24,18 @@ public partial class Node : UserControl
     public static readonly DependencyProperty SelectCommandProperty =
         DependencyProperty.Register("SelectCommand", typeof(RelayCommand<IteratorViewModel>), typeof(Node), new PropertyMetadata(null));
 
-    public float NodePositionX
+    public Point Position
     {
-        get { return (float)Canvas.GetLeft(_parentContainer); }
-        set { Canvas.SetLeft(_parentContainer, value); }
+        get { return (Point)GetValue(PositionProperty); }
+        set {
+            Canvas.SetLeft(_parentContainer, value.X);
+            Canvas.SetTop(_parentContainer, value.Y);
+            vm.UpdatePosition((float)value.X, (float)value.Y);
+            SetValue(PositionProperty, value);
+        }
     }
-
-    public float NodePositionY
-    {
-        get { return (float)Canvas.GetTop(_parentContainer); }
-        set { Canvas.SetTop(_parentContainer, value); }
-    }
+    public static readonly DependencyProperty PositionProperty =
+        DependencyProperty.Register("Position", typeof(Point), typeof(Node), new PropertyMetadata(new Point(0, 0)));
 
     //Positioning is relative to this element
     public FrameworkElement ParentCanvas
@@ -50,8 +52,7 @@ public partial class Node : UserControl
         Loaded += (s, e) =>
         {
             _parentContainer = (ContentPresenter)System.Windows.Media.VisualTreeHelper.GetParent(this);
-            NodePositionX = vm.XCoord;
-            NodePositionY = vm.YCoord;
+            Position = new Point(RandHelper.Next(500), RandHelper.Next(500));
         };
     }
 
@@ -63,8 +64,7 @@ public partial class Node : UserControl
         var vm = (IteratorViewModel)DataContext;
         if (e.ChangedButton == MouseButton.Left)
         {
-            _tx = vm.XCoord - (float)e.GetPosition(ParentCanvas).X;
-            _ty = vm.YCoord - (float)e.GetPosition(ParentCanvas).Y;
+            _t = Position - e.GetPosition(ParentCanvas);
             SelectCommand.Execute(vm);
         }
         else if (e.ChangedButton == MouseButton.Right)
@@ -92,11 +92,7 @@ public partial class Node : UserControl
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             e.Handled = true;
-            float XCoord = _tx + (float)e.GetPosition(ParentCanvas).X;
-            float YCoord = _ty + (float)e.GetPosition(ParentCanvas).Y;
-            vm.UpdatePosition(XCoord, YCoord);
-            NodePositionX = vm.XCoord;
-            NodePositionY = vm.YCoord;
+            Position = e.GetPosition(ParentCanvas) + _t;
         }
     }
 

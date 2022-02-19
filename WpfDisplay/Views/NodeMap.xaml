@@ -23,7 +23,7 @@
             Position="0,0"
             Scale="1"
             >
-        <ItemsControl ItemsSource="{Binding NodeMapElements}">
+        <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
             <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas x:Name="itemsPanel"
@@ -41,7 +41,10 @@
                     </local:Node>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                    <local:ConnectionArrow 
+                    <local:ConnectionArrow
+                            StartPoint="{Binding StartPoint}"
+                            EndPoint="{Binding EndPoint}"
+                            ParentNodeMap="{Binding ElementName=nodeMap}"
                             DataContext="{Binding}"
                             SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
                 </DataTemplate>
