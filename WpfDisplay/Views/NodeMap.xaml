@@ -23,32 +23,38 @@
             Position="0,0"
             Scale="1"
             >
-        <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
-            <ItemsControl.ItemsPanel>
+        <Grid x:Name="wrapperGrid">
+            <!--Temporary arrow which indicates a new connection being dragged-->
+            <local:ConnectionArrow x:Name="dragArrow"
+                StartPoint="{Binding ConnectingIterator.Position}"
+                Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
+            <!--Map Nodes and Arrows to Iterators and weights-->
+            <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
+                <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas x:Name="itemsPanel"
-                                Background="DimGray"
                                 Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
                                 Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-            <ItemsControl.Resources>
-                <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
-                    <local:Node
+                <ItemsControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
+                        <local:Node
                             ParentCanvas="{Binding ElementName=itemsPanel}"
                             DataContext="{Binding}"
                             SelectCommand="{Binding DataContext.SelectIteratorCommand, ElementName=nodeMap}">
-                    </local:Node>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                    <local:ConnectionArrow
+                        </local:Node>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                        <local:ConnectionArrow
                             StartPoint="{Binding StartPoint}"
                             EndPoint="{Binding EndPoint}"
                             ParentNodeMap="{Binding ElementName=nodeMap}"
                             DataContext="{Binding}"
                             SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
-                </DataTemplate>
-            </ItemsControl.Resources>
-        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.Resources>
+            </ItemsControl>
+        </Grid>
     </xc:Zoombox>
 </UserControl>

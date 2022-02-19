@@ -50,7 +50,7 @@
             </Grid.Resources>-->
             <Button
                     Command="{Binding FlipOpacityCommand}"
-                    Width="30" Height="30"
+                    Width="30" Height="30" FontSize="18"
                     VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10 10"
                     FontWeight="Bold" ToolTip="Show/Hide (Ctrl+O)"
                     Style="{DynamicResource MaterialDesignFloatingActionButton}">
@@ -58,7 +58,7 @@
             </Button>
             <Button
                     Command="{Binding FlipWeightCommand}"
-                    Width="30" Height="30"
+                    Width="30" Height="30" FontSize="18"
                     VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10 10"
                     ToolTip="Enable/Disable (Ctrl+W)"
                     Style="{DynamicResource MaterialDesignFloatingActionButton}">
@@ -66,7 +66,7 @@
             </Button>
             <Button
                 Command="{Binding DuplicateCommand}"
-                Width="30" Height="30" 
+                Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10 10"
                 FontWeight="Bold" ToolTip="Duplicate (Ctrl+D)"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
@@ -74,7 +74,7 @@
             </Button>
             <Button
                 Command="{Binding RemoveCommand}"
-                Width="30" Height="30" 
+                Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10 10"
                 ToolTip="Remove (Delete)"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">

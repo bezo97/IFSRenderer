@@ -19,8 +19,8 @@ public partial class ConnectionViewModel
 
     [ObservableProperty] private bool _isSelected;
 
-    public Point StartPoint => new(from.XCoord, from.YCoord);
-    public Point EndPoint => new(to.XCoord, to.YCoord);
+    public Point StartPoint => from.Position;
+    public Point EndPoint => to.Position;
     public Point ArrowHeadMid { get; set; }
     public Point ArrowHeadLeft { get; set; }
     public Point ArrowHeadRight { get; set; }

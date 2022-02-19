@@ -31,7 +31,7 @@ public partial class ValueSliderViewModel
     public Func<double> GetV { get; set; }
     public Action<double> SetV { get; set; }
     public double DefaultValue { get; set; }
-    public Action? ValueWillChange { get; set; }
+    public Action ValueWillChange { get; set; }
 
     [ObservableProperty] private string _label;
     [ObservableProperty] private string _toolTip;

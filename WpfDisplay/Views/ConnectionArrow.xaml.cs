@@ -143,9 +143,11 @@ public partial class ConnectionArrow : UserControl
 
     private void CalcGeometryToSelf()
     {
-        double loopbackAngle = ParentNodeMap.CalculateLoopbackAngle(StartPoint);
+        if (DataContext is not ConnectionViewModel vm)
+            return;
+        double loopbackAngle = ParentNodeMap?.CalculateLoopbackAngle(StartPoint) ?? 0;
 
-        double r = (DataContext is ConnectionViewModel c) ? c.from.NodeSize * 0.4 : 50.0;
+        double r = vm.from.NodeSize * 0.4;
         double cosa = Math.Cos(loopbackAngle);
         double sina = Math.Sin(loopbackAngle);
         Point emid = StartPoint + r * new Vector(cosa, sina);

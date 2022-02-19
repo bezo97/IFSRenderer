@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using WpfDisplay.Models;
@@ -225,14 +226,11 @@ public partial class IteratorViewModel
     [ObservableProperty] private string _iteratorLabel;
     public string TransformName => iterator.Transform.Name;
 
-    [ObservableProperty] private float _xCoord = RandHelper.Next(500);
+    [ObservableProperty] private Point _position = new (RandHelper.Next(500), RandHelper.Next(500));
 
-    [ObservableProperty] private float _yCoord = RandHelper.Next(500);
-
-    public void UpdatePosition(float x, float y)
+    public void UpdatePosition(Point p)
     {
-        XCoord = x;
-        YCoord = y; 
+        Position = p;
         Redraw();
     }
 

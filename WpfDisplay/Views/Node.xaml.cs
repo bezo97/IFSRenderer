@@ -30,7 +30,7 @@ public partial class Node : UserControl
         set {
             Canvas.SetLeft(_parentContainer, value.X);
             Canvas.SetTop(_parentContainer, value.Y);
-            vm.UpdatePosition((float)value.X, (float)value.Y);
+            vm.UpdatePosition(value);
             SetValue(PositionProperty, value);
         }
     }

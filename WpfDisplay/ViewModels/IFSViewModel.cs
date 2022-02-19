@@ -1,4 +1,5 @@
-﻿using IFSEngine.Model;
+﻿#nullable enable
+using IFSEngine.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
@@ -23,11 +24,12 @@ public partial class IFSViewModel
 
     public CompositeCollection NodeMapElements { get; private set; }
     public IReadOnlyCollection<Transform> RegisteredTransforms => _workspace.LoadedTransforms;
+    public IReadOnlyCollection<ConnectionViewModel> ConnectionViewModels => _connectionViewModels;
+    [ObservableProperty] private IteratorViewModel? _connectingIterator;
     private readonly ObservableCollection<IteratorViewModel> _iteratorViewModels = new();
     private readonly ObservableCollection<ConnectionViewModel> _connectionViewModels = new();
-    private IteratorViewModel _connectingIterator;
-    private IteratorViewModel _selectedIterator;
-    public IteratorViewModel SelectedIterator
+    private IteratorViewModel? _selectedIterator;
+    public IteratorViewModel? SelectedIterator
     {
         get => _selectedIterator;
         set
@@ -48,8 +50,8 @@ public partial class IFSViewModel
 
     public Visibility IsIteratorEditorVisible => SelectedIterator == null ? Visibility.Collapsed : Visibility.Visible;
 
-    private ConnectionViewModel _selectedConnection;
-    public ConnectionViewModel SelectedConnection
+    private ConnectionViewModel? _selectedConnection;
+    public ConnectionViewModel? SelectedConnection
     {
         get => _selectedConnection;
         set
@@ -87,7 +89,7 @@ public partial class IFSViewModel
 
     public FlamePalette Palette => _workspace.Ifs.Palette;
     
-    private ValueSliderViewModel _fogEffect;
+    private ValueSliderViewModel? _fogEffect;
     public ValueSliderViewModel FogEffect => _fogEffect ??= new ValueSliderViewModel(_workspace)
     {
         Label = "🌫 Fog effect",
@@ -135,32 +137,36 @@ public partial class IFSViewModel
         ivm.ConnectingEnded += Iterator_ConnectingEnded;
         if (SelectedIterator != null)
         {
-            float XCoord = SelectedIterator.XCoord + (float)SelectedIterator.NodeSize / 1.5f + (float)ivm.NodeSize / 1.5f;
-            float YCoord = SelectedIterator.YCoord;
-            ivm.UpdatePosition(XCoord, YCoord);
+            ivm.UpdatePosition(new Point(
+                SelectedIterator.Position.X + SelectedIterator.NodeSize / 1.5 + ivm.NodeSize / 1.5,
+                SelectedIterator.Position.Y));
         }
         _iteratorViewModels.Add(ivm);
         return ivm;
     }
 
-    private void Iterator_ConnectingStarted(object sender, EventArgs e)
+    private void Iterator_ConnectingStarted(object? sender, EventArgs e)
     {
-        _connectingIterator = (IteratorViewModel)sender;
+        ConnectingIterator = (IteratorViewModel)sender!;
+        ConnectingIterator.Redraw();
     }
 
-    private void Iterator_ConnectingEnded(object sender, EventArgs e)
+    private void Iterator_ConnectingEnded(object? sender, EventArgs e)
     {
-        var ivm = (IteratorViewModel)sender;
+        if (ConnectingIterator is null)
+            return;
+
+        var ivm = (IteratorViewModel)sender!;
         _workspace.TakeSnapshot();
-        if (_connectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
-            _connectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
+        if (ConnectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
+            ConnectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
         else
-            _connectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
+            ConnectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
         _workspace.Renderer.InvalidateParamsBuffer();
 
         HandleIteratorsChanged();
-        SelectedConnection = _connectionViewModels.FirstOrDefault(c => c.from == _connectingIterator && c.to == ivm);
-        _connectingIterator = null;
+        SelectedConnection = _connectionViewModels.FirstOrDefault(c => c.from == ConnectingIterator && c.to == ivm);
+        ConnectingIterator = null;
     }
 
     private void HandleIteratorsChanged()
@@ -328,14 +334,14 @@ public partial class IFSViewModel
 
     // TODO: Check how to update the canExecute delegate
 
-    private RelayCommand _undoCommand;
+    private RelayCommand? _undoCommand;
     public RelayCommand UndoCommand => _undoCommand
         ??= new(() =>
         {
             _workspace.UndoHistory();
         }, () => _workspace.IsHistoryUndoable);
 
-    private RelayCommand _redoCommand;
+    private RelayCommand? _redoCommand;
     public RelayCommand RedoCommand => _redoCommand
         ??= new(() =>
         {

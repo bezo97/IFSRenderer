@@ -1,8 +1,10 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -12,14 +14,43 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class NodeMap : UserControl
 {
+    IFSViewModel? vm => DataContext as IFSViewModel;
+
     public NodeMap()
     {
         InitializeComponent();
     }
 
+    protected override void OnPreviewMouseMove(MouseEventArgs e)
+    {
+        base.OnPreviewMouseMove(e);
+        if (vm?.ConnectingIterator is not null)
+        {
+            dragArrow.EndPoint = Mouse.GetPosition(wrapperGrid);
+            dragArrow.UpdateGeometry();
+        }
+    }
+
+    protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+    {
+        base.OnPreviewMouseDown(e);
+        //if (vm?.ConnectingIterator is not null)
+        {
+            dragArrow.EndPoint = Mouse.GetPosition(wrapperGrid);
+            dragArrow.UpdateGeometry();
+        }
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        if(vm is not null)
+            vm.ConnectingIterator = null;
+    }
+
     internal double CalculateLoopbackAngle(Point p)
     {
-        IEnumerable<ConnectionViewModel> arrows = itemsControl.ItemContainerGenerator.Items.OfType<ConnectionViewModel>();//TODO: ugh, nicer
+        IEnumerable<ConnectionViewModel> arrows = vm!.ConnectionViewModels;
         Vector dir;
         foreach (var c in arrows.Where(nc => nc.StartPoint == p || nc.EndPoint == p))
         {
