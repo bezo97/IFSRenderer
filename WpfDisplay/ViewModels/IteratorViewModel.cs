@@ -186,7 +186,7 @@ public partial class IteratorViewModel
     {
         get
         {
-            byte o = (byte)(100 + Opacity.Value * 255 * 0.6);
+            byte o = (byte)(100 + Math.Clamp(Opacity.Value, 0, 1) * 255 * 0.6);
             return Color.FromRgb(o, o, o);//grayscale
         }
     }
