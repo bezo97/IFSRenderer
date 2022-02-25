@@ -120,16 +120,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     {
         if (DialogHelper.ShowOpenParamsDialog(out string path))
         {
-            try
-            {
-                await workspace.LoadParamsFileAsync(path);
-                workspace.UpdateStatusText($"Parameters loaded from {path}");
-            }
-            catch (SerializationException ex)
-            {
-                string logFilePath = App.LogException(ex);
-                workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
-            }
+            await LoadParamsFromFile(path);
         }
     }
 
@@ -151,6 +142,29 @@ public sealed partial class MainViewModel : IAsyncDisposable
         catch (SerializationException)
         {
             workspace.UpdateStatusText("ERROR - Failed to paste params from Clipboard");
+        }
+    }
+
+    /// <summary>
+    /// From a drag & drop operation.
+    /// </summary>
+    [ICommand]
+    private async Task DropParams(string path)
+    {
+        await LoadParamsFromFile(path);
+    }
+
+    private async Task LoadParamsFromFile(string path)
+    {
+        try
+        {
+            await workspace.LoadParamsFileAsync(path);
+            workspace.UpdateStatusText($"Parameters loaded from {path}");
+        }
+        catch (SerializationException ex)
+        {
+            string logFilePath = App.LogException(ex);
+            workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
         }
     }
 

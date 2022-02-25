@@ -12,6 +12,7 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Width="1920" Height="1080" WindowState="Maximized"
+        AllowDrop="True" DragOver="mainWindow_DragOver" Drop="mainWindow_Drop"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"

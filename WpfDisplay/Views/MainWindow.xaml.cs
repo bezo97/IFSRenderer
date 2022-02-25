@@ -2,6 +2,7 @@
 using IFSEngine.Rendering;
 using IFSEngine.Serialization;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
@@ -159,4 +160,35 @@ public partial class MainWindow : Window
         e.CanExecute = vm?.PasteClipboardParamsCommand.CanExecute(null) ?? false;
     }
 
+    private void mainWindow_DragOver(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var filepath = IsSingleFile(e);
+        e.Effects = filepath is not null && Path.GetExtension(filepath) is ".ifsjson" ? DragDropEffects.Copy : DragDropEffects.None;
+    }
+
+    private void mainWindow_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var fileName = IsSingleFile(e);
+        if (fileName is null || Path.GetExtension(fileName) is not ".ifsjson") 
+            return;
+        vm?.DropParamsCommand.Execute(fileName);
+    }
+
+    private static string IsSingleFile(DragEventArgs args)
+    {//from MS samples
+        if (args.Data.GetDataPresent(DataFormats.FileDrop, true))
+        {
+            var fileNames = args.Data.GetData(DataFormats.FileDrop, true) as string[];
+            if (fileNames?.Length is 1)
+            {
+                if (File.Exists(fileNames[0]))
+                {
+                    return fileNames[0];
+                }
+            }
+        }
+        return null;
+    }
 }
