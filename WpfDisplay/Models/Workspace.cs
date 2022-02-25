@@ -73,6 +73,7 @@ public partial class Workspace
         await LoadTransformLibrary();
         Ifs.ReloadTransforms(LoadedTransforms);
         await Renderer.LoadTransforms(LoadedTransforms);
+        Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
