@@ -269,19 +269,32 @@ public partial class IFSViewModel
     private async Task LoadPalette()
     {
         if (DialogHelper.ShowOpenPaletteDialog(out string path))
+            await LoadPaletteFromFile(path);
+    }
+
+    /// <summary>
+    /// From a drag & drop operation.
+    /// </summary>
+    [ICommand]
+    private async Task DropPalette(string path)
+    {
+        await LoadPaletteFromFile(path);
+    }
+
+    private async Task LoadPaletteFromFile(string path)
+    {
+        var picker = new Views.PaletteDialogWindow
         {
-            var picker = new Views.PaletteDialogWindow
-            {
-                Palettes = await FlamePalette.FromFileAsync(path)
-            };
-            if (picker.ShowDialog() == true)
-            {
-                _workspace.TakeSnapshot();
-                _workspace.Ifs.Palette = picker.SelectedPalette;
-                _workspace.Renderer.InvalidateParamsBuffer();
-                OnPropertyChanged(nameof(Palette));
-                Redraw();//update ColorRGB prop for nodes
-            }
+            Palettes = await FlamePalette.FromFileAsync(path)
+        };
+        if (picker.ShowDialog() == true)
+        {
+            _workspace.TakeSnapshot();
+            _workspace.Ifs.Palette = picker.SelectedPalette;
+            _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(Palette));
+            Redraw();//update ColorRGB prop for nodes
+            _workspace.UpdateStatusText($"Palette file loaded - {path}");
         }
     }
 
