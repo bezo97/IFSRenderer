@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WpfDisplay.ViewModels;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.Views;
 
@@ -26,7 +27,7 @@ public partial class NodeMap : UserControl
         base.OnPreviewMouseMove(e);
         if (vm?.ConnectingIterator is not null)
         {
-            dragArrow.EndPoint = Mouse.GetPosition(wrapperGrid);
+            dragArrow.EndPoint = BindablePoint.FromPoint(Mouse.GetPosition(wrapperGrid));
             dragArrow.UpdateGeometry();
         }
     }
@@ -36,7 +37,7 @@ public partial class NodeMap : UserControl
         base.OnPreviewMouseDown(e);
         //if (vm?.ConnectingIterator is not null)
         {
-            dragArrow.EndPoint = Mouse.GetPosition(wrapperGrid);
+            dragArrow.EndPoint = BindablePoint.FromPoint(Mouse.GetPosition(wrapperGrid));
             dragArrow.UpdateGeometry();
         }
     }
@@ -52,7 +53,7 @@ public partial class NodeMap : UserControl
     {
         IEnumerable<ConnectionViewModel> arrows = vm!.ConnectionViewModels;
         Vector dir;
-        foreach (var c in arrows.Where(nc => nc.StartPoint == p || nc.EndPoint == p))
+        foreach (var c in arrows.Where(nc => nc.StartPoint.ToPoint() == p || nc.EndPoint.ToPoint() == p))
         {
             Vector of = new Vector(
                 c.StartPoint.X + c.EndPoint.X,

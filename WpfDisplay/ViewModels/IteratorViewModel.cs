@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfDisplay.Helper;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -54,6 +54,7 @@ public partial class IteratorViewModel
     public void Redraw()
     {
         OnPropertyChanged(string.Empty);
+        OnPropertyChanged(nameof(Position));
         RaiseConnectionPropertyChanged();
     }
 
@@ -110,6 +111,8 @@ public partial class IteratorViewModel
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(ColorRGB));
         },
+        MinValue = 0,
+        MaxValue = 1,
         Increment = 0.01,
         ValueWillChange = _workspace.TakeSnapshot,
     };
@@ -126,8 +129,6 @@ public partial class IteratorViewModel
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(ColorRGB));
         },
-        MinValue = 0,
-        MaxValue = 1,
         Increment = 0.01,
         ValueWillChange = _workspace.TakeSnapshot,
     };
@@ -226,12 +227,14 @@ public partial class IteratorViewModel
     [ObservableProperty] private string _iteratorLabel;
     public string TransformName => iterator.Transform.Name;
 
-    [ObservableProperty] private Point _position = new (RandHelper.Next(500), RandHelper.Next(500));
-
-    public void UpdatePosition(Point p)
-    {
-        Position = p;
-        Redraw();
+    private BindablePoint _position = new (RandHelper.Next(500), RandHelper.Next(500));
+    public BindablePoint Position {
+        get => _position; 
+        set
+        {
+            SetProperty(ref _position, value);
+            Redraw();
+        }
     }
 
     public void StartConnecting() => ConnectingStarted?.Invoke(this, null);

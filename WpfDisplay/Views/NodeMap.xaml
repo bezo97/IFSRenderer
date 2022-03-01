@@ -10,51 +10,58 @@
              x:Name="nodeMap"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
-    <xc:Zoombox
-            x:Name="ZoomBorder" 
-            IsAnimated="True"
-            AnimationDuration="0:0:0.05"
-            KeepContentInBounds="False" 
-            DragModifiers="None"
-            RelativeZoomModifiers="None"
-            Background="Gray" 
-            Cursor="Arrow"
-            ZoomOnPreview="False"
-            Position="0,0"
-            Scale="1"
-            >
-        <Grid x:Name="wrapperGrid">
-            <!--Temporary arrow which indicates a new connection being dragged-->
-            <local:ConnectionArrow x:Name="dragArrow"
-                StartPoint="{Binding ConnectingIterator.Position}"
-                Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
-            <!--Map Nodes and Arrows to Iterators and weights-->
-            <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas x:Name="itemsPanel"
-                                Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
-                                Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
-                        <local:Node
-                            ParentCanvas="{Binding ElementName=itemsPanel}"
-                            DataContext="{Binding}"
-                            SelectCommand="{Binding DataContext.SelectIteratorCommand, ElementName=nodeMap}">
-                        </local:Node>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                        <local:ConnectionArrow
-                            StartPoint="{Binding StartPoint}"
-                            EndPoint="{Binding EndPoint}"
-                            ParentNodeMap="{Binding ElementName=nodeMap}"
-                            DataContext="{Binding}"
-                            SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
-                    </DataTemplate>
-                </ItemsControl.Resources>
-            </ItemsControl>
-        </Grid>
-    </xc:Zoombox>
+    <Grid>
+        <xc:Zoombox
+                x:Name="ZoomBorder" 
+                IsAnimated="True"
+                AnimationDuration="0:0:0.05"
+                KeepContentInBounds="False" 
+                DragModifiers="None"
+                RelativeZoomModifiers="None"
+                Background="Gray" 
+                Cursor="Arrow"
+                ZoomOnPreview="False"
+                Position="0,0"
+                Scale="1"
+                >
+            <Grid x:Name="wrapperGrid">
+                <!--Temporary arrow which indicates a new connection being dragged-->
+                <local:ConnectionArrow x:Name="dragArrow"
+                    StartPoint="{Binding ConnectingIterator.Position}"
+                    Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
+                <!--Map Nodes and Arrows to Iterators and weights-->
+                <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas x:Name="itemsPanel"
+                                    Width="{Binding ActualWidth, ElementName=ZoomBorder, Mode=OneWay}" 
+                                    Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.Resources>
+                        <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
+                            <local:Node
+                                Position="{Binding Position, Mode=TwoWay}"
+                                ParentCanvas="{Binding ElementName=itemsPanel}"
+                                DataContext="{Binding}"
+                                SelectCommand="{Binding DataContext.SelectIteratorCommand, ElementName=nodeMap}">
+                            </local:Node>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                            <local:ConnectionArrow
+                                StartPoint="{Binding StartPoint}"
+                                EndPoint="{Binding EndPoint}"
+                                ParentNodeMap="{Binding ElementName=nodeMap}"
+                                DataContext="{Binding}"
+                                SelectCommand="{Binding DataContext.SelectConnectionCommand, ElementName=nodeMap}"/>
+                        </DataTemplate>
+                    </ItemsControl.Resources>
+                </ItemsControl>
+            </Grid>
+        </xc:Zoombox>
+        <Button Command="{Binding AutoLayoutNodesCommand}"
+            Style="{DynamicResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10">
+            Layout
+        </Button>
+    </Grid>
 </UserControl>

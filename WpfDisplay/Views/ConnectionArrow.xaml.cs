@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -34,21 +35,21 @@ public partial class ConnectionArrow : UserControl
 
     }
 
-    public Point StartPoint
+    public BindablePoint StartPoint
     {
-        get { return (Point)GetValue(StartPointProperty); }
+        get { return (BindablePoint)GetValue(StartPointProperty); }
         set { SetValue(StartPointProperty, value); UpdateGeometry(); }
     }
     public static readonly DependencyProperty StartPointProperty =
-        DependencyProperty.Register("StartPoint", typeof(Point), typeof(ConnectionArrow), new PropertyMetadata(null));
+        DependencyProperty.Register("StartPoint", typeof(BindablePoint), typeof(ConnectionArrow), new PropertyMetadata(new BindablePoint(0, 0)));
 
-    public Point EndPoint
+    public BindablePoint EndPoint
     {
-        get { return (Point)GetValue(EndPointProperty); }
+        get { return (BindablePoint)GetValue(EndPointProperty); }
         set { SetValue(EndPointProperty, value); UpdateGeometry(); }
     }
     public static readonly DependencyProperty EndPointProperty =
-        DependencyProperty.Register("EndPoint", typeof(Point), typeof(ConnectionArrow), new PropertyMetadata(null));
+        DependencyProperty.Register("EndPoint", typeof(BindablePoint), typeof(ConnectionArrow), new PropertyMetadata(new BindablePoint(0, 0)));
 
     public double ArrowHeadSize
     {
@@ -100,8 +101,8 @@ public partial class ConnectionArrow : UserControl
 
     private void CalcGeometryByPoints()
     {
-        Point p1 = StartPoint;
-        Point p2 = EndPoint;
+        Point p1 = StartPoint.ToPoint();
+        Point p2 = EndPoint.ToPoint();
 
         double xdir = p2.X - p1.X;
         double ydir = p2.Y - p1.Y;
@@ -109,7 +110,7 @@ public partial class ConnectionArrow : UserControl
         double cosa = Math.Cos(angle);
         double sina = Math.Sin(angle);
 
-        var pg = new PathGeometry(new List<PathFigure> { new PathFigure(StartPoint, new List<PathSegment>{new PolyBezierSegment(new List<Point>
+        var pg = new PathGeometry(new List<PathFigure> { new PathFigure(StartPoint.ToPoint(), new List<PathSegment>{new PolyBezierSegment(new List<Point>
         {
                 new Point(
                     (p1.X * 2 + p2.X) / 3 + 30 * cosa,
@@ -145,18 +146,18 @@ public partial class ConnectionArrow : UserControl
     {
         if (DataContext is not ConnectionViewModel vm)
             return;
-        double loopbackAngle = ParentNodeMap?.CalculateLoopbackAngle(StartPoint) ?? 0;
+        double loopbackAngle = ParentNodeMap?.CalculateLoopbackAngle(StartPoint.ToPoint()) ?? 0;
 
         double r = vm.from.NodeSize * 0.4;
         double cosa = Math.Cos(loopbackAngle);
         double sina = Math.Sin(loopbackAngle);
-        Point emid = StartPoint + r * new Vector(cosa, sina);
+        Point emid = StartPoint.ToPoint() + r * new Vector(cosa, sina);
         var pg = new EllipseGeometry(emid, r, r);
         pg.Freeze();
         arrowBody.Data = pg;
         arrowClickArea.Data = pg;
 
-        Point mid = StartPoint + 2.0f * r * new Vector(cosa, sina);
+        Point mid = StartPoint.ToPoint() + 2.0f * r * new Vector(cosa, sina);
         double a = Math.Atan2(sina, cosa) - 3.1415 / 4.0;
         cosa = Math.Cos(a);
         sina = Math.Sin(a);

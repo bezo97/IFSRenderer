@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
+using static WpfDisplay.Helper.ForceDirectedGraphLayout;
 using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
@@ -137,9 +139,9 @@ public partial class IFSViewModel
         ivm.ConnectingEnded += Iterator_ConnectingEnded;
         if (SelectedIterator != null)
         {
-            ivm.UpdatePosition(new Point(
+            ivm.Position = new BindablePoint(
                 SelectedIterator.Position.X + SelectedIterator.NodeSize / 1.5 + ivm.NodeSize / 1.5,
-                SelectedIterator.Position.Y));
+                SelectedIterator.Position.Y);
         }
         _iteratorViewModels.Add(ivm);
         return ivm;
@@ -363,5 +365,22 @@ public partial class IFSViewModel
 
     [ICommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();
+
+    [ICommand]
+    private void AutoLayoutNodes()
+    {
+        var vertices = _iteratorViewModels.Select(v => new Vector2((float)v.Position.X, (float)v.Position.Y)).ToList();
+        var edges = _connectionViewModels.Where(e=>!e.IsLoopback).Select(e => (_iteratorViewModels.IndexOf(e.from), _iteratorViewModels.IndexOf(e.to))).ToList();
+        Graph graph = new(vertices, edges);
+        var nodePositions = GenerateLayout(graph, 1.0, 1.0, 0.000001);
+        var avg = new Vector2(
+            nodePositions.Average(x => x.X),
+            nodePositions.Average(x => x.Y));
+        nodePositions = nodePositions.ConvertAll(p => p - avg + new Vector2(500, 500));
+        for (int i = 0; i < nodePositions.Count; i++)
+        {
+            _iteratorViewModels[i].Position = new BindablePoint(nodePositions[i].X, nodePositions[i].Y);
+        }
+    }
 
 }

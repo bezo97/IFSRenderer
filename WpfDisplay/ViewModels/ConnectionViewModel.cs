@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using WpfDisplay.Models;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels;
 
@@ -19,8 +20,8 @@ public partial class ConnectionViewModel
 
     [ObservableProperty] private bool _isSelected;
 
-    public Point StartPoint => from.Position;
-    public Point EndPoint => to.Position;
+    public BindablePoint StartPoint => from.Position;
+    public BindablePoint EndPoint => to.Position;
     public Point ArrowHeadMid { get; set; }
     public Point ArrowHeadLeft { get; set; }
     public Point ArrowHeadRight { get; set; }
