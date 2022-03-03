@@ -19,10 +19,10 @@ internal class IteratorConverter : JsonConverter<Iterator>
         var vec3Params = jo[nameof(Iterator.Vec3Params)].ToObject<Dictionary<string, Vector3>>(serializer);
         var iterator = jo.ToObject<Iterator>();
         iterator.SetTransform(tf);
-        foreach (var k in iterator.RealParams.Keys.ToList())
-            iterator.RealParams[k] = realParams[k];
-        foreach (var k in iterator.Vec3Params.Keys.ToList())
-            iterator.Vec3Params[k] = vec3Params[k];
+        foreach (var k in iterator.RealParams.Keys.Union(tf.RealParams.Keys).ToList())
+            iterator.RealParams[k] = realParams.TryGetValue(k, out double val) ? val : tf.RealParams[k];
+        foreach (var k in iterator.Vec3Params.Keys.Union(tf.Vec3Params.Keys).ToList())
+            iterator.Vec3Params[k] = vec3Params.TryGetValue(k, out Vector3 val) ? val : tf.Vec3Params[k];
         return iterator;
     }
 
