@@ -9,7 +9,7 @@ public static class DialogHelper
     private static readonly string _paramsFilter = "IFSRenderer params|*.ifsjson;*.json";
     private static readonly string _imageFilter = "PNG Images|*.png";
     private static readonly string _exrFilter = "EXR Images|*.exr";
-    private static readonly string _paletteFilter = "Flame Palettes|*.gradient";
+    private static readonly string _paletteFilter = "Flame Palettes|*.gradient;*.ugr";
     private static readonly Guid _openParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
     private static readonly Guid _saveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
     private static readonly Guid _exportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");

@@ -164,7 +164,7 @@ public partial class MainWindow : Window
     {
         e.Handled = true;
         var filepath = IsSingleFile(e);
-        e.Effects = filepath is not null && Path.GetExtension(filepath) is ".ifsjson" or ".gradient" ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Effects = filepath is not null && Path.GetExtension(filepath) is ".ifsjson" or ".gradient" or ".ugr" ? DragDropEffects.Copy : DragDropEffects.None;
     }
 
     private void mainWindow_Drop(object sender, DragEventArgs e)
@@ -176,7 +176,7 @@ public partial class MainWindow : Window
         var ext = Path.GetExtension(fileName);
         if (ext is ".ifsjson")
             vm?.DropParamsCommand.Execute(fileName);
-        else if (ext is ".gradient")
+        else if (ext is ".gradient" or ".ugr")
             vm.IFSViewModel.DropPaletteCommand.Execute(fileName);
     }
 
