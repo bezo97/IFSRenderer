@@ -28,7 +28,6 @@ public partial class IteratorViewModel
     {
         this.iterator = iterator;
         _workspace = workspace;
-        IteratorLabel = iterator.Transform.Name;//TODO: iterator.Label?? transformName;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
     }
@@ -224,8 +223,21 @@ public partial class IteratorViewModel
 
     public double RenderTranslateValue => -0.5 * NodeSize;
 
-    [ObservableProperty] private string _iteratorLabel;
+    public string IteratorName
+    {
+        get => iterator.Name;
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+                iterator.Name = null;
+            else
+                iterator.Name = value;
+            OnPropertyChanged(nameof(IteratorName));
+            OnPropertyChanged(nameof(NodeLabel));
+        }
+    }
     public string TransformName => iterator.Transform.Name;
+    public string NodeLabel => iterator.Name ?? iterator.Transform.Name;
 
     private BindablePoint _position = new (RandHelper.Next(500), RandHelper.Next(500));
     public BindablePoint Position {

@@ -17,20 +17,30 @@
         <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
                 Selected Iterator
         </TextBlock>
-        <StackPanel Orientation="Horizontal">
-            <Button 
-                    Command="{Binding DuplicateCommand}"
-                    ToolTip="Duplicate (Ctrl+D)"
-                    FontWeight="Bold" Margin="4" Padding="6">
-                🗎🗎
-            </Button>
-            <Button 
-                    Command="{Binding RemoveCommand}"
-                    ToolTip="Remove (Delete)"
-                    Margin="4" Padding="6">
-                🗑️
-            </Button>
-        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" VerticalAlignment="Top"
+                    Text="{Binding IteratorName, UpdateSourceTrigger=PropertyChanged}"
+                    md:HintAssist.Hint="Name"
+                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button 
+                        Command="{Binding DuplicateCommand}"
+                        ToolTip="Duplicate (Ctrl+D)"
+                        FontWeight="Bold" Margin="4" Padding="6">
+                    🗎🗎
+                </Button>
+                <Button 
+                        Command="{Binding RemoveCommand}"
+                        ToolTip="Remove (Delete)"
+                        Margin="4" Padding="6">
+                    🗑️
+                </Button>
+            </StackPanel>
+        </Grid>
         <StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>

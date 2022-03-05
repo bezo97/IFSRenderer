@@ -30,8 +30,8 @@
                 <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
         </Ellipse>
-        <Label x:Name ="NodeLabel" 
-            Content="{Binding IteratorLabel, UpdateSourceTrigger=PropertyChanged}" 
+        <Label
+            Content="{Binding NodeLabel, UpdateSourceTrigger=PropertyChanged}" 
             HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"
             Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
         <Grid Visibility="{Binding IsSelected, Converter={StaticResource visibilityConverter}}" d:Visibility="Visible">

@@ -1,6 +1,5 @@
 ﻿using IFSEngine.Utility;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -9,9 +8,10 @@ namespace IFSEngine.Model;
 
 public class Iterator
 {
+    public string Name { get; set; } = null;
     public Transform Transform { get; private set; }
-    public Dictionary<string, double> RealParams { get; private set; } = new Dictionary<string, double>();
-    public Dictionary<string, Vector3> Vec3Params { get; private set; } = new Dictionary<string, Vector3>();
+    public Dictionary<string, double> RealParams { get; private set; } = new();
+    public Dictionary<string, Vector3> Vec3Params { get; private set; } = new();
 
     public double BaseWeight { get; set; } = 1.0;//not normalized
     public double ColorSpeed { get; set; } = 0.0;
