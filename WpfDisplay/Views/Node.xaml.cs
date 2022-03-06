@@ -55,7 +55,10 @@ public partial class Node : UserControl
         Loaded += (s, e) =>
         {
             _parentContainer = (ContentPresenter)System.Windows.Media.VisualTreeHelper.GetParent(this);
-            Position = new(RandHelper.Next(500), RandHelper.Next(500));
+
+            Position = vm.Position;
+            Canvas.SetLeft(_parentContainer, vm.Position.X);
+            Canvas.SetTop(_parentContainer, vm.Position.Y);
             vm.PropertyChanged += (s, e) => { 
                 if(e.PropertyName is nameof(vm.Position))
                 {
@@ -63,6 +66,7 @@ public partial class Node : UserControl
                     Canvas.SetTop(_parentContainer, vm.Position.Y);
                 }
             };
+
         };
     }
 

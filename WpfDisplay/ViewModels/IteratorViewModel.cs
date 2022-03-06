@@ -239,12 +239,13 @@ public partial class IteratorViewModel
     public string TransformName => iterator.Transform.Name;
     public string NodeLabel => iterator.Name ?? iterator.Transform.Name;
 
-    private BindablePoint _position = new (RandHelper.Next(500), RandHelper.Next(500));
-    public BindablePoint Position {
-        get => _position; 
+    public BindablePoint Position
+    {
+        get => iterator.GetPosition() ?? new BindablePoint(RandHelper.Next(500), RandHelper.Next(500));
         set
         {
-            SetProperty(ref _position, value);
+            iterator.SetPosition(value);
+            OnPropertyChanged(nameof(Position));
             Redraw();
         }
     }

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace IFSEngine.Serialization;
 
-internal class IfsConverter : JsonConverter<IFS>
+public class IfsConverter : JsonConverter<IFS>
 {
     public override IFS ReadJson(JsonReader reader, Type objectType, /*[AllowNullAttribute]*/ IFS existingValue, bool hasExistingValue, JsonSerializer serializer)
     {

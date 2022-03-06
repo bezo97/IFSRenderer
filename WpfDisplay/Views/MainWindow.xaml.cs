@@ -1,6 +1,5 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Rendering;
-using IFSEngine.Serialization;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
@@ -8,6 +7,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
+using WpfDisplay.Serialization;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -41,7 +41,7 @@ public partial class MainWindow : Window
             IFS ifs;
             try
             {
-                ifs = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
+                ifs = IfsNodesSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
             }
             catch (SerializationException)
             {

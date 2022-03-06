@@ -10,7 +10,7 @@ namespace IFSEngine.Serialization;
 /// <summary>
 /// Only serializes the Name and Version of the Transform.
 /// </summary>
-internal class TransformConverter : JsonConverter<Transform>
+public class TransformConverter : JsonConverter<Transform>
 {
     private readonly bool _ignoreVersion;
     private readonly IEnumerable<Transform> _loadedTransforms;

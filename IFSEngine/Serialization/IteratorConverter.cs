@@ -9,7 +9,7 @@ using System.Text;
 
 namespace IFSEngine.Serialization;
 
-internal class IteratorConverter : JsonConverter<Iterator>
+public class IteratorConverter : JsonConverter<Iterator>
 {
     public override Iterator ReadJson(JsonReader reader, Type objectType, /*[AllowNullAttribute]*/ Iterator existingValue, bool hasExistingValue, JsonSerializer serializer)
     {

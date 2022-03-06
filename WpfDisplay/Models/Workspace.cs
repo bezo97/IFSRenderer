@@ -1,7 +1,6 @@
 ﻿using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using IFSEngine.Serialization;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
 using WpfDisplay.Properties;
+using WpfDisplay.Serialization;
 
 namespace WpfDisplay.Models;
 
@@ -100,14 +100,14 @@ public partial class Workspace
         IFS ifs;
         try
         {
-            ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
+            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
         }
         catch (System.Runtime.Serialization.SerializationException)
         {
             if (System.Windows.MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", System.Windows.MessageBoxButton.OKCancel)
                 == System.Windows.MessageBoxResult.OK)
             {
-                ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
+                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
             }
             else
                 throw;
@@ -131,19 +131,19 @@ public partial class Workspace
     public async Task SaveParamsFileAsync(string path)
     {
         Ifs.AddAuthor(CurrentUser);
-        await IfsSerializer.SaveJsonFileAsync(Ifs, path);
+        await IfsNodesSerializer.SaveJsonFileAsync(Ifs, path);
     }
 
     public void CopyToClipboard()
     {
-        string jsonData = IfsSerializer.SerializeJsonString(Ifs);
+        string jsonData = IfsNodesSerializer.SerializeJsonString(Ifs);
         System.Windows.Clipboard.SetText(jsonData);
     }
 
     public void PasteFromClipboard()
     {
         string jsonData = System.Windows.Clipboard.GetText();
-        IFS ifs = IfsSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
+        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
         LoadParams(ifs);
     }
 
