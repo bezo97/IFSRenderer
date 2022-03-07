@@ -37,6 +37,7 @@ public partial class GeneratorViewModel
         MaxValue = 1,
         Increment = 0.01,
     };
+
     private ValueSliderViewModel _mutationStrength;
     public ValueSliderViewModel MutationStrength => _mutationStrength ??= new ValueSliderViewModel(_workspace)
     {
@@ -48,6 +49,20 @@ public partial class GeneratorViewModel
         },
         MinValue = 0,
         Increment = 0.1,
+    };
+
+    private ValueSliderViewModel _batchSize;
+    public ValueSliderViewModel BatchSize => _batchSize ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Batch size",
+        DefaultValue = 30,
+        GetV = () => _options.BatchSize,
+        SetV = (value) => {
+            _options.BatchSize = (int)value;
+        },
+        MinValue = 1,
+        MaxValue = 50,
+        Increment = 5,
     };
 
     public IEnumerable<KeyValuePair<IFS, ImageSource>> PinnedIFSThumbnails =>

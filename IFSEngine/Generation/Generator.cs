@@ -18,12 +18,12 @@ public class Generator
         SelectedTransforms = transforms.ToList();
     }
 
-    public IEnumerable<IFS> GenerateBatch(GeneratorOptions options, int batchSize)
+    public IEnumerable<IFS> GenerateBatch(GeneratorOptions options)
     {
         double max_strength = options.MutationStrength;
-        for (int i = 0; i < batchSize; i++)
+        for (int i = 0; i < options.BatchSize; i++)
         {
-            options.MutationStrength = (double)i / batchSize * max_strength;
+            options.MutationStrength = (double)i / options.BatchSize * max_strength;
             yield return GenerateOne(options);
         }
         options.MutationStrength = max_strength;

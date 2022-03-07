@@ -117,7 +117,14 @@
                                     <local:ValueSlider DataContext="{Binding MutationStrength}"/>
                                 </StackPanel>
                             </Grid>
-                            <Button HorizontalAlignment="Center" Command="{Binding GenerateRandomBatchCommand}">New batch</Button>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <local:ValueSlider Grid.Column="0" Margin="8 0" Width="110" DataContext="{Binding BatchSize}"/>
+                                <Button VerticalAlignment="Bottom" Margin="8 0" Padding="30 0" Grid.Column="1" Command="{Binding GenerateRandomBatchCommand}">🎲 New batch</Button>
+                            </Grid>
                         </StackPanel>
                     </Grid>
                 </md:Card>
@@ -127,7 +134,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Label Grid.Row="0">🎲 Generated fractals</Label>
+                        <Label Grid.Row="0">🎰 Generated fractals</Label>
                         <ScrollViewer Grid.Row="1">
                             <ItemsControl ItemsSource="{Binding GeneratedIFSThumbnails}">
                                 <ItemsControl.ItemsPanel>

@@ -66,7 +66,7 @@ public partial class GeneratorWorkspace
         options.baseParams = _pinnedIFS.LastOrDefault() ?? options.baseParams;//TODO: use selection of pinned fractals
         _generatedIFS.Clear();
 
-        foreach (var r in _generator.GenerateBatch(options, 30))
+        foreach (var r in _generator.GenerateBatch(options))
         {
             _generatedIFS.Add(r);
             _renderQueue.Enqueue(r);
