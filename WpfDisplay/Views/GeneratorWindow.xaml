@@ -51,16 +51,16 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <DataTemplate.Resources>
-                                        <ImageBrush x:Key="thumbnailBrush"
+                                    <Grid Width="200" Height="200">
+                                        <Grid.Resources>
+                                            <ImageBrush x:Key="thumbnailBrush"
                                                 ImageSource="{Binding Value}"
                                                 Stretch="UniformToFill">
-                                            <ImageBrush.RelativeTransform>
-                                                <ScaleTransform ScaleY="-1" CenterY="0.5"/>
-                                            </ImageBrush.RelativeTransform>
-                                        </ImageBrush>
-                                    </DataTemplate.Resources>
-                                    <Grid Width="200" Height="200">
+                                                <ImageBrush.RelativeTransform>
+                                                    <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                                </ImageBrush.RelativeTransform>
+                                            </ImageBrush>
+                                        </Grid.Resources>
                                         <Button
                                             Width="200" Height="200"
                                             Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
