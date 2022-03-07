@@ -95,21 +95,21 @@ public partial class GeneratorViewModel
     }
 
     [ICommand]
-    private void GenerateRandomBatch()
+    private async Task GenerateRandomBatch()
     {
         _workspace.GenerateNewRandomBatch(_options);
         //TODO: do not start if already processing
-        _workspace.processQueue();
+        await _workspace.ProcessQueue();
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));
     }
 
     [ICommand]
-    private void Pin(IFS param)
+    private async Task Pin(IFS param)
     {
         if (param == null)//pin ifs from main if commandparam not provided
             param = _mainvm.workspace.Ifs.DeepClone();
         _workspace.PinIFS(param);
-        _workspace.processQueue();
+        await _workspace.ProcessQueue();
         SendToMainCommand.Execute(param);
         //TODO: do not start if already processing
         OnPropertyChanged(nameof(PinnedIFSThumbnails));

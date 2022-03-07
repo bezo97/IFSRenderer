@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace WpfDisplay.Models;
 
@@ -23,12 +24,13 @@ public partial class GeneratorWorkspace
     public IReadOnlyList<IFS> GeneratedIFS => _generatedIFS;
     public IReadOnlyDictionary<IFS, ImageSource> Thumbnails => _thumbnails;
 
+    private readonly IGLFWGraphicsContext _context;
     private readonly RendererGL _renderer;
     private readonly Generator _generator;
-    private readonly Dictionary<IFS, ImageSource> _thumbnails = new();
+    private readonly ConcurrentQueue<IFS> _renderQueue = new();
+    private readonly ConcurrentDictionary<IFS, ImageSource> _thumbnails = new();
     private readonly List<IFS> _pinnedIFS = new();
     private readonly List<IFS> _generatedIFS = new();
-    private readonly ConcurrentQueue<IFS> _renderQueue = new();
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using
@@ -39,7 +41,7 @@ public partial class GeneratorWorkspace
         //init thumbnail renderer
         GameWindow hw = new(new GameWindowSettings
         {
-            IsMultiThreaded = true
+            IsMultiThreaded = false,
         }, new NativeWindowSettings
         {
             Flags = OpenTK.Windowing.Common.ContextFlags.Offscreen,
@@ -48,7 +50,10 @@ public partial class GeneratorWorkspace
             StartVisible = false,
             WindowState = OpenTK.Windowing.Common.WindowState.Minimized
         });
-        _renderer = new RendererGL(hw.Context);
+        _context = hw.Context;
+
+
+        _renderer = new RendererGL(_context);
         _renderer.SetDisplayResolution(200, 200);
         var transforms = loadedTransforms.ToList();
         _generator = new Generator(transforms);
@@ -58,7 +63,7 @@ public partial class GeneratorWorkspace
     {
         await _renderer.Initialize(_generator.SelectedTransforms);
         //performance settings
-        await _renderer.SetWorkgroupCount(10);
+        await _renderer.SetWorkgroupCount(100);
     }
 
     public void GenerateNewRandomBatch(GeneratorOptions options)
@@ -85,29 +90,33 @@ public partial class GeneratorWorkspace
         _pinnedIFS.Remove(ifs);
     }
 
-    public void processQueue()
+    public async Task ProcessQueue()
     {
-        //TODO: separate thread, make context current
-        lock (_renderer)
+        _context.MakeCurrent();
+        while (_renderQueue.TryDequeue(out IFS ifs))
         {
-            while (_renderQueue.TryDequeue(out IFS ifs))
-            {
-                _renderer.LoadParams(ifs);
-                _renderer.SetHistogramScaleToDisplay();
-                _renderer.DispatchCompute();
-                _renderer.RenderImage();
-                WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-                _renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
-                wbm.Freeze();
-                var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-                _thumbnails[ifs] = thumbnail;
-                OnPropertyChanged(nameof(Thumbnails));
-            }
+            ifs.ImageResolution = new System.Drawing.Size(200, 200);
+            _renderer.LoadParams(ifs);
+            _renderer.SetHistogramScaleToDisplay();
+            _renderer.DispatchCompute();
+            _renderer.RenderImage();
+
+            WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
+            await _renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
+            wbm.Freeze();
+            var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
+            thumbnail.Freeze();
+            _thumbnails[ifs] = thumbnail;
+
+            await Dispatcher.CurrentDispatcher.InvokeAsync(() => 
+                OnPropertyChanged(nameof(Thumbnails)), DispatcherPriority.Render);
         }
+        _context.MakeNoneCurrent();
+
         //cleanup old thumbnails
         var removedParams = _thumbnails.Keys.Where(k => !(_pinnedIFS.Contains(k) || _generatedIFS.Contains(k))).ToList();
         foreach (var t in removedParams)
-            _thumbnails.Remove(t);
+            _thumbnails.TryRemove(t, out _);
 
     }
 }

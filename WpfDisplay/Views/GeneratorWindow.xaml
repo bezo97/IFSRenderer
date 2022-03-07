@@ -8,13 +8,20 @@
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
         mc:Ignorable="d"
-        Title="Generator" Height="450" Width="800" WindowState="Maximized"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="Generator" Height="720" Width="1280" WindowState="Maximized"
         x:Name="generatorWindow"
         d:DataContext="{d:DesignInstance Type=vm:GeneratorViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignCheckBox}">
+            <Setter Property="Margin" Value="4"/>
+        </Style>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
     </Window.Resources>
     <Window.InputBindings>
@@ -62,10 +69,10 @@
                                             </ImageBrush>
                                         </Grid.Resources>
                                         <Button
-                                            Width="200" Height="200"
+                                            Width="200" Height="200" Margin="4"
                                             Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
                                             CommandParameter="{Binding Key}"
-                                            Background="{StaticResource thumbnailBrush}">
+                                            Background="{StaticResource thumbnailBrush}" BorderThickness="0">
                                         </Button>
                                         <Button
                                             Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
@@ -145,9 +152,9 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button 
-                                                Width="200" Height="200"
+                                                Width="200" Height="200" Margin="4"
                                                 Command="{Binding DataContext.PinCommand, ElementName=generatorWindow}"
-                                                CommandParameter="{Binding Key}">
+                                                CommandParameter="{Binding Key}" BorderThickness="0">
                                             <Button.Background>
                                                 <ImageBrush 
                                                         ImageSource="{Binding Value}" 
