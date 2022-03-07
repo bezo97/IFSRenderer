@@ -50,11 +50,13 @@ public partial class GeneratorViewModel
         Increment = 0.1,
     };
 
-    //n-wide grid gallery of images
-    public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>
-        _workspace.PinnedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(1);
-    public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
-        _workspace.GeneratedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(7);
+    public IEnumerable<KeyValuePair<IFS, ImageSource>> PinnedIFSThumbnails =>
+        _workspace.PinnedIFS.Select(s => 
+        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
+
+    public IEnumerable<KeyValuePair<IFS, ImageSource>> GeneratedIFSThumbnails =>
+        _workspace.GeneratedIFS.Select(s => 
+        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using

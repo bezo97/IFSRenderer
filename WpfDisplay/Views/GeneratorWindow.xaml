@@ -36,59 +36,55 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <md:Card Grid.Column="0" Margin="8" Padding="8">
-                <ScrollViewer>
-                    <StackPanel>
-                        <Label>📌 Pinned fractals</Label>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0">📌 Pinned fractals</Label>
+                    <ScrollViewer Grid.Row="1">
                         <ItemsControl ItemsSource="{Binding PinnedIFSThumbnails}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!--rows-->
-                                    <ItemsControl ItemsSource="{Binding}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <DataTemplate.Resources>
-                                                    <ImageBrush x:Key="thumbnailBrush"
-                                                        ImageSource="{Binding Value}"
-                                                        Stretch="UniformToFill">
-                                                        <ImageBrush.RelativeTransform>
-                                                            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
-                                                        </ImageBrush.RelativeTransform>
-                                                    </ImageBrush>
-                                                </DataTemplate.Resources>
-                                                <Grid Width="200" Height="200">
-                                                    <Button
-                                                        Width="200" Height="200"
-                                                        Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
-                                                        CommandParameter="{Binding Key}"
-                                                        Background="{StaticResource thumbnailBrush}">
-                                                    </Button>
-                                                    <Button
-                                                        Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
-                                                        CommandParameter="{Binding Key}"
-                                                        Width="20" Height="20" FontSize="10" Margin="8"
-                                                        HorizontalAlignment="Right" VerticalAlignment="Top"
-                                                        Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">📌</Button>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                    <DataTemplate.Resources>
+                                        <ImageBrush x:Key="thumbnailBrush"
+                                                ImageSource="{Binding Value}"
+                                                Stretch="UniformToFill">
+                                            <ImageBrush.RelativeTransform>
+                                                <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                            </ImageBrush.RelativeTransform>
+                                        </ImageBrush>
+                                    </DataTemplate.Resources>
+                                    <Grid Width="200" Height="200">
+                                        <Button
+                                            Width="200" Height="200"
+                                            Command="{Binding DataContext.SendToMainCommand, ElementName=generatorWindow}"
+                                            CommandParameter="{Binding Key}"
+                                            Background="{StaticResource thumbnailBrush}">
+                                        </Button>
+                                        <Button
+                                            Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
+                                            CommandParameter="{Binding Key}"
+                                            Width="20" Height="20" FontSize="10" Margin="8"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">📌</Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
+                    </ScrollViewer>
+                </Grid>
             </md:Card>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
                 <md:Card Grid.Row="0" Margin="8" Padding="8">
                     <Grid>
                         <StackPanel>
@@ -126,45 +122,40 @@
                     </Grid>
                 </md:Card>
                 <md:Card Grid.Row="1" Margin="8" Padding="8">
-                    <ScrollViewer>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label>🎲 Generated fractals</Label>
-                            </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0">🎲 Generated fractals</Label>
+                        <ScrollViewer Grid.Row="1">
                             <ItemsControl ItemsSource="{Binding GeneratedIFSThumbnails}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <!--rows-->
-                                        <ItemsControl ItemsSource="{Binding}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button 
-                                                    Width="200" Height="200"
-                                                    Command="{Binding DataContext.PinCommand, ElementName=generatorWindow}"
-                                                    CommandParameter="{Binding Key}">
-                                                        <Button.Background>
-                                                            <ImageBrush 
-                                                            ImageSource="{Binding Value}" 
-                                                            Stretch="UniformToFill">
-                                                                <ImageBrush.RelativeTransform>
-                                                                    <ScaleTransform ScaleY="-1" CenterY="0.5"/>
-                                                                </ImageBrush.RelativeTransform>
-                                                            </ImageBrush>
-                                                        </Button.Background>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                        <Button 
+                                                Width="200" Height="200"
+                                                Command="{Binding DataContext.PinCommand, ElementName=generatorWindow}"
+                                                CommandParameter="{Binding Key}">
+                                            <Button.Background>
+                                                <ImageBrush 
+                                                        ImageSource="{Binding Value}" 
+                                                        Stretch="UniformToFill">
+                                                    <ImageBrush.RelativeTransform>
+                                                        <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                                    </ImageBrush.RelativeTransform>
+                                                </ImageBrush>
+                                            </Button.Background>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </StackPanel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </Grid>
                 </md:Card>
             </Grid>
         </Grid>
