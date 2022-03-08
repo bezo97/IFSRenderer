@@ -144,7 +144,16 @@
             <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <local:TitleBox/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
+                                Command="{Binding StartStopRenderingCommand}"
+                                Content="{Binding IsRenderingIcon}"/>
+                        <local:TitleBox Grid.Column="1"/>
+                    </Grid>
                     <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                     <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                 </StackPanel>

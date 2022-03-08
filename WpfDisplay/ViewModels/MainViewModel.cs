@@ -45,6 +45,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
 
     [ObservableProperty] private string _statusBarText;
 
+    public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
     public bool InvertAxisX => workspace.InvertAxisX;
@@ -82,10 +83,27 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [ICommand]
+    private async Task StartStopRendering()
+    {
+        if (workspace.Renderer.IsRendering)
+        {
+            await workspace.Renderer.StopRenderLoop();
+            workspace.UpdateStatusText($"Stopped rendering");
+        }
+        else
+        {
+            workspace.Renderer.StartRenderLoop();
+            workspace.UpdateStatusText($"Started rendering");
+        }
+        OnPropertyChanged(nameof(IsRenderingIcon));
+    }
+
+    [ICommand]
     private void New()
     {
         workspace.LoadBlankParams();
         workspace.UpdateStatusText($"Blank parameters loaded");
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     [ICommand]
@@ -93,6 +111,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     {
         workspace.LoadRandomParams();
         workspace.UpdateStatusText($"Randomly generated parameters loaded");
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     [ICommand]
@@ -143,6 +162,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         {
             workspace.UpdateStatusText("ERROR - Failed to paste params from Clipboard");
         }
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     /// <summary>
@@ -166,6 +186,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
             string logFilePath = App.LogException(ex);
             workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
         }
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     /// <summary>
