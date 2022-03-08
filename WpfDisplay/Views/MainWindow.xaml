@@ -39,13 +39,14 @@
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
+        <KeyBinding Gesture="PAUSE" Command="{Binding StartStopRenderingCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -128,16 +129,16 @@
             </ScrollViewer>
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
-                <Grid>
+                <Grid Background="Black">
                     <disp:InteractiveDisplay x:Name="mainDisplay"
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
                         InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                         InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
                         Sensitivity="{Binding Sensitivity}"
                         InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
-                    <ProgressBar
+                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
-                        Width="100" Height="25"
+                        Width="50" Height="50"
                         IsIndeterminate="True"/>
                 </Grid>
             </md:Card>
@@ -151,7 +152,8 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
                                 Command="{Binding StartStopRenderingCommand}"
-                                Content="{Binding IsRenderingIcon}"/>
+                                Content="{Binding IsRenderingIcon}"
+                                ToolTip="Resume/Pause rendering (Pause key)"/>
                         <local:TitleBox Grid.Column="1"/>
                     </Grid>
                     <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
