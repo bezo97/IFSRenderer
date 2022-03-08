@@ -155,5 +155,5 @@ I'd like to also mention people who indirectly helped the project succeed throug
 ---
 
 ## ⚖️ License
-Copyright (C) 2021 Dócs Zoltán & contributors  
+Copyright (C) 2022 Dócs Zoltán & contributors  
 IFSRenderer is licensed under [**GPLv3**](/LICENSE).

@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<Authors>bezo97</Authors>
 		<Company>bezo97</Company>
@@ -13,7 +13,7 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageIcon>icon_128.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
-		<Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
+		<Copyright>Copyright (C) 2022 Dócs Zoltán &amp; Contributors</Copyright>
 		<RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<IncludeSymbols>true</IncludeSymbols>

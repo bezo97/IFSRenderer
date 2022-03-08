@@ -36,7 +36,7 @@
                     <TextBlock>
                         3D IFS fractal renderer and editor.
                         <LineBreak/>
-                        Copyright © 2021 Dócs Zoltán &amp; contributors
+                        Copyright © 2022 Dócs Zoltán &amp; contributors
                         <LineBreak/>
                         License: <Hyperlink NavigateUri="LICENSE">GNU GPLv3</Hyperlink>
                         <LineBreak/>
