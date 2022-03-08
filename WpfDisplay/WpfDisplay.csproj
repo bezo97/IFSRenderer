@@ -30,8 +30,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
-		<PackageReference Include="MaterialDesignThemes" Version="4.2.1" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.100" />
+		<PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
 		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>
