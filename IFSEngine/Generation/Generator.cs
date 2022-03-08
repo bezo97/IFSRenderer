@@ -36,14 +36,14 @@ public class Generator
         {
             while (gen.Iterators.Count < 4)
             {
-                gen.AddIterator(Iterator.RandomIterator(SelectedTransforms), true);
+                gen.AddIterator(newIterator(), true);
             }
             //TODO: 
             if (options.MutationChance > RandHelper.NextDouble())
             {
-                gen.AddIterator(Iterator.RandomIterator(SelectedTransforms), true);
+                gen.AddIterator(newIterator(), true);
             }
-            if (gen.Iterators.Count > 2 && options.MutationChance > RandHelper.NextDouble())
+            if (gen.Iterators.Count > 4 && options.MutationChance > RandHelper.NextDouble())
             {
                 var iter = gen.Iterators.ElementAt(RandHelper.Next(gen.Iterators.Count));
                 gen.RemoveIterator(iter);
@@ -86,7 +86,7 @@ public class Generator
                 {
                     if (it.WeightTo[itTo] == 0.0)
                         continue;
-                    it.WeightTo[itTo] = Math.Clamp(MutateValue(it.WeightTo[itTo], options), 0, 1);
+                    it.WeightTo[itTo] = Math.Max(0, MutateValue(it.WeightTo[itTo], options));
                 }
             }
         }
@@ -103,11 +103,29 @@ public class Generator
         {
             foreach (var it in gen.Iterators)
             {
-                it.ColorIndex = MutateValue(it.ColorIndex, options);
+                it.ColorIndex = Math.Clamp(MutateValue(it.ColorIndex, options), 0.0, 1.0);
                 it.ColorSpeed = MutateValue(it.ColorSpeed, options);
             }
         }
         return gen;
+    }
+
+    private Iterator newIterator()
+    {
+        Iterator newIterator;
+        //50% chance the new iterator is an affine
+        if (RandHelper.NextDouble() < 0.5)
+            newIterator = Iterator.RandomIterator(SelectedTransforms);
+        else
+            newIterator = Iterator.RandomIterator(SelectedTransforms.Where(t => t.Name == "Affine").ToList());
+        //consider tags to use plugins the right way
+        if(newIterator.Transform.Tags.Contains("shape"))
+        {
+            newIterator.Opacity = 0.0;
+            newIterator.Add = 1.0;
+            newIterator.ColorSpeed = 0.0;
+        }
+        return newIterator;
     }
 
     private static double MutateValue(double val, GeneratorOptions o)
