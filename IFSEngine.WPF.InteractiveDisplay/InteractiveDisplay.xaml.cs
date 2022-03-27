@@ -80,7 +80,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
     [DllImport("User32.dll")]
     private static extern bool SetCursorPos(int X, int Y);
 
-    private const float DeadZoneMultiplier = 0.25f;
+    private const float DeadZoneMultiplier = 1.0f;
     private const float ThumbstickValMax = 32768.0f;
     private bool IsInteractionEnabled => Renderer is not null && Renderer.IsRendering && Renderer.UpdateDisplayOnRender;
 
@@ -99,6 +99,11 @@ public partial class InteractiveDisplay : WindowsFormsHost
         _controlTimer.Elapsed += Control_Tick;
         _controlTimer.Interval = 16;//ms
         _controlTimer.Start();
+    }
+
+    public void GLControl1_OnPaint(object sender, EventArgs e)
+    {
+        GLControl1.SwapBuffers();
     }
 
     private void Control_Tick(object sender, EventArgs e)
@@ -120,8 +125,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 (_keyboard.IsKeyDown(Key.K) ? 1 : 0) - (_keyboard.IsKeyDown(Key.I) ? 1 : 0),
                 (_keyboard.IsKeyDown(Key.U) ? 1 : 0) - (_keyboard.IsKeyDown(Key.O) ? 1 : 0)) * 0.03f;
             //keyboard sensitivity modifiers:
-            if (_keyboard.IsKeyDown(Key.LeftAlt) || _keyboard.IsKeyDown(Key.RightAlt))
-            {//TODO: LeftAlt is not caught (system key)
+            if (_keyboard.IsKeyDown(Key.LeftCtrl) || _keyboard.IsKeyDown(Key.RightCtrl))
+            {
                 translateVec *= 2.0f;
                 rotateVec *= 2.0f;
             }

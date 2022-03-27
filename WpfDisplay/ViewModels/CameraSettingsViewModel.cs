@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using IFSEngine.Model;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -16,64 +17,76 @@ public partial class CameraSettingsViewModel
         _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
-    public float FieldOfView
+    private ValueSliderViewModel _fieldOfView;
+    public ValueSliderViewModel FieldOfView => _fieldOfView ??= new ValueSliderViewModel(_workspace)
     {
-        get => _workspace.Ifs.Camera.FieldOfView;
-        set
-        {
-            _workspace.Ifs.Camera.FieldOfView = value;
-            OnPropertyChanged(nameof(FieldOfView));
+        Label = "🔬 Field of View",
+        DefaultValue = IFS.Default.Camera.FieldOfView,
+        GetV = () => _workspace.Ifs.Camera.FieldOfView,
+        SetV = (value) => {
+            _workspace.Ifs.Camera.FieldOfView = (float)value;
             _workspace.Renderer.InvalidateHistogramBuffer();
-        }
-    }
+        },
+        MinValue = 1,
+        MaxValue = 179,
+        Increment = 0.1,
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
-    public double Aperture
+    private ValueSliderViewModel _aperture;
+    public ValueSliderViewModel Aperture => _aperture ??= new ValueSliderViewModel(_workspace)
     {
-        get => _workspace.Ifs.Camera.Aperture;
-        set
-        {
+        Label = "✨ Aperture",
+        DefaultValue = IFS.Default.Camera.Aperture,
+        GetV = () => _workspace.Ifs.Camera.Aperture,
+        SetV = (value) => {
             _workspace.Ifs.Camera.Aperture = value;
-            OnPropertyChanged(nameof(Aperture));
             _workspace.Renderer.InvalidateHistogramBuffer();
-        }
-    }
+        },
+        MinValue = 0,
+        Increment = 0.0001,
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
-    public double FocusDistance
+    private ValueSliderViewModel _focusDistance;
+    public ValueSliderViewModel FocusDistance => _focusDistance ??= new ValueSliderViewModel(_workspace)
     {
-        get => _workspace.Ifs.Camera.FocusDistance;
-        set
-        {
+        Label = "📏 Focus Distance",
+        DefaultValue = IFS.Default.Camera.FocusDistance,
+        GetV = () => _workspace.Ifs.Camera.FocusDistance,
+        SetV = (value) => {
             _workspace.Ifs.Camera.FocusDistance = value;
-            OnPropertyChanged(nameof(FocusDistance));
             _workspace.Renderer.InvalidateHistogramBuffer();
-        }
-    }
+        },
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
-    public double DepthOfField
+    private ValueSliderViewModel _depthOfField;
+    public ValueSliderViewModel DepthOfField => _depthOfField ??= new ValueSliderViewModel(_workspace)
     {
-        get => _workspace.Ifs.Camera.DepthOfField;
-        set
-        {
+        Label = "🔾 Depth of Field",
+        ToolTip = "a.k.a. Range of focus",
+        DefaultValue = IFS.Default.Camera.DepthOfField,
+        GetV = () => _workspace.Ifs.Camera.DepthOfField,
+        SetV = (value) => {
             _workspace.Ifs.Camera.DepthOfField = value;
-            OnPropertyChanged(nameof(DepthOfField));
             _workspace.Renderer.InvalidateHistogramBuffer();
-        }
-    }
-
-    [ICommand]
-    private void TakeSnapshot() => _workspace.TakeSnapshot();
+        },
+        ValueWillChange = _workspace.TakeSnapshot,
+        MinValue = 0,
+    };
 
     [ICommand]
     private void ResetCamera()
     {
         _workspace.TakeSnapshot();
-        _workspace.Ifs.Camera = new IFSEngine.Model.Camera();
-        FieldOfView = 60;
-        Aperture = 0.0;
-        FocusDistance = 10.0;
-        DepthOfField = 0.25;
+        _workspace.Ifs.Camera = new Camera();
+        FieldOfView.Value = FieldOfView.DefaultValue;
+        Aperture.Value = Aperture.DefaultValue;
+        FocusDistance.Value = FocusDistance.DefaultValue;
+        DepthOfField.Value = DepthOfField.DefaultValue;
         _workspace.Renderer.InvalidateHistogramBuffer();
     }
 
-    public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);
+    public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);///?
 }

@@ -49,6 +49,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
 
     [ObservableProperty] private string _statusBarText;
 
+    public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
     public bool InvertAxisX => workspace.InvertAxisX;
@@ -87,10 +88,27 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [ICommand]
+    private async Task StartStopRendering()
+    {
+        if (workspace.Renderer.IsRendering)
+        {
+            await workspace.Renderer.StopRenderLoop();
+            workspace.UpdateStatusText($"Stopped rendering");
+        }
+        else
+        {
+            workspace.Renderer.StartRenderLoop();
+            workspace.UpdateStatusText($"Started rendering");
+        }
+        OnPropertyChanged(nameof(IsRenderingIcon));
+    }
+
+    [ICommand]
     private void New()
     {
         workspace.LoadBlankParams();
         workspace.UpdateStatusText($"Blank parameters loaded");
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     [ICommand]
@@ -98,6 +116,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     {
         workspace.LoadRandomParams();
         workspace.UpdateStatusText($"Randomly generated parameters loaded");
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     [ICommand]
@@ -125,17 +144,54 @@ public sealed partial class MainViewModel : IAsyncDisposable
     {
         if (DialogHelper.ShowOpenParamsDialog(out string path))
         {
-            try
-            {
-                await workspace.LoadParamsFileAsync(path);
-                workspace.UpdateStatusText($"Parameters loaded from {path}");
-            }
-            catch (SerializationException ex)
-            {
-                string logFilePath = App.LogException(ex);
-                workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
-            }
+            await LoadParamsFromFile(path);
         }
+    }
+
+    [ICommand]
+    private void CopyClipboardParams()
+    {
+        workspace.CopyToClipboard();
+        workspace.UpdateStatusText("Parameters copied to Clipboard");
+    }
+
+    [ICommand]
+    private void PasteClipboardParams()
+    {
+        try
+        {
+            workspace.PasteFromClipboard();
+            workspace.UpdateStatusText("Parameters pasted from Clipboard");
+        }
+        catch (SerializationException)
+        {
+            workspace.UpdateStatusText("ERROR - Failed to paste params from Clipboard");
+        }
+        OnPropertyChanged(nameof(IsRenderingIcon));
+    }
+
+    /// <summary>
+    /// From a drag & drop operation.
+    /// </summary>
+    [ICommand]
+    private async Task DropParams(string path)
+    {
+        await LoadParamsFromFile(path);
+    }
+
+    private async Task LoadParamsFromFile(string path)
+    {
+        try
+        {
+            await workspace.LoadParamsFileAsync(path);
+            workspace.UpdateStatusText($"Parameters loaded from {path}");
+        }
+        catch (SerializationException ex)
+        {
+            string logFilePath = App.LogException(ex);
+            workspace.UpdateStatusText($"ERROR - Failed to load params: {path}. See log: {logFilePath}");
+        }
+        OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
     /// <summary>
@@ -282,4 +338,5 @@ public sealed partial class MainViewModel : IAsyncDisposable
         string link = "https://github.com/bezo97/IFSRenderer/wiki";
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
+
 }

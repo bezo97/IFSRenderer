@@ -1,11 +1,7 @@
 ﻿using IFSEngine.Model;
-using IFSEngine.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WpfDisplay.Models;
+using WpfDisplay.Serialization;
 
 namespace WpfDisplay.Helper;
 
@@ -22,9 +18,9 @@ public class IFSHistoryTracker
         if (!IsHistoryUndoable)
             throw new InvalidOperationException();
 
-        RedoStack.Push(IfsSerializer.SerializeJsonString(current));
+        RedoStack.Push(IfsNodesSerializer.SerializeJsonString(current));
         string lastState = UndoStack.Pop();
-        IFS restoredObject = IfsSerializer.DeserializeJsonString(lastState, transforms, true);
+        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(lastState, transforms, true);
         return restoredObject;
     }
 
@@ -33,15 +29,15 @@ public class IFSHistoryTracker
         if (!IsHistoryRedoable)
             throw new InvalidOperationException();
 
-        UndoStack.Push(IfsSerializer.SerializeJsonString(current));
+        UndoStack.Push(IfsNodesSerializer.SerializeJsonString(current));
         string nextState = RedoStack.Pop();
-        IFS restoredObject = IfsSerializer.DeserializeJsonString(nextState, transforms, true);
+        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(nextState, transforms, true);
         return restoredObject;
     }
 
     public void TakeSnapshot(IFS trackedObject)
     {
-        string snapshot = IfsSerializer.SerializeJsonString(trackedObject);
+        string snapshot = IfsNodesSerializer.SerializeJsonString(trackedObject);
         RedoStack.Clear();
         UndoStack.Push(snapshot);
     }

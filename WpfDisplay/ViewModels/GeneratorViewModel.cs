@@ -24,14 +24,54 @@ public partial class GeneratorViewModel
     public bool MutateParameters { get => _options.MutateParameters; set => SetProperty(ref _options.MutateParameters, value); }
     public bool MutatePalette { get => _options.MutatePalette; set => SetProperty(ref _options.MutatePalette, value); }
     public bool MutateColoring { get => _options.MutateColoring; set => SetProperty(ref _options.MutateColoring, value); }
-    public double MutationChance { get => _options.MutationChance; set => SetProperty(ref _options.MutationChance, value); }
-    public double MutationStrength { get => _options.MutationStrength; set => SetProperty(ref _options.MutationStrength, value); }
+    private ValueSliderViewModel _mutationChance;
+    public ValueSliderViewModel MutationChance => _mutationChance ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Mutation chance",
+        DefaultValue = 0.5,
+        GetV = () => _options.MutationChance,
+        SetV = (value) => {
+            _options.MutationChance = value;
+        },
+        MinValue = 0,
+        MaxValue = 1,
+        Increment = 0.01,
+    };
 
-    //n-wide grid gallery of images
-    public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> PinnedIFSThumbnails =>
-        _workspace.PinnedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(1);
-    public IEnumerable<IEnumerable<KeyValuePair<IFS, ImageSource>>> GeneratedIFSThumbnails =>
-        _workspace.GeneratedIFS.Select(s => new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Chunk(7);
+    private ValueSliderViewModel _mutationStrength;
+    public ValueSliderViewModel MutationStrength => _mutationStrength ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Mutation strength",
+        DefaultValue = 1.0,
+        GetV = () => _options.MutationStrength,
+        SetV = (value) => {
+            _options.MutationStrength = value;
+        },
+        MinValue = 0,
+        Increment = 0.1,
+    };
+
+    private ValueSliderViewModel _batchSize;
+    public ValueSliderViewModel BatchSize => _batchSize ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Batch size",
+        DefaultValue = 30,
+        GetV = () => _options.BatchSize,
+        SetV = (value) => {
+            _options.BatchSize = (int)value;
+        },
+        MinValue = 1,
+        MaxValue = 50,
+        Increment = 5,
+    };
+
+    public IEnumerable<KeyValuePair<IFS, ImageSource>> PinnedIFSThumbnails =>
+        _workspace.PinnedIFS.Select(s => 
+        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
+
+    public IEnumerable<KeyValuePair<IFS, ImageSource>> GeneratedIFSThumbnails =>
+        _workspace.GeneratedIFS.Select(s => 
+        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using
@@ -55,21 +95,21 @@ public partial class GeneratorViewModel
     }
 
     [ICommand]
-    private void GenerateRandomBatch()
+    private async Task GenerateRandomBatch()
     {
         _workspace.GenerateNewRandomBatch(_options);
         //TODO: do not start if already processing
-        _workspace.processQueue();
+        await _workspace.ProcessQueue();
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));
     }
 
     [ICommand]
-    private void Pin(IFS param)
+    private async Task Pin(IFS param)
     {
         if (param == null)//pin ifs from main if commandparam not provided
             param = _mainvm.workspace.Ifs.DeepClone();
         _workspace.PinIFS(param);
-        _workspace.processQueue();
+        await _workspace.ProcessQueue();
         SendToMainCommand.Execute(param);
         //TODO: do not start if already processing
         OnPropertyChanged(nameof(PinnedIFSThumbnails));

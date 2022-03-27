@@ -1,12 +1,13 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Rendering;
-using IFSEngine.Serialization;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
+using WpfDisplay.Serialization;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -33,7 +34,6 @@ public partial class MainWindow : Window
         mainDisplay.AttachRenderer(renderer);
         var workspace = new Workspace(renderer);
         await workspace.Initialize();
-        await workspace.LoadUserSettings();
 
         //handle open verb
         if (App.OpenVerbPath is not null)
@@ -41,7 +41,7 @@ public partial class MainWindow : Window
             IFS ifs;
             try
             {
-                ifs = IfsSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
+                ifs = IfsNodesSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
             }
             catch (SerializationException)
             {
@@ -140,4 +140,59 @@ public partial class MainWindow : Window
         e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
     }
 
+    private void Copy_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        vm.CopyClipboardParamsCommand.Execute(null);
+    }
+
+    private void Copy_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = vm?.CopyClipboardParamsCommand.CanExecute(null) ?? false;
+    }
+
+    private void Paste_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        vm.PasteClipboardParamsCommand.Execute(null);
+    }
+
+    private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = vm?.PasteClipboardParamsCommand.CanExecute(null) ?? false;
+    }
+
+    private void mainWindow_DragOver(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var filepath = IsSingleFile(e);
+        e.Effects = filepath is not null && Path.GetExtension(filepath) is ".ifsjson" or ".gradient" or ".ugr" ? DragDropEffects.Copy : DragDropEffects.None;
+    }
+
+    private void mainWindow_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var fileName = IsSingleFile(e);
+        if (fileName is null) 
+            return;
+        var ext = Path.GetExtension(fileName);
+        if (ext is ".ifsjson")
+            vm?.DropParamsCommand.Execute(fileName);
+        else if (ext is ".gradient" or ".ugr")
+            vm.IFSViewModel.DropPaletteCommand.Execute(fileName);
+    }
+
+    private static string IsSingleFile(DragEventArgs args)
+    {//from MS samples
+        if (args.Data.GetDataPresent(DataFormats.FileDrop, true))
+        {
+            var fileNames = args.Data.GetData(DataFormats.FileDrop, true) as string[];
+            if (fileNames?.Length is 1)
+            {
+                if (File.Exists(fileNames[0]))
+                {
+                    return fileNames[0];
+                }
+            }
+        }
+        return null;
+    }
 }

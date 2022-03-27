@@ -6,7 +6,13 @@
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
         Title="Editor" 
         Width="1280" Height="720"
@@ -122,22 +128,18 @@
                     <local:NodeMap DataContext="{Binding}"/>
                 </md:Card>
             </Grid>
-            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="270">
+            <md:Card Grid.Column="1" Padding="6" Margin="8" VerticalAlignment="Stretch" Width="300">
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-                    <StackPanel Margin="0,0,25,0">
+                    <StackPanel Margin="0,0,5,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
-                            <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
+                            <local:IteratorEditor Width="260" DataContext="{Binding SelectedIterator}"/>
                         </Grid>
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>
                                 <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
                                     Selected Connection
                                 </TextBlock>
-                                <local:ValueSlider
-                                    ValueName="Weight" ToolTip="The weight of the connection controls the transition probability between the two iterators. 0 weight means no connection."
-                                    Value="{Binding DataContext.SelectedConnection.Weight, ElementName=editorWindow}"
-                                    MinValue="0" Increment="0.01"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=editorWindow}"/>
+                                <local:ValueSlider DataContext="{Binding SelectedConnection.Weight}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

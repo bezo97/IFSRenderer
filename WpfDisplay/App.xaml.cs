@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Navigation;
 using System.Windows.Threading;
 using WpfDisplay.Helper;
+using WpfDisplay.Serialization;
 
 namespace WpfDisplay;
 
@@ -77,7 +78,7 @@ public partial class App : Application
             string logFilePath = LogException(ex);
             var saveParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.Ifs;
             string recoveryFilePath = Path.Combine(AppDataPath, "recovery.ifsjson");
-            IFSEngine.Serialization.IfsSerializer.SaveJsonFile(saveParams, recoveryFilePath);
+            IfsNodesSerializer.SaveJsonFile(saveParams, recoveryFilePath);
             MessageBox.Show(Application.Current.MainWindow, $"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\nA recovery file has been saved to\r\n{recoveryFilePath}");
         }
         finally

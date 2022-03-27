@@ -1,7 +1,9 @@
-﻿using Microsoft.Toolkit.Mvvm.Input;
+﻿using IFSEngine.Utility;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -13,7 +15,7 @@ public partial class Node : UserControl
 {
     private IteratorViewModel vm => (IteratorViewModel)DataContext;
     private ContentPresenter _parentContainer;
-    private float _tx, _ty;
+    private Vector _t;
 
     public RelayCommand<IteratorViewModel> SelectCommand
     {
@@ -23,17 +25,29 @@ public partial class Node : UserControl
     public static readonly DependencyProperty SelectCommandProperty =
         DependencyProperty.Register("SelectCommand", typeof(RelayCommand<IteratorViewModel>), typeof(Node), new PropertyMetadata(null));
 
-    public float NodePositionX
+    public BindablePoint Position
     {
-        get { return (float)Canvas.GetLeft(_parentContainer); }
-        set { Canvas.SetLeft(_parentContainer, value); }
+        get { return (BindablePoint)GetValue(PositionProperty); }
+        set { SetValue(PositionProperty, value); }
     }
+    public static readonly DependencyProperty PositionProperty =
+        DependencyProperty.Register("Position", typeof(BindablePoint), typeof(Node), new PropertyMetadata(new BindablePoint(0, 0), (s,e) => {
+            var container = ((Node)s)._parentContainer;
+            if (container is not null)
+            {
+                Canvas.SetLeft(container, ((BindablePoint)e.NewValue).X);
+                Canvas.SetTop(container, ((BindablePoint)e.NewValue).Y);
+            }
+        }));
 
-    public float NodePositionY
+    //Positioning is relative to this element
+    public FrameworkElement ParentCanvas
     {
-        get { return (float)Canvas.GetTop(_parentContainer); }
-        set { Canvas.SetTop(_parentContainer, value); }
+        get { return (FrameworkElement)GetValue(ParentCanvasProperty); }
+        set { SetValue(ParentCanvasProperty, value); }
     }
+    public static readonly DependencyProperty ParentCanvasProperty =
+        DependencyProperty.Register("ParentCanvas", typeof(FrameworkElement), typeof(Node), new PropertyMetadata(null));
 
     public Node()
     {
@@ -41,8 +55,18 @@ public partial class Node : UserControl
         Loaded += (s, e) =>
         {
             _parentContainer = (ContentPresenter)System.Windows.Media.VisualTreeHelper.GetParent(this);
-            NodePositionX = vm.XCoord;
-            NodePositionY = vm.YCoord;
+
+            Position = vm.Position;
+            Canvas.SetLeft(_parentContainer, vm.Position.X);
+            Canvas.SetTop(_parentContainer, vm.Position.Y);
+            vm.PropertyChanged += (s, e) => { 
+                if(e.PropertyName is nameof(vm.Position))
+                {
+                    Canvas.SetLeft(_parentContainer, vm.Position.X);
+                    Canvas.SetTop(_parentContainer, vm.Position.Y);
+                }
+            };
+
         };
     }
 
@@ -54,8 +78,7 @@ public partial class Node : UserControl
         var vm = (IteratorViewModel)DataContext;
         if (e.ChangedButton == MouseButton.Left)
         {
-            _tx = vm.XCoord - (float)e.GetPosition(null).X;//vm.XCoord - e.GetPosition(Map).X;
-            _ty = vm.YCoord - (float)e.GetPosition(null).Y;//vm.YCoord - e.GetPosition(Map).Y;
+            _t = GetCanvasPosition() - e.GetPosition(ParentCanvas);
             SelectCommand.Execute(vm);
         }
         else if (e.ChangedButton == MouseButton.Right)
@@ -83,12 +106,13 @@ public partial class Node : UserControl
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             e.Handled = true;
-            float XCoord = _tx + (float)e.GetPosition(null).X;
-            float YCoord = _ty + (float)e.GetPosition(null).Y;
-            vm.UpdatePosition(XCoord, YCoord);
-            NodePositionX = vm.XCoord;
-            NodePositionY = vm.YCoord;
+            Position = BindablePoint.FromPoint(e.GetPosition(ParentCanvas) + _t);
         }
+    }
+
+    private Point GetCanvasPosition()
+    {
+        return new Point(Canvas.GetLeft(_parentContainer), Canvas.GetTop(_parentContainer));
     }
 
 }

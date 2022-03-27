@@ -1,6 +1,40 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2022-03-08
+### Added
+- Pause/Resume rendering button
+- Ability to name nodes
+- Copy/paste parameters from clipboard
+- Drag & drop files to load parameters and palettes
+- Reset parameters to their default values
+  - Either by using the Reset button from the context menu,
+  - or by double clicking on the parameters, similar to Apophysis
+- Support for gradient files exported from UltraFractal
+- Adjustable batch size in generator window
+- Keyboard usability improvements
+  - increment parameters with up/down arrow keys
+  - tab-navigation improvements
+- Bunch of under-the-hood improvements for developers
+  - CI pipeline for pull requests
+  - use latest dotnet/c# features
+
+### Changed
+- Node positions are now saved into param files, so arrangement is kept between sessions
+- use Ctrl instead of Alt key to step parameters in larger increment
+- New version of the Spherical transform that now has a Radius parameter
+- Small visual changes to node editor and generator window
+
+### Fixed
+- Black screen after successfully reloading plugins after a failed attempt
+- Black screen after opening window from minimized state
+- Nodes sometimes not following the mouse while rearranging
+- Nodes jumping around to random positions on undo/redo
+- Unreachable palette window after alt-tabbing away
+- Loose gamepad thumbsticks controlling the camera even in neutral state
+- Crash when loading file that uses an older plugin version that has missing parameters
+- Frozen progressbar on startup
+
 ## [1.1.0] - 2021-11-27
 ### Added
 - Gamepad support (for XInput compatible devices, such as XBox controller)
@@ -35,5 +69,6 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.2.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.2.0
 [1.1.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.1.0
 [1.0.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.0.0

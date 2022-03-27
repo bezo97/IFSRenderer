@@ -36,7 +36,7 @@
                     <TextBlock>
                         3D IFS fractal renderer and editor.
                         <LineBreak/>
-                        Copyright © 2021 Dócs Zoltán &amp; contributors
+                        Copyright © 2022 Dócs Zoltán &amp; contributors
                         <LineBreak/>
                         License: <Hyperlink NavigateUri="LICENSE">GNU GPLv3</Hyperlink>
                         <LineBreak/>
@@ -45,6 +45,7 @@
                     <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
                     <Label>Linked libraries</Label>
                     <TextBlock TextWrapping="Wrap">
+                        <Hyperlink NavigateUri="https://github.com/StephenCleary/AsyncEx">AsyncEx</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/JamesNK/Newtonsoft.Json">Json.NET</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit">Material Design Themes</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/CommunityToolkit/WindowsCommunityToolkit">Mvvm Toolkit</Hyperlink>, 
@@ -55,8 +56,9 @@
                     <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
                     <Label>Contributors</Label>
                     <TextBlock TextWrapping="Wrap">
-                        <Hyperlink NavigateUri="https://github.com/bezo97">@bezo97</Hyperlink> (Maintainer), 
-                        <Hyperlink NavigateUri="https://github.com/BenjaminBako">@AliBee42</Hyperlink>, 
+                        <Hyperlink NavigateUri="https://github.com/bezo97">@bezo97</Hyperlink> (Maintainer),
+                        <Hyperlink NavigateUri="https://github.com/BenjaminBako">@AliBee42</Hyperlink>,
+                        <Hyperlink NavigateUri="https://github.com/KuraiAndras">@KuraiAndras</Hyperlink>, 
                         <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir">@Rychveldir</Hyperlink>,
                         <Hyperlink NavigateUri="https://github.com/TiborDravecz">@Sekkmer</Hyperlink>
                     </TextBlock>

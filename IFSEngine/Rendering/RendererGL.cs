@@ -579,7 +579,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (!IsRendering)
             throw new InvalidOperationException("The render loop is not running.");
         IsRendering = false;
-        await _stopRender.WaitAsync(); //TODO: find async solution
+        await _stopRender.WaitAsync();
     }
 
     /// <summary>

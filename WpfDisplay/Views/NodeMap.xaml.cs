@@ -1,17 +1,12 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using WpfDisplay.ViewModels;
+using WpfDisplay.Helper;
 
 namespace WpfDisplay.Views;
 
@@ -20,8 +15,53 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class NodeMap : UserControl
 {
+    IFSViewModel? vm => DataContext as IFSViewModel;
+
     public NodeMap()
     {
         InitializeComponent();
     }
+
+    protected override void OnPreviewMouseMove(MouseEventArgs e)
+    {
+        base.OnPreviewMouseMove(e);
+        if (vm?.ConnectingIterator is not null)
+        {
+            dragArrow.EndPoint = BindablePoint.FromPoint(Mouse.GetPosition(wrapperGrid));
+            dragArrow.UpdateGeometry();
+        }
+    }
+
+    protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+    {
+        base.OnPreviewMouseDown(e);
+        //if (vm?.ConnectingIterator is not null)
+        {
+            dragArrow.EndPoint = BindablePoint.FromPoint(Mouse.GetPosition(wrapperGrid));
+            dragArrow.UpdateGeometry();
+        }
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        if(vm is not null)
+            vm.ConnectingIterator = null;
+    }
+
+    internal double CalculateLoopbackAngle(Point p)
+    {
+        IEnumerable<ConnectionViewModel> arrows = vm!.ConnectionViewModels;
+        Vector dir;
+        foreach (var c in arrows.Where(nc => nc.StartPoint.ToPoint() == p || nc.EndPoint.ToPoint() == p))
+        {
+            Vector of = new Vector(
+                c.StartPoint.X + c.EndPoint.X,
+                c.StartPoint.Y + c.EndPoint.Y
+                )/2;
+            dir += of - (Vector)p;
+        }
+        return Math.Atan2(-dir.Y, -dir.X);
+    }
+
 }

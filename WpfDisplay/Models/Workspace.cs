@@ -2,7 +2,6 @@
 using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using IFSEngine.Serialization;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
 using WpfDisplay.Properties;
+using WpfDisplay.Serialization;
 
 namespace WpfDisplay.Models;
 
@@ -57,12 +57,13 @@ public partial class Workspace
     /// <param name="r"></param>
     public Workspace(RendererGL r)
     {
-        LoadTransformLibrary();
         Renderer = r;
     }
 
     public async Task Initialize()
     {
+        await LoadUserSettings();
+        await LoadTransformLibrary();
         await Renderer.Initialize(_loadedTransforms);
 
         Ifs = new IFS();
@@ -71,18 +72,19 @@ public partial class Workspace
 
     public async Task ReloadTransforms()
     {
-        LoadTransformLibrary();
+        await LoadTransformLibrary();
         Ifs.ReloadTransforms(LoadedTransforms);
         await Renderer.LoadTransforms(LoadedTransforms);
+        Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
-    private void LoadTransformLibrary()
+    private async Task LoadTransformLibrary()
     {
-        _loadedTransforms = Directory
+        var loadTasks = Directory
             .GetFiles(TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
-            .Select(file => Transform.FromFile(file))
-            .ToList();
+            .Select(file => Transform.FromFile(file));
+        _loadedTransforms = (await Task.WhenAll(loadTasks)).ToList();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
@@ -100,14 +102,14 @@ public partial class Workspace
         IFS ifs;
         try
         {
-            ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
+            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
         }
         catch (System.Runtime.Serialization.SerializationException)
         {
             if (System.Windows.MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", System.Windows.MessageBoxButton.OKCancel)
                 == System.Windows.MessageBoxResult.OK)
             {
-                ifs = await IfsSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
+                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
             }
             else
                 throw;
@@ -131,7 +133,20 @@ public partial class Workspace
     public async Task SaveParamsFileAsync(string path)
     {
         Ifs.AddAuthor(CurrentUser);
-        await IfsSerializer.SaveJsonFileAsync(Ifs, path);
+        await IfsNodesSerializer.SaveJsonFileAsync(Ifs, path);
+    }
+
+    public void CopyToClipboard()
+    {
+        string jsonData = IfsNodesSerializer.SerializeJsonString(Ifs);
+        System.Windows.Clipboard.SetText(jsonData);
+    }
+
+    public void PasteFromClipboard()
+    {
+        string jsonData = System.Windows.Clipboard.GetText();
+        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
+        LoadParams(ifs);
     }
 
     public void UndoHistory()

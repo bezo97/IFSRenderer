@@ -104,9 +104,7 @@
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
                         ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
-                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
-                        MinValue="0.1" MaxValue="10.0" Increment="0.1"
-                        Value="{Binding DataContext.Sensitivity, ElementName=settingsWindow}"/>
+                    <local:ValueSlider DataContext="{Binding Sensitivity}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
             <TabItem Header="⏱️ Performance" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
@@ -136,19 +134,15 @@
                         Target Framerate
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                        ToolTip="Define a target framerate (FPS) for interactive exploration. Default value is 60." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
-                    <local:ValueSlider Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
-                        MinValue="5" MaxValue="144" Increment="30" 
-                        Value="{Binding DataContext.TargetFramerate, ElementName=settingsWindow}"/>
+                         ToolTip="{Binding TargetFramerate.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider DataContext="{Binding TargetFramerate}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                     <!--Workgroup-->
                     <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Workgroups
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
-                    <local:ValueSlider Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"
-                        MinValue="1" MaxValue="5000" Increment="100" 
-                        Value="{Binding DataContext.WorkgroupCount, ElementName=settingsWindow}"/>
+                        ToolTip="{Binding WorkgroupCount.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <local:ValueSlider DataContext="{Binding WorkgroupCount}" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
         </TabControl>

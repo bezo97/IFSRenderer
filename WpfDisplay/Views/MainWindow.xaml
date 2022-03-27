@@ -12,6 +12,7 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Width="1920" Height="1080" WindowState="Maximized"
+        AllowDrop="True" DragOver="mainWindow_DragOver" Drop="mainWindow_Drop"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -29,6 +30,8 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
         <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Copy" Executed="Copy_Executed" CanExecute="Copy_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Paste" Executed="Paste_Executed" CanExecute="Paste_CanExecute"/>
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
@@ -38,13 +41,14 @@
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
+        <KeyBinding Gesture="PAUSE" Command="{Binding StartStopRenderingCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -60,9 +64,12 @@
                 <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
                 <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
+                <MenuItem Header="📝 Copy" Command="ApplicationCommands.Copy" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="📋 Paste" Command="ApplicationCommands.Paste" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
+                <Separator/>
                 <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
                 <Separator/>
-                <MenuItem Header="Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
+                <MenuItem Header="🚪 Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
@@ -116,10 +123,7 @@
                                 <CheckBox Grid.Column="1" ToolTip="Transparent background"
                                     IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
                             </Grid>
-                            <local:ValueSlider ValueName="Fog effect"
-                                    MinValue="0"
-                                    Value="{Binding DataContext.IFSViewModel.FogEffect, ElementName=mainWindow}"
-                                    ValueChangedCommand="{Binding DataContext.TakeSnapshotCommand, ElementName=mainWindow}"/>
+                            <local:ValueSlider DataContext="{Binding IFSViewModel.FogEffect}"/>
                         </StackPanel>
                     </md:Card>
                     <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
@@ -127,23 +131,33 @@
             </ScrollViewer>
             <!-- Display -->
             <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
-                <Grid>
+                <Grid Background="Black">
                     <disp:InteractiveDisplay x:Name="mainDisplay"
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
                         InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                         InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
                         Sensitivity="{Binding Sensitivity}"
                         InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
-                    <ProgressBar
+                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
                         Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
-                        Width="100" Height="25"
+                        Width="50" Height="50"
                         IsIndeterminate="True"/>
                 </Grid>
             </md:Card>
             <!-- Render Settings -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <local:TitleBox/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
+                                Command="{Binding StartStopRenderingCommand}"
+                                Content="{Binding IsRenderingIcon}"
+                                ToolTip="Resume/Pause rendering (Pause key)"/>
+                        <local:TitleBox Grid.Column="1"/>
+                    </Grid>
                     <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                     <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                 </StackPanel>

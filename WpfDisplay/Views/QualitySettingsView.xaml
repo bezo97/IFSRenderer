@@ -62,27 +62,15 @@
             </md:Card>
             <md:Card Padding="3" Margin="4">
                 <StackPanel>
-                    <local:ValueSlider ValueName="1 / Entropy" ToolTip="Entropy is the chance to reset the point state in each iteration. This replaces the constant 10 000 iteration depth in Flame. Default value is 1/100."
-                                       MinValue="10" MaxValue="10000" Increment="10"
-                                       Value="{Binding DataContext.EntropyInv, ElementName=qualitySettingsView}"/>
-                    <local:ValueSlider ValueName="Warmup" ToolTip="A.k.a. 'fuse count', the number of iterations before plotting starts. Default is 0."
-                                       MinValue="0" Increment="10"
-                                       Value="{Binding DataContext.Warmup, ElementName=qualitySettingsView}"/>
-                    <local:ValueSlider ValueName="{Binding DataContext.FilterText, ElementName=qualitySettingsView}"
-                                       MinValue="0" MaxValue="3" Increment="1"
-                                       Value="{Binding DataContext.MaxFilterRadius, ElementName=qualitySettingsView}"/>
+                    <local:ValueSlider DataContext="{Binding EntropyInv}"/>
+                    <local:ValueSlider DataContext="{Binding Warmup}"/>
+                    <local:ValueSlider DataContext="{Binding MaxFilterRadius}"/>
                     <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
                     <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
                     <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
-                        <local:ValueSlider ValueName="Radius"
-                                           MinValue="0" MaxValue="20" Increment="1"
-                                           Value="{Binding DataContext.DEMaxRadius, ElementName=qualitySettingsView}"/>
-                        <local:ValueSlider ValueName="Power" 
-                                           MinValue="0" MaxValue="1" Increment="0.01" 
-                                           Value="{Binding DataContext.DEPower, ElementName=qualitySettingsView}"/>
-                        <local:ValueSlider ValueName="Threshold"
-                                           MinValue="0" MaxValue="1" Increment="0.01" 
-                                           Value="{Binding DataContext.DEThreshold, ElementName=qualitySettingsView}"/>
+                        <local:ValueSlider DataContext="{Binding DEMaxRadius}"/>
+                        <local:ValueSlider DataContext="{Binding DEPower}"/>
+                        <local:ValueSlider DataContext="{Binding DEThreshold}"/>
                     </StackPanel>
                 </StackPanel>
             </md:Card>

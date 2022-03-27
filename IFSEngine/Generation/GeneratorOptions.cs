@@ -12,6 +12,7 @@ public class GeneratorOptions
 {
     public double MutationChance = 0.5;
     public double MutationStrength = 1.0;
+    public int BatchSize = 30;
     public bool MutateIterators = true;
     public bool MutateConnections = true;
     public bool MutateConnectionWeights = true;

@@ -10,7 +10,7 @@
         Height="500" Width="300"
         WindowStartupLocation="CenterOwner" 
         ShowInTaskbar="False"
-        WindowStyle="ToolWindow"
+        WindowStyle="ToolWindow" Topmost="True"
         Title="Palette Picker"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>

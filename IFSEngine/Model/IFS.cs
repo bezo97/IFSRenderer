@@ -70,7 +70,9 @@ public class IFS
             Opacity = a.Opacity,
             ShadingMode = a.ShadingMode,
             StartWeight = a.StartWeight,
-
+            Mix = a.Mix,
+            Add = a.Add,
+            Name = a.Name
         };
         //copy parameter values
         foreach (var tv in a.RealParams)
@@ -131,5 +133,7 @@ public class IFS
         if (!authors.Contains(author))
             authors.Add(author);
     }
+
+    public static readonly IFS Default = new();
 
 }

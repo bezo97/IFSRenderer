@@ -6,8 +6,8 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Authors>bezo97</Authors>
 		<Description>3D IFS fractal rendering engine.</Description>
-		<Copyright>Copyright (C) 2021 Dócs Zoltán &amp; Contributors</Copyright>
-		<Version>1.0.1</Version>
+		<Copyright>Copyright (C) 2022 Dócs Zoltán &amp; Contributors</Copyright>
+		<Version>1.1.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>

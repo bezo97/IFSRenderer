@@ -87,25 +87,37 @@ internal partial class SettingsViewModel
         }
     }
 
-    public int TargetFramerate
+    private ValueSliderViewModel _targetFramerate;
+    public ValueSliderViewModel TargetFramerate => _targetFramerate ??= new ValueSliderViewModel(_mainvm)
     {
-        get => Settings.Default.TargetFramerate;
-        set
+        Label = "Target Framerate",
+        ToolTip = "Define a target framerate (FPS) for interactive exploration. Default value is 60.",
+        DefaultValue = 60,
+        GetV = () => Settings.Default.TargetFramerate,
+        SetV = (value) =>
         {
-            Settings.Default.TargetFramerate = value;
-            OnPropertyChanged(nameof(TargetFramerate));
-        }
-    }
+            Settings.Default.TargetFramerate = (int)value;
+        },
+        MinValue = 5,
+        MaxValue = 144,
+        Increment = 30,
+    };
 
-    public int WorkgroupCount
+    private ValueSliderViewModel _workgroupCount;
+    public ValueSliderViewModel WorkgroupCount => _workgroupCount ??= new ValueSliderViewModel(_mainvm)
     {
-        get => Settings.Default.WorkgroupCount;
-        set
+        Label = "Workgroup Count",
+        ToolTip = "Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256.",
+        DefaultValue = 256,
+        GetV = () => Settings.Default.WorkgroupCount,
+        SetV = (value) =>
         {
-            Settings.Default.WorkgroupCount = value;
-            OnPropertyChanged(nameof(WorkgroupCount));
-        }
-    }
+            Settings.Default.WorkgroupCount = (int)value;
+        },
+        MinValue = 1,
+        MaxValue = 5000,
+        Increment = 100,
+    };
 
     public bool? InvertAxisX
     {
@@ -137,13 +149,19 @@ internal partial class SettingsViewModel
         }
     }
 
-    public double Sensitivity
+    private ValueSliderViewModel _sensitivity;
+    public ValueSliderViewModel Sensitivity => _sensitivity ??= new ValueSliderViewModel(_mainvm)
     {
-        get => Settings.Default.Sensitivity;
-        set
+        Label = "Sensitivity",
+        DefaultValue = 1,
+        GetV = () => Settings.Default.Sensitivity,
+        SetV = (value) =>
         {
             Settings.Default.Sensitivity = value;
-            OnPropertyChanged(nameof(Sensitivity));
-        }
-    }
+        },
+        MinValue = 0.1,
+        MaxValue = 10.0,
+        Increment = 0.1,
+    };
+
 }

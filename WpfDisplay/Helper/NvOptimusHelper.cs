@@ -18,10 +18,11 @@ public static class NvOptimusHelper
         try
         {
             if (Environment.Is64BitProcess)
-                LoadNvApi64();
+                _ = LoadNvApi64();
             else
-                LoadNvApi32();
+                _ = LoadNvApi32();
         }
-        catch { } // will always fail since 'fake' entry point doesn't exists
+        catch (DllNotFoundException) { } //not nvidia, ignore
+        catch (EntryPointNotFoundException) { } //will always fail since 'fake' entry point doesn't exist. This is expected.
     }
 }

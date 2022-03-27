@@ -10,36 +10,43 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
 {
     public Vec3ParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
 
-    public float ValueX
+    private ValueSliderViewModel _xSliderViewModel;
+    public ValueSliderViewModel XSliderViewModel => _xSliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        get => iterator.Vec3Params[Name].X;
-        set
-        {
-            iterator.Vec3Params[Name] = new Vector3(value, iterator.Vec3Params[Name].Y, iterator.Vec3Params[Name].Z);
-            OnPropertyChanged(nameof(ValueX));
+        Label = null,
+        DefaultValue = iterator.Transform.Vec3Params[Name].X,
+        GetV = () => iterator.Vec3Params[Name].X,
+        SetV = (value) => {
+            iterator.Vec3Params[Name] = new Vector3((float)value, iterator.Vec3Params[Name].Y, iterator.Vec3Params[Name].Z);
             workspace.Renderer.InvalidateParamsBuffer();
-        }
-    }
+        },
+        ValueWillChange = workspace.TakeSnapshot,
+    };
 
-    public float ValueY
+    private ValueSliderViewModel _ySliderViewModel;
+    public ValueSliderViewModel YSliderViewModel => _ySliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        get => iterator.Vec3Params[Name].Y;
-        set
-        {
-            iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, value, iterator.Vec3Params[Name].Z);
-            OnPropertyChanged(nameof(ValueY));
+        Label = null,
+        DefaultValue = iterator.Transform.Vec3Params[Name].Y,
+        GetV = () => iterator.Vec3Params[Name].Y,
+        SetV = (value) => {
+            iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, (float)value, iterator.Vec3Params[Name].Z);
             workspace.Renderer.InvalidateParamsBuffer();
-        }
-    }
+        },
+        ValueWillChange = workspace.TakeSnapshot,
+    };
 
-    public float ValueZ
+    private ValueSliderViewModel _zSliderViewModel;
+    public ValueSliderViewModel ZSliderViewModel => _zSliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        get => iterator.Vec3Params[Name].Z;
-        set
-        {
-            iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, iterator.Vec3Params[Name].Y, value);
-            OnPropertyChanged(nameof(ValueZ));
+        Label = null,
+        DefaultValue = iterator.Transform.Vec3Params[Name].Z,
+        GetV = () => iterator.Vec3Params[Name].Z,
+        SetV = (value) => {
+            iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, iterator.Vec3Params[Name].Y, (float)value);
             workspace.Renderer.InvalidateParamsBuffer();
-        }
-    }
+        },
+        ValueWillChange = workspace.TakeSnapshot,
+    };
+
 }

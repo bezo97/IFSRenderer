@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace IFSEngine.Model;
 
@@ -26,9 +28,9 @@ public class Transform
     private const string RegexFieldDef = @"^(\s*)@.+:.+$";//@Param1: 0.0, 0 0 0, min 1
     private const string DefaultDescription = "Description not provided by the plugin developer";
 
-    public static Transform FromFile(string path)
+    public static async Task<Transform> FromFile(string path)
     {
-        string sourceString = File.ReadAllText(path);
+        string sourceString = await File.ReadAllTextAsync(path);
         Transform tf = FromString(sourceString);
         tf.FilePath = path;
         return tf;
@@ -43,6 +45,10 @@ public class Transform
         Dictionary<string, string> fields = fieldDefinitionLines.ToDictionary(
             l => l.Split(":")[0].TrimStart('@').Trim(),
             l => l.Split(":", 2)[1].Trim());
+
+        //check required fields
+        if (!fields.ContainsKey("Name") || !fields.ContainsKey("Version"))
+            throw new SerializationException($"The plugin must define the @Name and @Version fields.");
 
         Dictionary<string, string> paramFields = fields
             .Where(p => !_reservedFields.Contains(p.Key))
