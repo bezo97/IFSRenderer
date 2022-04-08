@@ -57,8 +57,6 @@ public sealed class RendererGL : IAsyncDisposable
 
     private List<Transform> _registeredTransforms;
 
-    public AnimationManager AnimationManager { get; set; }//TODO: Remove
-
     public IFS LoadedParams { get; private set; } = new IFS();
     private bool _invalidHistogramResolution = false;
     private bool _invalidHistogramBuffer = false;

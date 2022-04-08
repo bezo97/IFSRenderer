@@ -1,21 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IFSEngine.Animation;
 
-public class PropertyAnimation
+public class PropertyAnimation//double
 {
-    public readonly string AnimatedVariableName;
-    public readonly AnimationCurve AnimationCurve;
-    private readonly Action<float> _applyValue;
+    public string[] PropertyPath { get; set; }
+    public Channel Channel { get; set; }
 
-    public PropertyAnimation(Action<float> ApplyValue, string animatedVariableName)
+    public void EvaluateAt(object target, double t)
     {
-        this._applyValue = ApplyValue;
-        AnimationCurve = new AnimationCurve();
-        AnimatedVariableName = animatedVariableName;
+        var value = Channel.EvaluateAt(t);
+        SetPropertyValue(target, PropertyPath, value);
     }
-    public void Animate(double t)
+
+    private static double GetPropertyValue(object root, string[] propertyPath)
     {
-        _applyValue((float)AnimationCurve.Evaluate(t));
+        if (root == null) throw new ArgumentException("Value cannot be null.", nameof(root));
+        if (propertyPath == null) throw new ArgumentException("Value cannot be null.", nameof(propertyPath));
+        while (propertyPath.Length > 1)
+        {
+            root = root.GetType().GetProperty(propertyPath[0]).GetValue(root);
+            propertyPath = propertyPath.Skip(1).ToArray();
+        }
+        return (double)root;
     }
+
+    private static void SetPropertyValue(object root, string[] propertyPath, double newValue)
+    {
+        if (root == null) throw new ArgumentException("Value cannot be null.", nameof(root));
+        if (propertyPath == null) throw new ArgumentException("Value cannot be null.", nameof(propertyPath));
+        while (propertyPath.Length > 2)
+        {
+            root = root.GetType().GetProperty(propertyPath[0]).GetValue(root);
+            propertyPath = propertyPath.Skip(1).ToArray();
+        }
+        root.GetType().GetProperty(propertyPath[0]).SetValue(root, newValue);
+    }
+
 }

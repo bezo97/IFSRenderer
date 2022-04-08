@@ -24,7 +24,6 @@ public partial class Workspace
 {
     private readonly IFSHistoryTracker _tracker = new();
     private List<Transform> _loadedTransforms = new();
-    public readonly AnimationManager AnimationManager = new();
 
     public event EventHandler<string> StatusTextChanged;
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");

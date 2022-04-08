@@ -20,7 +20,7 @@
     <UserControl.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
-            <MenuItem Header="Animate" Icon="🎬" Click="Animate_Click" IsEnabled="False"/>
+            <MenuItem Header="Animate" Icon="🎬" Command="{Binding AnimateCommand}"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
@@ -57,7 +57,7 @@
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
-                        <MenuItem Header="Animate" Icon="🎬" Click="Animate_Click" IsEnabled="False"/>
+                        <MenuItem Header="Animate" Icon="🎬" Command="{Binding AnimateCommand}"/>
                         <Separator/>
                         <!--Must recreate native items to extend context menu-->
                         <MenuItem Command="ApplicationCommands.Cut"/>

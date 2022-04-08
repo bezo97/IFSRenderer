@@ -46,22 +46,6 @@ public partial class ValueSlider : UserControl
         vm.DecreaseValue();
     }
 
-    private void Animate_Click(object sender, RoutedEventArgs e)
-    {
-        //if (!hasAnimation)
-        //{
-        //    hasAnimation = true;
-        //    animationIndex =
-        //        ((MainViewModel)Application.Current.Windows.OfType<MainWindow>().First().DataContext).AnimationViewModel.AnimationManager
-        //        .AddNewAnimation(ValueName, SetValue, Value);
-        //}
-        //else
-        //{
-        //    ((MainViewModel)Application.Current.Windows.OfType<MainWindow>().First().DataContext).AnimationViewModel.AnimationManager
-        //        .AddNewControlPoint(animationIndex, Value);
-        //}
-    }
-
     private void ValueEditor_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)

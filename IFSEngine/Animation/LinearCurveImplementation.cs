@@ -6,28 +6,30 @@ using System.Text;
 
 namespace IFSEngine.Animation;
 
-class LinearCurveImplementation : ICurveImplementation
+public class LinearCurveImplementation : ICurveImplementation
 {
-    public double Evaluate(double t, List<ControlPoint> controlPoints)
+    public double Evaluate(double t, List<Keyframe> keyframes)
     {
 
-        if (t >= controlPoints.Last().t)
-            return controlPoints.Last().Value;
-        if (t <= controlPoints.First().t)
-            return controlPoints.First().Value;
+        if (t >= keyframes.Last().t)
+            return keyframes.Last().Value;
+        if (t <= keyframes.First().t)
+            return keyframes.First().Value;
 
-        ControlPoint leftControlPoint = new(), rightControlPoint = new();
-        for (int i = 0; i < controlPoints.Count - 1; i++)
-        {
-            if (t >= controlPoints[i].t && t <= controlPoints[i + 1].t)
-            {
-                leftControlPoint = controlPoints[i];
-                rightControlPoint = controlPoints[i + 1];
-            }
-        }
+        //Keyframe leftControlPoint = new(), rightControlPoint = new();
+        //for (int i = 0; i < controlPoints.Count - 1; i++)
+        //{
+        //    if (t >= controlPoints[i].t && t <= controlPoints[i + 1].t)
+        //    {
+        //        leftControlPoint = controlPoints[i];
+        //        rightControlPoint = controlPoints[i + 1];
+        //    }
+        //}
+        var previousKeyframe = keyframes.Where(c => c.t < t).MaxBy(c => c.t);
+        var nextKeyframe = keyframes.Where(c => c.t > t).MinBy(c => c.t);
 
-        var transformedT = (t - leftControlPoint.t) / (rightControlPoint.t - leftControlPoint.t);
-        return MathExtensions.Lerp(leftControlPoint.Value, rightControlPoint.Value, transformedT);
+        var transformedT = (t - previousKeyframe.t) / (nextKeyframe.t - previousKeyframe.t);
+        return MathExtensions.Lerp(previousKeyframe.Value, nextKeyframe.Value, transformedT);
 
     }
 }

@@ -7,5 +7,5 @@ namespace IFSEngine.Animation;
 
 interface ICurveImplementation
 {
-    double Evaluate(double t, List<ControlPoint> controlPoints);
+    double Evaluate(double t, List<Keyframe> keyframes);
 }

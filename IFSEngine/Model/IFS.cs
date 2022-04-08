@@ -1,4 +1,5 @@
-﻿using IFSEngine.Utility;
+﻿using IFSEngine.Animation;
+using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -43,6 +44,7 @@ public class IFS
     public Color BackgroundColor { get; set; } = Color.Black;
     public Size ImageResolution { get; set; } = new Size(1920, 1080);
     public FlamePalette Palette { get; set; } = FlamePalette.Default;
+    public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
 
     protected HashSet<Iterator> iterators = new();
     protected List<Author> authors = new();

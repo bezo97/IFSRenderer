@@ -16,7 +16,6 @@ public partial class TimeLine : UserControl
     public const double ActiveAreaStart = 0.01;
     public const double ActiveAreaEnd = 0.99;
 
-    private AnimationManager _animationManager;
     private bool _isMouseDown = false;
 
     public TimeLine()
@@ -24,13 +23,12 @@ public partial class TimeLine : UserControl
 
         DataContextChanged += (s, e) =>
         {
-            _animationManager = ((AnimationViewModel)DataContext).AnimationManager;
             var lineDrawer = new TimelineDrawer(ActiveAreaStart, ActiveAreaEnd);
             lineDrawer.DrawLines(TimeSlider, true);
             lineDrawer.DrawLines(Dopesheet, false);
             ManipulateTime(new Point(0, 0));
 
-            _animationManager.OnAnimationCreated += AnimationManagerOnAnimationCreated;
+            //_animationManager.OnAnimationCreated += AnimationManagerOnAnimationCreated;
 
         };
         InitializeComponent();
@@ -38,7 +36,7 @@ public partial class TimeLine : UserControl
 
     private void AnimationManagerOnAnimationCreated(PropertyAnimation propertyAnimation)
     {
-        var animation = new Animation(propertyAnimation.AnimationCurve);
+        var animation = new Animation(propertyAnimation.Channel);
 
         AnimationStack.Children.Add(animation);
         animation.Width = TimeLineLayout.ActualWidth;
@@ -83,7 +81,7 @@ public partial class TimeLine : UserControl
 
         void SetAnimatorTime()
         {
-            _animationManager.EvaluateAt(MapFromActiveArea(t));
+            //_animationManager.EvaluateAt(MapFromActiveArea(t));
         }
     }
 

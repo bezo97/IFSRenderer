@@ -24,15 +24,15 @@ public partial class AnimationTitles : UserControl
 
     private void AnimationTitles_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        var animationManager = ((AnimationViewModel)DataContext).AnimationManager;//((MainWindow)Application.Current.MainWindow).DataContext;//((MainViewModel)DataContext).AnimationManager;
+        //var animationManager = ((AnimationViewModel)DataContext).AnimationManager;//((MainWindow)Application.Current.MainWindow).DataContext;//((MainViewModel)DataContext).AnimationManager;
 
-        animationManager.OnAnimationCreated += AnimationManagerOnAnimationCreated;
+        //animationManager.OnAnimationCreated += AnimationManagerOnAnimationCreated;
 
     }
 
     private void AnimationManagerOnAnimationCreated(PropertyAnimation propertyAnimation)
     {
-        var animationTitle = new AnimationTitle(propertyAnimation.AnimatedVariableName);
+        var animationTitle = new AnimationTitle(/*propertyAnimation.Label*/"anim");
 
         Titles.Children.Add(animationTitle);
         animationTitle.Width = Titles.ActualWidth;

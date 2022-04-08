@@ -13,7 +13,7 @@
             <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <local:AnimationControlPanel  DataContext="{Binding .}" Grid.Column="0"/>
-        <local:TimeLine DataContext="{Binding .}" Grid.Column="1" x:Name="TimeLine"/> 
+        <local:AnimationControlPanel Grid.Column="0"/>
+        <local:TimeLine Grid.Column="1" x:Name="TimeLine"/> 
     </Grid>
 </UserControl>

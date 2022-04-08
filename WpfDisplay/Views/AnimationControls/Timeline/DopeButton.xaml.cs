@@ -10,7 +10,7 @@ namespace WpfDisplay.Views.Animation;
 /// </summary>
 public partial class DopeButton : UserControl
 {
-    public ControlPoint ControlPoint { get; private set; }
+    public Keyframe ControlPoint { get; private set; }
     public EventHandler<MouseEventArgs> OnDrag;
     private bool _isDragging = false;
     public DopeButton()
@@ -18,8 +18,8 @@ public partial class DopeButton : UserControl
         InitializeComponent();
     }
 
-    public void SetControlPoint(ControlPoint controlPoint) => this.ControlPoint = controlPoint;
-    public void SetTime(double t) => ControlPoint.t.Update(t);
+    public void SetControlPoint(Keyframe controlPoint) => this.ControlPoint = controlPoint;
+    public void SetTime(double t) => ControlPoint.t = t;
 
     private void OnMouseDown(object sender, MouseButtonEventArgs e)
     {

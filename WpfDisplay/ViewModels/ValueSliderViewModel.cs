@@ -67,4 +67,12 @@ public partial class ValueSliderViewModel
         else
             Value = DefaultValue;
     }
+
+    [ICommand]
+    public void Animate()
+    {
+        //add new channel if needed, insert/update keyframe
+        aaaaaaa
+    }
+
 }

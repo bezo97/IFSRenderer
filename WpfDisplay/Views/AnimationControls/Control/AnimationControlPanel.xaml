@@ -28,15 +28,12 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
-                            Command="{Binding PlayCommand}">
-                        <Image Source="../../../Resources/Images/Animation/skip-backward.png"
-                               />
+                            Command="{Binding JumpToStartCommand}">
+                        ⬜
                     </Button>
-                    <Button Grid.Column="1">
-                        <Image Source="../../../Resources/Images/Animation/play.png" />
-                    </Button>
-                    <Button Grid.Column="2">
-                        <Image Source="../../../Resources/Images/Animation/skip-forward.png" />
+                    <Button Grid.Column="1"
+                            Command="{Binding PlayPauseCommand}">
+                        ▷
                     </Button>
                 </Grid>
             </materialDesign:Card>
