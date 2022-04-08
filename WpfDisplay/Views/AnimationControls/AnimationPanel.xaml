@@ -4,16 +4,63 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
+             xmlns:common="clr-namespace:WpfDisplay.Views"
              xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="300" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="2"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <local:AnimationControlPanel Grid.Column="0"/>
-        <local:TimeLine Grid.Column="1" x:Name="TimeLine"/> 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+            <Button Command="{Binding JumpToStartCommand}">
+                ⬜
+            </Button>
+            <Button Command="{Binding PlayPauseCommand}">
+                ▷
+            </Button>
+        </StackPanel>
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="Black"/>
+        <Grid Grid.Column="2" Grid.Row="0">
+            <common:ValueSlider DataContext="{Binding FpsSlider}" HorizontalAlignment="Left"/>
+            <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center"/>
+            <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right"/>
+        </Grid>
+        <ScrollViewer Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ItemsControl ItemsSource="{Binding Channels}" Grid.Column="0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>asd</TextBlock>
+                            <!--<TextBlock Text="{Binding Name}"/>-->
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Channels}" Grid.Column="1">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>jaj</TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+        <Line IsHitTestVisible="False" x:Name="DopesheetLine" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
+            X1="{Binding CurrentTimeScrollPosition}" Y1="0"
+            X2="{Binding CurrentTimeScrollPosition}" Y2="500"
+            Stroke="White"
+            StrokeThickness="3"/>
     </Grid>
 </UserControl>

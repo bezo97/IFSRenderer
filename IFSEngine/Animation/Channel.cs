@@ -10,6 +10,12 @@ public class Channel
 {
     public List<Keyframe> Keyframes { get; init; } = new();//TODO: SortedList
 
+    public Channel() { }
+    public Channel(Keyframe singleValue)
+    {
+        Keyframes.Add(singleValue);
+    }
+
     public void AddKeyframe(Keyframe keyframe)
     {
         Keyframes.Add(keyframe);

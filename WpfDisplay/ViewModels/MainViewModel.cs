@@ -28,10 +28,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     public PerformanceViewModel PerformanceViewModel { get; }
     public QualitySettingsViewModel QualitySettingsViewModel { get; }
     public IFSViewModel IFSViewModel { get; }
-    public AnimationViewModel AnimationViewModel
-    {
-        get;
-    }
+    public AnimationViewModel AnimationViewModel { get; }
 
     private bool _transparentBackground;
     public bool TransparentBackground

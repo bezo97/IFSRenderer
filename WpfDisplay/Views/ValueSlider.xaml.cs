@@ -9,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using IFSEngine.Rendering;
 using WpfDisplay.ViewModels;
-using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
 

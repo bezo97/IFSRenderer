@@ -9,6 +9,7 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class ValueSliderViewModel
 {
+    public ValueSliderViewModel() { }
     public ValueSliderViewModel(INotifyPropertyChanged inpc)
     {
         inpc.PropertyChanged += (s, e) => OnPropertyChanged(nameof(Value));
@@ -30,6 +31,7 @@ public partial class ValueSliderViewModel
     
     public Func<double> GetV { get; set; }
     public Action<double> SetV { get; set; }
+    public string AnimationPath { get; set; }
     public double DefaultValue { get; set; }
     public Action ValueWillChange { get; set; }
 
@@ -68,11 +70,13 @@ public partial class ValueSliderViewModel
             Value = DefaultValue;
     }
 
+    //public RelayCommand AnimateCommand { get; set; }
     [ICommand]
     public void Animate()
     {
-        //add new channel if needed, insert/update keyframe
-        aaaaaaa
+        //ugh
+        var ifs = (System.Windows.Application.Current.MainWindow.DataContext as MainViewModel).workspace.Ifs;
+        ifs.Dopesheet.AddOrUpdateChannel(AnimationPath, Value);
     }
 
 }

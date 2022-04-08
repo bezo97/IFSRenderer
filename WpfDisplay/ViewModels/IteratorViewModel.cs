@@ -77,6 +77,7 @@ public partial class IteratorViewModel
         },
         MinValue = 0,
         Increment = 0.01,
+        AnimationPath = nameof(iterator.StartWeight),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -95,6 +96,7 @@ public partial class IteratorViewModel
         MinValue = -1,
         MaxValue = 1,
         Increment = 0.01,
+        AnimationPath = nameof(iterator.Opacity),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -113,6 +115,7 @@ public partial class IteratorViewModel
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
+        AnimationPath = nameof(iterator.ColorIndex),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -129,6 +132,7 @@ public partial class IteratorViewModel
             OnPropertyChanged(nameof(ColorRGB));
         },
         Increment = 0.01,
+        AnimationPath = nameof(iterator.ColorSpeed),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -154,6 +158,7 @@ public partial class IteratorViewModel
             _workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 0.001,
+        AnimationPath = nameof(iterator.Mix),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -169,6 +174,7 @@ public partial class IteratorViewModel
             _workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 0.001,
+        AnimationPath = nameof(iterator.Add),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -208,6 +214,7 @@ public partial class IteratorViewModel
         },
         MinValue = 0,
         Increment = 0.01,
+        AnimationPath = nameof(iterator.BaseWeight),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 

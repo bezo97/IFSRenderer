@@ -1,8 +1,9 @@
-﻿using IFSEngine.Animation;
+﻿#nullable enable
+using IFSEngine.Animation;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using System.Timers;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -15,16 +16,72 @@ public partial class AnimationViewModel
     private readonly Workspace _workspace;
 
     private readonly Timer _realtimePlayer;
-    public TimeOnly CurrentTime { get; set; }
+    public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
+
+    public ObservableCollection<Channel> Channels { get; } = new ();
 
     public AnimationViewModel(Workspace workspace)
     {
         this._workspace = workspace;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
-        _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0/workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);//TODO: update interval when fps changes
+        _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0/workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
     }
+
+    public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * 50.0f /* * ViewScale */;
+
+    private ValueSliderViewModel? _fpsSlider;
+    public ValueSliderViewModel FpsSlider => _fpsSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "🎞 FPS",
+        ToolTip = "Frames per second",
+        DefaultValue = 25,
+        GetV = () => _workspace.Ifs.Dopesheet.Fps,
+        SetV = (value) =>
+        {
+            _workspace.Ifs.Dopesheet.Fps = (int)value;
+            _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
+        },
+        Increment = 1,
+        MinValue = 1,
+        ValueWillChange = _workspace.TakeSnapshot
+    };
+
+    private ValueSliderViewModel? _currentTimeSlider;
+    public ValueSliderViewModel CurrentTimeSlider => _currentTimeSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "⏱️ Time",
+        ToolTip = "Current time in seconds",
+        DefaultValue = 0.0,
+        GetV = () => CurrentTime.ToTimeSpan().TotalSeconds,
+        SetV = (value) =>
+        {
+            CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(value));
+            Dopesheet.T = CurrentTime.ToTimeSpan().TotalSeconds;
+            _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
+            _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+        },
+        Increment = 1.0/60,
+        MinValue = 0,
+    };
+
+    private ValueSliderViewModel? _lengthSlider;
+    public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "↔️ Length",
+        ToolTip = "Animation length in seconds",
+        DefaultValue = 10,
+        GetV = () => _workspace.Ifs.Dopesheet.Length.TotalSeconds,
+        SetV = (value) =>
+        {
+            _workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
+        },
+        Increment = 1,
+        MinValue = 1,
+        ValueWillChange = _workspace.TakeSnapshot
+    };
 
     [ICommand]
     public void PlayPause()
@@ -37,14 +94,23 @@ public partial class AnimationViewModel
     {
         _realtimePlayer.Stop();
         CurrentTime = TimeOnly.MinValue;
-        _realtimePlayer.Start();
+        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
+        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
     }
 
-    private void OnPlayerTick(object sender, ElapsedEventArgs e)
+    private void OnPlayerTick(object? sender, ElapsedEventArgs e)
     {
         CurrentTime = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
+        if (CurrentTime.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
+            CurrentTime = TimeOnly.MinValue;
+        Dopesheet.T = CurrentTime.ToTimeSpan().TotalSeconds;
         _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
+        _workspace.Renderer.InvalidateParamsBuffer();
+
         //raise..
+        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
+        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+
     }
 
 }

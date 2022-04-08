@@ -29,6 +29,7 @@ public partial class ToneMappingViewModel
         },
         MinValue = 0,
         Increment = 0.05,
+        AnimationPath = nameof(_workspace.Ifs.Brightness),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -45,6 +46,7 @@ public partial class ToneMappingViewModel
         },
         MinValue = 0,
         Increment = 0.005,
+        AnimationPath = nameof(_workspace.Ifs.Gamma),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -61,6 +63,7 @@ public partial class ToneMappingViewModel
         },
         MinValue = 0,
         Increment = 0.0001,
+        AnimationPath = nameof(_workspace.Ifs.GammaThreshold),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -76,6 +79,7 @@ public partial class ToneMappingViewModel
             _workspace.Renderer.InvalidateDisplay();
         },
         Increment = 0.05,
+        AnimationPath = nameof(_workspace.Ifs.Vibrancy),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 

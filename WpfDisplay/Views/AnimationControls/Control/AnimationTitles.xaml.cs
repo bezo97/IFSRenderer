@@ -30,14 +30,14 @@ public partial class AnimationTitles : UserControl
 
     }
 
-    private void AnimationManagerOnAnimationCreated(PropertyAnimation propertyAnimation)
+    private void AnimationManagerOnAnimationCreated(object propertyAnimation)
     {
-        var animationTitle = new AnimationTitle(/*propertyAnimation.Label*/"anim");
+        //var animationTitle = new AnimationTitle(/*propertyAnimation.Label*/"anim");
 
-        Titles.Children.Add(animationTitle);
-        animationTitle.Width = Titles.ActualWidth;
+        //Titles.Children.Add(animationTitle);
+        //animationTitle.Width = Titles.ActualWidth;
 
-        Canvas.SetLeft(animationTitle, 0);
-        Canvas.SetTop(animationTitle, 0);
+        //Canvas.SetLeft(animationTitle, 0);
+        //Canvas.SetTop(animationTitle, 0);
     }
 }

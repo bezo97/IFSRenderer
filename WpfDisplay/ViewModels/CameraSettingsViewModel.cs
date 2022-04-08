@@ -30,6 +30,7 @@ public partial class CameraSettingsViewModel
         MinValue = 1,
         MaxValue = 179,
         Increment = 0.1,
+        AnimationPath = nameof(_workspace.Ifs.Camera.FieldOfView),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -45,6 +46,7 @@ public partial class CameraSettingsViewModel
         },
         MinValue = 0,
         Increment = 0.0001,
+        AnimationPath = nameof(_workspace.Ifs.Camera.Aperture),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -58,6 +60,7 @@ public partial class CameraSettingsViewModel
             _workspace.Ifs.Camera.FocusDistance = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
+        AnimationPath = nameof(_workspace.Ifs.Camera.FocusDistance),
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -72,8 +75,9 @@ public partial class CameraSettingsViewModel
             _workspace.Ifs.Camera.DepthOfField = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
-        ValueWillChange = _workspace.TakeSnapshot,
         MinValue = 0,
+        AnimationPath = nameof(_workspace.Ifs.Camera.DepthOfField),
+        ValueWillChange = _workspace.TakeSnapshot,
     };
 
     [ICommand]

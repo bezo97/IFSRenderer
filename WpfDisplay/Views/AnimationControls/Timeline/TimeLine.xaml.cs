@@ -34,13 +34,13 @@ public partial class TimeLine : UserControl
         InitializeComponent();
     }
 
-    private void AnimationManagerOnAnimationCreated(PropertyAnimation propertyAnimation)
+    private void AnimationManagerOnAnimationCreated(object propertyAnimation)
     {
-        var animation = new Animation(propertyAnimation.Channel);
+        //var animation = new Animation(propertyAnimation.Channel);
 
-        AnimationStack.Children.Add(animation);
-        animation.Width = TimeLineLayout.ActualWidth;
-        Canvas.SetTop(animation, 0);
+        //AnimationStack.Children.Add(animation);
+        //animation.Width = TimeLineLayout.ActualWidth;
+        //Canvas.SetTop(animation, 0);
     }
 
     public static double MapToActiveArea(double normalizedOriginalValue) =>
