@@ -5,32 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
-             xmlns:conv1="clr-namespace:WpfDisplay"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="100"
-             x:Name="dopesheetButton"
-             >
-    <UserControl.Resources>
-        <materialDesign:MathConverter x:Key="mathConverter"/>
-    </UserControl.Resources>
-    <Grid x:Name="DopesheetButtonContainer">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Button Grid.Row="0" 
-                Style="{DynamicResource MaterialDesignRaisedDarkButton}" 
-                Height="20"
-                Width="20" PreviewMouseDown="OnMouseDown" PreviewMouseMove="OnMouseMove" PreviewMouseUp="OnMouseUp"
-                
-            >
-            <Button.LayoutTransform>
-                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
-            </Button.LayoutTransform>
-        </Button>
-    </Grid>
+             d:DesignHeight="15" d:DesignWidth="15" Width="15" Height="15">
+    <Button
+        Style="{DynamicResource MaterialDesignFlatDarkBgButton}" 
+        Height="10"
+        Width="10" PreviewMouseDown="OnMouseDown" PreviewMouseMove="OnMouseMove" PreviewMouseUp="OnMouseUp">
+        <Button.RenderTransform>
+            <TransformGroup>
+                <RotateTransform CenterX="5" CenterY="5" Angle="45"/>
+                <TranslateTransform X="-5"/>
+            </TransformGroup>
+        </Button.RenderTransform>
+    </Button>
 </UserControl>
-<!--Height="{Binding ElementName=DopesheetButtonContainer, Path=ActualWidth,Converter={StaticResource mathConverter},
-                ConverterParameter=((@VALUE)*.7)}" 
-                Width="{Binding ElementName=DopesheetButtonContainer, Path=ActualWidth,Converter={StaticResource mathConverter},
-                ConverterParameter=((@VALUE)*.7)}"-->

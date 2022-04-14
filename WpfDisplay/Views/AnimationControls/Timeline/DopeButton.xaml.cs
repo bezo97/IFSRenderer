@@ -13,13 +13,11 @@ public partial class DopeButton : UserControl
     public Keyframe ControlPoint { get; private set; }
     public EventHandler<MouseEventArgs> OnDrag;
     private bool _isDragging = false;
+
     public DopeButton()
     {
         InitializeComponent();
     }
-
-    public void SetControlPoint(Keyframe controlPoint) => this.ControlPoint = controlPoint;
-    public void SetTime(double t) => ControlPoint.t = t;
 
     private void OnMouseDown(object sender, MouseButtonEventArgs e)
     {

@@ -3,12 +3,38 @@ using IFSEngine.Animation;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Timers;
 using System.Windows.Input;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
+
+public class KeyframeViewModel
+{
+    private readonly Keyframe _k;
+    
+    public float TimelinePositon => (float)_k.t * 50.0f/* * ViewScale */;//add offset
+
+    public KeyframeViewModel(Keyframe k)
+    {
+        _k = k;
+    }
+}
+
+public class ChannelViewModel
+{
+    public string Name { get; }
+    public List<KeyframeViewModel> Keyframes { get; }
+
+    public ChannelViewModel(string name, Channel c)
+    {
+        Name = name;
+        Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k)).ToList();
+    }
+}
 
 [ObservableObject]
 public partial class AnimationViewModel
@@ -18,7 +44,7 @@ public partial class AnimationViewModel
     private readonly Timer _realtimePlayer;
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
-    public ObservableCollection<Channel> Channels { get; } = new ();
+    public List<ChannelViewModel> Channels => _workspace.Ifs.Dopesheet.Channels.ToList().Select(a=> new ChannelViewModel(a.Key, a.Value)).ToList();
 
     public AnimationViewModel(Workspace workspace)
     {
@@ -96,6 +122,9 @@ public partial class AnimationViewModel
         CurrentTime = TimeOnly.MinValue;
         CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+
+        //debug
+        OnPropertyChanged(nameof(Channels));
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
