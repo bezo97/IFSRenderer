@@ -93,6 +93,11 @@ public partial class AnimationViewModel
         MinValue = 0,
     };
 
+    public void RaiseChannelsPropertyChanged()
+    {
+        OnPropertyChanged(nameof(Channels));
+    }
+
     private ValueSliderViewModel? _lengthSlider;
     public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(_workspace)
     {
@@ -122,9 +127,6 @@ public partial class AnimationViewModel
         CurrentTime = TimeOnly.MinValue;
         CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
-
-        //debug
-        OnPropertyChanged(nameof(Channels));
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)

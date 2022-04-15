@@ -75,8 +75,10 @@ public partial class ValueSliderViewModel
     public void Animate()
     {
         //ugh
-        var ifs = (System.Windows.Application.Current.MainWindow.DataContext as MainViewModel).workspace.Ifs;
+        var main = (System.Windows.Application.Current.MainWindow.DataContext as MainViewModel);
+        var ifs = main.workspace.Ifs;
         ifs.Dopesheet.AddOrUpdateChannel(AnimationPath, Value);
+        main.AnimationViewModel.RaiseChannelsPropertyChanged();
     }
 
 }
