@@ -9,6 +9,24 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="300" d:DesignWidth="800">
+    <UserControl.Resources>
+        <DrawingBrush x:Key="linesBrush" TileMode="Tile"
+                    Viewport="0,0,50,1" ViewportUnits="Absolute"
+                    Viewbox="0,0,50,1" ViewboxUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Gray" Thickness="2"/>
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="0,0" EndPoint="0,1"></LineGeometry>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
@@ -34,25 +52,8 @@
             <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center"/>
             <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right"/>
         </Grid>
-        <Grid Grid.Column="2" Grid.Row="1">
-            <Grid.Background>
-                <DrawingBrush TileMode="Tile"
-                    Viewport="0,0,50,1" ViewportUnits="Absolute"
-                    Viewbox="0,0,50,1" ViewboxUnits="Absolute">
-                    <DrawingBrush.Drawing>
-                        <GeometryDrawing>
-                            <GeometryDrawing.Pen>
-                                <Pen Brush="Black" Thickness="2"/>
-                            </GeometryDrawing.Pen>
-                            <GeometryDrawing.Geometry>
-                                <GeometryGroup>
-                                    <LineGeometry StartPoint="0,0" EndPoint="0,1"></LineGeometry>
-                                </GeometryGroup>
-                            </GeometryDrawing.Geometry>
-                        </GeometryDrawing>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
-            </Grid.Background>
+        <Grid Grid.Column="2" Grid.Row="1" Background="#333333">
+            <Grid Background="{StaticResource linesBrush}"/>
         </Grid>
         <ScrollViewer Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <Grid>
@@ -60,33 +61,53 @@
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ItemsControl ItemsSource="{Binding Channels}" Grid.Column="0">
+                <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}"/>
+                            <Grid x:Name="alternatingBackgroundGrid1">
+                                <TextBlock Text="{Binding Name}"/>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="#333333"/>
+                                </Trigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <ItemsControl ItemsSource="{Binding Channels}" Grid.Column="1">
+                <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="1">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
+                            <Grid x:Name="alternatingBackgroundGrid2">
                                 <ItemsControl ItemsSource="{Binding Keyframes}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                        <Canvas Height="15" ClipToBounds="True"/>
-                                    </ItemsPanelTemplate>
+                                            <Canvas Height="15" ClipToBounds="True"/>
+                                        </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <local:DopeButton/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style>
-                                        <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style>
+                                            <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
                                 </ItemsControl>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="#333333"/>
+                                </Trigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
