@@ -28,11 +28,13 @@ public class ChannelViewModel
 {
     public string Name { get; }
     public List<KeyframeViewModel> Keyframes { get; }
+    public Channel channel;
 
     public ChannelViewModel(string name, Channel c)
     {
         Name = name;
         Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k)).ToList();
+        channel = c;
     }
 }
 
@@ -60,7 +62,7 @@ public partial class AnimationViewModel
     private ValueSliderViewModel? _fpsSlider;
     public ValueSliderViewModel FpsSlider => _fpsSlider ??= new ValueSliderViewModel(_workspace)
     {
-        Label = "🎞 FPS",
+        Label = "🎞 Framerate (fps)",
         ToolTip = "Frames per second",
         DefaultValue = 25,
         GetV = () => _workspace.Ifs.Dopesheet.Fps,
@@ -77,7 +79,7 @@ public partial class AnimationViewModel
     private ValueSliderViewModel? _currentTimeSlider;
     public ValueSliderViewModel CurrentTimeSlider => _currentTimeSlider ??= new ValueSliderViewModel(_workspace)
     {
-        Label = "⏱️ Time",
+        Label = "⏱️ Time (s)",
         ToolTip = "Current time in seconds",
         DefaultValue = 0.0,
         GetV = () => CurrentTime.ToTimeSpan().TotalSeconds,
@@ -101,13 +103,15 @@ public partial class AnimationViewModel
     private ValueSliderViewModel? _lengthSlider;
     public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(_workspace)
     {
-        Label = "↔️ Length",
+        Label = "↔️ Length (s)",
         ToolTip = "Animation length in seconds",
         DefaultValue = 10,
         GetV = () => _workspace.Ifs.Dopesheet.Length.TotalSeconds,
         SetV = (value) =>
         {
             _workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
+            CurrentTimeSlider.MaxValue = value;
+            CurrentTimeSlider.Value = CurrentTimeSlider.Value;//TODO: ugh, raise..
         },
         Increment = 1,
         MinValue = 1,
@@ -127,6 +131,13 @@ public partial class AnimationViewModel
         CurrentTime = TimeOnly.MinValue;
         CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+    }
+
+    [ICommand]
+    public void RemoveChannel(ChannelViewModel cvm)
+    {
+        _workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
+        RaiseChannelsPropertyChanged();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)

@@ -162,6 +162,20 @@ public class Dopesheet
         }
     }
 
+    public void RemoveChannel(string channelKey, TimeOnly applyAt)
+    {
+        if (!Channels.TryGetValue(channelKey, out var channel))
+            throw new Exception($"Channel with key { channelKey } not found.");
+        channel.EvaluateAt(applyAt.ToTimeSpan().TotalSeconds);
+        Channels.Remove(channelKey);
+    }
+
+    //public void RemoveChannel(Channel channel, TimeOnly applyAt)
+    //{
+    //    channel.EvaluateAt(applyAt.ToTimeSpan().TotalSeconds);
+    //    Channels.Remove(channel)
+    //}
+
     public void SetLength(TimeSpan length)
     {
         Length = length;
