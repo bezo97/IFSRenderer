@@ -12,28 +12,42 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-public class KeyframeViewModel
+[ObservableObject]
+public partial class KeyframeViewModel
 {
-    private readonly Keyframe _k;
+    public readonly Keyframe _k;
     
-    public float TimelinePositon => (float)_k.t * 50.0f/* * ViewScale */;//add offset
+    public float TimelinePositon => (float)_k.t * 50.0f/* * ViewScale */ + _offset;//add offset
+    private float _offset;
+    public double PositionMoveOffset
+    {
+        get => _offset; 
+        set
+        {
+            _offset = (float)value;
+            OnPropertyChanged(nameof(TimelinePositon));
+        }
+    }
+    [ObservableProperty] private bool _isSelected;
 
-    public KeyframeViewModel(Keyframe k)
+    public KeyframeViewModel(Keyframe k, bool isSelected)
     {
         _k = k;
+        _isSelected = isSelected;
     }
 }
 
-public class ChannelViewModel
+[ObservableObject]
+public partial class ChannelViewModel
 {
     public string Name { get; }
     public List<KeyframeViewModel> Keyframes { get; }
-    public Channel channel;
+    public readonly Channel channel;
 
-    public ChannelViewModel(string name, Channel c)
+    public ChannelViewModel(string name, Channel c, List<Keyframe> selectedKeyframes)
     {
         Name = name;
-        Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k)).ToList();
+        Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k.Value, selectedKeyframes.Contains(k.Value))).ToList();
         channel = c;
     }
 }
@@ -42,11 +56,12 @@ public class ChannelViewModel
 public partial class AnimationViewModel
 {
     private readonly Workspace _workspace;
-
     private readonly Timer _realtimePlayer;
+    private readonly List<Keyframe> _selectedKeyframes = new();
+
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
-    public List<ChannelViewModel> Channels => _workspace.Ifs.Dopesheet.Channels.ToList().Select(a=> new ChannelViewModel(a.Key, a.Value)).ToList();
+    public List<ChannelViewModel> Channels => _workspace.Ifs.Dopesheet.Channels.ToList().Select(a=> new ChannelViewModel(a.Key, a.Value, _selectedKeyframes)).ToList();
 
     public AnimationViewModel(Workspace workspace)
     {
@@ -86,7 +101,6 @@ public partial class AnimationViewModel
         SetV = (value) =>
         {
             CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(value));
-            Dopesheet.T = CurrentTime.ToTimeSpan().TotalSeconds;
             _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(CurrentTimeScrollPosition));
@@ -136,7 +150,27 @@ public partial class AnimationViewModel
     [ICommand]
     public void RemoveChannel(ChannelViewModel cvm)
     {
+        _workspace.TakeSnapshot();
         _workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
+        RaiseChannelsPropertyChanged();
+    }
+
+    [ICommand]
+    public void AddToSelection(KeyframeViewModel kvm)
+    {
+        _selectedKeyframes.Add(kvm._k);
+        kvm.IsSelected = true;
+    }
+
+    [ICommand]
+    public void MoveSelectedKeyframes(double offset)
+    {
+        _workspace.TakeSnapshot();
+        foreach (var kf in _selectedKeyframes)
+        {
+            kf.t += offset / 50.0/* / ViewScale */;
+        }
+        _selectedKeyframes.Clear();
         RaiseChannelsPropertyChanged();
     }
 
@@ -145,7 +179,6 @@ public partial class AnimationViewModel
         CurrentTime = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
         if (CurrentTime.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
             CurrentTime = TimeOnly.MinValue;
-        Dopesheet.T = CurrentTime.ToTimeSpan().TotalSeconds;
         _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
         _workspace.Renderer.InvalidateParamsBuffer();
 

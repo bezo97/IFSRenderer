@@ -12,17 +12,16 @@ namespace IFSEngine.Animation;
 
 public class Dopesheet
 {
-    public static double T = 0.0;
     public Dictionary<string, Channel> Channels { get; init; } = new();
     public TimeSpan Length { get; set; } = TimeSpan.FromSeconds(10);//should be private set!
     public int Fps { get; set; } = 30;
 
-    public void AddOrUpdateChannel(string path, double value)
+    public void AddOrUpdateChannel(string path, TimeOnly time, double value)
     {
         var keyframe = new Keyframe
         {
             InterpolationMode = "Linear",
-            t = Dopesheet.T,
+            t = time.ToTimeSpan().TotalSeconds,
             Value = value
         };
 

@@ -8,19 +8,17 @@ namespace IFSEngine.Animation;
 
 public class Channel
 {
-    public List<Keyframe> Keyframes { get; init; } = new();//TODO: SortedList
+    public SortedDictionary<double, Keyframe> Keyframes { get; init; } = new();
 
     public Channel() { }
-    public Channel(Keyframe singleValue)
+    public Channel(Keyframe keyframe)
     {
-        Keyframes.Add(singleValue);
+        Keyframes[keyframe.t] = keyframe;
     }
 
     public void AddKeyframe(Keyframe keyframe)
     {
-        Keyframes.Add(keyframe);
-        Keyframes.Sort((x, y) => x.t < y.t ? -1 : 1);
-
+        Keyframes[keyframe.t] = keyframe;
     }
 
     public double EvaluateAt(double t)
@@ -28,7 +26,7 @@ public class Channel
         //var interpolationMode = _keyframes.Where(c => c.t < t).MaxBy(c=>c.t).InterpolationMode;
         //TODO: Interpolation Mode
 
-        return new LinearCurveImplementation().Evaluate(t, Keyframes);
+        return new LinearCurveImplementation().Evaluate(t, Keyframes.Values.ToList());
     }
 
 }

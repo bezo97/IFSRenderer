@@ -113,7 +113,19 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <local:DopeButton/>
+                                            <local:DopeButton
+                                                PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
+                                                <Style TargetType="local:DopeButton">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="Button.Background" Value="Orange" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                            <Setter Property="Button.Background" Value="Gray" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </local:DopeButton>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                     <ItemsControl.ItemContainerStyle>
