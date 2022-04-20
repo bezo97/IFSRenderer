@@ -80,6 +80,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="Cavern">
+	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Cavern.Filters">
+	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.Filters.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Cavern.Format">
+	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.Format.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Cavern.QuickEQ">
+	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.QuickEQ.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<SplashScreen Include="Resources\SplashScreen.png" />
 	</ItemGroup>
 

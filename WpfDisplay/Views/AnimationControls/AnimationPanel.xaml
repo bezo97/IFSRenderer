@@ -45,6 +45,9 @@
             <Button Command="{Binding PlayPauseCommand}">
                 ▷
             </Button>
+            <Button Command="{Binding LoadAudioCommand}">
+                Sound
+            </Button>
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="Black"/>
         <Grid Grid.Column="2" Grid.Row="0">
