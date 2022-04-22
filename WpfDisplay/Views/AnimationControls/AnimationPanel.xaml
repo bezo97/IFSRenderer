@@ -38,17 +38,21 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-            <Button Command="{Binding JumpToStartCommand}">
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Button Command="{Binding JumpToStartCommand}" HorizontalAlignment="Left">
                 ⬜
             </Button>
-            <Button Command="{Binding PlayPauseCommand}">
+            <Button Command="{Binding PlayPauseCommand}" HorizontalAlignment="Center">
                 ▷
             </Button>
-            <Button Command="{Binding LoadAudioCommand}">
-                Sound
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="1">
+            <Button Command="{Binding LoadAudioCommand}" HorizontalAlignment="Left" Padding="5" ToolTip="{Binding AudioClipTitle, TargetNullValue=Load audio clip}">
+                <TextBlock TextTrimming="CharacterEllipsis">
+                🎵 <Run Text="{Binding AudioClipTitle, TargetNullValue=...}"/>
+                </TextBlock>
             </Button>
-        </StackPanel>
+        </Grid>
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="Black"/>
         <Grid Grid.Column="2" Grid.Row="0">
             <common:ValueSlider DataContext="{Binding FpsSlider}" HorizontalAlignment="Left"/>
@@ -56,6 +60,7 @@
             <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right"/>
         </Grid>
         <Grid Grid.Column="2" Grid.Row="1" Background="#333333">
+            <Grid Background="#111111"/>
             <Grid Background="{StaticResource linesBrush}"/>
         </Grid>
         <ScrollViewer Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">

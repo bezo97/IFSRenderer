@@ -18,22 +18,20 @@ public partial class AudioChannelViewModel
     //private readonly Workspace _workspace;
     private readonly AnimationViewModel _vm;
     private readonly AudioChannelDriver _channelDriver;
-    private readonly FFTCache _cache;
 
     public AudioChannelViewModel(AnimationViewModel vm, AudioChannelDriver channelDriver)
     {
         //_workspace = workspace;
         _vm = vm;
         _channelDriver = channelDriver;
-        _cache = new FFTCache(512);
         _channelDriver.SetSamplerFunction(Sampler);
     }
 
     private float Sampler(AudioChannelDriver d, double t)
     {
-        if (_vm.Clip is null)
+        if (_vm.LoadedAudioClip is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.Clip, _cache, d, t);
+        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache, d, t);
     }
 
 }

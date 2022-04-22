@@ -62,7 +62,9 @@ public partial class AnimationViewModel
     private readonly Workspace _workspace;
     private readonly Timer _realtimePlayer;
     private readonly List<Keyframe> _selectedKeyframes = new();
-    public Clip? Clip { get; private set; } = null;
+    public Clip? LoadedAudioClip { get; private set; } = null;
+    public FFTCache AudioClipCache { get; private set; }
+    [ObservableProperty] public string? _audioClipTitle = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
@@ -201,7 +203,9 @@ public partial class AnimationViewModel
         if (DialogHelper.ShowOpenSoundDialog(out string path))
         {
             var r = new RIFFWaveReader(path);
-            Clip = r.ReadClip();
+            LoadedAudioClip = r.ReadClip();
+            AudioClipCache = new FFTCache(512);//TODO: user setting?
+            AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
         }
     }
 
