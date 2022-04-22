@@ -62,8 +62,7 @@ public partial class AnimationViewModel
     private readonly Workspace _workspace;
     private readonly Timer _realtimePlayer;
     private readonly List<Keyframe> _selectedKeyframes = new();
-    private Clip clip = null;
-    private FFTCache cache = null;
+    public Clip? Clip { get; private set; } = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
@@ -108,10 +107,6 @@ public partial class AnimationViewModel
         {
             CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(value));
             _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-
-            //debug
-            var cucc = GetAudioKeyframe(0, 20000, CurrentTime.ToTimeSpan().TotalSeconds);
-            _workspace.Ifs.Iterators.First().RealParams[_workspace.Ifs.Iterators.First().RealParams.Keys.First()] = cucc*10;
 
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(CurrentTimeScrollPosition));
@@ -192,10 +187,6 @@ public partial class AnimationViewModel
             CurrentTime = TimeOnly.MinValue;
         _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
 
-        //debug
-        var cucc = GetAudioKeyframe(0, 20000, CurrentTime.ToTimeSpan().TotalSeconds);
-        _workspace.Ifs.Iterators.First().RealParams[_workspace.Ifs.Iterators.First().RealParams.Keys.First()] = cucc*10;
-
         _workspace.Renderer.InvalidateParamsBuffer();
 
         //raise..
@@ -210,30 +201,9 @@ public partial class AnimationViewModel
         if (DialogHelper.ShowOpenSoundDialog(out string path))
         {
             var r = new RIFFWaveReader(path);
-            clip = r.ReadClip();
-            cache = new FFTCache(512);
+            Clip = r.ReadClip();
         }
     }
 
-    //must be called each frame
-    public float GetAudioKeyframe(double startFreq, double endFreq, double s)
-    {
-        //TODO: channelProrotopye
-        //var channelsMatrix = Cavern.Remapping.ChannelPrototype.GetStandardMatrix(clip.Channels);
-        //channelsMatrix[0].ToString();//-> front left
-
-        //TODO: clip.Length; (seconds)
-        int position = (int)(s * clip.SampleRate);
-        float[] samples = new float[512];//2 hatványa!
-        clip.GetData(samples, 0/*left channel*/, position);
-
-        var spectrum = Measurements.FFT1D(samples, cache);
-        //0 - clip.samplingRate (=maxfreq)
-        int startBin = (int)(startFreq / clip.SampleRate * samples.Length);
-        int endBin = (int)(endFreq / clip.SampleRate * samples.Length);
-
-        //returns 0-1
-        return samples[startBin..endBin].Max();//TODO: use spectrum
-    }
 
 }

@@ -11,7 +11,7 @@ public class AudioChannelDriver
 {
     public int AudioChannelIndex { get; set; } = 0;
     public bool UsePitch { get; set; } = true;
-    public double MinFrequency { get; set; } = 20;
+    public double MinFrequency { get; set; } = 0;
     public double MaxFrequency { get; set; } = 20000;
     public double EffectMultiplier { get; set; } = 1;
     //TODO: add offset, decay, smooth params
