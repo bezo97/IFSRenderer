@@ -232,7 +232,11 @@ public partial class AnimationViewModel
     {
         CurrentTime = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
         if (CurrentTime.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
+        {
             CurrentTime = TimeOnly.MinValue;
+            if (_audioPlayer is not null)
+                _audioPlayer.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
+        }
         _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
 
         _workspace.Renderer.InvalidateParamsBuffer();
@@ -254,7 +258,32 @@ public partial class AnimationViewModel
             _audioPlayer = new MediaPlayer();
             _audioPlayer.Open(new Uri(path));
             AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
+            CreateAudioBarsDrawing();
         }
+    }
+
+    [ObservableProperty] private DrawingImage _audioBarsDrawing = default!;
+    private void CreateAudioBarsDrawing()
+    {
+        var g = new DrawingGroup();
+        const double bars_resolution = 0.1;
+        //const double bars_offset = bars_resolution * 50.0/*view scale*/;
+        for (double t = 0.0; t < LoadedAudioClip!.Length; t += bars_resolution)
+        {
+            int position = (int)(t * LoadedAudioClip.SampleRate);
+            float[] samples = new float[512];//2 hatványa!
+            LoadedAudioClip.GetData(samples, 0/*left channel*/, position);
+            float barHeight = samples.Max();
+
+            var d = new GeometryDrawing
+            {
+                Brush = new LinearGradientBrush(Color.FromRgb(55, 55, 55), Color.FromRgb(100, 100, 100), 90.0),
+                Geometry = new RectangleGeometry(new System.Windows.Rect(t * 50.0-2.5, 30 - 30 * barHeight, 4.0, 30.0))
+            };
+            g.Children.Add(d);
+        }
+        AudioBarsDrawing = new DrawingImage(g);
+        AudioBarsDrawing.Freeze();
     }
 
 

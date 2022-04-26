@@ -16,7 +16,7 @@
             <DrawingBrush.Drawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="Gray" Thickness="2"/>
+                        <Pen Brush="DarkGray" Thickness="2"/>
                     </GeometryDrawing.Pen>
                     <GeometryDrawing.Geometry>
                         <GeometryGroup>
@@ -75,6 +75,11 @@
         </Grid>
         <Grid Grid.Column="2" Grid.Row="1" Background="#333333">
             <Grid Background="#111111"/>
+            <Grid>
+                <Grid.Background>
+                    <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
+                </Grid.Background>
+            </Grid>
             <Grid Background="{StaticResource linesBrush}"/>
         </Grid>
         <ScrollViewer Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">

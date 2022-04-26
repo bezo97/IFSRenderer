@@ -16,10 +16,11 @@ internal static class CavernHelper
     /// </summary>
     /// <param name="clip"></param>
     /// <param name="cache"></param>
-    /// <param name="d"></param>
+    /// <param name="minFreq"></param>
+    /// <param name="maxFreq"></param>
     /// <param name="t"></param>
     /// <returns>Audio sample, a value between 0-1</returns>
-    public static float CavernSampler(Clip clip, FFTCache cache, AudioChannelDriver d, double t)
+    public static float CavernSampler(Clip clip, FFTCache cache, double minFreq, double maxFreq, double t)
     {
         //TODO: channelProrotopye
         //var channelsMatrix = Cavern.Remapping.ChannelPrototype.GetStandardMatrix(clip.Channels);
@@ -32,8 +33,8 @@ internal static class CavernHelper
 
         var spectrum = Measurements.FFT1D(samples, cache);
         //0 - clip.samplingRate (=maxfreq)
-        int startBin = (int)(d.MinFrequency / clip.SampleRate * samples.Length);
-        int endBin = (int)(d.MaxFrequency / clip.SampleRate * samples.Length);
+        int startBin = (int)(minFreq / clip.SampleRate * samples.Length);
+        int endBin = (int)(maxFreq / clip.SampleRate * samples.Length);
 
         return samples[startBin..endBin].Max();//TODO: use spectrum
     }
