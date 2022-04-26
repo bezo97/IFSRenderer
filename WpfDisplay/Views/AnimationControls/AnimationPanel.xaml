@@ -26,6 +26,20 @@
                 </GeometryDrawing>
             </DrawingBrush.Drawing>
         </DrawingBrush>
+        <Style x:Key="timelineButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignOutlinedLightButton}">
+            <Setter Property="Visibility" Value="Hidden" />
+            <Setter Property="Height" Value="15"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="5 0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="8"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, 
+                    RelativeSource={RelativeSource Mode=TemplatedParent}}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -76,25 +90,16 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding Name}" Grid.Column="0"/>
-                                <Button Grid.Column="1" Height="15"
+                                <Button Grid.Column="1" Style="{StaticResource timelineButtonStyle}"
+                                    Command="{Binding EditChannelCommand}">
+                                    〰️〰️
+                                </Button>
+                                <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
                                     Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
                                     CommandParameter="{Binding}">
-                                    <Button.Style>
-                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignOutlinedLightButton}">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                            <Setter Property="Padding" Value="0"/>
-                                            <Setter Property="Margin" Value="10 0"/>
-                                            <Setter Property="BorderThickness" Value="0"/>
-                                            <Setter Property="FontSize" Value="8"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=alternatingBackgroundGrid1}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
                                     ❌
                                 </Button>
                             </Grid>

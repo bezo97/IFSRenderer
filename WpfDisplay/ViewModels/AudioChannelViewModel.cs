@@ -1,4 +1,5 @@
-﻿using Cavern.Utilities;
+﻿#nullable enable
+using Cavern.Utilities;
 using IFSEngine.Animation;
 using IFSEngine.Animation.ChannelDrivers;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -31,7 +32,7 @@ public partial class AudioChannelViewModel
     {
         if (_vm.LoadedAudioClip is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache, d, t);
+        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d, t);
     }
 
 }

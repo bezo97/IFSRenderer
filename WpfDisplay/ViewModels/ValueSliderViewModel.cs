@@ -78,7 +78,7 @@ public partial class ValueSliderViewModel
         var main = (System.Windows.Application.Current.MainWindow.DataContext as MainViewModel);
         var ifs = main.workspace.Ifs;
         ifs.Dopesheet.AddOrUpdateChannel(AnimationPath, main.AnimationViewModel.CurrentTime, Value);
-        main.AnimationViewModel.RaiseChannelsPropertyChanged();
+        main.AnimationViewModel.UpdateChannels();
     }
 
 }

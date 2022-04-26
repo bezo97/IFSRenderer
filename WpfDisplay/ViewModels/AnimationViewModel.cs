@@ -13,6 +13,7 @@ using System.Windows.Input;
 using WpfDisplay.Models;
 using WpfDisplay.Helper;
 using Cavern.Utilities;
+using System.Windows.Media;
 
 namespace WpfDisplay.ViewModels;
 
@@ -47,6 +48,7 @@ public partial class ChannelViewModel
     public string Name { get; }
     public List<KeyframeViewModel> Keyframes { get; }
     public readonly Channel channel;
+    [ObservableProperty] private bool _isEditing = false;
 
     public ChannelViewModel(string name, Channel c, List<Keyframe> selectedKeyframes)
     {
@@ -54,6 +56,13 @@ public partial class ChannelViewModel
         Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k.Value, selectedKeyframes.Contains(k.Value))).ToList();
         channel = c;
     }
+
+    [ICommand]
+    public void EditChannel()
+    {
+        IsEditing = !IsEditing;
+    }
+
 }
 
 [ObservableObject]
@@ -62,21 +71,30 @@ public partial class AnimationViewModel
     private readonly Workspace _workspace;
     private readonly Timer _realtimePlayer;
     private readonly List<Keyframe> _selectedKeyframes = new();
+
+    private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
-    public FFTCache AudioClipCache { get; private set; }
+    public FFTCache? AudioClipCache { get; private set; }
     [ObservableProperty] public string? _audioClipTitle = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
-    public List<ChannelViewModel> Channels => _workspace.Ifs.Dopesheet.Channels.ToList().Select(a=> new ChannelViewModel(a.Key, a.Value, _selectedKeyframes)).ToList();
+    [ObservableProperty] private ObservableCollection<ChannelViewModel> _channels = new();
+
 
     public AnimationViewModel(Workspace workspace)
     {
         this._workspace = workspace;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.PropertyChanged += (s, e) =>
+        {
+            _selectedKeyframes.Clear();
+            UpdateChannels();
+            OnPropertyChanged(string.Empty);
+        };
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0/workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
+
     }
 
     public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * 50.0f /* * ViewScale */;
@@ -109,17 +127,19 @@ public partial class AnimationViewModel
         {
             CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(value));
             _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-
             _workspace.Renderer.InvalidateParamsBuffer();
+            if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
+                _audioPlayer.Position = TimeSpan.FromSeconds(value);
             OnPropertyChanged(nameof(CurrentTimeScrollPosition));
         },
         Increment = 1.0/60,
         MinValue = 0,
     };
 
-    public void RaiseChannelsPropertyChanged()
+    public void UpdateChannels()
     {
-        OnPropertyChanged(nameof(Channels));
+        Channels = new(_workspace.Ifs.Dopesheet.Channels.ToList()
+            .Select(a => new ChannelViewModel(a.Key, a.Value, _selectedKeyframes)));
     }
 
     private ValueSliderViewModel? _lengthSlider;
@@ -144,12 +164,19 @@ public partial class AnimationViewModel
     public void PlayPause()
     {
         _realtimePlayer.Enabled = !_realtimePlayer.Enabled;
+        if (_realtimePlayer.Enabled)
+            _audioPlayer?.Play();
+        else
+            _audioPlayer?.Pause();
     }
 
     [ICommand]
     public void JumpToStart()
     {
         _realtimePlayer.Stop();
+        _audioPlayer?.Stop();
+        if(_audioPlayer is not null)
+            _audioPlayer.Position = TimeSpan.Zero;
         CurrentTime = TimeOnly.MinValue;
         CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
@@ -160,7 +187,7 @@ public partial class AnimationViewModel
     {
         _workspace.TakeSnapshot();
         _workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
-        RaiseChannelsPropertyChanged();
+        UpdateChannels();
     }
 
     [ICommand]
@@ -179,7 +206,7 @@ public partial class AnimationViewModel
             kf.t += offset / 50.0/* / ViewScale */;
         }
         _selectedKeyframes.Clear();
-        RaiseChannelsPropertyChanged();
+        UpdateChannels();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
@@ -205,6 +232,8 @@ public partial class AnimationViewModel
             var r = new RIFFWaveReader(path);
             LoadedAudioClip = r.ReadClip();
             AudioClipCache = new FFTCache(512);//TODO: user setting?
+            _audioPlayer = new MediaPlayer();
+            _audioPlayer.Open(new Uri(path));
             AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
         }
     }
