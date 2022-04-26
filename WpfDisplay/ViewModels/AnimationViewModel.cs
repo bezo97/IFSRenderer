@@ -46,15 +46,21 @@ public partial class KeyframeViewModel
 public partial class ChannelViewModel
 {
     public string Name { get; }
-    public List<KeyframeViewModel> Keyframes { get; }
     public readonly Channel channel;
+    [ObservableProperty] private List<KeyframeViewModel> _keyframes = new();
     [ObservableProperty] private bool _isEditing = false;
 
-    public ChannelViewModel(string name, Channel c, List<Keyframe> selectedKeyframes)
+    public ChannelViewModel(string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
     {
         Name = name;
-        Keyframes = c.Keyframes.Select(k => new KeyframeViewModel(k.Value, selectedKeyframes.Contains(k.Value))).ToList();
         channel = c;
+        UpdateKeyframes(selectedKeyframes);
+    }
+
+    public void UpdateKeyframes(List<KeyframeViewModel> selectedKeyframes)
+    {
+        var sk = selectedKeyframes.Select(kvm => kvm._k).ToList();
+        Keyframes = channel.Keyframes.Select(k => new KeyframeViewModel(k.Value, sk.Contains(k.Value))).ToList();
     }
 
     [ICommand]
@@ -70,7 +76,7 @@ public partial class AnimationViewModel
 {
     private readonly Workspace _workspace;
     private readonly Timer _realtimePlayer;
-    private readonly List<Keyframe> _selectedKeyframes = new();
+    private readonly List<KeyframeViewModel> _selectedKeyframes = new();
 
     private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
@@ -182,18 +188,29 @@ public partial class AnimationViewModel
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
     }
 
+    //[ICommand]
+    public void AddOrUpdateChannel(string path, double value)
+    {
+        _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
+        var vm = Channels.FirstOrDefault(c => c.Name == path);
+        if (vm is null)//add vm
+            Channels.Add(new ChannelViewModel(path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
+        else
+            vm.UpdateKeyframes(_selectedKeyframes);
+    }
+
     [ICommand]
     public void RemoveChannel(ChannelViewModel cvm)
     {
         _workspace.TakeSnapshot();
         _workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
-        UpdateChannels();
+        Channels.Remove(cvm);
     }
 
     [ICommand]
     public void AddToSelection(KeyframeViewModel kvm)
     {
-        _selectedKeyframes.Add(kvm._k);
+        _selectedKeyframes.Add(kvm);
         kvm.IsSelected = true;
     }
 
@@ -203,10 +220,12 @@ public partial class AnimationViewModel
         _workspace.TakeSnapshot();
         foreach (var kf in _selectedKeyframes)
         {
-            kf.t += offset / 50.0/* / ViewScale */;
+            kf._k.t += offset / 50.0/* / ViewScale */;
+            kf.PositionMoveOffset = 0.0;
+            kf.IsSelected = false;
         }
+        _workspace.Renderer.InvalidateParamsBuffer();
         _selectedKeyframes.Clear();
-        UpdateChannels();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
