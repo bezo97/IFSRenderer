@@ -14,6 +14,7 @@ using WpfDisplay.Models;
 using WpfDisplay.Helper;
 using Cavern.Utilities;
 using System.Windows.Media;
+using IFSEngine.Animation.ChannelDrivers;
 
 namespace WpfDisplay.ViewModels;
 
@@ -49,11 +50,33 @@ public partial class ChannelViewModel
     public readonly Channel channel;
     [ObservableProperty] private List<KeyframeViewModel> _keyframes = new();
     [ObservableProperty] private bool _isEditing = false;
+    [ObservableProperty] private List<AudioChannelOption> _audioChannelOptions = new();
+    private AudioChannelOption _selectedAudioChannelOption = null;
+    public AudioChannelOption SelectedAudioChannelOption { 
+        get => _selectedAudioChannelOption; 
+        set
+        {
+            _selectedAudioChannelOption = value;
+            channel.AudioChannelDriver ??= new AudioChannelDriver();
+            channel.AudioChannelDriver.AudioChannelIndex = value.index;
+            if (value.index == -1)//Remove audio channel
+                channel.AudioChannelDriver = null;
+        }
+    }
+    public record AudioChannelOption(string name, int index);
 
     public ChannelViewModel(string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
     {
         Name = name;
         channel = c;
+
+        //TODO: AudioChannelOptions = audioclip.channels + no choice;
+        AudioChannelOptions = new List<AudioChannelOption> {
+            new AudioChannelOption("None", -1),
+            new AudioChannelOption("Stereo Left", 0), 
+            new AudioChannelOption("Stereo Right", 1) 
+        };
+
         UpdateKeyframes(selectedKeyframes);
     }
 

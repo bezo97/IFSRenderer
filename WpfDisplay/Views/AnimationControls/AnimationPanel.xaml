@@ -92,21 +92,33 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="alternatingBackgroundGrid1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Name}" Grid.Column="0"/>
-                                <Button Grid.Column="1" Style="{StaticResource timelineButtonStyle}"
-                                    Command="{Binding EditChannelCommand}">
-                                    〰️〰️
-                                </Button>
-                                <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
-                                    Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
-                                    CommandParameter="{Binding}">
-                                    ❌
-                                </Button>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0">
+                                        <Hyperlink Command="{Binding EditChannelCommand}" TextDecorations="None" Foreground="White">
+                                            <Run Text="{Binding Name, Mode=OneWay}" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                    <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
+                                        Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
+                                        CommandParameter="{Binding}">
+                                        ❌
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <ComboBox 
+                                        ItemsSource="{Binding AudioChannelOptions}" 
+                                        SelectedItem="{Binding SelectedAudioChannel}"
+                                        DisplayMemberPath="name" SelectedValuePath="index"/>
+                                </Grid>
                             </Grid>
                             <DataTemplate.Triggers>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
@@ -123,7 +135,11 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="alternatingBackgroundGrid2">
-                                <ItemsControl ItemsSource="{Binding Keyframes}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <Canvas Height="15" ClipToBounds="True"/>
@@ -132,7 +148,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <local:DopeButton
-                                                PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
+                                                    PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
                                                 <Style TargetType="local:DopeButton">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -152,6 +168,9 @@
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                 </ItemsControl>
+                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock>ASD</TextBlock>
+                                </Grid>
                             </Grid>
                             <DataTemplate.Triggers>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
