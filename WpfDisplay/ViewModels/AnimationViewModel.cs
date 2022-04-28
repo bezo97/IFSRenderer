@@ -47,26 +47,91 @@ public partial class KeyframeViewModel
 public partial class ChannelViewModel
 {
     public string Name { get; }
+
+    private readonly Workspace _workspace;
     public readonly Channel channel;
     [ObservableProperty] private List<KeyframeViewModel> _keyframes = new();
-    [ObservableProperty] private bool _isEditing = false;
+    [ObservableProperty] private bool _isEditing = false; 
+    [ObservableProperty] private bool _hasDetails = false;
     [ObservableProperty] private List<AudioChannelOption> _audioChannelOptions = new();
-    private AudioChannelOption _selectedAudioChannelOption = null;
+    private AudioChannelOption _selectedAudioChannelOption;
     public AudioChannelOption SelectedAudioChannelOption { 
         get => _selectedAudioChannelOption; 
         set
         {
             _selectedAudioChannelOption = value;
+            HasDetails = value.index > -1;
+            if (value.index == -1)//Remove audio channel
+            {
+                channel.AudioChannelDriver = null;
+                return;
+            }
             channel.AudioChannelDriver ??= new AudioChannelDriver();
             channel.AudioChannelDriver.AudioChannelIndex = value.index;
-            if (value.index == -1)//Remove audio channel
-                channel.AudioChannelDriver = null;
+            EffectSlider.Value = EffectSlider.Value;//ugh
+            MinFreqSlider.Value = MinFreqSlider.Value;//ugh
+            MaxFreqSlider.Value = MaxFreqSlider.Value;//ugh
         }
     }
+
+    private ValueSliderViewModel? _effectSlider;
+    public ValueSliderViewModel EffectSlider => _effectSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Effect strength",
+        ToolTip = "Effect strength",
+        DefaultValue = 1,
+        GetV = () => channel.AudioChannelDriver?.EffectMultiplier ?? 1,
+        SetV = (value) =>
+        {
+            if (channel.AudioChannelDriver is not null)
+                channel.AudioChannelDriver.EffectMultiplier = value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+        },
+        Increment = 0.01,
+        ValueWillChange = _workspace.TakeSnapshot
+    };
+
+    private ValueSliderViewModel? _minFreqSlider;
+    public ValueSliderViewModel MinFreqSlider => _minFreqSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Min. Frequency",
+        ToolTip = "Minimum Frequency",
+        DefaultValue = 0,
+        GetV = () => channel.AudioChannelDriver?.MinFrequency ?? 0,
+        SetV = (value) =>
+        {
+            if(channel.AudioChannelDriver is not null)
+                channel.AudioChannelDriver.MinFrequency = (int)value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+        },
+        Increment = 1,
+        MinValue = 0,
+        ValueWillChange = _workspace.TakeSnapshot
+    };
+
+    private ValueSliderViewModel? _maxFreqSlider;
+    public ValueSliderViewModel MaxFreqSlider => _maxFreqSlider ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "Max. Frequency",
+        ToolTip = "Maximum Frequency",
+        DefaultValue = 20000,
+        GetV = () => channel.AudioChannelDriver?.MaxFrequency ?? 0,
+        SetV = (value) =>
+        {
+            if (channel.AudioChannelDriver is not null)
+                channel.AudioChannelDriver.MaxFrequency = (int)value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+        },
+        Increment = 1,
+        MaxValue = 20000,
+        ValueWillChange = _workspace.TakeSnapshot
+    };
+
     public record AudioChannelOption(string name, int index);
 
-    public ChannelViewModel(string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
+    public ChannelViewModel(Workspace workspace, string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
     {
+        _workspace = workspace;
         Name = name;
         channel = c;
 
@@ -76,6 +141,8 @@ public partial class ChannelViewModel
             new AudioChannelOption("Stereo Left", 0), 
             new AudioChannelOption("Stereo Right", 1) 
         };
+        _selectedAudioChannelOption = AudioChannelOptions[c.AudioChannelDriver?.AudioChannelIndex ?? 0];
+        HasDetails = c.AudioChannelDriver is not null;
 
         UpdateKeyframes(selectedKeyframes);
     }
@@ -168,7 +235,7 @@ public partial class AnimationViewModel
     public void UpdateChannels()
     {
         Channels = new(_workspace.Ifs.Dopesheet.Channels.ToList()
-            .Select(a => new ChannelViewModel(a.Key, a.Value, _selectedKeyframes)));
+            .Select(a => new ChannelViewModel(_workspace, a.Key, a.Value, _selectedKeyframes)));
     }
 
     private ValueSliderViewModel? _lengthSlider;
@@ -217,7 +284,7 @@ public partial class AnimationViewModel
         _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Name == path);
         if (vm is null)//add vm
-            Channels.Add(new ChannelViewModel(path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
+            Channels.Add(new ChannelViewModel(_workspace, path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
         else
             vm.UpdateKeyframes(_selectedKeyframes);
     }

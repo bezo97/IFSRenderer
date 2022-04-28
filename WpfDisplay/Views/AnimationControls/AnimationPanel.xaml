@@ -113,11 +113,21 @@
                                         ❌
                                     </Button>
                                 </Grid>
-                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <ComboBox 
-                                        ItemsSource="{Binding AudioChannelOptions}" 
-                                        SelectedItem="{Binding SelectedAudioChannel}"
-                                        DisplayMemberPath="name" SelectedValuePath="index"/>
+                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="15,0">
+                                    <StackPanel>
+                                        <StackPanel.LayoutTransform>
+                                            <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        </StackPanel.LayoutTransform>
+                                        <ComboBox 
+                                            ItemsSource="{Binding AudioChannelOptions}" 
+                                            SelectedItem="{Binding SelectedAudioChannelOption}"
+                                            DisplayMemberPath="name" />
+                                        <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <common:ValueSlider DataContext="{Binding EffectSlider}"/>
+                                            <common:ValueSlider DataContext="{Binding MinFreqSlider}"/>
+                                            <common:ValueSlider DataContext="{Binding MaxFreqSlider}"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </Grid>
                             </Grid>
                             <DataTemplate.Triggers>
