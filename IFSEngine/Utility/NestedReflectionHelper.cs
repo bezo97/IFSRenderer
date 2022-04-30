@@ -1,75 +1,45 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IFSEngine.Utility;
 
 /// <summary>
 /// Reflection utilities to access nested properties.
-/// Based on <a href="https://stackoverflow.com/questions/48082626/set-property-in-nested-object-using-reflection">this thread</a>.
+/// Based on <a href="https://stackoverflow.com/questions/48082626/set-property-in-nested-object-using-reflection">this thread</a>, heavily modified and simplified.
 /// </summary>
 internal static class NestedReflectionHelper
 {
-
-    public static void SetPropertyValueByPath(object obj, string path, object newValue)
+    /// <param name="obj">The root object that the path applies to.</param>
+    /// <param name="propertyPath">A path to a property under the root object. Such as "[0].MyDict.[asd]".</param>
+    /// <param name="newValue">The new value to be set for the spceified property.</param>
+    public static void SetPropertyValueByPath(object obj, string propertyPath, object newValue)
     {
-        var pathSegments = path.Split('.');
-
-        if (pathSegments.Length == 1)
+        var pathSegments = new Queue<string>(propertyPath.Split('.'));
+        while(pathSegments.TryDequeue(out var segment))
         {
-            SetPropertyValue(obj, pathSegments[0], newValue);
-        }
-        else
-        {
-            ////  If more than one remaining segment, recurse
-            var child = GetPropertyValue(obj, pathSegments[0]);
-
-            SetPropertyValueByPath(child, String.Join(".", pathSegments.Skip(1)), newValue);
+            ParsePropertyPathSegment(segment, out var propName, out var index);
+            var propInfo = obj.GetType().GetProperty(propName)!;
+            if (pathSegments.Count > 0)
+                obj = propInfo.GetValue(obj, index)!;
+            else
+                propInfo.SetValue(obj, newValue, index);
         }
     }
 
-    private static object GetPropertyValue(object obj, string name)
+    private static void ParsePropertyPathSegment(string segment, out string propName, out object?[]? index)
     {
-        if (CrackPropertyName(name, out var namePart, out var indexPart))
-        {
-
-            var property = obj.GetType().GetProperty(namePart);
-            var list = property.GetValue(obj);
-            var value = list.GetType().GetProperty("Item").GetValue(list, new object[] { int.Parse(indexPart.ToString()) });
-            return value;
+        if (segment.StartsWith('['))
+        {//indexer segment
+            propName = "Item";
+            var indexString = segment.TrimStart('[').TrimEnd(']');
+            index = new object?[] { int.TryParse(indexString, out int numIndex) ? numIndex : indexString };
         }
         else
-        {
-            return obj.GetType().GetProperty(namePart).GetValue(obj);
-        }
-
-    }
-
-    private static void SetPropertyValue(object obj, string name, object newValue)
-    {
-        var property = obj.GetType().GetProperty(name);
-        property.SetValue(obj, newValue);
-    }
-
-    private static bool CrackPropertyName(string name, out string namePart, out object indexPart)
-    {
-        if (name.Contains('['))
-        {
-            namePart = name[..name.IndexOf('[', StringComparison.Ordinal)];
-
-            var leftBrace = name.IndexOf('[', StringComparison.Ordinal);
-            var rightBrace = name.IndexOf('[', StringComparison.Ordinal);
-
-            indexPart = name.Substring(leftBrace + 1, rightBrace - leftBrace - 1);
-            return true;
-        }
-        else
-        {
-            namePart = name;
-            indexPart = null;
-            return false;
+        {//property name segment
+            propName = segment;
+            index = null;
         }
     }
 

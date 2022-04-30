@@ -20,6 +20,7 @@ public partial class RealParamViewModel : ParamViewModelBase<double>
             workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 0.001,
+        AnimationPath = $"[{iterator.Id}].RealParams.[{Name}]",
         ValueWillChange = workspace.TakeSnapshot,
     };
 

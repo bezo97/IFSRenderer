@@ -49,6 +49,8 @@ public class IFS
     protected HashSet<Iterator> iterators = new();
     protected List<Author> authors = new();
 
+    public Iterator this[int iteratorId] => Iterators.First(i=> i.Id == iteratorId);
+
     /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
     public void AddIterator(Iterator newIterator, bool connect)
     {

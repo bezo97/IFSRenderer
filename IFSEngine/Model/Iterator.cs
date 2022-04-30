@@ -8,6 +8,7 @@ namespace IFSEngine.Model;
 
 public class Iterator
 {
+    public int Id { get; init; } = RandHelper.Next();
     public string Name { get; set; } = null;
     public Transform Transform { get; private set; }
     public Dictionary<string, double> RealParams { get; private set; } = new();
@@ -25,6 +26,12 @@ public class Iterator
     /// <remarks>Custom serialization logic implemented in <see cref="Serialization.IfsConverter"/></remarks>
     [JsonIgnore]
     public Dictionary<Iterator, double> WeightTo { get; set; } = new Dictionary<Iterator, double>();
+
+    //public double this[int iteratorId] 
+    //{
+    //    get => WeightTo.First(i => i.Key.Id == iteratorId).Value;
+    //    set => WeightTo[WeightTo.Keys.First(i => i.Id == iteratorId)] = value;
+    //}
 
     public Iterator() { }
     public Iterator(Transform tf)
