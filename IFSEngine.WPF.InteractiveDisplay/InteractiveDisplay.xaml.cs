@@ -176,7 +176,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 rotateVec.Z = -rotateVec.Z;
 
             //camera rotation speed depends on field of view
-            float rotateSpeed = Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+            float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
             rotateVec = Vector3.Multiply(rotateVec, new Vector3(rotateSpeed, rotateSpeed, 1.0f));
 
             Renderer.LoadedParams.Camera.FocusDistance += fdDelta * Renderer.LoadedParams.Camera.FocusDistance * 0.03;
@@ -228,7 +228,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     pitchDelta = -pitchDelta;
 
                 //camera rotation speed depends on field of view
-                float rotateSpeed = Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+                float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
                 yawDelta *= rotateSpeed;
                 pitchDelta *= rotateSpeed;
 

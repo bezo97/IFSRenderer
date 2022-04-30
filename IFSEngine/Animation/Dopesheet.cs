@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using IFSEngine.Model;
+using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,69 +59,71 @@ public class Dopesheet
         {
             var val = channel.EvaluateAt(t.ToTimeSpan() / TimeSpan.FromSeconds(1));
 
+            NestedReflectionHelper.SetPropertyValueByPath(targetIfs, path, val);
+
             //[45][5].Brightness.X
             //[45][5]
             //[2].Brightness
             //[1].Orientation.X
-            var m = Regex.Match(path, @"^(?:\[(\d+)\])*(?:\.?(\w+))+");
-            string? iteratorIndex = m.Groups[1].Captures.FirstOrDefault()?.Value;
-            string? xaosToIndex = m.Groups[1].Captures.Skip(1).FirstOrDefault()?.Value;
-            string? propName = m.Groups[2].Captures.FirstOrDefault()?.Value;
-            string? propField = m.Groups[2].Captures.Skip(1).FirstOrDefault()?.Value;
+            //var m = Regex.Match(path, @"^(?:\[(\d+)\])*(?:\.?(\w+))+");
+            //string? iteratorIndex = m.Groups[1].Captures.FirstOrDefault()?.Value;
+            //string? xaosToIndex = m.Groups[1].Captures.Skip(1).FirstOrDefault()?.Value;
+            //string? propName = m.Groups[2].Captures.FirstOrDefault()?.Value;
+            //string? propField = m.Groups[2].Captures.Skip(1).FirstOrDefault()?.Value;
 
-            if (xaosToIndex is not null)
-            {//xaos weight animation
-                int fromIndex = int.Parse(iteratorIndex!);
-                int toIndex = int.Parse(xaosToIndex);
-                var listHack = targetIfs.Iterators.ToList();
-                listHack[fromIndex].WeightTo[listHack[toIndex]] = 0;
-            }
-            else if (iteratorIndex is not null)
-            {//specific iterator property or parameter
-                int indexer = int.Parse(iteratorIndex);
-                Iterator it = targetIfs.Iterators.ToList()[indexer];
+            //if (xaosToIndex is not null)
+            //{//xaos weight animation
+            //    int fromIndex = int.Parse(iteratorIndex!);
+            //    int toIndex = int.Parse(xaosToIndex);
+            //    var listHack = targetIfs.Iterators.ToList();
+            //    listHack[fromIndex].WeightTo[listHack[toIndex]] = 0;
+            //}
+            //else if (iteratorIndex is not null)
+            //{//specific iterator property or parameter
+            //    int indexer = int.Parse(iteratorIndex);
+            //    Iterator it = targetIfs.Iterators.ToList()[indexer];
 
-                if (typeof(Iterator).GetProperty(propName!) is var iteratorprop && iteratorprop is not null)
-                {//iterator property
-                    if (propField is not null)
-                    {
-                        object propVal = iteratorprop.GetValue(it, null)!;
-                        iteratorprop.GetType().GetField(propField)!.SetValue(propVal, val);
-                    }
-                    else
-                        iteratorprop.SetValue(it, val, null);
-                }
-                else
-                {//transform parameter
-                    if (propField is not null)
-                        typeof(Vector3).GetField(propField)!.SetValue(it.Vec3Params[propName], val);
-                    else
-                        it.RealParams[propName] = val;
-                }
-            }
-            else
-            {//simple property
-                if (typeof(IFS).GetProperty(path) is var ifsprop && ifsprop is not null)
-                {
-                    if (propField is not null)
-                    {
-                        object propVal = ifsprop.GetValue(targetIfs, null)!;
-                        ifsprop.GetType().GetField(propField)!.SetValue(propVal, val);
-                    }
-                    else
-                        ifsprop.SetValue(targetIfs, val, null);
-                }
-                else if (typeof(Camera).GetProperty(path) is var cameraprop && cameraprop is not null)
-                {
-                    if (propField is not null)
-                    {
-                        object propVal = cameraprop.GetValue(targetIfs.Camera, null)!;
-                        cameraprop.GetType().GetField(propField)!.SetValue(propVal, val);
-                    }
-                    else
-                        cameraprop.SetValue(targetIfs.Camera, val, null);
-                }
-            }
+            //    if (typeof(Iterator).GetProperty(propName!) is var iteratorprop && iteratorprop is not null)
+            //    {//iterator property
+            //        if (propField is not null)
+            //        {
+            //            object propVal = iteratorprop.GetValue(it, null)!;
+            //            iteratorprop.GetType().GetField(propField)!.SetValue(propVal, val);
+            //        }
+            //        else
+            //            iteratorprop.SetValue(it, val, null);
+            //    }
+            //    else
+            //    {//transform parameter
+            //        if (propField is not null)
+            //            typeof(Vector3).GetField(propField)!.SetValue(it.Vec3Params[propName], val);
+            //        else
+            //            it.RealParams[propName] = val;
+            //    }
+            //}
+            //else
+            //{//simple property
+            //    if (typeof(IFS).GetProperty(path) is var ifsprop && ifsprop is not null)
+            //    {
+            //        if (propField is not null)
+            //        {
+            //            object propVal = ifsprop.GetValue(targetIfs, null)!;
+            //            ifsprop.GetType().GetField(propField)!.SetValue(propVal, val);
+            //        }
+            //        else
+            //            ifsprop.SetValue(targetIfs, val, null);
+            //    }
+            //    else if (typeof(Camera).GetProperty(path) is var cameraprop && cameraprop is not null)
+            //    {
+            //        if (propField is not null)
+            //        {
+            //            object propVal = cameraprop.GetValue(targetIfs.Camera, null)!;
+            //            cameraprop.GetType().GetField(propField)!.SetValue(propVal, val);
+            //        }
+            //        else
+            //            cameraprop.SetValue(targetIfs.Camera, val, null);
+            //    }
+            //}
 
             //if(Regex.IsMatch(path, "^[^.[]*$"))
             //{//simple prop name

@@ -49,13 +49,14 @@ public partial class ChannelViewModel
     public string Name { get; }
 
     private readonly Workspace _workspace;
+    private readonly AnimationViewModel _vm;
     public readonly Channel channel;
     [ObservableProperty] private List<KeyframeViewModel> _keyframes = new();
     [ObservableProperty] private bool _isEditing = false; 
     [ObservableProperty] private bool _hasDetails = false;
     [ObservableProperty] private List<AudioChannelOption> _audioChannelOptions = new();
-    private AudioChannelOption _selectedAudioChannelOption;
-    public AudioChannelOption SelectedAudioChannelOption { 
+    private AudioChannelOption _selectedAudioChannelOption = default!;
+    public AudioChannelOption SelectedAudioChannelOption {
         get => _selectedAudioChannelOption; 
         set
         {
@@ -68,10 +69,18 @@ public partial class ChannelViewModel
             }
             channel.AudioChannelDriver ??= new AudioChannelDriver();
             channel.AudioChannelDriver.AudioChannelIndex = value.index;
+            channel.AudioChannelDriver.SetSamplerFunction(Sampler);
             EffectSlider.Value = EffectSlider.Value;//ugh
             MinFreqSlider.Value = MinFreqSlider.Value;//ugh
             MaxFreqSlider.Value = MaxFreqSlider.Value;//ugh
         }
+    }
+
+    private float Sampler(AudioChannelDriver d, double t)
+    {
+        if (_vm.LoadedAudioClip is null)
+            return 0.0f;
+        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.MinFrequency, d.MaxFrequency, t);
     }
 
     private ValueSliderViewModel? _effectSlider;
@@ -129,9 +138,10 @@ public partial class ChannelViewModel
 
     public record AudioChannelOption(string name, int index);
 
-    public ChannelViewModel(Workspace workspace, string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
+    public ChannelViewModel(Workspace workspace, AnimationViewModel vm, string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
     {
         _workspace = workspace;
+        _vm = vm;
         Name = name;
         channel = c;
 
@@ -141,7 +151,7 @@ public partial class ChannelViewModel
             new AudioChannelOption("Stereo Left", 0), 
             new AudioChannelOption("Stereo Right", 1) 
         };
-        _selectedAudioChannelOption = AudioChannelOptions[c.AudioChannelDriver?.AudioChannelIndex ?? 0];
+        SelectedAudioChannelOption = AudioChannelOptions[c.AudioChannelDriver?.AudioChannelIndex ?? 0];
         HasDetails = c.AudioChannelDriver is not null;
 
         UpdateKeyframes(selectedKeyframes);
@@ -235,7 +245,7 @@ public partial class AnimationViewModel
     public void UpdateChannels()
     {
         Channels = new(_workspace.Ifs.Dopesheet.Channels.ToList()
-            .Select(a => new ChannelViewModel(_workspace, a.Key, a.Value, _selectedKeyframes)));
+            .Select(a => new ChannelViewModel(_workspace, this, a.Key, a.Value, _selectedKeyframes)));
     }
 
     private ValueSliderViewModel? _lengthSlider;
@@ -284,7 +294,7 @@ public partial class AnimationViewModel
         _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Name == path);
         if (vm is null)//add vm
-            Channels.Add(new ChannelViewModel(_workspace, path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
+            Channels.Add(new ChannelViewModel(_workspace, this, path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
         else
             vm.UpdateKeyframes(_selectedKeyframes);
     }

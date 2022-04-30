@@ -16,7 +16,7 @@ public class Camera
     /// <summary>
     /// Vertical field of view in degrees. Ranges from 0 to 180 exclusive.
     /// </summary>
-    public float FieldOfView { get; set; } = 60;
+    public double FieldOfView { get; set; } = 60;
     public double Aperture { get; set; } = 0.0;
     public double FocusDistance { get; set; } = 10.0;
     public double DepthOfField { get; set; } = 0.25;
@@ -55,7 +55,7 @@ public class Camera
     {
         //Matrix4x4.CreateLookAt uses different handedness so direction vectors are inverted here to get the correct view matrix.
         var viewMatrix = Matrix4x4.CreateLookAt(Position, Position - ForwardDirection, -UpDirection);
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(1 + FieldOfView % 179), 1.0f, 0.2f, 100.0f);
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(1 + (float)FieldOfView % 179), 1.0f, 0.2f, 100.0f);
         return viewMatrix * projectionMatrix;
     }
 

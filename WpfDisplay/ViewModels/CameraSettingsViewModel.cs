@@ -24,13 +24,13 @@ public partial class CameraSettingsViewModel
         DefaultValue = IFS.Default.Camera.FieldOfView,
         GetV = () => _workspace.Ifs.Camera.FieldOfView,
         SetV = (value) => {
-            _workspace.Ifs.Camera.FieldOfView = (float)value;
+            _workspace.Ifs.Camera.FieldOfView = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
         MinValue = 1,
         MaxValue = 179,
         Increment = 0.1,
-        AnimationPath = nameof(_workspace.Ifs.Camera.FieldOfView),
+        AnimationPath = "Camera.FieldOfView",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -46,7 +46,7 @@ public partial class CameraSettingsViewModel
         },
         MinValue = 0,
         Increment = 0.0001,
-        AnimationPath = nameof(_workspace.Ifs.Camera.Aperture),
+        AnimationPath = "Camera.Aperture",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -60,7 +60,7 @@ public partial class CameraSettingsViewModel
             _workspace.Ifs.Camera.FocusDistance = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
-        AnimationPath = nameof(_workspace.Ifs.Camera.FocusDistance),
+        AnimationPath = "Camera.FocusDistance",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -76,7 +76,7 @@ public partial class CameraSettingsViewModel
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
         MinValue = 0,
-        AnimationPath = nameof(_workspace.Ifs.Camera.DepthOfField),
+        AnimationPath = "Camera.DepthOfField",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 

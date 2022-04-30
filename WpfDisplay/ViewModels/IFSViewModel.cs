@@ -103,10 +103,7 @@ public partial class IFSViewModel
             _workspace.Renderer.InvalidateHistogramBuffer();
         },
         ValueWillChange = _workspace.TakeSnapshot,
-        //AnimateCommand = new RelayCommand(() =>
-        //{
-        //    _workspace.Ifs.Dopesheet.AddOrUpdateChannel(()=>_workspace.Ifs.FogEffect, _workspace.Ifs.FogEffect);
-        //}),
+        AnimationPath = "FogEffect",
         MinValue = 0,
     };
 
