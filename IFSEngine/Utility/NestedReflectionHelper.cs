@@ -6,39 +6,53 @@ using System.Linq;
 namespace IFSEngine.Utility;
 
 /// <summary>
-/// Reflection utilities to access nested properties.
+/// Reflection utilities to access nested properties and fields.
 /// Based on <a href="https://stackoverflow.com/questions/48082626/set-property-in-nested-object-using-reflection">this thread</a>, heavily modified and simplified.
 /// </summary>
 internal static class NestedReflectionHelper
 {
     /// <param name="obj">The root object that the path applies to.</param>
-    /// <param name="propertyPath">A path to a property under the root object. Such as "[0].MyDict.[asd]".</param>
-    /// <param name="newValue">The new value to be set for the spceified property.</param>
-    public static void SetPropertyValueByPath(object obj, string propertyPath, object newValue)
+    /// <param name="memberPath">A path to a property or field under the root object. Such as "[0].MyDict.[asd]".</param>
+    /// <param name="newValue">The new value to be set for the spceified member.</param>
+    public static void SetMemberValueByPath(object obj, string memberPath, object newValue)
     {
-        var pathSegments = new Queue<string>(propertyPath.Split('.'));
+        var pathSegments = new Queue<string>(memberPath.Split('.'));
         while(pathSegments.TryDequeue(out var segment))
         {
-            ParsePropertyPathSegment(segment, out var propName, out var index);
-            var propInfo = obj.GetType().GetProperty(propName)!;
-            if (pathSegments.Count > 0)
-                obj = propInfo.GetValue(obj, index)!;
+            ParseMemberPathSegment(segment, out var memberName, out var index);
+
+            var propInfo = obj.GetType().GetProperty(memberName);
+            if (propInfo is not null)
+            {//member is a property
+                if (pathSegments.Count > 0)
+                    obj = propInfo.GetValue(obj, index)!;
+                else
+                    propInfo.SetValue(obj, newValue, index);
+            }
             else
-                propInfo.SetValue(obj, newValue, index);
+            {//member is a field
+                var fieldInfo = obj.GetType().GetField(memberName)!;
+                TypedReference reference = __makeref(obj);
+                
+                if (pathSegments.Count > 0)
+                    obj = fieldInfo.GetValue(obj)!;
+                else
+                    fieldInfo.SetValue(obj, Convert.ToSingle(newValue));//hack: cast double to float
+            }
         }
     }
 
-    private static void ParsePropertyPathSegment(string segment, out string propName, out object?[]? index)
+    private static void ParseMemberPathSegment(string segment, out string memberName, out object?[]? index)
     {
         if (segment.StartsWith('['))
-        {//indexer segment
-            propName = "Item";
+        {//property indexer segment
+            memberName = "Item";
             var indexString = segment.TrimStart('[').TrimEnd(']');
             index = new object?[] { int.TryParse(indexString, out int numIndex) ? numIndex : indexString };
         }
         else
-        {//property name segment
-            propName = segment;
+        {//member name segment
+            memberName = segment;
             index = null;
         }
     }
