@@ -150,7 +150,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     yawDelta = s.Gamepad.RightThumbX / ThumbstickValMax;
                 float pitchDelta = 0.0f;
                 if (Math.Abs(s.Gamepad.RightThumbY + 1) > Gamepad.RightThumbDeadZone * DeadZoneMultiplier)
-                    pitchDelta = s.Gamepad.RightThumbY / ThumbstickValMax;
+                    pitchDelta = - s.Gamepad.RightThumbY / ThumbstickValMax;
                 float rollDelta = 0.0f;
                 if (s.Gamepad.Buttons.HasFlag(GamepadButtons.LeftShoulder))
                     rollDelta -= 1.0f;
