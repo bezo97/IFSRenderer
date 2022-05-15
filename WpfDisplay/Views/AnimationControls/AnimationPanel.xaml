@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
              xmlns:common="clr-namespace:WpfDisplay.Views"
-             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels" xmlns:local1="clr-namespace:WpfDisplay.Views.AnimationControls"
              mc:Ignorable="d" x:Name="animationPanel"
              d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="300" d:DesignWidth="800">
@@ -73,132 +73,143 @@
             <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center"/>
             <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right"/>
         </Grid>
-        <Grid Grid.Column="2" Grid.Row="1" Background="#333333">
-            <Grid Background="#111111"/>
-            <Grid>
-                <Grid.Background>
-                    <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
-                </Grid.Background>
-            </Grid>
-            <Grid Background="{StaticResource linesBrush}"/>
-        </Grid>
-        <ScrollViewer Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid x:Name="alternatingBackgroundGrid1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0">
+        <ScrollViewer x:Name="channelHeaderScroller" Grid.Column="0" Grid.Row="2" 
+                      VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
+                      ScrollChanged="ChannelHeaderScroller_ScrollChanged">
+            <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="alternatingBackgroundGrid1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0">
                                         <Hyperlink Command="{Binding EditChannelCommand}" TextDecorations="None" Foreground="White">
                                             <Run Text="{Binding Name, Mode=OneWay}" />
                                         </Hyperlink>
-                                    </TextBlock>
-                                    <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
+                                </TextBlock>
+                                <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
                                         Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
                                         CommandParameter="{Binding}">
-                                        ❌
-                                    </Button>
-                                </Grid>
-                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="15,0">
-                                    <StackPanel>
-                                        <StackPanel.LayoutTransform>
-                                            <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                                        </StackPanel.LayoutTransform>
-                                        <ComboBox 
+                                    ❌
+                                </Button>
+                            </Grid>
+                            <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="15,0">
+                                <StackPanel>
+                                    <StackPanel.LayoutTransform>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                    </StackPanel.LayoutTransform>
+                                    <ComboBox 
                                             ItemsSource="{Binding AudioChannelOptions}" 
                                             SelectedItem="{Binding SelectedAudioChannelOption}"
                                             DisplayMemberPath="name" />
-                                        <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <common:ValueSlider DataContext="{Binding EffectSlider}"/>
-                                            <common:ValueSlider DataContext="{Binding MinFreqSlider}"/>
-                                            <common:ValueSlider DataContext="{Binding MaxFreqSlider}"/>
-                                        </StackPanel>
+                                    <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <common:ValueSlider DataContext="{Binding EffectSlider}"/>
+                                        <common:ValueSlider DataContext="{Binding MinFreqSlider}"/>
+                                        <common:ValueSlider DataContext="{Binding MaxFreqSlider}"/>
                                     </StackPanel>
-                                </Grid>
+                                </StackPanel>
                             </Grid>
-                            <DataTemplate.Triggers>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="#333333"/>
-                                </Trigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="1">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid x:Name="alternatingBackgroundGrid2">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
-                                <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <Canvas Height="15" ClipToBounds="True"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <local:DopeButton
-                                                    PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
-                                                <Style TargetType="local:DopeButton">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Button.Background" Value="Orange" />
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsSelected}" Value="False">
-                                                            <Setter Property="Button.Background" Value="Gray" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </local:DopeButton>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style>
-                                            <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                </ItemsControl>
-                                <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock>ASD</TextBlock>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="#333333"/>
+                            </Trigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
+            <Grid Width="{Binding SheetWidth}" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Background="#333333">
+                    <Grid Background="#111111"/>
+                    <Grid>
+                        <Grid.Background>
+                            <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
+                        </Grid.Background>
+                    </Grid>
+                    <Grid Background="{StaticResource linesBrush}"/>
+                </Grid>
+                <ScrollViewer x:Name="sheetScroller" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+                    <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="alternatingBackgroundGrid2"  Width="{Binding SheetWidth}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas Height="15" ClipToBounds="True"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <local:DopeButton
+                                                                PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
+                                                    <Style TargetType="local:DopeButton">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Button.Background" Value="Orange" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                                <Setter Property="Button.Background" Value="Gray" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </local:DopeButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+                                    <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Width="{Binding SheetWidth}" ClipToBounds="False">
+                                        <local1:Spectrogram HorizontalAlignment="Left"/>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                            <DataTemplate.Triggers>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                    <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="#333333"/>
-                                </Trigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                <DataTemplate.Triggers>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                        <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                        <Setter TargetName="alternatingBackgroundGrid2" Property="Background" Value="#333333"/>
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </Grid>
         </ScrollViewer>
+        <Line IsHitTestVisible="False" x:Name="DopesheetLine2" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
+            X1="{Binding CurrentTimeScrollPosition}" Y1="0"
+            X2="{Binding CurrentTimeScrollPosition}" Y2="500"
+            Stroke="#88000000"
+            StrokeThickness="3"/>
         <Line IsHitTestVisible="False" x:Name="DopesheetLine" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
             X1="{Binding CurrentTimeScrollPosition}" Y1="0"
             X2="{Binding CurrentTimeScrollPosition}" Y2="500"
             Stroke="White"
-            StrokeThickness="3"/>
+            StrokeThickness="1"/>
     </Grid>
 </UserControl>

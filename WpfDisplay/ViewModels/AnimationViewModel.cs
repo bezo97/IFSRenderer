@@ -151,7 +151,7 @@ public partial class ChannelViewModel
             new AudioChannelOption("Stereo Left", 0), 
             new AudioChannelOption("Stereo Right", 1) 
         };
-        SelectedAudioChannelOption = AudioChannelOptions[c.AudioChannelDriver?.AudioChannelIndex ?? 0];
+        SelectedAudioChannelOption = AudioChannelOptions[(c.AudioChannelDriver?.AudioChannelIndex+1) ?? 0];
         HasDetails = c.AudioChannelDriver is not null;
 
         UpdateKeyframes(selectedKeyframes);
@@ -187,6 +187,7 @@ public partial class AnimationViewModel
 
     [ObservableProperty] private ObservableCollection<ChannelViewModel> _channels = new();
 
+    public float SheetWidth => (float)_workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
     public AnimationViewModel(Workspace workspace)
     {
@@ -260,6 +261,7 @@ public partial class AnimationViewModel
             _workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
             CurrentTimeSlider.MaxValue = value;
             CurrentTimeSlider.Value = CurrentTimeSlider.Value;//TODO: ugh, raise..
+            OnPropertyChanged(nameof(SheetWidth));
         },
         Increment = 1,
         MinValue = 1,
@@ -359,6 +361,7 @@ public partial class AnimationViewModel
             _audioPlayer.Open(new Uri(path));
             AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
             CreateAudioBarsDrawing();
+            OnPropertyChanged(nameof(LoadedAudioClip));
         }
     }
 

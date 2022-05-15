@@ -36,6 +36,21 @@ internal static class CavernHelper
         int startBin = (int)(minFreq / clip.SampleRate * samples.Length);
         int endBin = (int)(maxFreq / clip.SampleRate * samples.Length);
 
-        return samples[startBin..endBin].Max();//TODO: use spectrum
+        return spectrum[startBin..endBin].Max();
+    }
+
+    public static float[] CavernSampler(Clip clip, FFTCache cache, double t)
+    {
+        //TODO: channelProrotopye
+        //var channelsMatrix = Cavern.Remapping.ChannelPrototype.GetStandardMatrix(clip.Channels);
+        //channelsMatrix[0].ToString();//-> front left
+
+        //TODO: clip.Length; (seconds)
+        int position = (int)(t * clip.SampleRate);
+        float[] samples = new float[512];//2 hatványa!
+        clip.GetData(samples, 0/*left channel*/, position);
+
+        var spectrum = Measurements.FFT1D(samples, cache);
+        return spectrum;
     }
 }

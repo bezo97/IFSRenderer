@@ -64,4 +64,9 @@ public partial class AnimationPanel : UserControl
         ((UserControl)sender).ReleaseMouseCapture();
         _dragp = new Point(0, 0);
     }
+
+    private void ChannelHeaderScroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        sheetScroller.ScrollToVerticalOffset(channelHeaderScroller.VerticalOffset);
+    }
 }
