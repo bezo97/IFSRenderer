@@ -8,7 +8,7 @@ namespace WpfDisplay.Views.Animation;
 /// <summary>
 /// Interaction logic for DopeButton.xaml
 /// </summary>
-public partial class DopeButton : UserControl
+public partial class DopeButton : Button
 {
     public Keyframe ControlPoint { get; private set; }
     public EventHandler<MouseEventArgs> OnDrag;

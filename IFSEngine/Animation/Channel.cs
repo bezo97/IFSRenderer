@@ -12,6 +12,7 @@ public class Channel
 {
     public SortedDictionary<double, Keyframe> Keyframes { get; init; } = new();
     public AudioChannelDriver? AudioChannelDriver { get; set; } = null;
+    //TODO: add other channel drivers: clamp, wrap, repeat
 
     public Channel() { }
     public Channel(Keyframe keyframe)
@@ -22,6 +23,11 @@ public class Channel
     public void AddKeyframe(Keyframe keyframe)
     {
         Keyframes[keyframe.t] = keyframe;
+    }
+
+    public void RemoveKeyframe(Keyframe keyframe)
+    {
+        Keyframes.Remove(keyframe.t);
     }
 
     public double EvaluateAt(double t)

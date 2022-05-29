@@ -21,8 +21,10 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class KeyframeViewModel
 {
+    public readonly ChannelViewModel _cvm;
     public readonly Keyframe _k;
 
+    public double KeyframeTime => _k.t;
     public float TimelinePositon => (float)_k.t * 50.0f/* * ViewScale */ + _offset;//add offset
     private float _offset;
     public double PositionMoveOffset
@@ -36,8 +38,9 @@ public partial class KeyframeViewModel
     }
     [ObservableProperty] private bool _isSelected;
 
-    public KeyframeViewModel(Keyframe k, bool isSelected)
+    public KeyframeViewModel(ChannelViewModel cvm, Keyframe k, bool isSelected)
     {
+        _cvm = cvm;
         _k = k;
         _isSelected = isSelected;
     }
@@ -51,7 +54,7 @@ public partial class ChannelViewModel
     private readonly Workspace _workspace;
     private readonly AnimationViewModel _vm;
     public readonly Channel channel;
-    [ObservableProperty] private List<KeyframeViewModel> _keyframes = new();
+    [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
     [ObservableProperty] private bool _isEditing = false; 
     [ObservableProperty] private bool _hasDetails = false;
     [ObservableProperty] private List<AudioChannelOption> _audioChannelOptions = new();
@@ -157,10 +160,17 @@ public partial class ChannelViewModel
         UpdateKeyframes(selectedKeyframes);
     }
 
+    public void RemoveKeyframe(KeyframeViewModel kfv)
+    {
+        Keyframes.Remove(kfv);
+        channel.RemoveKeyframe(kfv._k);
+    }
+
     public void UpdateKeyframes(List<KeyframeViewModel> selectedKeyframes)
     {
         var sk = selectedKeyframes.Select(kvm => kvm._k).ToList();
-        Keyframes = channel.Keyframes.Select(k => new KeyframeViewModel(k.Value, sk.Contains(k.Value))).ToList();
+        Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
+            .Select(k => new KeyframeViewModel(this, k.Value, sk.Contains(k.Value))));
     }
 
     [ICommand]
@@ -290,6 +300,17 @@ public partial class AnimationViewModel
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
     }
 
+    [ICommand]
+    public void JumpToTime(KeyframeViewModel kfv)
+    {
+        var keyframeTime = TimeSpan.FromSeconds(kfv._k.t);
+        CurrentTime = TimeOnly.FromTimeSpan(keyframeTime);
+        if (_audioPlayer is not null)
+            _audioPlayer.Position = keyframeTime;
+        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
+        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+    }
+
     //[ICommand]
     public void AddOrUpdateChannel(string path, double value)
     {
@@ -299,6 +320,14 @@ public partial class AnimationViewModel
             Channels.Add(new ChannelViewModel(_workspace, this, path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
         else
             vm.UpdateKeyframes(_selectedKeyframes);
+    }
+
+    [ICommand]
+    public void RemoveKeyframe(KeyframeViewModel kfv)
+    {
+        kfv._cvm.RemoveKeyframe(kfv);
+        _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
+        _workspace.Renderer.InvalidateParamsBuffer();
     }
 
     [ICommand]

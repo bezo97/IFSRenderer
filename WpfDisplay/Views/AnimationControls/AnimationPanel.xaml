@@ -43,7 +43,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="2"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -149,41 +149,44 @@
                     <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid x:Name="alternatingBackgroundGrid2"  Width="{Binding SheetWidth}">
+                                <Grid x:Name="alternatingBackgroundGrid2" Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
-                                    <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Canvas Height="15" ClipToBounds="True"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <local:DopeButton
-                                                                PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
-                                                    <Style TargetType="local:DopeButton">
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                <Setter Property="Button.Background" Value="Orange" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding IsSelected}" Value="False">
-                                                                <Setter Property="Button.Background" Value="Gray" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </local:DopeButton>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style>
-                                                <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
-                                            </Style>
-                                        </ItemsControl.ItemContainerStyle>
-                                    </ItemsControl>
-                                    <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Width="{Binding SheetWidth}" ClipToBounds="False">
+                                    <Border BorderThickness="0,0,0,0.5" BorderBrush="Black">
+                                        <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <Canvas Height="15" ClipToBounds="True"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <local:DopeButton
+                                                            Command="{Binding DataContext.JumpToTimeCommand, ElementName=animationPanel}" CommandParameter="{Binding}"
+                                                            PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
+                                                        <Style TargetType="local:DopeButton">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Button.Background" Value="Orange" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                                    <Setter Property="Button.Background" Value="Gray" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </local:DopeButton>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemContainerStyle>
+                                                <Style>
+                                                    <Setter Property="Canvas.Left" Value="{Binding TimelinePositon}"/>
+                                                </Style>
+                                            </ItemsControl.ItemContainerStyle>
+                                        </ItemsControl>
+                                    </Border>
+                                    <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}" ClipToBounds="False">
                                         <local1:Spectrogram HorizontalAlignment="Left"/>
                                     </Grid>
                                 </Grid>
@@ -199,17 +202,17 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                <Line IsHitTestVisible="False" x:Name="DopesheetLine2" Grid.RowSpan="2"
+                    X1="{Binding CurrentTimeScrollPosition}" Y1="0"
+                    X2="{Binding CurrentTimeScrollPosition}" Y2="500"
+                    Stroke="#88000000"
+                    StrokeThickness="3"/>
+                <Line IsHitTestVisible="False" x:Name="DopesheetLine" Grid.RowSpan="2"
+                    X1="{Binding CurrentTimeScrollPosition}" Y1="0"
+                    X2="{Binding CurrentTimeScrollPosition}" Y2="500"
+                    Stroke="White"
+                    StrokeThickness="1"/>
             </Grid>
         </ScrollViewer>
-        <Line IsHitTestVisible="False" x:Name="DopesheetLine2" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
-            X1="{Binding CurrentTimeScrollPosition}" Y1="0"
-            X2="{Binding CurrentTimeScrollPosition}" Y2="500"
-            Stroke="#88000000"
-            StrokeThickness="3"/>
-        <Line IsHitTestVisible="False" x:Name="DopesheetLine" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
-            X1="{Binding CurrentTimeScrollPosition}" Y1="0"
-            X2="{Binding CurrentTimeScrollPosition}" Y2="500"
-            Stroke="White"
-            StrokeThickness="1"/>
     </Grid>
 </UserControl>
