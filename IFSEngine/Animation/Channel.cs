@@ -10,24 +10,24 @@ namespace IFSEngine.Animation;
 
 public class Channel
 {
-    public SortedDictionary<double, Keyframe> Keyframes { get; init; } = new();
+    public List<Keyframe> Keyframes { get; init; } = new();
     public AudioChannelDriver? AudioChannelDriver { get; set; } = null;
     //TODO: add other channel drivers: clamp, wrap, repeat
 
     public Channel() { }
     public Channel(Keyframe keyframe)
     {
-        Keyframes[keyframe.t] = keyframe;
+        Keyframes.Add(keyframe);
     }
 
     public void AddKeyframe(Keyframe keyframe)
     {
-        Keyframes[keyframe.t] = keyframe;
+        Keyframes.Add(keyframe);
     }
 
     public void RemoveKeyframe(Keyframe keyframe)
     {
-        Keyframes.Remove(keyframe.t);
+        Keyframes.Remove(keyframe);
     }
 
     public double EvaluateAt(double t)
@@ -35,7 +35,7 @@ public class Channel
         //var interpolationMode = _keyframes.Where(c => c.t < t).MaxBy(c=>c.t).InterpolationMode;
         //TODO: Interpolation Mode
 
-        double eval = new LinearCurveImplementation().Evaluate(t, Keyframes.Values.ToList());
+        double eval = new LinearCurveImplementation().Evaluate(t, Keyframes.OrderBy(k=>k.t).ToList());
 
         if(AudioChannelDriver is not null)
         {

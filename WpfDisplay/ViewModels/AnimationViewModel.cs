@@ -170,7 +170,7 @@ public partial class ChannelViewModel
     {
         var sk = selectedKeyframes.Select(kvm => kvm._k).ToList();
         Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
-            .Select(k => new KeyframeViewModel(this, k.Value, sk.Contains(k.Value))));
+            .Select(k => new KeyframeViewModel(this, k, sk.Contains(k))));
     }
 
     [ICommand]
