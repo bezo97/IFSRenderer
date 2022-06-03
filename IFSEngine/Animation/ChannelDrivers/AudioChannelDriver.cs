@@ -9,7 +9,7 @@ namespace IFSEngine.Animation.ChannelDrivers;
 
 public class AudioChannelDriver
 {
-    public int AudioChannelIndex { get; set; } = 0;
+    public int AudioChannelId { get; set; } = 0;
     public bool UsePitch { get; set; } = true;
     public double MinFrequency { get; set; } = 0;
     public double MaxFrequency { get; set; } = 20000;

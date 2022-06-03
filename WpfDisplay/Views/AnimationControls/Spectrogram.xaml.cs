@@ -33,7 +33,7 @@ public partial class Spectrogram : UserControl
             {
                 if (ee.PropertyName == nameof(vm.LoadedAudioClip))
                 {
-                    var sampler = (double t) => CavernHelper.CavernSampler(vm.LoadedAudioClip, vm.AudioClipCache, t);
+                    var sampler = (double t) => CavernHelper.CavernSampler(vm.LoadedAudioClip, vm.AudioClipCache, 0/*TODO*/, t);
                     DrawSpectrogram(sampler, 50.0);
                 }
             };
@@ -44,9 +44,9 @@ public partial class Spectrogram : UserControl
     public void DrawSpectrogram(Func<double, float[]> sampler, double viewScale)
     {
         grid.Width = viewScale * vm.LoadedAudioClip!.Length;
-
         int wres = (int)(10 * vm.LoadedAudioClip!.Length);
-        byte[] pxs = new byte[wres * 256];
+        int hres = CavernHelper.defaultSamplingResolution / 2;
+        byte[] pxs = new byte[wres * hres];
         for (int t = 0; t < wres; t++)
         {
             var samples = sampler(t / (double)wres * vm.LoadedAudioClip!.Length);
@@ -58,7 +58,7 @@ public partial class Spectrogram : UserControl
                 pxs[t + f * wres] = c;
             }
         }
-        var bmp = BitmapSource.Create(wres, 256, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
+        var bmp = BitmapSource.Create(wres, hres, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
         bmp.Freeze();
         brush.Dispatcher.Invoke(() =>
         {

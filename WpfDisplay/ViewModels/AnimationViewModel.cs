@@ -15,6 +15,7 @@ using WpfDisplay.Helper;
 using Cavern.Utilities;
 using System.Windows.Media;
 using IFSEngine.Animation.ChannelDrivers;
+using Cavern.Remapping;
 
 namespace WpfDisplay.ViewModels;
 
@@ -71,7 +72,7 @@ public partial class ChannelViewModel
                 return;
             }
             channel.AudioChannelDriver ??= new AudioChannelDriver();
-            channel.AudioChannelDriver.AudioChannelIndex = value.index;
+            channel.AudioChannelDriver.AudioChannelId = value.index;
             channel.AudioChannelDriver.SetSamplerFunction(Sampler);
             EffectSlider.Value = EffectSlider.Value;//ugh
             MinFreqSlider.Value = MinFreqSlider.Value;//ugh
@@ -83,7 +84,7 @@ public partial class ChannelViewModel
     {
         if (_vm.LoadedAudioClip is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.MinFrequency, d.MaxFrequency, t);
+        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
     }
 
     private ValueSliderViewModel? _effectSlider;
@@ -154,7 +155,7 @@ public partial class ChannelViewModel
             new AudioChannelOption("Stereo Left", 0), 
             new AudioChannelOption("Stereo Right", 1) 
         };
-        SelectedAudioChannelOption = AudioChannelOptions[(c.AudioChannelDriver?.AudioChannelIndex+1) ?? 0];
+        SelectedAudioChannelOption = AudioChannelOptions[(c.AudioChannelDriver?.AudioChannelId+1) ?? 0];
         HasDetails = c.AudioChannelDriver is not null;
 
         UpdateKeyframes(selectedKeyframes);
@@ -190,7 +191,8 @@ public partial class AnimationViewModel
 
     private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
-    public FFTCache? AudioClipCache { get; private set; }
+    public FFTCache? AudioClipCache { get; private set; } = null;
+    public ReferenceChannel[] LoadedAudioChannels { get; private set; } = Array.Empty<ReferenceChannel>();
     [ObservableProperty] public string? _audioClipTitle = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
@@ -385,12 +387,14 @@ public partial class AnimationViewModel
         {
             var r = new RIFFWaveReader(path);
             LoadedAudioClip = r.ReadClip();
-            AudioClipCache = new FFTCache(512);//TODO: user setting?
+            AudioClipCache = new FFTCache(CavernHelper.defaultSamplingResolution);
+            LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(LoadedAudioClip.Channels);
             _audioPlayer = new MediaPlayer();
             _audioPlayer.Open(new Uri(path));
             AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
             CreateAudioBarsDrawing();
             OnPropertyChanged(nameof(LoadedAudioClip));
+            OnPropertyChanged(nameof(LoadedAudioChannels));
         }
     }
 

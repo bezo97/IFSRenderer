@@ -1,6 +1,5 @@
 ﻿using Cavern;
 using Cavern.Utilities;
-using IFSEngine.Animation.ChannelDrivers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,9 @@ namespace WpfDisplay.Helper;
 
 internal static class CavernHelper
 {
+    //must be pow of 2
+    public static readonly int defaultSamplingResolution = 512;
+
     /// <summary>
     /// <a href="https://github.com/VoidXH/Cavern">Cavern repo</a>
     /// </summary>
@@ -20,37 +22,29 @@ internal static class CavernHelper
     /// <param name="maxFreq"></param>
     /// <param name="t"></param>
     /// <returns>Audio sample, a value between 0-1</returns>
-    public static float CavernSampler(Clip clip, FFTCache cache, double minFreq, double maxFreq, double t)
+    public static float CavernSampler(Clip clip, FFTCache cache, int channelId, double minFreq, double maxFreq, double t)
     {
-        //TODO: channelProrotopye
-        //var channelsMatrix = Cavern.Remapping.ChannelPrototype.GetStandardMatrix(clip.Channels);
-        //channelsMatrix[0].ToString();//-> front left
-
-        //TODO: clip.Length; (seconds)
-        int position = (int)(t * clip.SampleRate);
-        float[] samples = new float[512];//2 hatványa!
-        clip.GetData(samples, 0/*left channel*/, position);
-
+        t = Math.Clamp(t, 0, clip.Length);
+        int samplePosition = (int)(t * clip.SampleRate);
+        float[] samples = new float[defaultSamplingResolution];
+        clip.GetData(samples, channelId, samplePosition);
         var spectrum = Measurements.FFT1D(samples, cache);
-        //0 - clip.samplingRate (=maxfreq)
+
         int startBin = (int)(minFreq / clip.SampleRate * samples.Length);
         int endBin = (int)(maxFreq / clip.SampleRate * samples.Length);
+        endBin = Math.Clamp(endBin, startBin+1, clip.SampleRate);
 
         return spectrum[startBin..endBin].Max();
     }
 
-    public static float[] CavernSampler(Clip clip, FFTCache cache, double t)
+    public static float[] CavernSampler(Clip clip, FFTCache cache, int channelId, double t)
     {
-        //TODO: channelProrotopye
-        //var channelsMatrix = Cavern.Remapping.ChannelPrototype.GetStandardMatrix(clip.Channels);
-        //channelsMatrix[0].ToString();//-> front left
-
-        //TODO: clip.Length; (seconds)
-        int position = (int)(t * clip.SampleRate);
-        float[] samples = new float[512];//2 hatványa!
-        clip.GetData(samples, 0/*left channel*/, position);
-
+        t = Math.Clamp(t, 0, clip.Length);
+        int samplePosition = (int)(t * clip.SampleRate);
+        float[] samples = new float[defaultSamplingResolution];
+        clip.GetData(samples, channelId, samplePosition);
         var spectrum = Measurements.FFT1D(samples, cache);
+
         return spectrum;
     }
 }

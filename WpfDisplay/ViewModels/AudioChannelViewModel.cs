@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using Cavern.Utilities;
-using IFSEngine.Animation;
 using IFSEngine.Animation.ChannelDrivers;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
@@ -9,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WpfDisplay.Helper;
-using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
@@ -32,7 +29,7 @@ public partial class AudioChannelViewModel
     {
         if (_vm.LoadedAudioClip is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.MinFrequency, d.MaxFrequency, t);
+        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
     }
 
 }
