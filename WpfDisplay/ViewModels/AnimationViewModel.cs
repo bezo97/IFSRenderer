@@ -57,28 +57,30 @@ public partial class ChannelViewModel
     public readonly Channel channel;
     [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
     [ObservableProperty] private bool _isEditing = false; 
-    [ObservableProperty] private bool _hasDetails = false;
-    [ObservableProperty] private List<AudioChannelOption> _audioChannelOptions = new();
-    private AudioChannelOption _selectedAudioChannelOption = default!;
-    public AudioChannelOption SelectedAudioChannelOption {
-        get => _selectedAudioChannelOption; 
+    private bool _hasDetails = false;
+    public bool HasDetails
+    { 
+        get => _hasDetails;
         set
         {
-            _selectedAudioChannelOption = value;
-            HasDetails = value.index > -1;
-            if (value.index == -1)//Remove audio channel
+            if (!value)//Remove audio channel
             {
                 channel.AudioChannelDriver = null;
-                return;
             }
-            channel.AudioChannelDriver ??= new AudioChannelDriver();
-            channel.AudioChannelDriver.AudioChannelId = value.index;
-            channel.AudioChannelDriver.SetSamplerFunction(Sampler);
-            EffectSlider.Value = EffectSlider.Value;//ugh
-            MinFreqSlider.Value = MinFreqSlider.Value;//ugh
-            MaxFreqSlider.Value = MaxFreqSlider.Value;//ugh
+            else
+            {
+                channel.AudioChannelDriver ??= new AudioChannelDriver();
+                channel.AudioChannelDriver.AudioChannelId = (int)SelectedAudioChannelOption;
+                channel.AudioChannelDriver.SetSamplerFunction(Sampler);
+                EffectSlider.Value = EffectSlider.Value;//ugh
+                MinFreqSlider.Value = MinFreqSlider.Value;//ugh
+                MaxFreqSlider.Value = MaxFreqSlider.Value;//ugh
+            }
+            SetProperty(ref _hasDetails, value);
         }
     }
+    [ObservableProperty] private List<ReferenceChannel> _audioChannelOptions = new();
+    [ObservableProperty] private ReferenceChannel _selectedAudioChannelOption = default!;
 
     private float Sampler(AudioChannelDriver d, double t)
     {
@@ -140,8 +142,6 @@ public partial class ChannelViewModel
         ValueWillChange = _workspace.TakeSnapshot
     };
 
-    public record AudioChannelOption(string name, int index);
-
     public ChannelViewModel(Workspace workspace, AnimationViewModel vm, string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
     {
         _workspace = workspace;
@@ -149,13 +149,8 @@ public partial class ChannelViewModel
         Name = name;
         channel = c;
 
-        //TODO: AudioChannelOptions = audioclip.channels + no choice;
-        AudioChannelOptions = new List<AudioChannelOption> {
-            new AudioChannelOption("None", -1),
-            new AudioChannelOption("Stereo Left", 0), 
-            new AudioChannelOption("Stereo Right", 1) 
-        };
-        SelectedAudioChannelOption = AudioChannelOptions[(c.AudioChannelDriver?.AudioChannelId+1) ?? 0];
+        AudioChannelOptions = vm.LoadedAudioChannels.ToList();
+        SelectedAudioChannelOption = (ReferenceChannel)(c.AudioChannelDriver?.AudioChannelId ?? 0);
         HasDetails = c.AudioChannelDriver is not null;
 
         UpdateKeyframes(selectedKeyframes);
