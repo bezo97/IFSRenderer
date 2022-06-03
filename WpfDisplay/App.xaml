@@ -10,6 +10,11 @@
             <ResourceDictionary.MergedDictionaries>
                 <md:BundledTheme BaseTheme="Dark" PrimaryColor="Grey" SecondaryColor="LightBlue" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml"/>
+                <ResourceDictionary>
+                    <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">
+                        <Setter Property="Foreground" Value="LightBlue"/>
+                    </Style>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
