@@ -11,7 +11,7 @@ namespace WpfDisplay.Helper;
 internal static class CavernHelper
 {
     //must be pow of 2
-    public static readonly int defaultSamplingResolution = 512;
+    public static readonly int defaultSamplingResolution = 2048;
 
     /// <summary>
     /// <a href="https://github.com/VoidXH/Cavern">Cavern repo</a>
@@ -29,6 +29,7 @@ internal static class CavernHelper
         float[] samples = new float[defaultSamplingResolution];
         clip.GetData(samples, channelId, samplePosition);
         var spectrum = Measurements.FFT1D(samples, cache);
+        WaveformUtils.Gain(spectrum, 1.0f / spectrum.Length);
 
         int startBin = (int)(minFreq / clip.SampleRate * samples.Length);
         int endBin = (int)(maxFreq / clip.SampleRate * samples.Length);
@@ -44,6 +45,7 @@ internal static class CavernHelper
         float[] samples = new float[defaultSamplingResolution];
         clip.GetData(samples, channelId, samplePosition);
         var spectrum = Measurements.FFT1D(samples, cache);
+        WaveformUtils.Gain(spectrum, 1.0f / spectrum.Length);
 
         return spectrum;
     }
