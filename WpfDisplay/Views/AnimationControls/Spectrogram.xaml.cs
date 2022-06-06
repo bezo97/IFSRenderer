@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfDisplay.ViewModels;
 using WpfDisplay.Helper;
+using Cavern.QuickEQ;
 
 namespace WpfDisplay.Views.AnimationControls;
 
@@ -50,12 +51,14 @@ public partial class Spectrogram : UserControl
         for (int t = 0; t < wres; t++)
         {
             var samples = sampler(t / (double)wres * vm.LoadedAudioClip!.Length);
-            samples = samples.Skip(samples.Length / 2).ToArray();
+            //convert to log scale
+            var endFreq = Math.Min(20000, vm.LoadedAudioClip.SampleRate * 0.95);
+            samples = GraphUtils.ConvertToGraph(samples, 4, endFreq / 2, vm.LoadedAudioClip.SampleRate, samples.Length/2);
             for (int f = 0; f < samples.Length; f++)
             {
-                var s = samples[f];
+                var s = Math.Pow(samples[f], 0.1);
                 var c = (byte)(255*Math.Clamp(s,0,1));
-                pxs[t + f * wres] = c;
+                pxs[t + (samples.Length - 1 - f) * wres] = c;
             }
         }
         var bmp = BitmapSource.Create(wres, hres, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
@@ -65,5 +68,8 @@ public partial class Spectrogram : UserControl
             brush.Source = bmp;
         });
     }
+
+
+    //TODO: on click: log scale -> linear scale, SweepGenerator.ExponentialFreqs(4, endFreq, samples.Length / 2);
 
 }
