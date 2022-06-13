@@ -14,7 +14,7 @@ public partial class CameraSettingsViewModel
     public CameraSettingsViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
     private ValueSliderViewModel _fieldOfView;

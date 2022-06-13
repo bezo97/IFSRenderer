@@ -72,7 +72,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     {
         this.workspace = workspace;
         workspace.StatusTextChanged += (s, e) => StatusBarText = e;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
         PerformanceViewModel = new PerformanceViewModel(workspace);
         QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
         IFSViewModel = new IFSViewModel(workspace);

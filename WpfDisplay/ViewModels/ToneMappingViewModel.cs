@@ -13,7 +13,7 @@ public partial class ToneMappingViewModel
     public ToneMappingViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
     private ValueSliderViewModel _brightness;

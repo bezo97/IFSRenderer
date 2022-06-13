@@ -12,7 +12,11 @@ public partial class ValueSliderViewModel
     public ValueSliderViewModel() { }
     public ValueSliderViewModel(INotifyPropertyChanged inpc)
     {
-        inpc.PropertyChanged += (s, e) => OnPropertyChanged(nameof(Value));
+        inpc.PropertyChanged += (s, e) =>
+        {
+            if ((IsAnimated && e.PropertyName == "AnimationFrame" && AnimationPath != null) || e.PropertyName == "Ifs")
+                OnPropertyChanged(nameof(Value));
+        };
     }
 
     public double Value {
@@ -35,6 +39,7 @@ public partial class ValueSliderViewModel
     public double DefaultValue { get; set; }
     public Action ValueWillChange { get; set; }
 
+    [ObservableProperty] private bool _isAnimated;
     [ObservableProperty] private string _label;
     [ObservableProperty] private string _toolTip;
     public double Increment { get; set; } = 0.1;
@@ -44,6 +49,11 @@ public partial class ValueSliderViewModel
     public static double IncrementMultiplier => 1.0
         * (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? 10 : 1)
         * (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? 0.1 : 1);
+
+    public void RaiseValueChanged()
+    {
+        OnPropertyChanged(nameof(Value));
+    }
 
     [ICommand]
     public void IncreaseValue()
@@ -71,11 +81,13 @@ public partial class ValueSliderViewModel
     }
 
     //public RelayCommand AnimateCommand { get; set; }
+    //TODO: CanExecute: AnimationPath!=null
     [ICommand]
     public void Animate()
     {
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
         main.AnimationViewModel.AddOrUpdateChannel(AnimationPath, Value);
+        IsAnimated = true;
     }
 
 }

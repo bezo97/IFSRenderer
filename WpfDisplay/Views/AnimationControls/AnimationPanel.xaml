@@ -169,7 +169,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <local:DopeButton
-                                                            Command="{Binding DataContext.JumpToTimeCommand, ElementName=animationPanel}" CommandParameter="{Binding}"
+                                                            Command="{Binding DataContext.JumpToKeyframeCommand, ElementName=animationPanel}" CommandParameter="{Binding}"
                                                             PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
                                                         <Style TargetType="local:DopeButton">
                                                             <Style.Triggers>

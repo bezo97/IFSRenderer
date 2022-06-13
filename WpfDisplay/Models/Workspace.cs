@@ -26,6 +26,7 @@ public partial class Workspace
     private List<Transform> _loadedTransforms = new();
 
     public event EventHandler<string> StatusTextChanged;
+    public event EventHandler LoadedParamsChanged;
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public Author CurrentUser { get; set; } = Author.Unknown;
@@ -44,8 +45,7 @@ public partial class Workspace
         }
     }
 
-
-    [ObservableProperty] private IFS _ifs;
+    public IFS Ifs { get; private set; }
 
     public bool IsHistoryUndoable => _tracker.IsHistoryUndoable;
     public bool IsHistoryRedoable => _tracker.IsHistoryRedoable;
@@ -94,6 +94,8 @@ public partial class Workspace
         Ifs = ifs;
         if (!Renderer.IsRendering)
             Renderer.StartRenderLoop();
+        LoadedParamsChanged?.Invoke(this, null);
+        OnPropertyChanged(nameof(Ifs));
     }
 
     public async Task LoadParamsFileAsync(string path)
@@ -115,6 +117,8 @@ public partial class Workspace
         }
         LoadParams(ifs);
     }
+
+    public void RaiseAnimationFrameChanged() => OnPropertyChanged("AnimationFrame");
 
     public void LoadBlankParams()
     {

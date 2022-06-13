@@ -23,7 +23,7 @@ public partial class PerformanceViewModel
     public PerformanceViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
         workspace.Renderer.DisplayFramebufferUpdated += (s, e) => _fpsCounter++;
         _dt = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, (s, e) => UpdateValues(), Dispatcher.CurrentDispatcher);
         _dt.Start();

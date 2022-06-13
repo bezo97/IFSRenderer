@@ -40,10 +40,11 @@ public partial class AnimationViewModel
     public AnimationViewModel(Workspace workspace)
     {
         this._workspace = workspace;
-        workspace.PropertyChanged += (s, e) =>
+        workspace.LoadedParamsChanged += (s, e) =>
         {
             _selectedKeyframes.Clear();
             UpdateChannels();
+            CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
         };
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0/workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
@@ -80,12 +81,7 @@ public partial class AnimationViewModel
         GetV = () => CurrentTime.ToTimeSpan().TotalSeconds,
         SetV = (value) =>
         {
-            CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(value));
-            _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-            _workspace.Renderer.InvalidateParamsBuffer();
-            if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
-                _audioPlayer.Position = TimeSpan.FromSeconds(value);
-            OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+            JumpToTime(value);
         },
         Increment = 1.0/60,
         MinValue = 0,
@@ -108,7 +104,6 @@ public partial class AnimationViewModel
         {
             _workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
             CurrentTimeSlider.MaxValue = value;
-            CurrentTimeSlider.Value = CurrentTimeSlider.Value;//TODO: ugh, raise..
             OnPropertyChanged(nameof(SheetWidth));
         },
         Increment = 1,
@@ -131,27 +126,31 @@ public partial class AnimationViewModel
     {
         _realtimePlayer.Stop();
         _audioPlayer?.Stop();
-        if(_audioPlayer is not null)
-            _audioPlayer.Position = TimeSpan.Zero;
-        CurrentTime = TimeOnly.MinValue;
-        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
-        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+        JumpToTime(0);
     }
 
     [ICommand]
-    public void JumpToTime(KeyframeViewModel kfv)
+    public void JumpToKeyframe(KeyframeViewModel kfv)
     {
-        var keyframeTime = TimeSpan.FromSeconds(kfv._k.t);
-        CurrentTime = TimeOnly.FromTimeSpan(keyframeTime);
-        if (_audioPlayer is not null)
-            _audioPlayer.Position = keyframeTime;
-        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
+        JumpToTime(kfv._k.t);
+    }
+
+    private void JumpToTime(double t)
+    {
+        CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
+        _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
+        _workspace.Renderer.InvalidateParamsBuffer();
+        if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
+            _audioPlayer.Position = CurrentTime.ToTimeSpan();
+        CurrentTimeSlider.RaiseValueChanged();
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+        _workspace.RaiseAnimationFrameChanged();
     }
 
     //[ICommand]
     public void AddOrUpdateChannel(string path, double value)
     {
+        _workspace.TakeSnapshot();
         _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Name == path);
         if (vm is null)//add vm
@@ -163,9 +162,11 @@ public partial class AnimationViewModel
     [ICommand]
     public void RemoveKeyframe(KeyframeViewModel kfv)
     {
+        _workspace.TakeSnapshot();
         kfv._cvm.RemoveKeyframe(kfv);
         _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
         _workspace.Renderer.InvalidateParamsBuffer();
+        _workspace.RaiseAnimationFrameChanged();
     }
 
     [ICommand]
@@ -199,21 +200,14 @@ public partial class AnimationViewModel
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
     {
-        CurrentTime = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
-        if (CurrentTime.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
+        var nextTimestep = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
+        if (nextTimestep.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
         {
-            CurrentTime = TimeOnly.MinValue;
+            nextTimestep = TimeOnly.MinValue;
             if (_audioPlayer is not null)
                 _audioPlayer.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
         }
-        _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-
-        _workspace.Renderer.InvalidateParamsBuffer();
-
-        //raise..
-        CurrentTimeSlider.Value = CurrentTimeSlider.GetV();//ugh
-        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
-
+        JumpToTime(nextTimestep.ToTimeSpan().TotalSeconds);
     }
 
     [ICommand]

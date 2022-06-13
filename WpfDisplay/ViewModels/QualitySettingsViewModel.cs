@@ -18,7 +18,7 @@ public partial class QualitySettingsViewModel
     public QualitySettingsViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
     public bool EnableDE

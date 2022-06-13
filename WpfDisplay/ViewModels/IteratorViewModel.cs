@@ -28,7 +28,7 @@ public partial class IteratorViewModel
     {
         this.iterator = iterator;
         _workspace = workspace;
-        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
     }
 

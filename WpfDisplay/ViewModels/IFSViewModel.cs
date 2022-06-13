@@ -111,7 +111,7 @@ public partial class IFSViewModel
     {
         _workspace = workspace;
         _iteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParamsBuffer();
-        workspace.PropertyChanged += (s, e) =>
+        workspace.LoadedParamsChanged += (s, e) =>
         {
             SelectedIterator = null;
             HandleIteratorsChanged();
