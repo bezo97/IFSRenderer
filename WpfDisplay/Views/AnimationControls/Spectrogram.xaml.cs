@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cavern.QuickEQ;
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using WpfDisplay.ViewModels;
 using WpfDisplay.Helper;
-using Cavern.QuickEQ;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views.AnimationControls;
 
@@ -24,6 +15,10 @@ namespace WpfDisplay.Views.AnimationControls;
 public partial class Spectrogram : UserControl
 {
     private AnimationViewModel vm => ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//ugh
+    private const int DisplayStartFreq = 4;
+    private const int DisplayEndFreqMax = 20000;
+
+
     public Spectrogram()
     {
         InitializeComponent();
@@ -44,20 +39,21 @@ public partial class Spectrogram : UserControl
 
     public void DrawSpectrogram(Func<double, float[]> sampler, double viewScale)
     {
-        grid.Width = viewScale * vm.LoadedAudioClip!.Length;
-        int wres = (int)(10 * vm.LoadedAudioClip!.Length);
+        var displayEndFreq = Math.Min(DisplayEndFreqMax, vm.LoadedAudioClip.SampleRate * 0.95) / 2.0;
+
+        int wres = (int)(viewScale * vm.LoadedAudioClip!.Length);
+        grid.Width = wres;
         int hres = CavernHelper.defaultSamplingResolution / 2;
         byte[] pxs = new byte[wres * hres];
         for (int t = 0; t < wres; t++)
         {
             var samples = sampler(t / (double)wres * vm.LoadedAudioClip!.Length);
             //convert to log scale
-            var endFreq = Math.Min(20000, vm.LoadedAudioClip.SampleRate * 0.95);
-            samples = GraphUtils.ConvertToGraph(samples, 4, endFreq / 2, vm.LoadedAudioClip.SampleRate, samples.Length/2);
+            samples = GraphUtils.ConvertToGraph(samples, DisplayStartFreq, displayEndFreq, vm.LoadedAudioClip.SampleRate, samples.Length/2);
             for (int f = 0; f < samples.Length; f++)
             {
                 var s = Math.Pow(samples[f], 0.1);
-                var c = (byte)(255*Math.Clamp(s,0,1));
+                var c = (byte)(255*Math.Clamp(s, 0, 1));
                 pxs[t + (samples.Length - 1 - f) * wres] = c;
             }
         }
