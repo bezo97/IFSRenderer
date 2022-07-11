@@ -195,4 +195,17 @@ public partial class MainWindow : Window
         }
         return null;
     }
+
+    private void dockManager_DocumentClosing(object sender, AvalonDock.DocumentClosingEventArgs e)
+    {
+        vm.workspace.LoadParams(IFS.Default);
+    }
+
+    private void LayoutRoot_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        //TODO: fix docking panel resizing
+        //SetDisplayResolution
+        //if preview -> SetHistogramScaleToDisplay
+        vm?.workspace.Renderer.InvalidateDisplay();
+    }
 }

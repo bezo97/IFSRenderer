@@ -9,6 +9,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
         xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
+        xmlns:animation="clr-namespace:WpfDisplay.Views.Animation"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Width="1920" Height="1080" WindowState="Maximized"
@@ -18,11 +19,11 @@
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
+        UseLayoutRounding="True"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
-        xmlns:animation="clr-namespace:WpfDisplay.Views.Animation"
         >
     <Window.Resources>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
@@ -48,11 +49,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="250"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-        </Grid.ColumnDefinitions>
+        
         <Menu Grid.Row="0">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -96,91 +95,174 @@
                 <MenuItem Icon="💿" Header="Check for updates..." Command="{Binding CheckUpdatesCommand}"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="300"/>
-            </Grid.ColumnDefinitions>
-            <!-- Effects -->
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
-                <StackPanel>
-                    <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
-                    <md:Card Padding="6" Margin="8">
-                        <StackPanel>
-                            <TextBlock Grid.Row="0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" >Environment</TextBlock>
-                            <Label>Background</Label>
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <xctk:ColorPicker Grid.Column="0" Margin="0,0,8,0"
-                                    SelectedColor="{Binding IFSViewModel.BackgroundColor}"
-                                    IsEnabled="{Binding IsColorPickerEnabled}"/>
-                                <CheckBox Grid.Column="1" ToolTip="Transparent background"
-                                    IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
-                            </Grid>
-                            <local:ValueSlider DataContext="{Binding IFSViewModel.FogEffect}"/>
-                        </StackPanel>
-                    </md:Card>
-                    <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
-                </StackPanel>
-            </ScrollViewer>
-            <!-- Display -->
-            <md:Card Grid.Column="1" Padding="4" Margin="8" VerticalAlignment="Stretch">
-                <Grid Background="Black">
-                    <disp:InteractiveDisplay x:Name="mainDisplay"
-                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
-                        InteractionStartedCommand="{Binding TakeSnapshotCommand}"
-                        InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
-                        Sensitivity="{Binding Sensitivity}"
-                        InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
-                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
-                        Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
-                        Width="50" Height="50"
-                        IsIndeterminate="True"/>
-                </Grid>
-            </md:Card>
-            <!-- Render Settings -->
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
-                                Command="{Binding StartStopRenderingCommand}"
-                                Content="{Binding IsRenderingIcon}"
-                                ToolTip="Resume/Pause rendering (Pause key)"/>
-                        <local:TitleBox Grid.Column="1"/>
-                    </Grid>
-                    <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
-                    <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
-        <!-- Animation -->
-        <md:Card Grid.Row="2" Padding="6" Margin="8" VerticalAlignment="Stretch">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Animation" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-                <animation:AnimationPanel Grid.Row="1" DataContext="{Binding AnimationViewModel}"/>
-            </Grid>
-        </md:Card>
+
+        <DockingManager x:Name="dockManager"
+            Grid.Row="1"
+            AllowMixedOrientation="True"
+            AutoWindowSizeWhenOpened="True"
+            DocumentClosing="dockManager_DocumentClosing"
+            IsVirtualizingAnchorable="True"
+            IsVirtualizingDocument="True">
+            <DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DataContext.IFSTitle, ElementName=mainWindow, Mode=OneWay, StringFormat='\{0\}'}"/>
+                </DataTemplate>
+            </DockingManager.DocumentHeaderTemplate>
+            <LayoutRoot PropertyChanged="LayoutRoot_PropertyChanged">
+                <LayoutPanel Orientation="Vertical">
+                    <LayoutPanel Orientation="Horizontal">
+                        <!--Left Side-->
+                        <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="200">
+                            <LayoutAnchorablePane DockHeight="*">
+                                <LayoutAnchorable
+                                    Title="Tonemapping" ToolTip="Tonemapping" ContentId="Tonemapping"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                        <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                            <LayoutAnchorablePane DockHeight="auto">
+                                <LayoutAnchorable
+                                    Title="Environment" ToolTip="Environment" ContentId="Environment"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                        <StackPanel>
+                                            <Label>Background</Label>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <xctk:ColorPicker Grid.Column="0" Margin="0,0,8,0"
+                                                    SelectedColor="{Binding IFSViewModel.BackgroundColor}"
+                                                    IsEnabled="{Binding IsColorPickerEnabled}"/>
+                                                <CheckBox Grid.Column="1" ToolTip="Transparent background"
+                                                    IsChecked="{Binding TransparentBackground}">🙾🙾</CheckBox>
+                                            </Grid>
+                                            <local:ValueSlider DataContext="{Binding IFSViewModel.FogEffect}"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                            <LayoutAnchorablePane DockHeight="*">
+                                <LayoutAnchorable
+                                    Title="Camera" ToolTip="Camera" ContentId="Camera"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                        <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
+                                <LayoutAnchorable
+                                    Title="Camera Transform" ToolTip="Camera Transform" ContentId="Camera Transform"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    Under construction 🏗️
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                        </LayoutAnchorablePaneGroup>
+                        <!--Middle-->
+                        <LayoutPanel Orientation="Vertical">
+                            <LayoutDocumentPaneGroup>
+                                <LayoutDocumentPane>
+                                    <LayoutDocument
+                                        ContentId="mainDocument"
+                                        IconSource="/Resources/icon_128.png">
+                                        <Grid Background="Black">
+                                            <disp:InteractiveDisplay x:Name="mainDisplay"
+                                                Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
+                                                InteractionStartedCommand="{Binding TakeSnapshotCommand}"
+                                                InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
+                                                Sensitivity="{Binding Sensitivity}"
+                                                InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
+                                            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
+                                                Width="50" Height="50"
+                                                IsIndeterminate="True"/>
+                                        </Grid>
+                                    </LayoutDocument>
+                                </LayoutDocumentPane>
+                            </LayoutDocumentPaneGroup>
+                            <LayoutAnchorablePaneGroup DockHeight="300">
+                                <LayoutAnchorablePane>
+                                    <LayoutAnchorable
+                                    Title="Animations" ToolTip="Animations" ContentId="Animations"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                        <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
+                                    </LayoutAnchorable>
+                                </LayoutAnchorablePane>
+                            </LayoutAnchorablePaneGroup>
+                        </LayoutPanel>
+                        <!--Right Side-->
+                        <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="250">
+                            <LayoutAnchorablePane>
+                                <LayoutAnchorable
+                                    Title="Quality Settings" ToolTip="Quality Settings" ContentId="Quality Settings"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
+                                                    Command="{Binding StartStopRenderingCommand}"
+                                                    Content="{Binding IsRenderingIcon}"
+                                                    ToolTip="Resume/Pause rendering (Pause key)"/>
+                                                <local:TitleBox Grid.Column="1"/>
+                                            </Grid>
+                                            <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
+                                <!--<LayoutAnchorable
+                                    Title="asd" ToolTip="asd" ContentId="asd"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <Button Width="200" Height="300">other settings</Button>
+                                </LayoutAnchorable>-->
+                            </LayoutAnchorablePane>
+                            <LayoutAnchorablePane>
+                                <LayoutAnchorable
+                                    Title="Performance" ToolTip="Performance" ContentId="Performance"
+                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                        <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                        </LayoutAnchorablePaneGroup>
+                    </LayoutPanel>
+                </LayoutPanel>
+
+                <!--<LayoutRoot.LeftSide>
+                    <LayoutAnchorSide>
+                        <LayoutAnchorGroup>
+                            <LayoutAnchorable
+                                Title="AutoHide1 Content"
+                                ContentId="AutoHide1Content"
+                                IconSource="/Resources/icon_128.png">
+                                <TextBox Text="{Binding TestTimer, Mode=OneWay, StringFormat='AutoHide Attached to Timer ->\{0\}'}" />
+                            </LayoutAnchorable>
+                            <LayoutAnchorable Title="AutoHide2 Content" ContentId="AutoHide2Content">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox />
+                                    <TextBox />
+                                </StackPanel>
+                            </LayoutAnchorable>
+                        </LayoutAnchorGroup>
+                    </LayoutAnchorSide>
+                </LayoutRoot.LeftSide>-->
+                
+            </LayoutRoot>
+        </DockingManager>
+
         <md:Card Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
             <StatusBar Background="Transparent">
                 <StatusBarItem>
                     <TextBlock
                         Text="{Binding StatusBarText, NotifyOnTargetUpdated=True}"
                         Foreground="LightGray">
-                        <!--<TextBlock.Triggers>
+                        <TextBlock.Triggers>
                             <EventTrigger RoutedEvent="Binding.TargetUpdated">
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -188,10 +270,11 @@
                                     </Storyboard>
                                 </BeginStoryboard>
                             </EventTrigger>
-                        </TextBlock.Triggers>-->
+                        </TextBlock.Triggers>
                     </TextBlock>
                 </StatusBarItem>
             </StatusBar>
         </md:Card>
+
     </Grid>
 </Window>

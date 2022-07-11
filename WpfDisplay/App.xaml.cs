@@ -23,7 +23,7 @@ public partial class App : Application
     public static string OpenVerbPath { get; private set; }
 
 #if INSTALLER
-        public static string AppDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "IFSRenderer");
+    public static string AppDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "IFSRenderer");
 #endif
 #if PORTABLE
     public static string AppDataPath { get; } = AppDomain.CurrentDomain.BaseDirectory;
