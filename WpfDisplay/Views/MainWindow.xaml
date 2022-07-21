@@ -113,7 +113,7 @@
                     <LayoutPanel Orientation="Horizontal">
                         <!--Left Side-->
                         <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="200">
-                            <LayoutAnchorablePane DockHeight="*">
+                            <LayoutAnchorablePane x:Name="tonemappingPane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Tonemapping" ToolTip="Tonemapping" ContentId="Tonemapping"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
@@ -122,7 +122,7 @@
                                     </ScrollViewer>
                                 </LayoutAnchorable>
                             </LayoutAnchorablePane>
-                            <LayoutAnchorablePane DockHeight="auto">
+                            <LayoutAnchorablePane x:Name="environmentPane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Environment" ToolTip="Environment" ContentId="Environment"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
@@ -221,7 +221,7 @@
                                     <Button Width="200" Height="300">other settings</Button>
                                 </LayoutAnchorable>-->
                             </LayoutAnchorablePane>
-                            <LayoutAnchorablePane>
+                            <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Performance" ToolTip="Performance" ContentId="Performance"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">

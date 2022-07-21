@@ -29,6 +29,8 @@ public partial class MainWindow : Window
 
     private async void MainWindow_ContentRendered(object sender, System.EventArgs e)
     {
+        FixAutoDockHeight();
+
         //init workspace
         var renderer = new RendererGL(mainDisplay.GraphicsContext);
         mainDisplay.AttachRenderer(renderer);
@@ -52,6 +54,17 @@ public partial class MainWindow : Window
         }
 
         DataContext = new MainViewModel(workspace);
+
+    }
+
+    /// <summary>
+    /// ad hoc fix for issue <a href="https://github.com/Dirkster99/AvalonDock/issues/298"/>
+    /// </summary>
+    private void FixAutoDockHeight()
+    {
+        tonemappingPane.DockHeight = GridLength.Auto;
+        environmentPane.DockHeight = GridLength.Auto;
+        performancePane.DockHeight = GridLength.Auto;
     }
 
     private async void GeneratorButton_Click(object sender, RoutedEventArgs e)
