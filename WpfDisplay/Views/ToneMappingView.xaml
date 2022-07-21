@@ -9,14 +9,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="250"
              x:Name="toneMappingView"
+             Padding="8"
              d:DataContext="{d:DesignInstance Type=vm:ToneMappingViewModel, IsDesignTimeCreatable=False}">
-    <md:Card Padding="6" Margin="8">
-        <StackPanel>
-            <TextBlock Text="Tone mapping" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <local:ValueSlider DataContext="{Binding Brightness}"/>
-            <local:ValueSlider DataContext="{Binding Gamma}"/>
-            <local:ValueSlider DataContext="{Binding GammaThreshold}"/>
-            <local:ValueSlider DataContext="{Binding Vibrancy}"/>
-        </StackPanel>
-    </md:Card>
+    <StackPanel>
+        <local:ValueSlider DataContext="{Binding Brightness}"/>
+        <local:ValueSlider DataContext="{Binding Gamma}"/>
+        <local:ValueSlider DataContext="{Binding GammaThreshold}"/>
+        <local:ValueSlider DataContext="{Binding Vibrancy}"/>
+    </StackPanel>
 </UserControl>

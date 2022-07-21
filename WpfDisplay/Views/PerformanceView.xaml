@@ -5,23 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignWidth="350"
              x:Name="performanceView"
+             Padding="8"
              d:DataContext="{d:DesignInstance Type=vm:PerformanceViewModel}">
-    <md:Card Padding="10" Margin="8">
-        <StackPanel>
-            <TextBlock Text="Performance" Margin="4 0 0 10"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}" />
-            <TextBlock Foreground="White" FontSize="16">
-                    Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/> fps
-                    <LineBreak/>
-                    Workload size: <Run Text="{Binding InvocationIters, Mode=OneWay}"/> iterations
-                    <LineBreak/>
-                    Iteration speed: <Run Text="{Binding IterationSpeed, Mode=OneWay}"/>
-                    <LineBreak/>
-                    Total iterations: <Run Text="{Binding TotalIterations, Mode=OneWay}"/>
-            </TextBlock>
-        </StackPanel>
-    </md:Card>
+    <StackPanel>
+        <TextBlock Foreground="White" FontSize="16">
+                Framerate: <Run Text="{Binding Fps, Mode=OneWay}"/> fps
+                <LineBreak/>
+                Workload size: <Run Text="{Binding InvocationIters, Mode=OneWay}"/> iterations
+                <LineBreak/>
+                Iteration speed: <Run Text="{Binding IterationSpeed, Mode=OneWay}"/>
+                <LineBreak/>
+                Total iterations: <Run Text="{Binding TotalIterations, Mode=OneWay}"/>
+        </TextBlock>
+    </StackPanel>
 </UserControl>

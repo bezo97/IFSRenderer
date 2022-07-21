@@ -127,7 +127,7 @@
                                     Title="Environment" ToolTip="Environment" ContentId="Environment"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
                                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                                        <StackPanel>
+                                        <StackPanel Margin="8">
                                             <Label>Background</Label>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -200,18 +200,18 @@
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
                                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                         <StackPanel>
-                                            <Grid>
+                                            <Grid Margin="4">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Button Grid.Column="0" Margin="8" Width="45" FontWeight="ExtraBold"
+                                                <Button Grid.Column="0" Margin="4" Width="45" FontWeight="ExtraBold"
                                                     Command="{Binding StartStopRenderingCommand}"
                                                     Content="{Binding IsRenderingIcon}"
                                                     ToolTip="Resume/Pause rendering (Pause key)"/>
-                                                <local:TitleBox Grid.Column="1"/>
+                                                <local:TitleBox Grid.Column="1" Margin="4"/>
                                             </Grid>
-                                            <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
+                                            <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}" Margin="4,0,4,4"/>
                                         </StackPanel>
                                     </ScrollViewer>
                                 </LayoutAnchorable>

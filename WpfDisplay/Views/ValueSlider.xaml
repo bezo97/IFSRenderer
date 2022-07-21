@@ -7,7 +7,7 @@
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="50" d:DesignWidth="125"
+             d:DesignHeight="60" d:DesignWidth="125"
              d:DataContext="{d:DesignInstance Type=vm:ValueSliderViewModel, IsDesignTimeCreatable=True}"
              x:Name="valueSlider"
              ToolTip="{Binding ToolTip}"
@@ -24,9 +24,11 @@
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
+        <Grid Height="25">
         <Label Grid.Column="0" IsTabStop="False"
                Content="{Binding Label}" 
                Visibility="{Binding Label, Converter={StaticResource nullVisibilityConverter}}"/>
+        </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
@@ -39,7 +41,7 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Down_Click">-</Button>
-            <Label x:Name="displayLabel" Grid.Column="1" 
+            <Label x:Name="displayLabel" Grid.Column="1"
                    Content="{Binding Value}"
                    ContentStringFormat="N4"
                    Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}" 
