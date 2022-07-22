@@ -209,9 +209,10 @@ float random(inout uint nextSample)
 
 vec2 Project(camera_params c, vec4 p, inout uint next)
 {
+    //discard behind camera
 	vec3 pointDir = normalize(p.xyz - c.position.xyz);
 	if (dot(pointDir, c.forward.xyz) < 0.0)
-		return ivec2(-2, -2);
+		return vec2(-2.0, -2.0);
 
 	vec4 normalizedPoint = c.view_proj_mat * vec4(p.xyz, 1.0f);
 	normalizedPoint /= normalizedPoint.w;
@@ -222,6 +223,11 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 	float ra = random(next);
 	float rl = random(next);
 	normalizedPoint.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+
+    //discard at edges
+    vec2 cl = clamp(normalizedPoint.xy, vec2(-1.0), vec2(1.0));
+    if(length(normalizedPoint.xy - cl) != 0.0)
+        return vec2(-2.0, -2.0);
 
 	return vec2(
 		(normalizedPoint.x + 1) * width / 2.0f - 0.5,
@@ -404,65 +410,61 @@ void main() {
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.iteration_depth++;
 
-		if (selected_iterator.opacity == 0.0)
+		if (p.iteration_depth < settings.warmup || selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
 
 		//perspective project
 		vec2 projf = Project(settings.camera, p.pos, next);
-		ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
-		vec2 proj_offset = projf - vec2(proj);
+        if (projf.x == -2.0)
+            continue;//out of frame
+        ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
 	
-		//lands on the histogram && warmup
-		if (proj.x >= 0 && proj.x < width && proj.y >= 0 && proj.y < height && (settings.warmup < p.iteration_depth))
+		vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
+
+		//TODO: this is the same as dof
+		float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.depth_of_field);
+
+		if (settings.fog_effect > 0.0f)
+		{//optional fog effect
+			float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.depth_of_field)));
+			fog_mask = clamp(fog_mask, 0.0, 1.0);
+			color.w *= fog_mask;
+		}
+		if (color.w == 0.0)
+			continue;//avoid useless histogram writes
+
+		//mark plane of focus
+		//if (defocus == 0.0)
+			//color.rgb = vec3(2.0, 0.0, 0.0);
+
+		color.xyz *= color.w;
+
+		if (settings.max_filter_radius > 0/* && proj.x>width/2*/)
 		{
-			vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
+			//TODO: determine filter_radius based on settings.filter_method
+			const int filter_radius = int(settings.max_filter_radius);
 
-			//TODO: this is the same as dof
-			float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.depth_of_field);
-
-			if (settings.fog_effect > 0.0f)
-			{//optional fog effect
-				float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.depth_of_field)));
-				fog_mask = clamp(fog_mask, 0.0, 1.0);
-				color.w *= fog_mask;
-			}
-			if (color.w == 0.0)
-				continue;//avoid useless histogram writes
-
-			//mark plane of focus
-			//if (defocus == 0.0)
-				//color.rgb = vec3(2.0, 0.0, 0.0);
-
-			color.xyz *= color.w;
-
-			if (settings.max_filter_radius > 0/* && proj.x>width/2*/)
+			//for (int ax = -filter_radius; ax <= filter_radius; ax++)
+			int ax = -filter_radius + int(random(next) * 2 * filter_radius);
 			{
-				//TODO: determine filter_radius based on settings.filter_method
-				const int filter_radius = int(settings.max_filter_radius);
-
-				//for (int ax = -filter_radius; ax <= filter_radius; ax++)
-				int ax = -filter_radius + int(random(next) * 2 * filter_radius);
+				//for (int ay = -filter_radius; ay <= filter_radius; ay++)
+				int ay = -filter_radius + int(random(next) * 2 * filter_radius);
 				{
-					//for (int ay = -filter_radius; ay <= filter_radius; ay++)
-					int ay = -filter_radius + int(random(next) * 2 * filter_radius);
-					{
-						vec2 nb = vec2(proj + ivec2(ax, ay));
-						float pd = distance(nb, projf);
+					vec2 nb = vec2(proj + ivec2(ax, ay));
+					float pd = distance(nb, projf);
 
-						//TODO: use settings.filter_method to pick one
-						//float aw = max(0.0, 1.0-pd);
-						//float aw = max(0.0, Lanczos(pd, 2));
-						float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
-						if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
-							accumulate_hit(ivec2(nb), aw * color);
-					}
+					//TODO: use settings.filter_method to pick one
+					//float aw = max(0.0, 1.0-pd);
+					//float aw = max(0.0, Lanczos(pd, 2));
+					float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
+					if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
+						accumulate_hit(ivec2(nb), aw * color);
 				}
 			}
-			else
-			{
-				accumulate_hit(proj, color);
-			}
-
+		}
+		else
+		{
+			accumulate_hit(proj, color);
 		}
 	
 	}
