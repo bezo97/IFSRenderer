@@ -1,13 +1,10 @@
-﻿using IFSEngine;
-using Microsoft.Toolkit.Mvvm.Input;
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using IFSEngine.Rendering;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -106,15 +103,17 @@ public partial class ValueSlider : UserControl
 
     private void DisplayLabel_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        var delta = (e.GetPosition(Window.GetWindow(this)) - _dragp);
-
-        if (Math.Abs(delta.Length) < 1)
-        {//click
-            StartEditing();
-        }
-        else
+        if (e.ChangedButton == MouseButton.Left)
         {
-            SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y)+20);
+            var delta = (e.GetPosition(Window.GetWindow(this)) - _dragp);
+            if (Math.Abs(delta.Length) < 1)
+            {//click
+                StartEditing();
+            }
+            else
+            {
+                SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y) + 20);
+            }
         }
         Mouse.OverrideCursor = null;//no override
         displayLabel.ReleaseMouseCapture();
