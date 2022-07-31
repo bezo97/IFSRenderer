@@ -82,10 +82,12 @@ public partial class ValueSliderViewModel
 
     //public RelayCommand AnimateCommand { get; set; }
     //TODO: CanExecute: AnimationPath!=null
+    //TODO: Bind from outside
     [ICommand]
     public void Animate()
     {
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
+        main.workspace.TakeSnapshot();
         main.AnimationViewModel.AddOrUpdateChannel(AnimationPath, Value);
         IsAnimated = true;
     }

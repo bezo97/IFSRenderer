@@ -147,10 +147,8 @@ public partial class AnimationViewModel
         _workspace.RaiseAnimationFrameChanged();
     }
 
-    //[ICommand]
     public void AddOrUpdateChannel(string path, double value)
     {
-        _workspace.TakeSnapshot();
         _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Name == path);
         if (vm is null)//add vm

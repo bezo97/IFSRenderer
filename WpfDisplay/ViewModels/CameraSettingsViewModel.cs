@@ -1,6 +1,7 @@
 ﻿using IFSEngine.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using System.Numerics;
 using System.Windows.Input;
 using WpfDisplay.Models;
 
@@ -16,6 +17,54 @@ public partial class CameraSettingsViewModel
         _workspace = workspace;
         _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
+
+    private ValueSliderViewModel _xPosViewModel;
+    public ValueSliderViewModel XPosViewModel => _xPosViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera position on X axis.",
+        DefaultValue = IFS.Default.Camera.Position.X,
+        GetV = () => _workspace.Ifs.Camera.Position.X,
+        SetV = (value) => {
+            _workspace.Ifs.Camera.Position = new Vector3((float)value, _workspace.Ifs.Camera.Position.Y, _workspace.Ifs.Camera.Position.Z);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(XPosViewModel));
+        },
+        Increment = 0.01,
+        AnimationPath = "Camera.Position.X",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _yPosViewModel;
+    public ValueSliderViewModel YPosViewModel => _yPosViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera position on Y axis.",
+        DefaultValue = IFS.Default.Camera.Position.Y,
+        GetV = () => _workspace.Ifs.Camera.Position.Y,
+        SetV = (value) => {
+            _workspace.Ifs.Camera.Position = new Vector3(_workspace.Ifs.Camera.Position.X, (float)value, _workspace.Ifs.Camera.Position.Z);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(YPosViewModel));
+        },
+        Increment = 0.01,
+        AnimationPath = "Camera.Position.Y",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _zPosViewModel;
+    public ValueSliderViewModel ZPosViewModel => _zPosViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera position on Z axis.",
+        DefaultValue = IFS.Default.Camera.Position.Z,
+        GetV = () => _workspace.Ifs.Camera.Position.Z,
+        SetV = (value) => {
+            _workspace.Ifs.Camera.Position = new Vector3(_workspace.Ifs.Camera.Position.X, _workspace.Ifs.Camera.Position.Y, (float)value);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(ZPosViewModel));
+        },
+        Increment = 0.01,
+        AnimationPath = "Camera.Position.Z",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
     private ValueSliderViewModel _fieldOfView;
     public ValueSliderViewModel FieldOfView => _fieldOfView ??= new ValueSliderViewModel(_workspace)
@@ -90,6 +139,20 @@ public partial class CameraSettingsViewModel
         FocusDistance.Value = FocusDistance.DefaultValue;
         DepthOfField.Value = DepthOfField.DefaultValue;
         _workspace.Renderer.InvalidateHistogramBuffer();
+    }
+
+    [ICommand]
+    private void AnimateCamera()
+    {
+        _workspace.TakeSnapshot();
+        var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.X", _workspace.Ifs.Camera.Position.X);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
     }
 
     public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);///?

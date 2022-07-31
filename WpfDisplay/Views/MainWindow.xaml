@@ -156,7 +156,7 @@
                                 <LayoutAnchorable
                                     Title="Camera Transform" ToolTip="Camera Transform" ContentId="Camera Transform"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    Under construction 🏗️
+                                    <local:CameraNavigationPanel DataContext="{Binding CameraSettingsViewModel}"/>
                                 </LayoutAnchorable>
                             </LayoutAnchorablePane>
                         </LayoutAnchorablePaneGroup>
