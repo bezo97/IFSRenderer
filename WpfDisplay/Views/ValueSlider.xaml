@@ -24,11 +24,9 @@
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
-        <Grid Height="25">
-        <Label Grid.Column="0" IsTabStop="False"
+        <Label IsTabStop="False"
                Content="{Binding Label}" 
                Visibility="{Binding Label, Converter={StaticResource nullVisibilityConverter}}"/>
-        </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
@@ -55,7 +53,7 @@
                      Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      MouseDoubleClick="valueEditor_MouseDoubleClick"
-                     PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus">
+                     PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus" LostKeyboardFocus="valueEditor_LostKeyboardFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>

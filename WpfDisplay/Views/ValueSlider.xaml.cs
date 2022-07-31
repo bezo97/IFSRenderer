@@ -72,11 +72,6 @@ public partial class ValueSlider : UserControl
         }
     }
 
-    private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
-    {
-        Editing = false;
-    }
-
     private Point _dragp;
     private double _lastv;//value before editing
 
@@ -103,8 +98,7 @@ public partial class ValueSlider : UserControl
             if (VisualTreeHelper.HitTest(this, e.GetPosition(displayLabel)) == null)
             {
                 _lastv = vm.Value;
-                var pos = displayLabel.PointToScreen(new Point(displayLabel.ActualWidth / 2, displayLabel.ActualHeight / 2));
-                SetCursorPos((int)pos.X, (int)pos.Y);
+                SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y));
             }
         }
 
@@ -112,11 +106,15 @@ public partial class ValueSlider : UserControl
 
     private void DisplayLabel_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
+        var delta = (e.GetPosition(Window.GetWindow(this)) - _dragp);
 
-        if (Math.Abs(delta) < 1)
+        if (Math.Abs(delta.Length) < 1)
         {//click
             StartEditing();
+        }
+        else
+        {
+            SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y)+20);
         }
         Mouse.OverrideCursor = null;//no override
         displayLabel.ReleaseMouseCapture();
@@ -144,4 +142,15 @@ public partial class ValueSlider : UserControl
         vm.ResetValue();
         StartEditing();
     }
+
+    private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
+    {
+        Editing = false;
+    }
+
+    private void valueEditor_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        Editing = false;
+    }
+
 }
