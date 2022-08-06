@@ -17,20 +17,34 @@ public class Dopesheet
     public TimeSpan Length { get; set; } = TimeSpan.FromSeconds(10);//should be private set!
     public int Fps { get; set; } = 30;
 
+    private double keyframeEpsilon => 1.0 / Fps;
+
     public void AddOrUpdateChannel(string path, TimeOnly time, double value)
     {
-        var keyframe = new Keyframe
-        {
-            InterpolationMode = "Linear",
-            t = time.ToTimeSpan().TotalSeconds,
-            Value = value
-        };
-
+        var t = time.ToTimeSpan().TotalSeconds;
         if (Channels.TryGetValue(path, out var channel))
-            channel.AddKeyframe(keyframe);
+        {
+            if (channel.Keyframes.Find(k => Math.Abs(k.t - t) <= keyframeEpsilon) is var kf and not null)
+            {
+                kf.Value = value;
+            }
+            else
+            {
+                channel.Keyframes.Add(new Keyframe
+                {
+                    t = t,
+                    Value = value
+                });
+            }
+        }
         else
-            Channels[path] = new Channel(keyframe);
-
+        {
+            Channels[path] = new Channel(new Keyframe
+            {
+                t = t,
+                Value = value
+            });
+        }
     }
 
     public void EvaluateAt(IFS targetIfs, TimeOnly t)

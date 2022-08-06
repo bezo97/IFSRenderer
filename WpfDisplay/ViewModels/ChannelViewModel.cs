@@ -125,7 +125,7 @@ public partial class ChannelViewModel
     public void RemoveKeyframe(KeyframeViewModel kfv)
     {
         Keyframes.Remove(kfv);
-        channel.RemoveKeyframe(kfv._k);
+        channel.Keyframes.Remove(kfv._k);
     }
 
     public void UpdateKeyframes(List<KeyframeViewModel> selectedKeyframes)
