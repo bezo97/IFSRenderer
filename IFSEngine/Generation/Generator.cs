@@ -93,9 +93,9 @@ public class Generator
         if (options.MutatePalette)
         {
             //TODO: params
-            var bias = RandomVector(0.2f, 0.8f);
-            var mult = RandomVector(0.4f, 1.2f);
-            var freq = RandomVector(0.1f, 0.5f);
+            var bias = RandomVector(0.4f, 0.8f);
+            var mult = RandomVector(0.2f, 1.2f);
+            var freq = RandomVector(0.1f, 1.0f);
             var phase = RandomVector(0.0f, 1.0f);
             gen.Palette = PaletteFromIqParams(bias, mult, freq, phase);
         }
@@ -167,10 +167,8 @@ public class Generator
                 (float)Math.Cos(2 * Math.PI * (t * freq.Y + phase.Y)),
                 (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
                 1.0f);
-            float maxComponent = Math.Max(Math.Max(c.X, c.Y), c.Z);
-            c = Vector4.Divide(c, maxComponent);
             c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
-            colors.Add(c);
+            colors.Add(HsvToRgb(c));
         }
 
         return new FlamePalette
@@ -178,6 +176,22 @@ public class Generator
             Name = "Generated Palette",
             Colors = colors
         };
+    }
+
+    private static Vector4 HueToRgb(float hue)
+    {
+        double R = Math.Abs(hue * 6 - 3) - 1;
+        double G = 2 - Math.Abs(hue * 6 - 2);
+        double B = 2 - Math.Abs(hue * 6 - 4);
+        R = Math.Clamp(R, 0.0, 1.0);
+        G = Math.Clamp(G, 0.0, 1.0);
+        B = Math.Clamp(B, 0.0, 1.0);
+        return new Vector4((float)R, (float)G, (float)B, 1.0f);
+    }
+    private static Vector4 HsvToRgb(Vector4 hsv)
+    {
+        Vector4 rgb = HueToRgb(hsv.X);
+        return ((rgb - Vector4.One) * hsv.Y + Vector4.One) * hsv.Z;
     }
 
     private static Vector4 RandomVector(float min, float max)
