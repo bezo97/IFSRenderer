@@ -78,7 +78,7 @@ public partial class ToneMappingViewModel
             _workspace.Ifs.Vibrancy = value;
             _workspace.Renderer.InvalidateDisplay();
         },
-        Increment = 0.05,
+        Increment = 0.005,
         AnimationPath = nameof(_workspace.Ifs.Vibrancy),
         ValueWillChange = _workspace.TakeSnapshot,
     };
