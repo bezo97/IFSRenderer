@@ -95,7 +95,8 @@ public partial class ValueSlider : UserControl
             if (VisualTreeHelper.HitTest(this, e.GetPosition(displayLabel)) == null)
             {
                 _lastv = vm.Value;
-                SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y));
+                var pos = Window.GetWindow(this).PointToScreen(_dragp);
+                SetCursorPos((int)Math.Round(pos.X), (int)Math.Round(pos.Y));
             }
         }
 
@@ -112,7 +113,8 @@ public partial class ValueSlider : UserControl
             }
             else
             {
-                SetCursorPos((int)Math.Round(_dragp.X), (int)Math.Round(_dragp.Y) + 20);
+                var pos = Window.GetWindow(this).PointToScreen(_dragp);
+                SetCursorPos((int)Math.Round(pos.X), (int)Math.Round(pos.Y));
             }
         }
         Mouse.OverrideCursor = null;//no override
