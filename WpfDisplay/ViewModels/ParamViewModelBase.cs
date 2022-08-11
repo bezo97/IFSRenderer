@@ -1,5 +1,5 @@
 ﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;

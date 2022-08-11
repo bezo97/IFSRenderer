@@ -1,6 +1,6 @@
 ﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -83,6 +83,6 @@ public partial class ToneMappingViewModel
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    [ICommand]
+    [RelayCommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();
 }

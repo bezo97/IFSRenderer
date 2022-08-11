@@ -1,6 +1,6 @@
 ﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -205,7 +205,7 @@ public partial class QualitySettingsViewModel
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private void PreviewPreset()
     {
         _workspace.Renderer.SetHistogramScaleToDisplay();
@@ -216,7 +216,7 @@ public partial class QualitySettingsViewModel
         OnPropertyChanged(nameof(PreviewResolutionText));
     }
 
-    [ICommand]
+    [RelayCommand]
     private void FinalPreset()
     {
         EnableTAA = false;

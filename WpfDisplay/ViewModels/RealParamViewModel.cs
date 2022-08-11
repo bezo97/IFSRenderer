@@ -1,10 +1,8 @@
 ﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
 public partial class RealParamViewModel : ParamViewModelBase<double>
 {
     public RealParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
@@ -15,7 +13,8 @@ public partial class RealParamViewModel : ParamViewModelBase<double>
         Label = Name,
         DefaultValue = iterator.Transform.RealParams[Name],
         GetV = () => iterator.RealParams[Name],
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.RealParams[Name] = value;
             workspace.Renderer.InvalidateParamsBuffer();
         },

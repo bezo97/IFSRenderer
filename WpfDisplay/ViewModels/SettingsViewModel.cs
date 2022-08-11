@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -19,7 +19,7 @@ internal partial class SettingsViewModel
         _mainvm = mainvm;
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task OkDialog()
     {
         Settings.Default.Save();//writes user.config in AppData
@@ -29,7 +29,7 @@ internal partial class SettingsViewModel
         SettingsSaved?.Invoke(this, null);
     }
 
-    [ICommand]
+    [RelayCommand]
     private void CancelDialog()
     {
         Settings.Default.Reload();

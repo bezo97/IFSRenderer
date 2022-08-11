@@ -1,6 +1,6 @@
 ﻿using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Numerics;
 using System.Windows.Input;
 using WpfDisplay.Models;
@@ -129,7 +129,7 @@ public partial class CameraSettingsViewModel
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    [ICommand]
+    [RelayCommand]
     private void ResetCamera()
     {
         _workspace.TakeSnapshot();
@@ -141,7 +141,7 @@ public partial class CameraSettingsViewModel
         _workspace.Renderer.InvalidateHistogramBuffer();
     }
 
-    [ICommand]
+    [RelayCommand]
     private void AnimateCamera()
     {
         _workspace.TakeSnapshot();

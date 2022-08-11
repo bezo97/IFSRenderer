@@ -1,7 +1,7 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Utility;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -84,7 +84,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         workspace.UpdateStatusText($"Initialized");
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task StartStopRendering()
     {
         if (workspace.Renderer.IsRendering)
@@ -100,7 +100,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
-    [ICommand]
+    [RelayCommand]
     private void New()
     {
         workspace.LoadBlankParams();
@@ -108,7 +108,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
-    [ICommand]
+    [RelayCommand]
     private void LoadRandom()
     {
         workspace.LoadRandomParams();
@@ -116,7 +116,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task SaveParams()
     {
         if (DialogHelper.ShowSaveParamsDialog(workspace.Ifs.Title, out string path))
@@ -136,7 +136,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task LoadParams()
     {
         if (DialogHelper.ShowOpenParamsDialog(out string path))
@@ -145,14 +145,14 @@ public sealed partial class MainViewModel : IAsyncDisposable
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private void CopyClipboardParams()
     {
         workspace.CopyToClipboard();
         workspace.UpdateStatusText("Parameters copied to Clipboard");
     }
 
-    [ICommand]
+    [RelayCommand]
     private void PasteClipboardParams()
     {
         try
@@ -170,7 +170,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     /// <summary>
     /// From a drag & drop operation.
     /// </summary>
-    [ICommand]
+    [RelayCommand]
     private async Task DropParams(string path)
     {
         await LoadParamsFromFile(path);
@@ -223,7 +223,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         return bs;
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task ExportToClipboard()
     {
         BitmapSource bs = await GetExportBitmapSource();
@@ -235,7 +235,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         workspace.UpdateStatusText($"Image exported to clipboard");
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task SaveImage()
     {
         workspace.UpdateStatusText($"Exporting...");
@@ -259,7 +259,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         GC.Collect();
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task SaveExr()
     {
         workspace.UpdateStatusText($"Exporting...");
@@ -280,13 +280,13 @@ public sealed partial class MainViewModel : IAsyncDisposable
         GC.Collect();
     }
 
-    [ICommand]
+    [RelayCommand]
     private void TakeSnapshot() => workspace.TakeSnapshot();
 
-    [ICommand]
+    [RelayCommand]
     private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();
 
-    [ICommand]
+    [RelayCommand]
     private async Task CloseWorkspace()
     {
         //TODO: prompt to save work?
@@ -296,7 +296,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
 
     public async ValueTask DisposeAsync() => await workspace.Renderer.DisposeAsync();
 
-    [ICommand]
+    [RelayCommand]
     private void VisitIssues()
     {
         //Open the Issues page in user's default browser
@@ -304,7 +304,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void VisitForum()
     {
         //Open the Discussions page in user's default browser
@@ -312,7 +312,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void ReportBug()
     {
         //Open the bug report template in user's default browser
@@ -320,7 +320,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void CheckUpdates()
     {
         //Open the Releases page in user's default browser
@@ -328,7 +328,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void VisitWiki()
     {
         //Open the Wiki page in user's default browser

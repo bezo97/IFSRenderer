@@ -1,7 +1,7 @@
 ﻿using IFSEngine.Model;
 using IFSEngine.Utility;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -261,10 +261,10 @@ public partial class IteratorViewModel
 
     public void FinishConnecting() => ConnectingEnded?.Invoke(this, null);
 
-    [ICommand]
+    [RelayCommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();
 
-    [ICommand]
+    [RelayCommand]
     private void FlipOpacity()
     {
         _workspace.TakeSnapshot();
@@ -275,7 +275,7 @@ public partial class IteratorViewModel
 
     }
 
-    [ICommand]
+    [RelayCommand]
     private void FlipWeight()
     {
         _workspace.TakeSnapshot();

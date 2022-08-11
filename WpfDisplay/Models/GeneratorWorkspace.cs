@@ -1,7 +1,7 @@
 ﻿using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

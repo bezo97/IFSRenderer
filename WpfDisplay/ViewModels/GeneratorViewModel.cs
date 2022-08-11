@@ -1,8 +1,8 @@
 ﻿using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Utility;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -86,7 +86,7 @@ public partial class GeneratorViewModel
 
     public async Task Initialize() => await _workspace.Initialize();
 
-    [ICommand]
+    [RelayCommand]
     private void SendToMain(IFS generated_params)
     {
         IFS param = generated_params.DeepClone();
@@ -94,7 +94,7 @@ public partial class GeneratorViewModel
         _mainvm.workspace.LoadParams(param);
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task GenerateRandomBatch()
     {
         _workspace.GenerateNewRandomBatch(_options);
@@ -103,7 +103,7 @@ public partial class GeneratorViewModel
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task Pin(IFS param)
     {
         if (param == null)//pin ifs from main if commandparam not provided
@@ -115,7 +115,7 @@ public partial class GeneratorViewModel
         OnPropertyChanged(nameof(PinnedIFSThumbnails));
     }
 
-    [ICommand]
+    [RelayCommand]
     private void Unpin(IFS param)
     {
         _workspace.UnpinIFS(param);

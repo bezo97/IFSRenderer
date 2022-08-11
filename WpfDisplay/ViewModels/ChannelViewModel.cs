@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using IFSEngine.Animation;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -135,7 +135,7 @@ public partial class ChannelViewModel
             .Select(k => new KeyframeViewModel(this, k, sk.Contains(k))));
     }
 
-    [ICommand]
+    [RelayCommand]
     public void EditChannel()
     {
         IsEditing = !IsEditing;

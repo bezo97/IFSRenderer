@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using IFSEngine.Model;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -218,7 +218,7 @@ public partial class IFSViewModel
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private void AddIterator(Transform tf)
     {
         _workspace.TakeSnapshot();
@@ -234,7 +234,7 @@ public partial class IFSViewModel
         SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == newIterator);
     }
 
-    [ICommand]
+    [RelayCommand]
     private void RemoveSelected()
     {
         if (SelectedIterator != null)
@@ -255,7 +255,7 @@ public partial class IFSViewModel
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private void DuplicateSelected()
     {
         if (SelectedIterator != null)
@@ -268,7 +268,7 @@ public partial class IFSViewModel
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task LoadPalette()
     {
         if (DialogHelper.ShowOpenPaletteDialog(out string path))
@@ -278,7 +278,7 @@ public partial class IFSViewModel
     /// <summary>
     /// From a drag & drop operation.
     /// </summary>
-    [ICommand]
+    [RelayCommand]
     private async Task DropPalette(string path)
     {
         await LoadPaletteFromFile(path);
@@ -301,7 +301,7 @@ public partial class IFSViewModel
         }
     }
 
-    [ICommand]
+    [RelayCommand]
     private async Task ReloadTransforms()
     {
         try
@@ -320,7 +320,7 @@ public partial class IFSViewModel
         OnPropertyChanged(nameof(RegisteredTransforms));
     }
 
-    [ICommand]
+    [RelayCommand]
     private void OpenTransformsDirectory()
     {
         //show the directory with the os file explorer
@@ -331,7 +331,7 @@ public partial class IFSViewModel
         });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void EditTransformSource(string filePath)
     {
         //open transform source file with the preferred text editor
@@ -342,10 +342,10 @@ public partial class IFSViewModel
         });
     }
 
-    [ICommand]
+    [RelayCommand]
     private void SelectConnection(ConnectionViewModel con) => SelectedConnection = con;
 
-    [ICommand]
+    [RelayCommand]
     private void SelectIterator(IteratorViewModel it) => SelectedIterator = it;
 
     // TODO: Check how to update the canExecute delegate
@@ -364,10 +364,10 @@ public partial class IFSViewModel
             _workspace.RedoHistory();
         }, () => _workspace.IsHistoryRedoable);
 
-    [ICommand]
+    [RelayCommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();
 
-    [ICommand]
+    [RelayCommand]
     private void AutoLayoutNodes()
     {
         var vertices = _iteratorViewModels.Select(v => new Vector2((float)v.Position.X, (float)v.Position.Y)).ToList();

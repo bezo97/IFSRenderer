@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -55,21 +55,21 @@ public partial class ValueSliderViewModel
         OnPropertyChanged(nameof(Value));
     }
 
-    [ICommand]
+    [RelayCommand]
     public void IncreaseValue()
     {
         ValueWillChange?.Invoke();
         Value += Increment * IncrementMultiplier;
     }
 
-    [ICommand]
+    [RelayCommand]
     public void DecreaseValue()
     {
         ValueWillChange?.Invoke();
         Value -= Increment * IncrementMultiplier;
     }
 
-    [ICommand]
+    [RelayCommand]
     public void ResetValue()
     {
         ValueWillChange?.Invoke();
@@ -83,7 +83,7 @@ public partial class ValueSliderViewModel
     //public RelayCommand AnimateCommand { get; set; }
     //TODO: CanExecute: AnimationPath!=null
     //TODO: Bind from outside
-    [ICommand]
+    [RelayCommand]
     public void Animate()
     {
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh

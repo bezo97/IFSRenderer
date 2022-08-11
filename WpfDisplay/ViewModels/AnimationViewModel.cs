@@ -2,8 +2,8 @@
 using Cavern.Format;
 using Clip = Cavern.Clip;
 using IFSEngine.Animation;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -111,7 +111,7 @@ public partial class AnimationViewModel
         ValueWillChange = _workspace.TakeSnapshot
     };
 
-    [ICommand]
+    [RelayCommand]
     public void PlayPause()
     {
         _realtimePlayer.Enabled = !_realtimePlayer.Enabled;
@@ -121,7 +121,7 @@ public partial class AnimationViewModel
             _audioPlayer?.Pause();
     }
 
-    [ICommand]
+    [RelayCommand]
     public void JumpToStart()
     {
         _realtimePlayer.Stop();
@@ -129,7 +129,7 @@ public partial class AnimationViewModel
         JumpToTime(0);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void JumpToKeyframe(KeyframeViewModel kfv)
     {
         JumpToTime(kfv._k.t);
@@ -157,7 +157,7 @@ public partial class AnimationViewModel
             vm.UpdateKeyframes(_selectedKeyframes);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void RemoveKeyframe(KeyframeViewModel kfv)
     {
         _workspace.TakeSnapshot();
@@ -167,7 +167,7 @@ public partial class AnimationViewModel
         _workspace.RaiseAnimationFrameChanged();
     }
 
-    [ICommand]
+    [RelayCommand]
     public void RemoveChannel(ChannelViewModel cvm)
     {
         _workspace.TakeSnapshot();
@@ -175,14 +175,14 @@ public partial class AnimationViewModel
         Channels.Remove(cvm);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void AddToSelection(KeyframeViewModel kvm)
     {
         _selectedKeyframes.Add(kvm);
         kvm.IsSelected = true;
     }
 
-    [ICommand]
+    [RelayCommand]
     public void MoveSelectedKeyframes(double offset)
     {
         _workspace.TakeSnapshot();
@@ -208,7 +208,7 @@ public partial class AnimationViewModel
         JumpToTime(nextTimestep.ToTimeSpan().TotalSeconds);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void LoadAudio()
     {
         if (DialogHelper.ShowOpenSoundDialog(out string path))
