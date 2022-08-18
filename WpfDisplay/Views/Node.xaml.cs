@@ -1,5 +1,4 @@
-﻿using IFSEngine.Utility;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +14,7 @@ public partial class Node : UserControl
 {
     private IteratorViewModel vm => (IteratorViewModel)DataContext;
     private ContentPresenter _parentContainer;
-    private Vector _t;
+    private Vector? _t;
 
     public RelayCommand<IteratorViewModel> SelectCommand
     {
@@ -70,43 +69,14 @@ public partial class Node : UserControl
         };
     }
 
-    protected override void OnMouseDown(MouseButtonEventArgs e)
+    protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
     {
-        base.OnMouseDown(e);
-        e.Handled = true;
-
-        var vm = (IteratorViewModel)DataContext;
+        base.OnPreviewMouseUp(e);
+        _t = null;
         if (e.ChangedButton == MouseButton.Left)
-        {
-            _t = GetCanvasPosition() - e.GetPosition(ParentCanvas);
-            SelectCommand.Execute(vm);
-        }
-        else if (e.ChangedButton == MouseButton.Right)
-        {
-            vm.StartConnecting();
-        }
-    }
-
-    protected override void OnMouseUp(MouseButtonEventArgs e)
-    {
-        base.OnMouseUp(e);
-        e.Handled = true;
-        if (e.ChangedButton == MouseButton.Right)
         {
             var vm = (IteratorViewModel)DataContext;
             vm.FinishConnecting();
-        }
-    }
-
-    protected override void OnMouseMove(MouseEventArgs e)
-    {
-        base.OnMouseMove(e);
-        e.Handled = true;
-
-        if (e.LeftButton == MouseButtonState.Pressed)
-        {
-            e.Handled = true;
-            Position = BindablePoint.FromPoint(e.GetPosition(ParentCanvas) + _t);
         }
     }
 
@@ -115,4 +85,32 @@ public partial class Node : UserControl
         return new Point(Canvas.GetLeft(_parentContainer), Canvas.GetTop(_parentContainer));
     }
 
+    private void coloredBorderEllipse_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            e.Handled = true;
+            vm.StartConnecting();
+        }
+    }
+
+    private void ellipseBody_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            e.Handled = true;
+            var vm = (IteratorViewModel)DataContext;
+            _t = GetCanvasPosition() - e.GetPosition(ParentCanvas);
+            SelectCommand.Execute(vm);
+        }
+    }
+
+    private void ellipseBody_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed && _t is not null)
+        {
+            e.Handled = true;
+            Position = BindablePoint.FromPoint(e.GetPosition(ParentCanvas) + _t.Value);
+        }
+    }
 }
