@@ -38,7 +38,7 @@
             </Ellipse.Effect>
         </Ellipse>
         <Ellipse x:Name="ellipseBody"
-                 Stretch="UniformToFill" Cursor="Hand" Margin="5"
+                 Stretch="UniformToFill" Cursor="Hand" Margin="10"
                  MouseDown="ellipseBody_MouseDown"
                  MouseMove="ellipseBody_MouseMove">
             <Ellipse.Fill>
@@ -97,6 +97,15 @@
                 ToolTip="Remove (Delete)"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗑️
+            </Button>
+            <!--big time hack-->
+            <Button
+                IsHitTestVisible="False"
+                Width="30" Height="30" FontSize="18"
+                VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="-15"
+                ToolTip="Connect self"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                Ꝍ
             </Button>
         </Grid>
     </Grid>
