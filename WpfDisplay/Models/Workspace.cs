@@ -157,6 +157,8 @@ public partial class Workspace
         //LoadParams without taking snapshot
         Ifs = _tracker.Undo(Ifs, LoadedTransforms);
         _renderer?.LoadParams(Ifs);
+        LoadedParamsChanged?.Invoke(this, null);
+        OnPropertyChanged(nameof(Ifs));
     }
 
     public void RedoHistory()
@@ -164,6 +166,8 @@ public partial class Workspace
         //LoadParams without taking snapshot
         Ifs = _tracker.Redo(Ifs, LoadedTransforms);
         _renderer?.LoadParams(Ifs);
+        LoadedParamsChanged?.Invoke(this, null);
+        OnPropertyChanged(nameof(Ifs));
     }
 
     public void ClearHistory()
