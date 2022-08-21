@@ -21,28 +21,28 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class AnimationViewModel
 {
-    private readonly Workspace _workspace;
+    public readonly Workspace Workspace;
     private readonly Timer _realtimePlayer;
-    private readonly List<KeyframeViewModel> _selectedKeyframes = new();
+    public List<KeyframeViewModel> SelectedKeyframes { get; } = new();
 
     private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
     public FFTCache? AudioClipCache { get; private set; } = null;
-    public ReferenceChannel[] LoadedAudioChannels { get; private set; } = Array.Empty<ReferenceChannel>();
+    [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = Array.Empty<ReferenceChannel>();
     [ObservableProperty] public string? _audioClipTitle = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
     [ObservableProperty] private ObservableCollection<ChannelViewModel> _channels = new();
 
-    public float SheetWidth => (float)_workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
+    public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
     public AnimationViewModel(Workspace workspace)
     {
-        this._workspace = workspace;
+        this.Workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) =>
         {
-            _selectedKeyframes.Clear();
+            SelectedKeyframes.Clear();
             UpdateChannels();
             CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
@@ -56,24 +56,24 @@ public partial class AnimationViewModel
     public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * 50.0f /* * ViewScale */;
 
     private ValueSliderViewModel? _fpsSlider;
-    public ValueSliderViewModel FpsSlider => _fpsSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel FpsSlider => _fpsSlider ??= new ValueSliderViewModel(Workspace)
     {
         Label = "🎞 Framerate (fps)",
         ToolTip = "Frames per second",
         DefaultValue = 25,
-        GetV = () => _workspace.Ifs.Dopesheet.Fps,
+        GetV = () => Workspace.Ifs.Dopesheet.Fps,
         SetV = (value) =>
         {
-            _workspace.Ifs.Dopesheet.Fps = (int)value;
-            _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
+            Workspace.Ifs.Dopesheet.Fps = (int)value;
+            _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
         },
         Increment = 1,
         MinValue = 1,
-        ValueWillChange = _workspace.TakeSnapshot
+        ValueWillChange = Workspace.TakeSnapshot
     };
 
     private ValueSliderViewModel? _currentTimeSlider;
-    public ValueSliderViewModel CurrentTimeSlider => _currentTimeSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel CurrentTimeSlider => _currentTimeSlider ??= new ValueSliderViewModel(Workspace)
     {
         Label = "⏱️ Time (s)",
         ToolTip = "Current time in seconds",
@@ -89,26 +89,26 @@ public partial class AnimationViewModel
 
     public void UpdateChannels()
     {
-        Channels = new(_workspace.Ifs.Dopesheet.Channels.ToList()
-            .Select(a => new ChannelViewModel(_workspace, this, a.Key, a.Value, _selectedKeyframes)));
+        Channels = new(Workspace.Ifs.Dopesheet.Channels.ToList()
+            .Select(a => new ChannelViewModel(this, a.Key, a.Value)));
     }
 
     private ValueSliderViewModel? _lengthSlider;
-    public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(Workspace)
     {
         Label = "↔️ Length (s)",
         ToolTip = "Animation length in seconds",
         DefaultValue = 10,
-        GetV = () => _workspace.Ifs.Dopesheet.Length.TotalSeconds,
+        GetV = () => Workspace.Ifs.Dopesheet.Length.TotalSeconds,
         SetV = (value) =>
         {
-            _workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
+            Workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
             CurrentTimeSlider.MaxValue = value;
             OnPropertyChanged(nameof(SheetWidth));
         },
         Increment = 1,
         MinValue = 1,
-        ValueWillChange = _workspace.TakeSnapshot
+        ValueWillChange = Workspace.TakeSnapshot
     };
 
     [RelayCommand]
@@ -138,68 +138,68 @@ public partial class AnimationViewModel
     private void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
-        _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-        _workspace.Renderer.InvalidateParamsBuffer();
+        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
             _audioPlayer.Position = CurrentTime.ToTimeSpan();
         CurrentTimeSlider.RaiseValueChanged();
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
-        _workspace.RaiseAnimationFrameChanged();
+        Workspace.RaiseAnimationFrameChanged();
     }
 
     public void AddOrUpdateChannel(string path, double value)
     {
-        _workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
+        Workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Name == path);
         if (vm is null)//add vm
-            Channels.Add(new ChannelViewModel(_workspace, this, path, _workspace.Ifs.Dopesheet.Channels[path], _selectedKeyframes));
+            Channels.Add(new ChannelViewModel(this, path, Workspace.Ifs.Dopesheet.Channels[path]));
         else
-            vm.UpdateKeyframes(_selectedKeyframes);
+            vm.UpdateKeyframes();
     }
 
     [RelayCommand]
     public void RemoveKeyframe(KeyframeViewModel kfv)
     {
-        _workspace.TakeSnapshot();
+        Workspace.TakeSnapshot();
         kfv._cvm.RemoveKeyframe(kfv);
-        _workspace.Ifs.Dopesheet.EvaluateAt(_workspace.Ifs, CurrentTime);
-        _workspace.Renderer.InvalidateParamsBuffer();
-        _workspace.RaiseAnimationFrameChanged();
+        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Renderer.InvalidateParamsBuffer();
+        Workspace.RaiseAnimationFrameChanged();
     }
 
     [RelayCommand]
     public void RemoveChannel(ChannelViewModel cvm)
     {
-        _workspace.TakeSnapshot();
-        _workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
+        Workspace.TakeSnapshot();
+        Workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
         Channels.Remove(cvm);
     }
 
     [RelayCommand]
     public void AddToSelection(KeyframeViewModel kvm)
     {
-        _selectedKeyframes.Add(kvm);
+        SelectedKeyframes.Add(kvm);
         kvm.IsSelected = true;
     }
 
     [RelayCommand]
     public void MoveSelectedKeyframes(double offset)
     {
-        _workspace.TakeSnapshot();
-        foreach (var kf in _selectedKeyframes)
+        Workspace.TakeSnapshot();
+        foreach (var kf in SelectedKeyframes)
         {
             kf._k.t += offset / 50.0/* / ViewScale */;
             kf.PositionMoveOffset = 0.0;
             kf.IsSelected = false;
         }
-        _workspace.Renderer.InvalidateParamsBuffer();
-        _selectedKeyframes.Clear();
+        Workspace.Renderer.InvalidateParamsBuffer();
+        SelectedKeyframes.Clear();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
     {
-        var nextTimestep = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / _workspace.Ifs.Dopesheet.Fps));
-        if (nextTimestep.ToTimeSpan() > _workspace.Ifs.Dopesheet.Length)
+        var nextTimestep = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps));
+        if (nextTimestep.ToTimeSpan() > Workspace.Ifs.Dopesheet.Length)
         {
             nextTimestep = TimeOnly.MinValue;
             if (_audioPlayer is not null)

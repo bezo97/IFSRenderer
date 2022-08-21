@@ -113,7 +113,7 @@
                                         <TextBlock Visibility="{Binding HasDetails, Converter={StaticResource invVisible}}">Animate to audio</TextBlock>
                                     </CheckBox>
                                     <ComboBox Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            ItemsSource="{Binding AudioChannelOptions}" 
+                                            ItemsSource="{Binding AnimationVM.LoadedAudioChannels}" 
                                             SelectedItem="{Binding SelectedAudioChannelOption}"/>
                                     <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <common:ValueSlider DataContext="{Binding EffectSlider}"/>

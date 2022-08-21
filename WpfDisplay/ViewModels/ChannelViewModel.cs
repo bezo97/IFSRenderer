@@ -18,7 +18,8 @@ public partial class ChannelViewModel
 {
     public string Name { get; }
 
-    private readonly Workspace _workspace;
+    public AnimationViewModel AnimationVM => _vm;
+
     private readonly AnimationViewModel _vm;
     public readonly Channel channel;
     [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
@@ -45,7 +46,6 @@ public partial class ChannelViewModel
             SetProperty(ref _hasDetails, value);
         }
     }
-    [ObservableProperty] private List<ReferenceChannel> _audioChannelOptions = new();
     [ObservableProperty] private ReferenceChannel _selectedAudioChannelOption = default!;
 
     private float Sampler(AudioChannelDriver d, double t)
@@ -56,7 +56,7 @@ public partial class ChannelViewModel
     }
 
     private ValueSliderViewModel? _effectSlider;
-    public ValueSliderViewModel EffectSlider => _effectSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel EffectSlider => _effectSlider ??= new ValueSliderViewModel(_vm.Workspace)
     {
         Label = "Effect strength",
         ToolTip = "Effect strength",
@@ -66,14 +66,14 @@ public partial class ChannelViewModel
         {
             if (channel.AudioChannelDriver is not null)
                 channel.AudioChannelDriver.EffectMultiplier = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
+            _vm.Workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 0.01,
-        ValueWillChange = _workspace.TakeSnapshot
+        ValueWillChange = _vm.Workspace.TakeSnapshot
     };
 
     private ValueSliderViewModel? _minFreqSlider;
-    public ValueSliderViewModel MinFreqSlider => _minFreqSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel MinFreqSlider => _minFreqSlider ??= new ValueSliderViewModel(_vm.Workspace)
     {
         Label = "Min. Frequency",
         ToolTip = "Minimum Frequency",
@@ -83,15 +83,15 @@ public partial class ChannelViewModel
         {
             if(channel.AudioChannelDriver is not null)
                 channel.AudioChannelDriver.MinFrequency = (int)value;
-            _workspace.Renderer.InvalidateParamsBuffer();
+            _vm.Workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 1,
         MinValue = 0,
-        ValueWillChange = _workspace.TakeSnapshot
+        ValueWillChange = _vm.Workspace.TakeSnapshot
     };
 
     private ValueSliderViewModel? _maxFreqSlider;
-    public ValueSliderViewModel MaxFreqSlider => _maxFreqSlider ??= new ValueSliderViewModel(_workspace)
+    public ValueSliderViewModel MaxFreqSlider => _maxFreqSlider ??= new ValueSliderViewModel(_vm.Workspace)
     {
         Label = "Max. Frequency",
         ToolTip = "Maximum Frequency",
@@ -101,25 +101,23 @@ public partial class ChannelViewModel
         {
             if (channel.AudioChannelDriver is not null)
                 channel.AudioChannelDriver.MaxFrequency = (int)value;
-            _workspace.Renderer.InvalidateParamsBuffer();
+            _vm.Workspace.Renderer.InvalidateParamsBuffer();
         },
         Increment = 1,
         MaxValue = 20000,
-        ValueWillChange = _workspace.TakeSnapshot
+        ValueWillChange = _vm.Workspace.TakeSnapshot
     };
 
-    public ChannelViewModel(Workspace workspace, AnimationViewModel vm, string name, Channel c, List<KeyframeViewModel> selectedKeyframes)
+    public ChannelViewModel(AnimationViewModel vm, string name, Channel c)
     {
-        _workspace = workspace;
         _vm = vm;
         Name = name;
         channel = c;
 
-        AudioChannelOptions = vm.LoadedAudioChannels.ToList();
         SelectedAudioChannelOption = (ReferenceChannel)(c.AudioChannelDriver?.AudioChannelId ?? 0);
         HasDetails = c.AudioChannelDriver is not null;
 
-        UpdateKeyframes(selectedKeyframes);
+        UpdateKeyframes();
     }
 
     public void RemoveKeyframe(KeyframeViewModel kfv)
@@ -128,9 +126,9 @@ public partial class ChannelViewModel
         channel.Keyframes.Remove(kfv._k);
     }
 
-    public void UpdateKeyframes(List<KeyframeViewModel> selectedKeyframes)
+    public void UpdateKeyframes()
     {
-        var sk = selectedKeyframes.Select(kvm => kvm._k).ToList();
+        var sk = _vm.SelectedKeyframes.ConvertAll(kvm => kvm._k);
         Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
             .Select(k => new KeyframeViewModel(this, k, sk.Contains(k))));
     }
