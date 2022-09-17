@@ -81,7 +81,7 @@ public partial class GeneratorViewModel
     {
         _mainvm = mainvm;
         _workspace = new GeneratorWorkspace(mainvm.workspace.LoadedTransforms);
-        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);//tmp hack
+        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(nameof(GeneratedIFSThumbnails));//tmp hack
     }
 
     public async Task Initialize() => await _workspace.Initialize();
@@ -98,8 +98,7 @@ public partial class GeneratorViewModel
     private async Task GenerateRandomBatch()
     {
         _workspace.GenerateNewRandomBatch(_options);
-        //TODO: do not start if already processing
-        await _workspace.ProcessQueue();
+        await Task.Run(_workspace.ProcessQueue);
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));
     }
 
@@ -109,9 +108,8 @@ public partial class GeneratorViewModel
         if (param == null)//pin ifs from main if commandparam not provided
             param = _mainvm.workspace.Ifs.DeepClone();
         _workspace.PinIFS(param);
-        await _workspace.ProcessQueue();
+        await Task.Run(_workspace.ProcessQueue);
         SendToMainCommand.Execute(param);
-        //TODO: do not start if already processing
         OnPropertyChanged(nameof(PinnedIFSThumbnails));
     }
 

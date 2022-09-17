@@ -64,6 +64,7 @@ public partial class GeneratorWorkspace
         await _renderer.Initialize(_generator.SelectedTransforms);
         //performance settings
         await _renderer.SetWorkgroupCount(100);
+        _context.MakeNoneCurrent();
     }
 
     public void GenerateNewRandomBatch(GeneratorOptions options)
@@ -90,33 +91,41 @@ public partial class GeneratorWorkspace
         _pinnedIFS.Remove(ifs);
     }
 
-    public async Task ProcessQueue()
+    private readonly object _queueLocker = new();
+    public void ProcessQueue()
     {
-        _context.MakeCurrent();
-        while (_renderQueue.TryDequeue(out IFS ifs))
+        lock (_queueLocker)
         {
-            ifs.ImageResolution = new System.Drawing.Size(200, 200);
-            _renderer.LoadParams(ifs);
-            _renderer.SetHistogramScaleToDisplay();
-            _renderer.DispatchCompute();
-            _renderer.RenderImage();
+            while (_renderQueue.TryDequeue(out IFS ifs))
+            {
+                _context.MakeCurrent();
+                ifs.ImageResolution = new System.Drawing.Size(200, 200);
+                _renderer.LoadParams(ifs);
+                _renderer.SetHistogramScaleToDisplay();
+                _renderer.DispatchCompute();
+                _renderer.RenderImage();
 
-            WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-            await _renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
-            wbm.Freeze();
-            var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-            thumbnail.Freeze();
-            _thumbnails[ifs] = thumbnail;
+                WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
 
-            await Dispatcher.CurrentDispatcher.InvokeAsync(() => 
-                OnPropertyChanged(nameof(Thumbnails)), DispatcherPriority.Render);
+                _context.MakeNoneCurrent();
+                _renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
+
+                wbm.Freeze();
+                var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
+                thumbnail.Freeze();
+                _thumbnails[ifs] = thumbnail;
+
+                //Dispatcher.CurrentDispatcher.Invoke(() =>
+                //{
+                //    OnPropertyChanged(nameof(Thumbnails));
+                //}, DispatcherPriority.ApplicationIdle);
+            }
         }
-        _context.MakeNoneCurrent();
 
         //cleanup old thumbnails
         var removedParams = _thumbnails.Keys.Where(k => !(_pinnedIFS.Contains(k) || _generatedIFS.Contains(k))).ToList();
         foreach (var t in removedParams)
             _thumbnails.TryRemove(t, out _);
-
     }
+
 }
