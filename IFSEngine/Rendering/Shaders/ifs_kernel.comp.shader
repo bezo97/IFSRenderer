@@ -237,7 +237,7 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 vec3 apply_transform(Iterator iter, p_state _p_input, inout uint next)
 {
 	//variables available in transforms:
-	vec3 p = _p_input.pos.xyz;
+    vec3 p = _p_input.pos.xyz;
 	int iter_depth = _p_input.iteration_depth;
 
 	//snippets inserted on initialization
@@ -395,7 +395,7 @@ void main() {
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
 			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy || //chance to reset by entropy
-			any(isinf(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
+			any(isinf(p.pos) || isnan(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
 		{//reset if invalid
 			p = reset_state(next);
 		}
@@ -406,6 +406,10 @@ void main() {
 
 		vec4 p0_pos = p.pos;
 		vec3 p_ret = apply_transform(selected_iterator, p, next);//transform here
+
+        if (any(isinf(p_ret) || isnan(p_ret)))
+            continue;
+
 		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.iteration_depth++;
