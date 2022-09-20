@@ -107,12 +107,12 @@ layout(std140, binding = 5) uniform palette_ubo
 	vec4 palette[MAX_PALETTE_COLORS];
 };
 
-layout(binding = 6) uniform real_params_ubo
+layout(std140, binding = 6) uniform real_params_ubo
 {
 	float real_params[MAX_PARAMS];//real transform parameters of all iterators
 };
 
-layout(binding = 7) uniform vec3_params_ubo
+layout(std140, binding = 7) uniform vec3_params_ubo
 {
 	vec4 vec3_params[MAX_PARAMS];//vec3 transform parameters of all iterators
 };

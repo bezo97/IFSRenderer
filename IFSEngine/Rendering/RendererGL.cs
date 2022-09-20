@@ -405,7 +405,7 @@ public sealed class RendererGL : IAsyncDisposable
             GL.BufferData(BufferTarget.UniformBuffer, its.Count * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray(), BufferUsageHint.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.UniformBuffer, _realParametersBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, allRealParams.Count * sizeof(float), allRealParams.ToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.UniformBuffer, allRealParams.Count * 4 * sizeof(float), allRealParams.Select(f => new Vector4(f)).ToArray(), BufferUsageHint.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.UniformBuffer, _vec3ParametersBufferHandle);
             GL.BufferData(BufferTarget.UniformBuffer, allVec3Params.Count * 4 * sizeof(float), allVec3Params.ToArray(), BufferUsageHint.DynamicDraw);
