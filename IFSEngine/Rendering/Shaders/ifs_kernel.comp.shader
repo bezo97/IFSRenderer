@@ -216,7 +216,18 @@ vec2 Project(camera_params c, vec4 p, inout uint next)
 		return vec2(-2.0, -2.0);
 
 	vec4 normalizedPoint = c.view_proj_mat * vec4(p.xyz, 1.0f);
+
+    if (any(isinf(normalizedPoint)))
+    {//may be projected to infinity
+        return vec2(-2.0, -2.0);
+    }
+
 	normalizedPoint /= normalizedPoint.w;
+
+    if (normalizedPoint.w == 0.0)
+    {//w is sometimes 0, not sure why
+        return vec2(-2.0, -2.0);
+    }
 
 	//dof
 	float ratio = width / float(height);
@@ -399,8 +410,8 @@ void main() {
 		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
-			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy || //chance to reset by entropy
-			any(isinf(p.pos)) || any(isnan(p.pos)) || (p.pos.x == 0 && p.pos.y == 0 && p.pos.z == 0))//TODO: optional/remove
+            p.iteration_depth == -1 || //invalid point position
+			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy) //chance to reset by entropy
 		{//reset if invalid
 			p = reset_state(next);
 		}
@@ -411,11 +422,16 @@ void main() {
 
 		vec4 p0_pos = p.pos;
 		vec3 p_ret = apply_transform(selected_iterator, p, next);//transform here
-
-        if (any(isinf(p_ret)) || any(isnan(p_ret)))
-            continue;
-
 		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
+
+        if (any(isinf(p.pos.xyz)) || //at infinity
+            any(isnan(p.pos.xyz)) || //reset by plugin
+            dot(p.pos.xyz, p.pos.xyz) == 0.0) //at origo
+        {//check if position is invalid
+            p.iteration_depth = -1;//means invalid
+            continue;
+        }
+
 		apply_coloring(selected_iterator, p0_pos, p.pos, p.color_index);
 		p.iteration_depth++;
 
@@ -427,7 +443,7 @@ void main() {
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
-	
+
 		vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
 
 		//TODO: this is the same as dof

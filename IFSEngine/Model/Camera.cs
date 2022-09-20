@@ -55,7 +55,7 @@ public class Camera
     {
         //Matrix4x4.CreateLookAt uses different handedness so direction vectors are inverted here to get the correct view matrix.
         var viewMatrix = Matrix4x4.CreateLookAt(Position, Position - ForwardDirection, -UpDirection);
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(1 + (float)FieldOfView % 179), 1.0f, 0.2f, 100.0f);
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(1 + (float)FieldOfView % 179), 1.0f, 0.001f, float.PositiveInfinity);
         return viewMatrix * projectionMatrix;
     }
 
