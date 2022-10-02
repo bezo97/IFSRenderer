@@ -23,7 +23,7 @@ public class Channel
 
     public double EvaluateAt(double t)
     {
-        var keyframes = Keyframes.OrderBy(k => k.t);
+        var keyframes = Keyframes.OrderBy(k => k.t).ToList();
 
         if (t >= keyframes.Last().t)
             return keyframes.Last().Value;
@@ -45,7 +45,9 @@ public class Channel
         };
 
         //interpolation
-        double eval = MathExtensions.Lerp(previousKeyframe.Value, nextKeyframe.Value, tEasing);
+        var p0 = keyframes.ElementAtOrDefault(keyframes.IndexOf(previousKeyframe) - 1) ?? previousKeyframe;
+        var p3 = keyframes.ElementAtOrDefault(keyframes.IndexOf(nextKeyframe) + 1) ?? nextKeyframe;
+        double eval = CatmullRom(p0.Value, previousKeyframe.Value, nextKeyframe.Value, p3.Value, tEasing);
 
         if(AudioChannelDriver is not null)
         {
@@ -60,6 +62,17 @@ public class Channel
         if (t < 0.5) 
             return Math.Pow(t * 2.0, pow1) / 2.0;
         return 1.0 - Math.Pow((1.0 - t) * 2.0, pow2) / 2.0;
+    }
+
+    private static double CatmullRom(double p0, double p1, double p2, double p3, double t)
+    {
+        var h1 = 2 * t * t * t - 3 * t * t + 1;
+        var h2 = -2 * t * t * t + 3 * t * t;
+        var h3 = t * t * t - 2 * t * t + t;
+        var h4 = t * t * t - t * t;
+        var t1 = (p2 - p0) / 2;
+        var t2 = (p3 - p1) / 2;
+        return h1 * p1 + h2 * p2 + h3 * t1 + h4 * t2;
     }
 
 }
