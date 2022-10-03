@@ -51,7 +51,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        
+
         <Menu Grid.Row="0">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -72,11 +72,13 @@
             </MenuItem>
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
-            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
+            <MenuItem Icon="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}" FontFamily="Monospace" Width="45" InputGestureText="PAUSE" ToolTip="Resume/Pause rendering (Pause key)"/>
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
             <MenuItem Header="🏗 Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
             <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
             <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
-            <Separator Width="10" Style="{StaticResource MaterialDesignLightSeparator}"/>
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
+            <local:TitleBox Width="200"/>
             <MenuItem Header="🖬 E_xport">
                 <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
                 <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
@@ -187,9 +189,22 @@
                             <LayoutAnchorablePaneGroup DockHeight="300">
                                 <LayoutAnchorablePane>
                                     <LayoutAnchorable
-                                    Title="Animations" ToolTip="Animations" ContentId="Animations"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                        <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
+                                        Title="Animations" ToolTip="Animations" ContentId="Animations"
+                                        CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                        <!--<animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>-->
+                                        <Grid>
+                                            <Grid>
+                                                <Grid.BitmapEffect>
+                                                    <BlurBitmapEffect Radius="5"/>
+                                                </Grid.BitmapEffect>
+                                                <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
+                                                <Grid Background="#aa333333"/>
+                                            </Grid>
+                                            <TextBlock Foreground="Gray"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">
+                                                <Run FontSize="36">🛠️</Run> <LineBreak/> Animations <LineBreak/> Under construction
+                                            </TextBlock>
+                                        </Grid>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
@@ -198,23 +213,10 @@
                         <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="250">
                             <LayoutAnchorablePane>
                                 <LayoutAnchorable
-                                    Title="Quality Settings" ToolTip="Quality Settings" ContentId="Quality Settings"
+                                    Title="Rendering Settings" ToolTip="Rendering Settings" ContentId="Rendering Settings"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                        <StackPanel>
-                                            <Grid Margin="4">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Button Grid.Column="0" Margin="4" Width="45" FontWeight="ExtraBold"
-                                                    Command="{Binding StartStopRenderingCommand}"
-                                                    Content="{Binding IsRenderingIcon}"
-                                                    ToolTip="Resume/Pause rendering (Pause key)"/>
-                                                <local:TitleBox Grid.Column="1" Margin="4"/>
-                                            </Grid>
-                                            <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}" Margin="4,0,4,4"/>
-                                        </StackPanel>
+                                        <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
                                 <!--<LayoutAnchorable
@@ -254,7 +256,7 @@
                         </LayoutAnchorGroup>
                     </LayoutAnchorSide>
                 </LayoutRoot.LeftSide>-->
-                
+
             </LayoutRoot>
         </DockingManager>
 

@@ -14,62 +14,72 @@
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
-        <conv:NullVisibilityConverter x:Key="NullVisConv"/>
     </UserControl.Resources>
     <StackPanel>
-        <StackPanel Margin="4">
-            <Label>Quality presets</Label>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button
-                    Command="{Binding PreviewPresetCommand}"
-                    Margin="8" Grid.Column="0">📷 Preview</Button>
-                <Button
-                    Command="{Binding FinalPresetCommand}"
-                    Margin="8" Grid.Column="1">📸 Final</Button>
-            </Grid>
+        <ListBox
+            HorizontalAlignment="Center"
+            Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4"
+            SelectedIndex="0">
+            <ListBox.ToolTip>
+                <StackPanel>
+                    <TextBlock Text="MaterialDesignToolToggleListBox"/>
+                    <TextBlock Text="Exclusive selection"/>
+                    <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour"/>
+                </StackPanel>
+            </ListBox.ToolTip>
+            <ListBoxItem>🧭 Exploration</ListBoxItem>
+            <ListBoxItem IsSelected="{Binding IsFinalRenderingMode}">📸 Final</ListBoxItem>
+        </ListBox>
+        <!--"Preview" settings-->
+        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource InverseBoolToVisConverter}}">
+            <TextBlock HorizontalAlignment="Center" Margin="4,16">
+                Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
+            </TextBlock>
+            <CheckBox IsChecked="{Binding EnableTAA}" Margin="4">Temporal Anti-Aliasing</CheckBox>
+        </StackPanel>
+        <!--"Final" settings-->
+        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <toolkit:IntegerUpDown 
-                    Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
-                    Minimum="1" Increment="100"
-                    ToolTip="Image width"
-                    Grid.Column="0" Margin="8" UpdateValueOnEnterKey="True"/>
+                        Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
+                        Minimum="1" Increment="100"
+                        ToolTip="Image width"
+                        Grid.Column="0" Margin="4" UpdateValueOnEnterKey="True"/>
                 <ToggleButton
-                    IsChecked="{Binding IsResolutionLinked}" 
-                    Width="20" Height="20" FontSize="12" Foreground="Gray"
-                    Style="{StaticResource MaterialDesignFlatToggleButton}"
-                    ToolTip="Lock aspect ratio"
-                    Margin="0,8,0,8" Grid.Column="1">🔗</ToggleButton>
+                        IsChecked="{Binding IsResolutionLinked}" 
+                        Width="20" Height="20" FontSize="12" Foreground="Gray"
+                        Style="{StaticResource MaterialDesignFlatToggleButton}"
+                        ToolTip="Lock aspect ratio"
+                        Grid.Column="1" Margin="4">🔗</ToggleButton>
                 <toolkit:IntegerUpDown 
-                    Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
-                    Minimum="1" Increment="100"
-                    ToolTip="Image height"
-                    Grid.Column="2" Margin="8" UpdateValueOnEnterKey="True"/>
+                        Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
+                        Minimum="1" Increment="100"
+                        ToolTip="Image height"
+                        Grid.Column="2" Margin="4" UpdateValueOnEnterKey="True"/>
+                <ToggleButton IsEnabled="False"
+                        Width="20" Height="20" FontSize="16" Foreground="Gray"
+                        Style="{StaticResource MaterialDesignFlatToggleButton}"
+                        ToolTip="Resolution presets"
+                        Grid.Column="3" Margin="4">⋮</ToggleButton>
             </Grid>
-            <TextBlock Margin="5" HorizontalAlignment="Center" Visibility="{Binding PreviewResolutionText, Converter={StaticResource NullVisConv}}">
-                Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
-            </TextBlock>
+            <local:ValueSlider DataContext="{Binding MaxFilterRadius}" Margin="4"/>
         </StackPanel>
-        <Separator  Margin="8" Style="{StaticResource MaterialDesignSeparator}"/>
+        <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <StackPanel Margin="4">
-            <local:ValueSlider DataContext="{Binding EntropyInv}"/>
-            <local:ValueSlider DataContext="{Binding Warmup}"/>
-            <local:ValueSlider DataContext="{Binding MaxFilterRadius}"/>
-            <CheckBox IsChecked="{Binding EnableTAA}">Temporal Anti-Aliasing</CheckBox>
             <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
             <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
                 <local:ValueSlider DataContext="{Binding DEMaxRadius}"/>
                 <local:ValueSlider DataContext="{Binding DEPower}"/>
                 <local:ValueSlider DataContext="{Binding DEThreshold}"/>
             </StackPanel>
+            <local:ValueSlider DataContext="{Binding EntropyInv}"/>
+            <local:ValueSlider DataContext="{Binding Warmup}"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

@@ -1,9 +1,6 @@
-﻿using IFSEngine.Model;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using IFSEngine.Model;
 using System.Windows;
-using System.Windows.Input;
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -14,6 +11,18 @@ public partial class QualitySettingsViewModel
     private readonly Workspace _workspace;
 
     [ObservableProperty] private bool _isResolutionLinked;
+    private bool _isFinalRenderingMode = false;
+    public bool IsFinalRenderingMode { 
+        get => _isFinalRenderingMode; 
+        set 
+        {
+            if (value)
+                SetFinalRenderSettings();
+            else
+                SetPreviewRenderSettings();
+            SetProperty(ref _isFinalRenderingMode, value);
+        }
+    }
 
     public QualitySettingsViewModel(Workspace workspace)
     {
@@ -205,22 +214,16 @@ public partial class QualitySettingsViewModel
         }
     }
 
-    [RelayCommand]
-    private void PreviewPreset()
+    private void SetPreviewRenderSettings()
     {
         _workspace.Renderer.SetHistogramScaleToDisplay();
-        //EnableDE = true;
-        //EnableTAA = true;
-        //EnablePerceptualUpdates = false;
         MaxFilterRadius.Value = 0;
         OnPropertyChanged(nameof(PreviewResolutionText));
     }
 
-    [RelayCommand]
-    private void FinalPreset()
+    private void SetFinalRenderSettings()
     {
         EnableTAA = false;
-        EnableDE = false;
         MaxFilterRadius.Value = 3;
         _workspace.Renderer.SetHistogramScale(1.0);
         OnPropertyChanged(nameof(PreviewResolutionText));
