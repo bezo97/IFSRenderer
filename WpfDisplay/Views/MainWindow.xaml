@@ -117,7 +117,7 @@
                                 <LayoutAnchorable
                                     Title="Tonemapping" ToolTip="Tonemapping" ContentId="Tonemapping"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
@@ -126,7 +126,7 @@
                                 <LayoutAnchorable
                                     Title="Environment" ToolTip="Environment" ContentId="Environment"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel Margin="8">
                                             <Label>Background</Label>
                                             <Grid>
@@ -149,14 +149,16 @@
                                 <LayoutAnchorable
                                     Title="Camera" ToolTip="Camera" ContentId="Camera"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
                                 <LayoutAnchorable
                                     Title="Camera Transform" ToolTip="Camera Transform" ContentId="Camera Transform"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <local:CameraNavigationPanel DataContext="{Binding CameraSettingsViewModel}"/>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <local:CameraNavigationPanel DataContext="{Binding CameraSettingsViewModel}"/>
+                                    </ScrollViewer>
                                 </LayoutAnchorable>
                             </LayoutAnchorablePane>
                         </LayoutAnchorablePaneGroup>
@@ -198,7 +200,7 @@
                                 <LayoutAnchorable
                                     Title="Quality Settings" ToolTip="Quality Settings" ContentId="Quality Settings"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel>
                                             <Grid Margin="4">
                                                 <Grid.ColumnDefinitions>
@@ -225,7 +227,7 @@
                                 <LayoutAnchorable
                                     Title="Performance" ToolTip="Performance" ContentId="Performance"
                                     CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
