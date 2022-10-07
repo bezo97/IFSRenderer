@@ -50,6 +50,11 @@ public partial class ValueSliderViewModel
         * (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? 10 : 1)
         * (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? 0.1 : 1);
 
+    /// <summary>
+    /// Hide decimal places for integers, show fix 4 decimal places for double
+    /// </summary>
+    public string ValueLabelFormat => (Increment % 1 == 0) ? "D" : "N4";
+
     public void RaiseValueChanged()
     {
         OnPropertyChanged(nameof(Value));

@@ -41,14 +41,14 @@
                 Click="Down_Click">-</Button>
             <Label x:Name="displayLabel" Grid.Column="1"
                    Content="{Binding Value}"
-                   ContentStringFormat="N4"
+                   ContentStringFormat="{Binding ValueLabelFormat}"
                    Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}" 
                    Background="#303030" Cursor="Hand"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
-                     Text="{Binding Value, StringFormat=N4}" 
+                     Text="{Binding Value, StringFormat={}{0:0.####}}"
                      Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
                      Background="#606060"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
