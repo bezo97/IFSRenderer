@@ -288,6 +288,7 @@ public partial class IFSViewModel
     {
         var picker = new Views.PaletteDialogWindow
         {
+            Owner = Application.Current.MainWindow,
             Palettes = await FlamePalette.FromFileAsync(path)
         };
         if (picker.ShowDialog() == true)

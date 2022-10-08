@@ -15,7 +15,6 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
         ShowInTaskbar="False"
-        Topmost="True"
         WindowStyle="ToolWindow"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
         Title="Settings" x:Name="settingsWindow"

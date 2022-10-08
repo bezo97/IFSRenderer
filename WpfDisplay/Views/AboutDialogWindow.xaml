@@ -13,7 +13,7 @@
         Background="{DynamicResource MaterialDesignDarkBackground}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
-        ShowInTaskbar="False" Topmost="True"
+        ShowInTaskbar="False"
         WindowStyle="ToolWindow"
         Title="About IFSRenderer"
         Height="500" Width="600" MinHeight="500" MinWidth="600"

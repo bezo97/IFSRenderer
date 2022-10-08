@@ -17,7 +17,7 @@
         MinHeight="150" MinWidth="300"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        ShowInTaskbar="False" WindowStyle="ToolWindow" Topmost="True"
+        ShowInTaskbar="False" WindowStyle="ToolWindow"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="16">
         <TextBlock>

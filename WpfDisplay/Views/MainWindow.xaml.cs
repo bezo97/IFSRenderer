@@ -72,7 +72,10 @@ public partial class MainWindow : Window
         //create window
         if (_generatorWindow == null || !_generatorWindow.IsLoaded)
         {
-            _generatorWindow = new GeneratorWindow();
+            _generatorWindow = new GeneratorWindow
+            {
+                Owner = this
+            };
             var generatorViewModel = new GeneratorViewModel(vm);
             _generatorWindow.DataContext = generatorViewModel;
 
@@ -93,7 +96,10 @@ public partial class MainWindow : Window
         //create window
         if (_editorWindow == null || !_editorWindow.IsLoaded)
         {
-            _editorWindow = new EditorWindow();
+            _editorWindow = new EditorWindow
+            {
+                Owner = this
+            };
             _editorWindow.SetBinding(DataContextProperty, new Binding(".") { Source = vm.IFSViewModel, Mode = BindingMode.TwoWay });
         }
 
@@ -109,6 +115,7 @@ public partial class MainWindow : Window
     {
         var settingsWindow = new SettingsWindow
         {
+            Owner = this,
             DataContext = new SettingsViewModel(vm)
         };
         if (settingsWindow.ShowDialog() == true)
@@ -117,7 +124,10 @@ public partial class MainWindow : Window
 
     private void AboutButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new AboutDialogWindow();
+        var dialog = new AboutDialogWindow
+        {
+            Owner = this
+        };
         dialog.ShowDialog();
     }
 
@@ -125,7 +135,10 @@ public partial class MainWindow : Window
     {
         if (vm.workspace.HasUnsavedChanges)
         {
-            var dialog = new ExitDialogWindow();
+            var dialog = new ExitDialogWindow
+            {
+                Owner = this
+            };
             dialog.ShowDialog();
             if (dialog.ExitDialogResult == ExitDialogWindow.ExitChoice.Cancel)
             {
