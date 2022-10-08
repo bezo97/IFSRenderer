@@ -14,17 +14,9 @@
         Title="{Binding WindowTitle}"
         Width="1920" Height="1080" WindowState="Maximized"
         AllowDrop="True" DragOver="mainWindow_DragOver" Drop="mainWindow_Drop"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        UseLayoutRounding="True"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
+        Style="{StaticResource MaterialDesignWindow}"
         x:Name="mainWindow"
-        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
-        >
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </Window.Resources>
@@ -53,41 +45,48 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="0">
-            <Menu.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <DockPanel HorizontalAlignment="Stretch"/>
-                </ItemsPanelTemplate>
-            </Menu.ItemsPanel>
-            <MenuItem Header="📑 _File">
-                <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
-                <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
-                <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
-                <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
+        <ToolBarTray IsLocked="True" Grid.Row="0">
+            <ToolBar>
+                <Menu IsMainMenu="True">
+                    <MenuItem Header="📑 _File">
+                        <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
+                        <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
+                        <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
+                        <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
+                        <Separator/>
+                        <MenuItem Header="📝 Copy params" Command="ApplicationCommands.Copy" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
+                        <MenuItem Header="📋 Paste params" Command="ApplicationCommands.Paste" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
+                        <Separator/>
+                        <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
+                        <Separator/>
+                        <MenuItem Header="🚪 Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
+                    </MenuItem>
+                    <MenuItem Header="💾" Command="{Binding SaveParamsCommand}" ToolTip="Save (Ctrl+S)" InputGestureText="Ctrl+S"/>
+                    <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+                    <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+                    <MenuItem Icon="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}" FontFamily="Monospace" Width="45" InputGestureText="PAUSE" ToolTip="Resume/Pause rendering (Pause key)"/>
+                </Menu>
                 <Separator/>
-                <MenuItem Header="📝 Copy" Command="ApplicationCommands.Copy" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
-                <MenuItem Header="📋 Paste" Command="ApplicationCommands.Paste" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
+                <Menu>
+                    <MenuItem Icon="{md:PackIcon Kind=VectorPolyline}" Header="Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
+                    <MenuItem Header="🔮     Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
+                    <MenuItem Header="🎲     _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
+                </Menu>
                 <Separator/>
-                <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
-                <Separator/>
-                <MenuItem Header="🚪 Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
-            </MenuItem>
-            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
-            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
-            <MenuItem Icon="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}" FontFamily="Monospace" Width="45" InputGestureText="PAUSE" ToolTip="Resume/Pause rendering (Pause key)"/>
-            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
-            <MenuItem Header="🏗 Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
-            <MenuItem Header="🔮 Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
-            <MenuItem Header="🎲 _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
-            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
-            <local:TitleBox Width="200"/>
-            <MenuItem Header="🖬 E_xport">
-                <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
-                <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
-                <Separator/>
-                <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
-            </MenuItem>
-            <MenuItem Header="❓ Help" HorizontalAlignment="Right">
+                <local:TitleBox Width="200" Height="30"/>
+                <Menu>
+                    <MenuItem Icon="{md:PackIcon Kind=ImageMove}" Header="E_xport">
+                        <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                        <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                        <Separator/>
+                        <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
+                    </MenuItem>
+                </Menu>
+            </ToolBar>
+        </ToolBarTray>
+        <Menu Grid.Row="0" HorizontalAlignment="Right">
+            <MenuItem Header="🎓     Tutorials..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
+            <MenuItem Icon="{md:PackIcon Kind=InfoCircleOutline}" Header="Help">
                 <MenuItem Icon="📚" Header="Wiki..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
                 <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
                 <MenuItem Icon="🙋" Header="Send Feedback">
@@ -99,7 +98,7 @@
                 <MenuItem Icon="💿" Header="Check for updates..." Command="{Binding CheckUpdatesCommand}"/>
             </MenuItem>
         </Menu>
-
+        
         <DockingManager x:Name="dockManager"
             Grid.Row="1"
             AllowMixedOrientation="True"
