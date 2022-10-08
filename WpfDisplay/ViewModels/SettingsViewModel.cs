@@ -90,7 +90,6 @@ internal partial class SettingsViewModel
     private ValueSliderViewModel _targetFramerate;
     public ValueSliderViewModel TargetFramerate => _targetFramerate ??= new ValueSliderViewModel(_mainvm)
     {
-        Label = "Target Framerate",
         ToolTip = "Define a target framerate (FPS) for interactive exploration. Default value is 60.",
         DefaultValue = 60,
         GetV = () => Settings.Default.TargetFramerate,
@@ -106,7 +105,6 @@ internal partial class SettingsViewModel
     private ValueSliderViewModel _workgroupCount;
     public ValueSliderViewModel WorkgroupCount => _workgroupCount ??= new ValueSliderViewModel(_mainvm)
     {
-        Label = "Workgroup Count",
         ToolTip = "Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256.",
         DefaultValue = 256,
         GetV = () => Settings.Default.WorkgroupCount,
@@ -152,7 +150,6 @@ internal partial class SettingsViewModel
     private ValueSliderViewModel _sensitivity;
     public ValueSliderViewModel Sensitivity => _sensitivity ??= new ValueSliderViewModel(_mainvm)
     {
-        Label = "Sensitivity",
         DefaultValue = 1,
         GetV = () => Settings.Default.Sensitivity,
         SetV = (value) =>

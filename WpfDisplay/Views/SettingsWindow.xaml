@@ -18,15 +18,15 @@
         WindowStyle="ToolWindow"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
         Title="Settings" x:Name="settingsWindow"
-        Height="500" Width="400" MinWidth="400" MinHeight="500">
+        Width="500" Height="500" MinWidth="500" MinHeight="500">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" MinHeight="50"/>
         </Grid.RowDefinitions>
-        <TabControl Grid.Row="0" Background="#333333" BorderThickness="0">
-            <TabItem Header="👤 User Settings" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
-                <Grid Margin="10">
+        <TabControl Grid.Row="0">
+            <TabItem Header="👤 User settings" MinWidth="150">
+                <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
@@ -45,37 +45,37 @@
                         Author name
                     </TextBlock>
                     <Label Grid.Row="1" Grid.Column="1"
-                        ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center">?</Label>
+                        ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <TextBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                         Text="{Binding AuthorName}" md:HintAssist.Hint="Provide an author name"/>
                     <!--Author link-->
                     <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Author link
                     </TextBlock>
-                    <Label Grid.Row="2" Grid.Column="1"
-                        ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                    <Label Grid.Row="2" Grid.Column="1" 
+                        ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                         Text="{Binding AuthorLink}" md:HintAssist.Hint="https://example.com"/>
                     <!--Watermark-->
-                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
                         Apply watermark
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding Watermark}" IsEnabled="False"/>
                     <!--Notification-->
-                    <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        Enable Notifications
+                    <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
+                        Notifications
                     </TextBlock>
                     <Label Grid.Row="4" Grid.Column="1"
-                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding Notifications}" IsEnabled="False"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="🕹️ Controls" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
-                <Grid Margin="10">
+            <TabItem Header="🕹️ Controls" MinWidth="150">
+                <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
@@ -99,15 +99,15 @@
                     </StackPanel>
                     <!--Sensitivity-->
                     <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        Sensitivity
+                        Movement sensitivity
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                        ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                        ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <local:ValueSlider DataContext="{Binding Sensitivity}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="⏱️ Performance" Style="{StaticResource MaterialDesignNavigationRailTabItem}" MinWidth="120">
-                <Grid Margin="10">
+            <TabItem Header="⏱️ Performance" MinWidth="150">
+                <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
@@ -125,7 +125,7 @@
                         Perceptually uniform updates
                     </TextBlock>
                     <Label Grid.Row="1" Grid.Column="1"
-                        ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                        ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding PerceptuallyUniformUpdates}"/>
                     <!--Target Framerate-->
@@ -133,14 +133,14 @@
                         Target Framerate
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                         ToolTip="{Binding TargetFramerate.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                         ToolTip="{Binding TargetFramerate.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <local:ValueSlider DataContext="{Binding TargetFramerate}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                     <!--Workgroup-->
                     <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Workgroups
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="{Binding WorkgroupCount.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center">?</Label>
+                        ToolTip="{Binding WorkgroupCount.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <local:ValueSlider DataContext="{Binding WorkgroupCount}" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
@@ -159,7 +159,10 @@
             <Button Grid.Column="1"
                     Command="{Binding OkDialogCommand}"
                     IsDefault="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15">
-                Save
+                <StackPanel Orientation="Horizontal">
+                    <md:PackIcon Kind="ContentSave"/>
+                    <TextBlock Text="Save"/>
+                </StackPanel>
             </Button>
         </Grid>
     </Grid>
