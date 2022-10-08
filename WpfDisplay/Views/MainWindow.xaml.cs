@@ -123,12 +123,29 @@ public partial class MainWindow : Window
 
     protected override async void OnClosing(CancelEventArgs e)
     {
+        if (vm.workspace.HasUnsavedChanges)
+        {
+            var dialog = new ExitDialogWindow();
+            dialog.ShowDialog();
+            if (dialog.ExitDialogResult == ExitDialogWindow.ExitChoice.Cancel)
+            {
+                e.Cancel = true;
+                base.OnClosing(e);
+                return;
+            }
+            else if (dialog.ExitDialogResult == ExitDialogWindow.ExitChoice.Save)
+            {
+                await vm.SaveParamsAsCommand.ExecuteAsync(null);
+            }
+        }
+
         if (_generatorWindow != null)
             _generatorWindow.Close();
         if (_editorWindow != null)
             _editorWindow.Close();
 
         await vm.DisposeAsync();
+        Application.Current.Shutdown();
 
         base.OnClosing(e);
     }

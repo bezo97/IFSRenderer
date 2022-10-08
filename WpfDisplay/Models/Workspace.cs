@@ -1,8 +1,8 @@
-﻿using IFSEngine.Animation;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -25,15 +25,17 @@ public partial class Workspace
     private readonly IFSHistoryTracker _tracker = new();
     private List<Transform> _loadedTransforms = new();
 
-    public event EventHandler<string> StatusTextChanged;
-    public event EventHandler LoadedParamsChanged;
+    public event EventHandler<string>? StatusTextChanged;
+    public event EventHandler? LoadedParamsChanged;
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisX, InvertAxisY, InvertAxisZ;
     public double Sensitivity;
+    public string? EditedFilePath { get; private set; }
+    [ObservableProperty] private bool _hasUnsavedChanges;
 
-    private RendererGL _renderer;
+    private RendererGL _renderer = null!;
     public RendererGL Renderer
     {
         get => _renderer;
@@ -45,7 +47,7 @@ public partial class Workspace
         }
     }
 
-    public IFS Ifs { get; private set; }
+    public IFS Ifs { get; private set; } = null!;
 
     public bool IsHistoryUndoable => _tracker.IsHistoryUndoable;
     public bool IsHistoryRedoable => _tracker.IsHistoryRedoable;
@@ -92,9 +94,11 @@ public partial class Workspace
         TakeSnapshot();
         _renderer?.LoadParams(ifs);
         Ifs = ifs;
+        EditedFilePath = null;
+        HasUnsavedChanges = false;
         if (!Renderer.IsRendering)
             Renderer.StartRenderLoop();
-        LoadedParamsChanged?.Invoke(this, null);
+        LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
     }
 
@@ -116,6 +120,7 @@ public partial class Workspace
                 throw;
         }
         LoadParams(ifs);
+        EditedFilePath = path;
     }
 
     public void RaiseAnimationFrameChanged() => OnPropertyChanged("AnimationFrame");
@@ -133,10 +138,19 @@ public partial class Workspace
         LoadParams(r);
     }
 
-    public async Task SaveParamsFileAsync(string path)
+    public async Task SaveParamsAsync()
+    {
+        if (EditedFilePath == null)
+            throw new InvalidOperationException();
+        await SaveParamsAsAsync(EditedFilePath);
+    }
+
+    public async Task SaveParamsAsAsync(string path)
     {
         Ifs.AddAuthor(CurrentUser);
         await IfsNodesSerializer.SaveJsonFileAsync(Ifs, path);
+        EditedFilePath = path;
+        HasUnsavedChanges = false;
     }
 
     public void CopyToClipboard()
@@ -157,7 +171,7 @@ public partial class Workspace
         //LoadParams without taking snapshot
         Ifs = _tracker.Undo(Ifs, LoadedTransforms);
         _renderer?.LoadParams(Ifs);
-        LoadedParamsChanged?.Invoke(this, null);
+        LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
     }
 
@@ -166,7 +180,7 @@ public partial class Workspace
         //LoadParams without taking snapshot
         Ifs = _tracker.Redo(Ifs, LoadedTransforms);
         _renderer?.LoadParams(Ifs);
-        LoadedParamsChanged?.Invoke(this, null);
+        LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
     }
 
@@ -178,6 +192,7 @@ public partial class Workspace
     public void TakeSnapshot()
     {
         _tracker.TakeSnapshot(Ifs);
+        HasUnsavedChanges = true;
     }
 
     public async Task LoadUserSettings()

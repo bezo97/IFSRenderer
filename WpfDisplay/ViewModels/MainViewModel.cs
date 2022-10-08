@@ -1,7 +1,7 @@
-﻿using IFSEngine.Model;
-using IFSEngine.Utility;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using IFSEngine.Model;
+using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +10,6 @@ using System.Runtime;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
@@ -55,7 +54,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     public float Sensitivity => (float)workspace.Sensitivity;
 
 
-    public string WindowTitle => workspace.Ifs is null ? "IFSRenderer" : $"{workspace.Ifs.Title} - IFSRenderer";
+    public string WindowTitle => workspace.Ifs is null ? "IFSRenderer" : $"{workspace.Ifs.Title}{(workspace.HasUnsavedChanges ? '*' : string.Empty)} - IFSRenderer";
     public string IFSTitle
     {
         get => workspace.Ifs.Title;
@@ -119,6 +118,18 @@ public sealed partial class MainViewModel : IAsyncDisposable
     [RelayCommand]
     private async Task SaveParams()
     {
+        if (workspace.EditedFilePath is not null)
+        {
+            await workspace.SaveParamsAsync();
+            workspace.UpdateStatusText($"Parameters saved to {workspace.EditedFilePath}");
+        }
+        else
+            await SaveParamsAs();
+    }
+
+    [RelayCommand]
+    private async Task SaveParamsAs()
+    {
         if (DialogHelper.ShowSaveParamsDialog(workspace.Ifs.Title, out string path))
         {
             if (IFSTitle == "Untitled")//Set the file name as title
@@ -126,7 +137,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
 
             try
             {
-                await workspace.SaveParamsFileAsync(path);
+                await workspace.SaveParamsAsAsync(path);
                 workspace.UpdateStatusText($"Parameters saved to {path}");
             }
             catch (Exception)
@@ -280,6 +291,9 @@ public sealed partial class MainViewModel : IAsyncDisposable
         GC.Collect();
     }
 
+    /// <summary>
+    /// Used by InteractiveDisplay
+    /// </summary>
     [RelayCommand]
     private void TakeSnapshot() => workspace.TakeSnapshot();
 
@@ -287,12 +301,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();
 
     [RelayCommand]
-    private async Task CloseWorkspace()
-    {
-        //TODO: prompt to save work?
-        await DisposeAsync();
-        Environment.Exit(0);
-    }
+    private void ExitApplication() => Application.Current.MainWindow.Close();
 
     public async ValueTask DisposeAsync() => await workspace.Renderer.DisposeAsync();
 

@@ -37,7 +37,8 @@
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
         <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
-        <KeyBinding Gesture="CTRL+SHIFT+S" Command="{Binding SaveParamsCommand}"/>
+        <KeyBinding Gesture="CTRL+S" Command="{Binding SaveParamsCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+S" Command="{Binding SaveParamsAsCommand}"/>
         <KeyBinding Gesture="CTRL+E" Command="{Binding SaveImageCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
@@ -61,14 +62,15 @@
             <MenuItem Header="📑 _File">
                 <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
-                <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+Shift+S"/>
+                <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
                 <MenuItem Header="📝 Copy" Command="ApplicationCommands.Copy" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
                 <MenuItem Header="📋 Paste" Command="ApplicationCommands.Paste" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
                 <Separator/>
                 <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
                 <Separator/>
-                <MenuItem Header="🚪 Exit" Command="{Binding CloseWorkspaceCommand}" InputGestureText="Alt+F4"/>
+                <MenuItem Header="🚪 Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
@@ -279,6 +281,5 @@
                 </StatusBarItem>
             </StatusBar>
         </md:Card>
-
     </Grid>
 </Window>
