@@ -44,6 +44,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [ObservableProperty] private string _statusBarText;
+    [ObservableProperty] private bool _isHintsPanelVisible = true;
 
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public bool IsColorPickerEnabled => !TransparentBackground;
@@ -295,7 +296,11 @@ public sealed partial class MainViewModel : IAsyncDisposable
     /// Used by InteractiveDisplay
     /// </summary>
     [RelayCommand]
-    private void TakeSnapshot() => workspace.TakeSnapshot();
+    private void TakeSnapshot()
+    {
+        IsHintsPanelVisible = false;
+        workspace.TakeSnapshot();
+    }
 
     [RelayCommand]
     private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();

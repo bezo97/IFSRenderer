@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="WpfDisplay.Views.ControlHintsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             TextElement.Foreground="White"
+             TextElement.FontFamily="Consolas"
+             Height="200" Width="400"
+             IsHitTestVisible="False">
+    <Border Background="#55555555" BorderBrush="#dd333333" BorderThickness="2" CornerRadius="15">
+        <Canvas>
+            <TextBlock Canvas.Left="10" Canvas.Top="10">Hint</TextBlock>
+            <TextBlock Canvas.Left="86" HorizontalAlignment="Left" Canvas.Top="39" VerticalAlignment="Top">Movement</TextBlock>
+            <StackPanel Canvas.Left="96" Canvas.Top="80" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">w</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowUp}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="96" Canvas.Top="109" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">s</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowDown}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="134" Canvas.Top="109" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">d</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowRight}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="58" Canvas.Top="109" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">a</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowLeft}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="58" Canvas.Top="80" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">q</TextBlock>
+                <Label Content="{md:PackIcon Kind=ChevronDoubleDown}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="134" Canvas.Top="80" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">e</TextBlock>
+                <Label Content="{md:PackIcon Kind=ChevronDoubleUp}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="67" Canvas.Top="167" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Label Content="{md:PackIcon Kind=MicrosoftXboxGamepad}"/>
+                <TextBlock VerticalAlignment="Center">Left stick</TextBlock>
+            </StackPanel>
+            <TextBlock Canvas.Left="243" Canvas.Top="39" HorizontalAlignment="Left" VerticalAlignment="Center">Look around</TextBlock>
+            <TextBlock Canvas.Left="262" Canvas.Top="89" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center">🖱️</TextBlock>
+            <StackPanel Canvas.Left="305" Canvas.Top="98" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock FontSize="16">l</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowRight}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="265" Canvas.Top="138" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">k</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowDown}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="226" Canvas.Top="98" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock FontSize="16">j</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowLeft}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="265" Canvas.Top="62" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBlock FontSize="16">i</TextBlock>
+                <Label Content="{md:PackIcon Kind=ArrowUp}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="305" Canvas.Top="62" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock FontSize="16">o</TextBlock>
+                <Label Content="{md:PackIcon Kind=Redo}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="226" Canvas.Top="62" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock FontSize="16">u</TextBlock>
+                <Label Content="{md:PackIcon Kind=Undo}"/>
+            </StackPanel>
+            <StackPanel Canvas.Left="231" Canvas.Top="167" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Label Content="{md:PackIcon Kind=MicrosoftXboxGamepad}"/>
+                <TextBlock VerticalAlignment="Center">Right stick</TextBlock>
+            </StackPanel>
+        </Canvas>
+    </Border>
+</UserControl>

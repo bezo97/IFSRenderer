@@ -179,6 +179,9 @@
                                                 InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
                                                 Sensitivity="{Binding Sensitivity}"
                                                 InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
+                                            <local:ControlHintsPanel
+                                                Visibility="{Binding IsHintsPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="16"/>
                                             <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
                                                 Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
                                                 Width="50" Height="50"
