@@ -117,16 +117,6 @@ internal partial class SettingsViewModel
         Increment = 100,
     };
 
-    public bool? InvertAxisX
-    {
-        get => Settings.Default.InvertAxisX;
-        set
-        {
-            Settings.Default.InvertAxisX = value ?? false;
-            OnPropertyChanged(nameof(InvertAxisX));
-        }
-    }
-
     public bool? InvertAxisY
     {
         get => Settings.Default.InvertAxisY;
@@ -134,16 +124,6 @@ internal partial class SettingsViewModel
         {
             Settings.Default.InvertAxisY = value ?? false;
             OnPropertyChanged(nameof(InvertAxisY));
-        }
-    }
-
-    public bool? InvertAxisZ
-    {
-        get => Settings.Default.InvertAxisZ;
-        set
-        {
-            Settings.Default.InvertAxisZ = value ?? false;
-            OnPropertyChanged(nameof(InvertAxisZ));
         }
     }
 

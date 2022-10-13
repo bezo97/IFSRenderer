@@ -37,16 +37,6 @@ public partial class InteractiveDisplay : WindowsFormsHost
     public static readonly DependencyProperty InteractionFinishedCommandProperty =
         DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
 
-    private bool _invertX;
-    public bool InvertRotationAxisX
-    {
-        get { return (bool)GetValue(InvertRotationAxisXProperty); }
-        set { SetValue(InvertRotationAxisXProperty, value); }
-    }
-    public static readonly DependencyProperty InvertRotationAxisXProperty =
-        DependencyProperty.Register("InvertRotationAxisX", typeof(bool), typeof(InteractiveDisplay),
-            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertX = (bool)b.NewValue; }));
-
     private bool _invertY;
     public bool InvertRotationAxisY
     {
@@ -56,16 +46,6 @@ public partial class InteractiveDisplay : WindowsFormsHost
     public static readonly DependencyProperty InvertRotationAxisYProperty =
         DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay),
             new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertY = (bool)b.NewValue; }));
-
-    private bool _invertZ;
-    public bool InvertRotationAxisZ
-    {
-        get { return (bool)GetValue(InvertRotationAxisZProperty); }
-        set { SetValue(InvertRotationAxisZProperty, value); }
-    }
-    public static readonly DependencyProperty InvertRotationAxisZProperty =
-        DependencyProperty.Register("InvertRotationAxisZ", typeof(bool), typeof(InteractiveDisplay),
-            new PropertyMetadata(false, (a, b) => { ((InteractiveDisplay)a)._invertZ = (bool)b.NewValue; }));
 
     private float _sensitivity = 1.0f;
     public float Sensitivity
@@ -163,12 +143,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
             float cameraSpeed = (float)Math.Abs(Renderer.LoadedParams.Camera.FocusDistance) * 2;
             translateVec *= cameraSpeed;
 
-            if (_invertX)
-                rotateVec.X = -rotateVec.X;
             if (_invertY)
                 rotateVec.Y = -rotateVec.Y;
-            if (_invertZ)
-                rotateVec.Z = -rotateVec.Z;
 
             //camera rotation speed depends on field of view
             float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
@@ -217,8 +193,6 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 float yawDelta = e.X - _lastX;
                 float pitchDelta = e.Y - _lastY;
 
-                if (_invertX)
-                    yawDelta = -yawDelta;
                 if (_invertY)
                     pitchDelta = -pitchDelta;
 

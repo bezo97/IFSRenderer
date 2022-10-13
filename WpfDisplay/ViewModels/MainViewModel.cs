@@ -49,9 +49,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
-    public bool InvertAxisX => workspace.InvertAxisX;
     public bool InvertAxisY => workspace.InvertAxisY;
-    public bool InvertAxisZ => workspace.InvertAxisZ;
     public float Sensitivity => (float)workspace.Sensitivity;
 
 

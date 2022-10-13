@@ -30,7 +30,7 @@ public partial class Workspace
     public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public Author CurrentUser { get; set; } = Author.Unknown;
-    public bool InvertAxisX, InvertAxisY, InvertAxisZ;
+    public bool InvertAxisY;
     public double Sensitivity;
     public string? EditedFilePath { get; private set; }
     [ObservableProperty] private bool _hasUnsavedChanges;
@@ -207,9 +207,7 @@ public partial class Workspace
         await Renderer.SetWorkgroupCount(Settings.Default.WorkgroupCount);
 
         Renderer.TargetFramerate = Settings.Default.TargetFramerate;
-        InvertAxisX = Settings.Default.InvertAxisX;
         InvertAxisY = Settings.Default.InvertAxisY;
-        InvertAxisZ = Settings.Default.InvertAxisZ;
         Sensitivity = Settings.Default.Sensitivity;
         CurrentUser = new Author
         {

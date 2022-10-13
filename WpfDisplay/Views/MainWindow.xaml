@@ -178,7 +178,7 @@
                                                 InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                                                 InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
                                                 Sensitivity="{Binding Sensitivity}"
-                                                InvertRotationAxisX="{Binding InvertAxisX}" InvertRotationAxisY="{Binding InvertAxisY}" InvertRotationAxisZ="{Binding InvertAxisZ}"/>
+                                                InvertRotationAxisY="{Binding InvertAxisY}"/>
                                             <local:ControlHintsPanel
                                                 Visibility="{Binding IsHintsPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="16"/>

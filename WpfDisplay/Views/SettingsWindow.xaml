@@ -89,13 +89,11 @@
                     <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">Controls</Label>
                     <!--Invert Axis-->
                     <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        Invert axis
+                        Invert Y axis (pitch)
                     </TextBlock>
                     <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal"
                         HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <CheckBox IsChecked="{Binding InvertAxisX}" ToolTip="Invert Yaw Axis" Margin="10">X</CheckBox>
-                        <CheckBox IsChecked="{Binding InvertAxisY}" ToolTip="Invert Pitch Axis" Margin="10">Y</CheckBox>
-                        <CheckBox IsChecked="{Binding InvertAxisZ}" ToolTip="Invert Roll Axis" Margin="10">Z</CheckBox>
+                        <CheckBox IsChecked="{Binding InvertAxisY}" Margin="10">Enable</CheckBox>
                     </StackPanel>
                     <!--Sensitivity-->
                     <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -151,16 +149,16 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!--Dialog Buttons-->
-            <Button Grid.Column="0"
+            <Button Grid.Column="0" Style="{StaticResource MaterialDesignFlatButton}"
                     Command="{Binding CancelDialogCommand}"
-                    IsCancel="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    IsCancel="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15">
                 Cancel
             </Button>
             <Button Grid.Column="1"
                     Command="{Binding OkDialogCommand}"
                     IsDefault="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15">
                 <StackPanel Orientation="Horizontal">
-                    <md:PackIcon Kind="ContentSave"/>
+                    <md:PackIcon Kind="ContentSave" Margin="4,0"/>
                     <TextBlock Text="Save"/>
                 </StackPanel>
             </Button>
