@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+﻿using System.Windows.Forms;
 using System;
 using System.IO;
 
@@ -21,81 +21,87 @@ public static class DialogHelper
     {
         CheckFileExists = true,
         Filter = _paramsFilter,
-        Tag = _openParamsGuid,
+        ClientGuid = _openParamsGuid,
+        RestoreDirectory = true,
         Title = "Open params"
     };
     private static readonly SaveFileDialog _saveParamsDialog = new()
     {
         DefaultExt = ".ifsjson",
         Filter = _paramsFilter,
-        Tag = _saveParamsGuid,
+        ClientGuid = _saveParamsGuid,
+        RestoreDirectory = true,
         Title = "Save params"
     };
     private static readonly SaveFileDialog _exportImageDialog = new()
     {
         DefaultExt = ".png",
         Filter = _imageFilter,
-        Tag = _exportImageGuid,
+        ClientGuid = _exportImageGuid,
+        RestoreDirectory = true,
         Title = "Export image"
     };
     private static readonly SaveFileDialog _exportExrDialog = new()
     {
         DefaultExt = ".exr",
         Filter = _exrFilter,
-        Tag = _exportExrGuid,
+        ClientGuid = _exportExrGuid,
+        RestoreDirectory = true,
         Title = "Export hdr image"
     };
     private static readonly OpenFileDialog _openPaletteDialog = new()
     {
         CheckFileExists = true,
         Filter = _paletteFilter,
-        Tag = _openPaletteGuid,
+        ClientGuid = _openPaletteGuid,
+        RestoreDirectory = true,
         Title = "Open palette"
     };
     private static readonly OpenFileDialog _openSoundDialog = new()
     {
         CheckFileExists = true,
         Filter = _soundFilter,
-        Tag = _openSoundGuid,
+        ClientGuid = _openSoundGuid,
+        RestoreDirectory = true,
         Title = "Open sound"
     };
 
     public static bool ShowOpenParamsDialog(out string FilePath)
     {
-        bool selected = _openParamsDialog.ShowDialog() ?? false;
+        bool selected = _openParamsDialog.ShowDialog() is DialogResult.OK;
         FilePath = _openParamsDialog.FileName;
         return selected;
     }
     public static bool ShowSaveParamsDialog(string filenameHint, out string FilePath)
     {
         _saveParamsDialog.FileName = Path.Combine(_saveParamsDialog.InitialDirectory, filenameHint + ".ifsjson");
-        bool selected = _saveParamsDialog.ShowDialog() ?? false;
+        bool selected = _saveParamsDialog.ShowDialog() is DialogResult.OK;
         FilePath = _saveParamsDialog.FileName;
         return selected;
     }
     public static bool ShowExportImageDialog(string filenameHint, out string FilePath)
     {
         _exportImageDialog.FileName = Path.Combine(_exportImageDialog.InitialDirectory, filenameHint + ".png");
-        bool selected = _exportImageDialog.ShowDialog() ?? false;
+        bool selected = _exportImageDialog.ShowDialog() is DialogResult.OK;
         FilePath = _exportImageDialog.FileName;
         return selected;
     }
     public static bool ShowExportExrDialog(string filenameHint, out string FilePath)
     {
         _exportExrDialog.FileName = Path.Combine(_exportExrDialog.InitialDirectory, filenameHint + ".exr");
-        bool selected = _exportExrDialog.ShowDialog() ?? false;
+        bool selected = _exportExrDialog.ShowDialog() is DialogResult.OK;
         FilePath = _exportExrDialog.FileName;
         return selected;
     }
     public static bool ShowOpenPaletteDialog(out string FilePath)
     {
-        bool selected = _openPaletteDialog.ShowDialog() ?? false;
+        bool selected = _openPaletteDialog.ShowDialog() is DialogResult.OK;
         FilePath = _openPaletteDialog.FileName;
         return selected;
     }
     public static bool ShowOpenSoundDialog(out string FilePath)
     {
-        bool selected = _openSoundDialog.ShowDialog() ?? false;
+        bool selected = _openSoundDialog.ShowDialog() is DialogResult.OK;
         FilePath = _openSoundDialog.FileName;
         return selected;
     }
