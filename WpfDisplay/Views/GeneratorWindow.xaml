@@ -78,8 +78,8 @@
                                             Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
                                             CommandParameter="{Binding Key}"
                                             Width="20" Height="20" FontSize="10" Margin="8"
-                                            HorizontalAlignment="Right" VerticalAlignment="Top"
-                                            Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">📌</Button>
+                                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">🗑</Button>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -130,7 +130,16 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <local:ValueSlider Grid.Column="0" Margin="8 0" Width="110" DataContext="{Binding BatchSize}"/>
-                                <Button VerticalAlignment="Bottom" Margin="8 0" Padding="30 0" Grid.Column="1" Command="{Binding GenerateRandomBatchCommand}">🎲 New batch</Button>
+                                <Button VerticalAlignment="Bottom" Margin="8 0" Padding="30 0" Grid.Column="1" Command="{Binding GenerateRandomBatchCommand}">
+                                    <Grid>
+                                        <TextBlock HorizontalAlignment="Center" Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            ⏳
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                            🎲 New batch
+                                        </TextBlock>
+                                    </Grid>
+                                </Button>
                             </Grid>
                         </StackPanel>
                     </Grid>

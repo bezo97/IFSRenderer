@@ -19,6 +19,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
             iterator.Vec3Params[Name] = new Vector3((float)value, iterator.Vec3Params[Name].Y, iterator.Vec3Params[Name].Z);
             workspace.Renderer.InvalidateParamsBuffer();
         },
+        Increment = 0.001,
         AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].X",
         ValueWillChange = workspace.TakeSnapshot,
     };
@@ -34,6 +35,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
             iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, (float)value, iterator.Vec3Params[Name].Z);
             workspace.Renderer.InvalidateParamsBuffer();
         },
+        Increment = 0.001,
         AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].Y",
         ValueWillChange = workspace.TakeSnapshot,
     };
@@ -49,6 +51,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
             iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, iterator.Vec3Params[Name].Y, (float)value);
             workspace.Renderer.InvalidateParamsBuffer();
         },
+        Increment = 0.001,
         AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].Z",
         ValueWillChange = workspace.TakeSnapshot,
     };

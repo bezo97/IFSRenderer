@@ -67,7 +67,7 @@ public partial class GeneratorViewModel
 
     public IEnumerable<KeyValuePair<IFS, ImageSource>> PinnedIFSThumbnails =>
         _workspace.PinnedIFS.Select(s => 
-        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
+        new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Reverse();
 
     public IEnumerable<KeyValuePair<IFS, ImageSource>> GeneratedIFSThumbnails =>
         _workspace.GeneratedIFS.Select(s => 
