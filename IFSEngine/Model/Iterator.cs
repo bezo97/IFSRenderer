@@ -49,26 +49,4 @@ public class Iterator
             kvp => Vec3Params.TryGetValue(kvp.Key, out Vector3 val) ? val : kvp.Value);
     }
 
-    public static Iterator RandomIterator(List<Transform> transforms)
-    {
-        var tf = transforms[RandHelper.Next(transforms.Count)];
-        var iterator = new Iterator(tf)
-        {
-            ColorIndex = RandHelper.NextDouble(),
-            ColorSpeed = RandHelper.NextDouble(),
-            StartWeight = 1.0,
-            Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
-            BaseWeight = RandHelper.NextDouble()
-        };
-        //TODO: parameter descriptor that tells min,max,increment,..
-        foreach (var var in iterator.RealParams.Keys.ToList())
-            iterator.RealParams[var] = RandHelper.NextDouble() * 2.2 - 1.1;
-        foreach (var var in iterator.Vec3Params.Keys.ToList())
-            iterator.Vec3Params[var] = new Vector3(
-                (float)(RandHelper.NextDouble() * 2.2 - 1.1),
-                (float)(RandHelper.NextDouble() * 2.2 - 1.1),
-                (float)(RandHelper.NextDouble() * 2.2 - 1.1));
-        return iterator;
-    }
-
 }

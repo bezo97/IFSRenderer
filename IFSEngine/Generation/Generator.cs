@@ -4,14 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IFSEngine.Generation;
 
 public class Generator
 {
     public List<Transform> SelectedTransforms { get; set; }
+
+    private static readonly HashSet<string> _preferredTransformNames = new() { "Affine", "Möbius", "Rotate Euler", "Spherical", "Translate" };
+    private static readonly HashSet<string> _angleParams = new() { "angle", "rot", "rotate", "rotation", "orientation", "inclination", "azimuth" };
 
     public Generator(IEnumerable<Transform> transforms)
     {
@@ -20,28 +21,25 @@ public class Generator
 
     public IEnumerable<IFS> GenerateBatch(GeneratorOptions options)
     {
-        double max_strength = options.MutationStrength;
         for (int i = 0; i < options.BatchSize; i++)
         {
-            options.MutationStrength = (double)i / options.BatchSize * max_strength;
             yield return GenerateOne(options);
         }
-        options.MutationStrength = max_strength;
     }
 
     public IFS GenerateOne(GeneratorOptions options)
     {
         IFS gen = options.baseParams.DeepClone();
+        var preferredTranforms = SelectedTransforms.Where(t => _preferredTransformNames.Contains(t.Name)).ToList();
         if (options.MutateIterators)
         {
             while (gen.Iterators.Count < 4)
             {
-                gen.AddIterator(newIterator(), true);
+                gen.AddIterator(CreateIterator(options, preferredTranforms), true);
             }
-            //TODO: 
             if (options.MutationChance > RandHelper.NextDouble())
             {
-                gen.AddIterator(newIterator(), true);
+                gen.AddIterator(CreateRandomOrPreferredIterator(options), true);
             }
             if (gen.Iterators.Count > 4 && options.MutationChance > RandHelper.NextDouble())
             {
@@ -51,17 +49,8 @@ public class Generator
         }
         if (options.MutateParameters)
         {
-            foreach (var it in gen.Iterators)
-            {
-                foreach (var v in it.RealParams)
-                {
-                    it.RealParams[v.Key] = MutateValue(it.RealParams[v.Key], options);
-                }
-                foreach (var v in it.Vec3Params)
-                {
-                    it.Vec3Params[v.Key] = MutateVec3(it.Vec3Params[v.Key], options);
-                }
-            }
+            foreach (var iterator in gen.Iterators)
+                MutateIteratorParams(iterator, options);
         }
         if (options.MutateConnections)
         {//add/remove
@@ -71,7 +60,7 @@ public class Generator
                 {
                     if (!it.WeightTo.TryGetValue(itTo, out _))
                         it.WeightTo[itTo] = 0.0;//hack
-                    if (options.MutationChance > RandHelper.NextDouble())
+                    if (options.MutationChance*0.5 > RandHelper.NextDouble()) //TODO: separate chance?
                     {
                         it.WeightTo[itTo] = 1.0 - (it.WeightTo[itTo] > 0.0 ? 1.0 : 0.0);
                     }
@@ -86,7 +75,7 @@ public class Generator
                 {
                     if (it.WeightTo[itTo] == 0.0)
                         continue;
-                    it.WeightTo[itTo] = Math.Max(0, MutateValue(it.WeightTo[itTo], options));
+                    it.WeightTo[itTo] = Math.Max(0, MutateValue(it.WeightTo[itTo], options.MutationChance, options.MutationStrength));
                 }
             }
         }
@@ -103,50 +92,83 @@ public class Generator
         {
             foreach (var it in gen.Iterators)
             {
-                it.ColorIndex = Math.Clamp(MutateValue(it.ColorIndex, options), 0.0, 1.0);
-                it.ColorSpeed = MutateValue(it.ColorSpeed, options);
+                it.ColorIndex = Math.Clamp(MutateValue(it.ColorIndex, options.MutationChance, options.MutationStrength), 0.0, 1.0);
+                it.ColorSpeed = MutateValue(it.ColorSpeed, options.MutationChance, options.MutationStrength);
             }
         }
         return gen;
     }
 
-    private Iterator newIterator()
+    private Iterator CreateRandomOrPreferredIterator(GeneratorOptions options)
     {
         Iterator newIterator;
-        //50% chance the new iterator is an affine
+        //50% chance the new iterator is preferred
         if (RandHelper.NextDouble() < 0.5)
-            newIterator = Iterator.RandomIterator(SelectedTransforms);
+            newIterator = CreateIterator(options, SelectedTransforms);
         else
-            newIterator = Iterator.RandomIterator(SelectedTransforms.Where(t => t.Name == "Affine").ToList());
-        //consider tags to use plugins the right way
-        if(newIterator.Transform.Tags.Contains("shape"))
         {
-            newIterator.Opacity = 0.0;
-            newIterator.Add = 1.0;
-            newIterator.ColorSpeed = 0.0;
+            var preferredTranforms = SelectedTransforms.Where(t => _preferredTransformNames.Contains(t.Name)).ToList();
+            newIterator = CreateIterator(options, preferredTranforms);
         }
         return newIterator;
     }
 
-    private static double MutateValue(double val, GeneratorOptions o)
+    private static Iterator CreateIterator(GeneratorOptions options, List<Transform> transforms)
     {
-        if (o.MutationChance > RandHelper.NextDouble())
-            return val + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble();
+        var selectedTransform = transforms[RandHelper.Next(transforms.Count)]; 
+
+        var iterator = new Iterator(selectedTransform)
+        {
+            BaseWeight = 0.5 + RandHelper.NextDouble(),
+            StartWeight = 1.0,
+            ColorIndex = RandHelper.NextDouble(),
+            ColorSpeed = 0.25 + 0.5*RandHelper.NextDouble(),
+            Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
+            ShadingMode = (RandHelper.Next(10) == 0) ? ShadingMode.DeltaPSpeed : ShadingMode.Default
+        };
+
+        //consider tags to use plugins the right way
+        if (iterator.Transform.Tags.Contains("shape"))
+        {
+            iterator.Opacity = 0.0;
+            iterator.Add = 1.0;
+            iterator.ColorSpeed = 0.0;
+        }
+
+        MutateIteratorParams(iterator, options);
+        return iterator;
+    }
+
+    private static double MutateValue(double val, double chance, double strength)
+    {
+        if (chance > RandHelper.NextDouble())
+            return val + -strength + 2.0 * strength * RandHelper.NextDouble();
         else
             return val;
     }
-    private static Vector3 MutateVec3(Vector3 val, GeneratorOptions o)
+    private static Vector3 MutateVec3(Vector3 val, double chance, double strength)
     {
-        if (o.MutationChance > RandHelper.NextDouble())
+        if (chance > RandHelper.NextDouble())
         {
             Vector3 v = val;
-            v.X = (float)(v.X + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
-            v.Y = (float)(v.Y + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
-            v.Z = (float)(v.Z + -o.MutationStrength / 2 + o.MutationStrength * RandHelper.NextDouble());
+            v.X = (float)(v.X + -strength + 2.0 * strength * RandHelper.NextDouble());
+            v.Y = (float)(v.Y + -strength + 2.0 * strength * RandHelper.NextDouble());
+            v.Z = (float)(v.Z + -strength + 2.0 * strength * RandHelper.NextDouble());
             return v;
         }
         else
             return val;
+    }
+    private static void MutateIteratorParams(Iterator iterator, GeneratorOptions options)
+    {
+        foreach (var v in iterator.RealParams)
+        {
+            iterator.RealParams[v.Key] = MutateValue(iterator.RealParams[v.Key], options.MutationChance, options.MutationStrength * (IsAngleParameter(v.Key) ? 360 : 1));
+        }
+        foreach (var v in iterator.Vec3Params)
+        {
+            iterator.Vec3Params[v.Key] = MutateVec3(iterator.Vec3Params[v.Key], options.MutationChance, options.MutationStrength * (IsAngleParameter(v.Key) ? 360 : 1));
+        }
     }
 
     /// <summary>
@@ -202,6 +224,12 @@ public class Generator
             min + range * (float)RandHelper.NextDouble(),
             min + range * (float)RandHelper.NextDouble(),
             1.0f);
+    }
+
+    private static bool IsAngleParameter(string paramName)
+    {
+        var lc = paramName.ToLowerInvariant();
+        return lc == "r" || _angleParams.Any(p => lc.Contains(p));
     }
 
 }

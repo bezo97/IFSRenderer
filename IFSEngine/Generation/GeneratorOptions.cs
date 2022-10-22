@@ -19,11 +19,14 @@ public class GeneratorOptions
     public bool MutateParameters = true;
     public bool MutatePalette = true;
     public bool MutateColoring = true;
-    public IFS baseParams = new()
-    {
-        Brightness = 1,
-        Gamma = 4,
-        ImageResolution = new Size(1080, 1080)
-    };
+    public IFS baseParams = DefaultStartingIfs;
     //TODO: select transforms
+
+    public static readonly IFS DefaultStartingIfs = new()
+    {
+        Brightness = 4,
+        Gamma = 4,
+        ImageResolution = new Size(1080, 1080),
+    };
+
 }
