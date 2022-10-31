@@ -74,8 +74,21 @@
             <StackPanel>
                 <Grid>
                     <Label>Coloring</Label>
-                    <CheckBox IsChecked="{Binding DeltaColoring}" ToolTip="An experimental coloring mode which makes hard-to-color structures (such as 1-iterator fractals, gnarl, ..) easier to color."
-                              HorizontalAlignment="Right" Foreground="LightGray" >Delta Coloring Mode</CheckBox>
+                    <CheckBox IsChecked="{Binding DeltaColoring}"
+                              HorizontalAlignment="Right" Foreground="LightGray">
+                        <CheckBox.ToolTip>
+                            <ToolTip Width="500">
+                                <StackPanel Margin="8">
+                                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}">Alternative Coloring (Delta-P coloring mode)</TextBlock>
+                                    <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" TextWrapping="Wrap">
+                                        An experimental coloring mode which makes hard-to-color structures (such as 1-iterator fractals, gnarl, ..) easier to color.
+                                    </TextBlock>
+                                    <Image Source="/IFSRenderer;component/Resources/deltap-tooltip.jpg" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                        Alternative Coloring
+                    </CheckBox>
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>

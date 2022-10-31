@@ -72,7 +72,7 @@
         </StackPanel>
         <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <StackPanel Margin="4">
-            <CheckBox IsChecked="{Binding EnableDE}">Density Estimation</CheckBox>
+            <CheckBox IsChecked="{Binding EnableDE}" ToolTip="Using density estimation.">Noise reduction</CheckBox>
             <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
                 <local:ValueSlider DataContext="{Binding DEMaxRadius}"/>
                 <local:ValueSlider DataContext="{Binding DEPower}"/>

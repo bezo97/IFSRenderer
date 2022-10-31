@@ -79,6 +79,7 @@
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Resource Include="Resources\deltap-tooltip.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
