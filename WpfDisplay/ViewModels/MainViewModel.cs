@@ -264,6 +264,8 @@ public sealed partial class MainViewModel : IAsyncDisposable
             Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
             workspace.UpdateStatusText($"Image exported to {path}");
         }
+        else
+            workspace.UpdateStatusText(string.Empty);
 
         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
         GC.Collect();
@@ -285,6 +287,8 @@ public sealed partial class MainViewModel : IAsyncDisposable
             OpenEXR.WriteStream(fstream, histogramData);
             workspace.UpdateStatusText($"Image exported to {path}");
         }
+        else
+            workspace.UpdateStatusText(string.Empty);
 
         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
         GC.Collect();
