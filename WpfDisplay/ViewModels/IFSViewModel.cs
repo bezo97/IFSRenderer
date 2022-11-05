@@ -132,7 +132,7 @@ public partial class IFSViewModel
     {
         var ivm = new IteratorViewModel(i, _workspace)
         {
-            RemoveCommand = RemoveSelectedCommand,
+            RemoveCommand = RemoveIteratorCommand,
             DuplicateCommand = DuplicateSelectedCommand
         };
         ivm.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
@@ -237,15 +237,7 @@ public partial class IFSViewModel
     [RelayCommand]
     private void RemoveSelected()
     {
-        if (SelectedIterator != null)
-        {
-            _workspace.TakeSnapshot();
-            _workspace.Ifs.RemoveIterator(SelectedIterator.iterator);
-            _workspace.Renderer.InvalidateParamsBuffer();
-            SelectedIterator = null;
-            HandleIteratorsChanged();
-        }
-        else if (SelectedConnection != null)
+        if (SelectedConnection is not null)
         {
             _workspace.TakeSnapshot();
             SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;
@@ -253,10 +245,23 @@ public partial class IFSViewModel
             SelectedConnection = null;
             HandleIteratorsChanged();
         }
+        else if (SelectedIterator is not null)
+            RemoveIteratorCommand.Execute(SelectedIterator);
     }
 
     [RelayCommand]
-    private void DuplicateSelected()
+    private void RemoveIterator(IteratorViewModel vm)
+    {
+        _workspace.TakeSnapshot();
+        _workspace.Ifs.RemoveIterator(vm.iterator);
+        _workspace.Renderer.InvalidateParamsBuffer();
+        if(SelectedIterator == vm)
+            SelectedIterator = null;
+        HandleIteratorsChanged();
+    }
+
+    [RelayCommand]
+    private void DuplicateSelected(IteratorViewModel vm)
     {
         if (SelectedIterator != null)
         {

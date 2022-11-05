@@ -61,7 +61,7 @@
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=grid}" Value="False">
-                            <Setter Property="Visibility" Value="Hidden"/>
+                            <Setter Property="Visibility" Value="{Binding IsSelected, Converter={StaticResource visibilityConverter}}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -83,7 +83,7 @@
                 ⚖
             </Button>
             <Button
-                Command="{Binding DuplicateCommand}"
+                Command="{Binding DuplicateCommand}" CommandParameter="{Binding}"
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"
                 FontWeight="Bold" ToolTip="Duplicate (Ctrl+D)"
@@ -91,7 +91,7 @@
                 🗎🗎
             </Button>
             <Button
-                Command="{Binding RemoveCommand}"
+                Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5"
                 ToolTip="Remove (Delete)"

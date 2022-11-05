@@ -47,8 +47,8 @@ public partial class IteratorViewModel
         }
     }
 
-    public IRelayCommand RemoveCommand { get; set; }
-    public IRelayCommand DuplicateCommand { get; set; }
+    public IRelayCommand<IteratorViewModel> RemoveCommand { get; set; }
+    public IRelayCommand<IteratorViewModel> DuplicateCommand { get; set; }
 
     public void Redraw()
     {

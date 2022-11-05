@@ -11,7 +11,8 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
     <UserControl.Resources>
-        <VisualBrush x:Key="gridPatternBrush" TileMode="Tile" 
+        <SolidColorBrush x:Key="bgBrush" Color="Gray"/>
+        <!--<VisualBrush x:Key="bgBrush" TileMode="Tile" 
                      Viewport="0,0,25,25" ViewportUnits="Absolute" Viewbox="0,0,25,25" ViewboxUnits="Absolute">
             <VisualBrush.Visual>
                 <Grid Background="Gray">
@@ -19,7 +20,7 @@
                     <Path Data="M 0 25 L 25 25" Stroke="DarkSlateGray" />
                 </Grid>
             </VisualBrush.Visual>
-        </VisualBrush>
+        </VisualBrush>-->
     </UserControl.Resources>
     <Grid>
         <xc:Zoombox
@@ -34,7 +35,7 @@
                 Position="0,0"
                 Scale="1"
                 >
-            <Grid x:Name="wrapperGrid" ClipToBounds="False" Background="{StaticResource gridPatternBrush}">
+            <Grid x:Name="wrapperGrid" ClipToBounds="False" Background="{StaticResource bgBrush}">
                 <!--Temporary arrow which indicates a new connection being dragged-->
                 <local:ConnectionArrow x:Name="dragArrow"
                     StartPoint="{Binding ConnectingIterator.Position}"
