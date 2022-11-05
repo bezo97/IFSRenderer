@@ -177,6 +177,7 @@
                                                 Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
                                                 InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                                                 InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
+                                                GamepadConnectionStateChanged="mainDisplay_GamepadConnectionStateChanged"
                                                 Sensitivity="{Binding Sensitivity}"
                                                 InvertRotationAxisY="{Binding InvertAxisY}"/>
                                             <local:ControlHintsPanel
@@ -280,6 +281,26 @@
                             </EventTrigger>
                         </TextBlock.Triggers>
                     </TextBlock>
+                </StatusBarItem>
+                <StatusBarItem Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right">
+                    <StatusBarItem.Style>
+                        <Style TargetType="{x:Type StatusBarItem}">
+                            <Style.Triggers>
+                                <!--Blink icon after gamepad connected-->
+                                <Trigger Property="Visibility" Value="Visible">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard Duration="0:0:3">
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" 
+                                                                 Duration="0:0:0.5" AutoReverse="True" RepeatBehavior="Forever"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StatusBarItem.Style>
+                    <md:PackIcon Kind="MicrosoftXboxGamepad" Foreground="White"/>
                 </StatusBarItem>
             </StatusBar>
         </md:Card>

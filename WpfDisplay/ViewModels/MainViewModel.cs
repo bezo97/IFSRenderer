@@ -45,6 +45,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
 
     [ObservableProperty] private string _statusBarText;
     [ObservableProperty] private bool _isHintsPanelVisible = true;
+    [ObservableProperty] private bool _isGamepadConnected = false;
 
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public bool IsColorPickerEnabled => !TransparentBackground;

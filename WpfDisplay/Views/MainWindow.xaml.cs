@@ -251,4 +251,9 @@ public partial class MainWindow : Window
         //if preview -> SetHistogramScaleToDisplay
         vm?.workspace.Renderer.InvalidateDisplay();
     }
+
+    private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e)
+    {
+        await Dispatcher.InvokeAsync(() => vm.IsGamepadConnected = e);
+    }
 }

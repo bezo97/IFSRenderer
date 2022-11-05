@@ -57,6 +57,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
         DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay),
             new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a)._sensitivity = (float)b.NewValue; }));
 
+    bool _isGamepadConnected = false;
+    public event EventHandler<bool> GamepadConnectionStateChanged;
+
     [DllImport("User32.dll")]
     private static extern bool SetCursorPos(int X, int Y);
 
@@ -112,7 +115,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
             }
 
             //gamepad input
-            if (XInput.GetState(0, out State s))
+            var connected = XInput.GetState(0, out State s);
+            if (connected)
             {
                 float sideDelta = 0.0f;
                 if (Math.Abs(s.Gamepad.LeftThumbX + 1) > Gamepad.LeftThumbDeadZone * DeadZoneMultiplier)
@@ -134,6 +138,12 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 translateVec += new Vector3(sideDelta, 0.0f, forwardDelta) * 0.01f;
                 rotateVec += new Vector3(yawDelta, pitchDelta, rollDelta * 0.1f) * 0.1f;
                 fdDelta += s.Gamepad.RightTrigger / 255.0f - s.Gamepad.LeftTrigger / 255.0f;
+            }
+
+            if(_isGamepadConnected != connected)
+            {
+                _isGamepadConnected = connected;
+                GamepadConnectionStateChanged?.Invoke(this, _isGamepadConnected);
             }
 
             if ((translateVec + rotateVec).Length() + fdDelta == 0.0f)
