@@ -263,14 +263,11 @@ public partial class IFSViewModel
     [RelayCommand]
     private void DuplicateSelected(IteratorViewModel vm)
     {
-        if (SelectedIterator != null)
-        {
-            _workspace.TakeSnapshot();
-            Iterator dupe = _workspace.Ifs.DuplicateIterator(SelectedIterator.iterator);
-            _workspace.Renderer.InvalidateParamsBuffer();
-            HandleIteratorsChanged();
-            SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
-        }
+        _workspace.TakeSnapshot();
+        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator);
+        _workspace.Renderer.InvalidateParamsBuffer();
+        HandleIteratorsChanged();
+        SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
     }
 
     [RelayCommand]
