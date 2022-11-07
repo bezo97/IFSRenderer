@@ -15,7 +15,7 @@ public class Iterator
     public Dictionary<string, Vector3> Vec3Params { get; private set; } = new();
 
     public double BaseWeight { get; set; } = 1.0;//not normalized
-    public double ColorSpeed { get; set; } = 0.0;
+    public double ColorSpeed { get; set; } = 0.5;
     public double ColorIndex { get; set; } = 0.0;//0 - 1
     public double StartWeight { get; set; } = 1.0;
     public double Opacity { get; set; } = 1.0;

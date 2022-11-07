@@ -81,12 +81,7 @@ public class Generator
         }
         if (options.MutatePalette)
         {
-            //TODO: params
-            var bias = RandomVector(0.4f, 0.8f);
-            var mult = RandomVector(0.2f, 1.2f);
-            var freq = RandomVector(0.1f, 1.0f);
-            var phase = RandomVector(0.0f, 1.0f);
-            gen.Palette = PaletteFromIqParams(bias, mult, freq, phase);
+            gen.Palette = GenerateRandomIqPalette();
         }
         if (options.MutateColoring)
         {
@@ -169,6 +164,15 @@ public class Generator
         {
             iterator.Vec3Params[v.Key] = MutateVec3(iterator.Vec3Params[v.Key], options.MutationChance, options.MutationStrength * (IsAngleParameter(v.Key) ? 360 : 1));
         }
+    }
+
+    public static FlamePalette GenerateRandomIqPalette()
+    {
+        var bias = RandomVector(0.4f, 0.8f);
+        var mult = RandomVector(0.2f, 1.2f);
+        var freq = RandomVector(0.1f, 1.0f);
+        var phase = RandomVector(0.0f, 1.0f);
+        return PaletteFromIqParams(bias, mult, freq, phase);
     }
 
     /// <summary>

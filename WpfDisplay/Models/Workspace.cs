@@ -127,7 +127,10 @@ public partial class Workspace
 
     public void LoadBlankParams()
     {
-        LoadParams(new IFS());
+        LoadParams(new IFS
+        {
+            Palette = Generator.GenerateRandomIqPalette()
+        });
     }
 
     public void LoadRandomParams()
