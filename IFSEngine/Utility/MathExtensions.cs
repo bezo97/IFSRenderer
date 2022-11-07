@@ -8,6 +8,7 @@ public static class MathExtensions
 {
     public static float Lerp(float a, float b, float t) => t * b + (1.0f - t) * a;
     public static double Lerp(double a, double b, double t) => t * b + (1.0 - t) * a;
+    public static T Lerp<T>(T a, T b, float t) => t * (b as dynamic) + (1.0f - t) * (a as dynamic);
     public static double Remap(this double from, double fromMin, double fromMax, double toMin, double toMax)
     {
         var fromAbs = from - fromMin;

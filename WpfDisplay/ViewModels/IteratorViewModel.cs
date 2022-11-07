@@ -100,24 +100,20 @@ public partial class IteratorViewModel
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    private ValueSliderViewModel _colorIndex;
-    public ValueSliderViewModel ColorIndex => _colorIndex ??= new ValueSliderViewModel(_workspace)
+    // TODO: color index undoredo, animation
+    //    AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorIndex)}",
+    //    ValueWillChange = _workspace.TakeSnapshot,
+    public double ColorIndex
     {
-        Label = "Color Index",
-        ToolTip = "Indexes to the color on the palette. 0 -> Left most color, 1 -> Right most color.",
-        DefaultValue = 0.0,
-        GetV = () => iterator.ColorIndex,
-        SetV = (value) => {
+        get => iterator.ColorIndex;
+        set
+        {
             iterator.ColorIndex = value;
             _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(ColorIndex));
             OnPropertyChanged(nameof(ColorRGB));
-        },
-        MinValue = 0,
-        MaxValue = 1,
-        Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorIndex)}",
-        ValueWillChange = _workspace.TakeSnapshot,
-    };
+        }
+    }
 
     private ValueSliderViewModel _colorSpeed;
     public ValueSliderViewModel ColorSpeed => _colorSpeed ??= new ValueSliderViewModel(_workspace)
@@ -140,9 +136,8 @@ public partial class IteratorViewModel
     {
         get
         {
-            var colors = _workspace.Ifs.Palette.Colors;
-            var c = colors[(int)(colors.Count * (ColorIndex.Value - Math.Floor(ColorIndex.Value)))];
-            return Color.FromRgb((byte)(255 * c.X), (byte)(255 * c.Y), (byte)(255 * c.Z));
+            var c = _workspace.Ifs.Palette.GetColorLerp((float)ColorIndex);
+            return Color.FromRgb((byte)(c.X*255), (byte)(c.Y * 255), (byte)(c.Z * 255));
         }
     }
 

@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="WpfDisplay.Views.PaletteSlider"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        mc:Ignorable="d" Name="PaletteSlider1"
+        d:DesignHeight="20" d:DesignWidth="300">
+    <UserControl.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+            <LinearGradientBrush.GradientStops>
+                <GradientStopCollection x:Name="gradientStops"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+    </UserControl.Background>
+    <Slider x:Name="slider"
+            Value="{Binding ColorIndex, ElementName=PaletteSlider1}"
+            Minimum="0" Maximum="1" TickFrequency="0.01" 
+            IsSnapToTickEnabled="False" IsMoveToPointEnabled="True"
+            ValueChanged="Slider_ValueChanged">
+        <Slider.Template>
+            <ControlTemplate TargetType="{x:Type Slider}">
+                <Track Name="PART_Track">
+                    <Track.Resources>
+                        <SolidColorBrush x:Key="brush" Color="Red"/>
+                    </Track.Resources>
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Opacity="0.01"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb>
+                            <Thumb.Template>
+                                <ControlTemplate TargetType="{x:Type Thumb}">
+                                    <Rectangle VerticalAlignment="Center"
+                                        Width="10" Height="30"
+                                        Name="Rectangle1" 
+                                        Fill="{DynamicResource brush}"
+                                        Stroke="Black"
+                                        StrokeThickness="2" />
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Rectangle1" Property="StrokeThickness" Value="3"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter TargetName="Rectangle1" Property="StrokeThickness" Value="2"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Opacity="0.01"/>
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </ControlTemplate>
+        </Slider.Template>
+    </Slider>
+</UserControl>
