@@ -69,7 +69,7 @@ void main(void)
 	vec2 uv = vec2(gl_FragCoord.x/float(width),gl_FragCoord.y/float(height));
 	int pxi = px+py*width;
 
-	vec4 c = histogram[pxi];
+	vec4 c = histogram[pxi].wwww;
 	c = logscale(c);
 	c = tonemap(c);
 	color = c;

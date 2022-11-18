@@ -376,20 +376,21 @@ float Mitchell_Netravali(float x /*,B, C*/)
 		return 0.0;
 }
 
-void accumulate_hit(ivec2 proj, vec4 color)
+void accumulate_hit(ivec2 proj, float newz, vec4 color)
 {
 	int ipx = proj.x + proj.y * width;//pixel index
-#ifdef GL_NV_shader_atomic_float
-	//Use atomic float add if available. Slower but more accurate.
-	atomicAdd(histogram[ipx].r, color.r);
-	atomicAdd(histogram[ipx].g, color.g);
-	atomicAdd(histogram[ipx].b, color.b);
-	atomicAdd(histogram[ipx].w, color.w);//db
-#else
-	histogram[ipx].rgb += color.rgb;
-	histogram[ipx].w += color.w;//db
-#endif
-
+//#ifdef GL_NV_shader_atomic_float
+//	//Use atomic float add if available. Slower but more accurate.
+//	atomicAdd(histogram[ipx].r, color.r);
+//	atomicAdd(histogram[ipx].g, color.g);
+//	atomicAdd(histogram[ipx].b, color.b);
+//	atomicAdd(histogram[ipx].w, color.w);//db
+//#else
+//	histogram[ipx].rgb += color.rgb;
+//	histogram[ipx].w += color.w;//db
+//#endif
+    histogram[ipx].r = newz;
+    histogram[ipx].w += color.w;
 }
 
 void main() {
@@ -398,9 +399,9 @@ void main() {
 	uint next = 34567;//TODO: option to change this seed by animation frame number
 
 	p_state p;
-	if (reset_points_state == 1)//after invalidation
-		p = reset_state(next);
-	else
+    if (reset_points_state == 1)//after invalidation
+        p = reset_state(next);
+    else
 		p = state[gid];
 	
 	for (int i = 0; i < invocation_iters; i++)
@@ -478,18 +479,34 @@ void main() {
 					vec2 nb = vec2(proj + ivec2(ax, ay));
 					float pd = distance(nb, projf);
 
-					//TODO: use settings.filter_method to pick one
-					//float aw = max(0.0, 1.0-pd);
-					//float aw = max(0.0, Lanczos(pd, 2));
-					float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
-					if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
-						accumulate_hit(ivec2(nb), aw * color);
+						//TODO: use settings.filter_method to pick one
+						//float aw = max(0.0, 1.0-pd);
+						//float aw = max(0.0, Lanczos(pd, 2));
+						float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
+						//if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
+						//	accumulate_hit(ivec2(nb), aw * color);
+					}
 				}
 			}
-		}
 		else
 		{
-			accumulate_hit(proj, color);
+
+
+            int ipx = proj.x + proj.y * width;//pixel index
+            if (reset_points_state == 1)
+                histogram[ipx].r = 9999999.0;
+
+            float z = histogram[ipx].r;
+            float t = settings.camera.focus_distance;//TODO: add parameter instead of focus_distance
+
+            //zy0rg "solid look" experiment
+            float d = distance(p.pos.xyz, settings.camera.position.xyz);
+            float c = clamp(exp((z - d) * t), 0.0, 1.0);
+            if (proj.x > width / 2)//debug: apply on only half of the image
+                color *= c;
+            float newz = min(z, d);
+
+			accumulate_hit(proj, newz, color);
 		}
 	
 	}
