@@ -196,8 +196,8 @@
                                     <LayoutAnchorable
                                         Title="Animations" ToolTip="Animations" ContentId="Animations"
                                         CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                        <!--<animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>-->
-                                        <Grid>
+                                        <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
+                                        <!--<Grid>
                                             <Grid>
                                                 <Grid.BitmapEffect>
                                                     <BlurBitmapEffect Radius="5"/>
@@ -209,7 +209,7 @@
                                                 HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">
                                                 <Run FontSize="36">🛠️</Run> <LineBreak/> Animations <LineBreak/> Under construction
                                             </TextBlock>
-                                        </Grid>
+                                        </Grid>-->
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
