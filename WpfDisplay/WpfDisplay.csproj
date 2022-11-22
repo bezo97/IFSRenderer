@@ -30,6 +30,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Cavern" Version="1.6.0" />
+		<PackageReference Include="Cavern.Format" Version="1.6.0" />
+		<PackageReference Include="Cavern.QuickEQ" Version="1.6.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.2" />
 		<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.70.2" />
@@ -80,21 +83,6 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Resources\deltap-tooltip.jpg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Reference Include="Cavern">
-	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Cavern.Filters">
-	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.Filters.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Cavern.Format">
-	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.Format.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Cavern.QuickEQ">
-	    <HintPath>..\..\..\Downloads\tmp\cavern\Cavern.QuickEQ.dll</HintPath>
-	  </Reference>
 	</ItemGroup>
 
 	<ItemGroup>
