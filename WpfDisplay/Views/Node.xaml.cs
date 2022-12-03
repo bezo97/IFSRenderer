@@ -69,10 +69,18 @@ public partial class Node : UserControl
         };
     }
 
-    protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+    protected override void OnMouseDown(MouseButtonEventArgs e)
     {
-        base.OnPreviewMouseUp(e);
+        base.OnMouseDown(e);
+        e.Handled = true;
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        e.Handled = true;
         _t = null;
+        Mouse.Capture(null);
         if (e.ChangedButton == MouseButton.Left)
         {
             var vm = (IteratorViewModel)DataContext;
@@ -85,32 +93,46 @@ public partial class Node : UserControl
         return new Point(Canvas.GetLeft(_parentContainer), Canvas.GetTop(_parentContainer));
     }
 
-    private void coloredBorderEllipse_MouseDown(object sender, MouseButtonEventArgs e)
+    private void dragHandle_MouseMove(object sender, MouseEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Left)
+        if (_t is not null)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Mouse.Capture((IInputElement)sender);
+                e.Handled = true;
+                Position = BindablePoint.FromPoint(e.GetPosition(ParentCanvas) + _t.Value);
+            }
+        }
+    }
+
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
+        base.OnMouseLeave(e);
+        if (e.LeftButton == MouseButtonState.Pressed)
         {
             e.Handled = true;
             vm.StartConnecting();
         }
     }
 
-    private void ellipseBody_MouseDown(object sender, MouseButtonEventArgs e)
+    private void UserControl_GotFocus(object sender, RoutedEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Left)
+        var vm = (IteratorViewModel)DataContext;
+        SelectCommand.Execute(vm);
+    }
+
+    private void Label_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
         {
-            e.Handled = true;
-            var vm = (IteratorViewModel)DataContext;
             _t = GetCanvasPosition() - e.GetPosition(ParentCanvas);
-            SelectCommand.Execute(vm);
         }
     }
 
-    private void ellipseBody_MouseMove(object sender, MouseEventArgs e)
+    private void ellipseBody_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.LeftButton == MouseButtonState.Pressed && _t is not null)
-        {
-            e.Handled = true;
-            Position = BindablePoint.FromPoint(e.GetPosition(ParentCanvas) + _t.Value);
-        }
+        this.Focus();
     }
 }

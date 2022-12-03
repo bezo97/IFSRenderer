@@ -8,7 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="150"
              d:DataContext="{d:DesignInstance Type=vm:IteratorViewModel}"
-             Width="{Binding NodeSize}" Height="{Binding NodeSize}">
+             Width="{Binding NodeSize}" Height="{Binding NodeSize}"
+             Focusable="True" IsTabStop="True" GotFocus="UserControl_GotFocus">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="visibilityConverter"/>
     </UserControl.Resources>
@@ -16,19 +17,20 @@
         <TranslateTransform X="{Binding RenderTranslateValue}" Y="{Binding RenderTranslateValue}"/>
     </UserControl.RenderTransform>
     <Grid x:Name="grid">
-        <Ellipse x:Name="coloredBorderEllipse"
-                 Stretch="UniformToFill" Cursor="Hand" Fill="{DynamicResource borderBrush}"
-                 MouseDown="coloredBorderEllipse_MouseDown">
+        <Ellipse x:Name="ellipseBody"
+                 Stretch="UniformToFill" Cursor="Hand"
+                 Stroke="{DynamicResource borderBrush}"
+                 MouseDown="ellipseBody_MouseDown">
             <Ellipse.Resources>
                 <SolidColorBrush x:Key="borderBrush" Color="{Binding ColorRGB}"/>
                 <Style TargetType="Ellipse">
                     <Style.Triggers>
                         <!--Grow border on node hover-->
                         <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=grid}" Value="True">
-                            <Setter Property="Margin" Value="-10"/>
+                            <Setter Property="StrokeThickness" Value="8"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=grid}" Value="False">
-                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="StrokeThickness" Value="4"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -36,11 +38,6 @@
             <Ellipse.Effect>
                 <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
             </Ellipse.Effect>
-        </Ellipse>
-        <Ellipse x:Name="ellipseBody"
-                 Stretch="UniformToFill" Cursor="Hand" Margin="10"
-                 MouseDown="ellipseBody_MouseDown"
-                 MouseMove="ellipseBody_MouseMove">
             <Ellipse.Fill>
                 <RadialGradientBrush>
                     <GradientStop Color="{Binding OpacityColor, UpdateSourceTrigger=PropertyChanged}" Offset="0.98"/>
@@ -52,7 +49,7 @@
             Content="{Binding NodeLabel, UpdateSourceTrigger=PropertyChanged}" 
             HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"
             Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-        <Grid  d:Visibility="Visible">
+        <Grid d:Visibility="Visible">
             <Grid.Resources>
                 <Style TargetType="Grid">
                     <Style.Triggers>
@@ -66,6 +63,17 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Resources>
+            <Label
+                Width="30" Height="25" Padding="0"
+                VerticalAlignment="Top" HorizontalAlignment="Center"
+                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                FontSize="18" Foreground="LightGray" Cursor="SizeAll"
+                MouseMove="dragHandle_MouseMove" MouseDown="Label_MouseDown">
+                ══
+                <Label.Effect>
+                    <DropShadowEffect Color="Black" ShadowDepth="1.0" BlurRadius="0.5"/>
+                </Label.Effect>
+            </Label>
             <Button
                 Command="{Binding FlipOpacityCommand}"
                 Width="30" Height="30" FontSize="18"
@@ -98,9 +106,8 @@
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗑️
             </Button>
-            <!--big time hack-->
             <Button
-                IsHitTestVisible="False"
+                Command="{Binding ConnectSelfCommand}"
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="-15"
                 ToolTip="Connect self"

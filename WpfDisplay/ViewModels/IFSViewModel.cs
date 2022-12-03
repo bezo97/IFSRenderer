@@ -150,8 +150,11 @@ public partial class IFSViewModel
 
     private void Iterator_ConnectingStarted(object? sender, EventArgs e)
     {
-        ConnectingIterator = (IteratorViewModel)sender!;
-        ConnectingIterator.Redraw();
+        if (ConnectingIterator is null)
+        {
+            ConnectingIterator = (IteratorViewModel)sender!;
+            ConnectingIterator.Redraw();
+        }
     }
 
     private void Iterator_ConnectingEnded(object? sender, EventArgs e)

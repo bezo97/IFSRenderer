@@ -257,6 +257,13 @@ public partial class IteratorViewModel
     public void FinishConnecting() => ConnectingEnded?.Invoke(this, null);
 
     [RelayCommand]
+    private void ConnectSelf()
+    {
+        StartConnecting();
+        FinishConnecting();
+    }
+
+    [RelayCommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();
 
     [RelayCommand]
