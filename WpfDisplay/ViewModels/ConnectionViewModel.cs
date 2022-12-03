@@ -18,7 +18,11 @@ public partial class ConnectionViewModel
     public readonly IteratorViewModel to;
     private readonly Workspace _workspace;
 
-    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ForegroundZIndex))]
+    private bool _isSelected;
+
+    public int ForegroundZIndex => IsSelected ? 1 : 0;
 
     public BindablePoint StartPoint => from.Position;
     public BindablePoint EndPoint => to.Position;

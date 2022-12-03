@@ -49,6 +49,11 @@
                                     Height="{Binding ActualHeight, ElementName=ZoomBorder, Mode=OneWay}"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="Canvas.ZIndex" Value="{Binding ForegroundZIndex}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
                     <ItemsControl.Resources>
                         <DataTemplate DataType="{x:Type vm:IteratorViewModel}">
                             <local:Node

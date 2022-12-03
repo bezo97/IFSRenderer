@@ -62,7 +62,11 @@ public partial class IteratorViewModel
         OnPropertyChanged("ConnectionProps");
     }
 
-    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ForegroundZIndex))]
+    private bool _isSelected;
+
+    public int ForegroundZIndex => IsSelected ? 3 : 2;
 
     private ValueSliderViewModel _startWeight;
     public ValueSliderViewModel StartWeight => _startWeight ??= new ValueSliderViewModel(_workspace)
