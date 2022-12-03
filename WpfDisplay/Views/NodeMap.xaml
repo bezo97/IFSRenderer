@@ -27,7 +27,7 @@
                 x:Name="ZoomBorder" 
                 IsAnimated="True"
                 AnimationDuration="0:0:0.05"
-                KeepContentInBounds="False" 
+                KeepContentInBounds="True" 
                 DragModifiers="None"
                 RelativeZoomModifiers="None"
                 Cursor="Arrow"
@@ -37,9 +37,12 @@
                 >
             <Grid x:Name="wrapperGrid" ClipToBounds="False" Background="{StaticResource bgBrush}">
                 <!--Temporary arrow which indicates a new connection being dragged-->
-                <local:ConnectionArrow x:Name="dragArrow"
-                    StartPoint="{Binding ConnectingIterator.Position}"
-                    Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
+                <Canvas>
+                    <local:ConnectionArrow x:Name="dragArrow"
+                        StartPoint="{Binding ConnectingIterator.Position}"
+                        Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
+                </Canvas>
+                
                 <!--Map Nodes and Arrows to Iterators and weights-->
                 <ItemsControl ItemsSource="{Binding NodeMapElements}" x:Name="itemsControl">
                     <ItemsControl.ItemsPanel>
