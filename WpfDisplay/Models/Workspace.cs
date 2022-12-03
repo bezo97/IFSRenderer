@@ -32,6 +32,7 @@ public partial class Workspace
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisY;
     public double Sensitivity;
+    public bool UseWhiteForBlankParams;
     public string? EditedFilePath { get; private set; }
     [ObservableProperty] private bool _hasUnsavedChanges;
 
@@ -63,7 +64,7 @@ public partial class Workspace
 
     public async Task Initialize()
     {
-        await LoadUserSettings();
+        await ApplyUserSettings();
         await LoadTransformLibrary();
         await Renderer.Initialize(_loadedTransforms);
 
@@ -127,10 +128,10 @@ public partial class Workspace
 
     public void LoadBlankParams()
     {
-        LoadParams(new IFS
-        {
-            Palette = Generator.GenerateRandomIqPalette()
-        });
+        var blankParams = new IFS();
+        if (!UseWhiteForBlankParams)
+            blankParams.Palette = Generator.GenerateRandomIqPalette();
+        LoadParams(blankParams);
     }
 
     public void LoadRandomParams()
@@ -198,7 +199,7 @@ public partial class Workspace
         HasUnsavedChanges = true;
     }
 
-    public async Task LoadUserSettings()
+    public async Task ApplyUserSettings()
     {
         if (!ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).HasFile)
         {//migrate user settings from previous version
@@ -212,6 +213,7 @@ public partial class Workspace
         Renderer.TargetFramerate = Settings.Default.TargetFramerate;
         InvertAxisY = Settings.Default.InvertAxisY;
         Sensitivity = Settings.Default.Sensitivity;
+        UseWhiteForBlankParams = Settings.Default.UseWhiteForBlankParams;
         CurrentUser = new Author
         {
             Name = Settings.Default.AuthorName,

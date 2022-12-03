@@ -24,7 +24,7 @@ internal partial class SettingsViewModel
     {
         Settings.Default.Save();//writes user.config in AppData
 
-        await _mainvm.workspace.LoadUserSettings();
+        await _mainvm.workspace.ApplyUserSettings();
 
         SettingsSaved?.Invoke(this, null);
     }
@@ -74,6 +74,16 @@ internal partial class SettingsViewModel
         {
             Settings.Default.NotifyRenderFinished = value ?? false;
             OnPropertyChanged(nameof(Notifications));
+        }
+    }
+
+    public bool? UseWhiteForBlankParams
+    {
+        get => Settings.Default.UseWhiteForBlankParams;
+        set
+        {
+            Settings.Default.UseWhiteForBlankParams = value ?? false;
+            OnPropertyChanged(nameof(UseWhiteForBlankParams));
         }
     }
 

@@ -33,6 +33,7 @@
                         <RowDefinition Height="auto" MinHeight="50"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
                         <RowDefinition Height="auto" MinHeight="50"/>
+                        <RowDefinition Height="auto" MinHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.66*"/>
@@ -72,6 +73,14 @@
                         ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding Notifications}" IsEnabled="False"/>
+                    <!--UseWhiteForBlankParams-->
+                    <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
+                        White blank params
+                    </TextBlock>
+                    <Label Grid.Row="5" Grid.Column="1"
+                        ToolTip="Check this to use a simple white palette instead of random colors When starting from scratch in blank params." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <CheckBox Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding UseWhiteForBlankParams}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="🕹️ Controls" MinWidth="150">
