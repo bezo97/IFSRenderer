@@ -12,7 +12,7 @@ namespace IFSEngine.Model;
 /// <summary>
 /// Traditional 1D flame fractal color palette. *.ugr / *.gradient
 /// </summary>
-public class FlamePalette
+public partial class FlamePalette
 {
     public string Name { get; set; } = "Empty Palette";
     public int Rotation { get; set; } = 0;
@@ -29,6 +29,18 @@ public class FlamePalette
         }
     };
 
+    [GeneratedRegex("{[^{]+}")]
+    private static partial Regex paletteMatcher();
+
+    [GeneratedRegex("title=\"([^\"]*)\"\\s")]
+    private static partial Regex titleMatcher();
+
+    [GeneratedRegex("rotation=(-?\\d*)\\s")]
+    private static partial Regex rotationMatcher();
+
+    [GeneratedRegex("index=(-?\\d+)\\s+color=(\\d+)\\s")]
+    private static partial Regex colorIndexMatcher();
+
     /// <summary>
     /// Parse *.gradient, *.ugr files. Compatible with ChaosHelper, UltraFractal.
     /// </summary>
@@ -38,16 +50,16 @@ public class FlamePalette
         List<FlamePalette> palettes = new();
         string content = await File.ReadAllTextAsync(filePath);
         //find palettes in file
-        var paletteTexts = Regex.Matches(content, "{[^{]+}").Select(m=>m.Value).ToList();
+        var paletteTexts = paletteMatcher().Matches(content).Select(m=>m.Value).ToList();
         foreach (var paletteText in paletteTexts)
         {
             //parse palette data
-            var title = Regex.Match(paletteText, "title=\"([^\"]*)\"\\s").Groups[1].Value;//title="some title"
+            var title = titleMatcher().Match(paletteText).Groups[1].Value;//title="some title"
             int rotation = 0;
-            var rotationMatch = Regex.Match(paletteText, @"rotation=(-?\d*)\s");//rotation=-42
+            var rotationMatch = rotationMatcher().Match(paletteText);//rotation=-42
             if (rotationMatch.Success)
                 rotation = int.Parse(rotationMatch.Groups[1].Value);
-            var indexedColors = Regex.Matches(paletteText, @"index=(-?\d+)\s+color=(\d+)\s")//index=-5 color=235434
+            var indexedColors = colorIndexMatcher().Matches(paletteText)//index=-5 color=235434
                 .Select(m =>
                 {
                     var bytes = BitConverter.GetBytes(int.Parse(m.Groups[2].Value));

@@ -20,6 +20,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageTags>fractal;3d;graphics;art;ifs;rendering;interactive</PackageTags>
 		<PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>

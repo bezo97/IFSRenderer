@@ -152,10 +152,8 @@ public partial class MainWindow : Window
             }
         }
 
-        if (_generatorWindow != null)
-            _generatorWindow.Close();
-        if (_editorWindow != null)
-            _editorWindow.Close();
+        _generatorWindow?.Close();
+        _editorWindow?.Close();
 
         await vm.DisposeAsync();
         Application.Current.Shutdown();

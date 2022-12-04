@@ -60,8 +60,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
     bool _isGamepadConnected = false;
     public event EventHandler<bool> GamepadConnectionStateChanged;
 
-    [DllImport("User32.dll")]
-    private static extern bool SetCursorPos(int X, int Y);
+    //[LibraryImport("User32.dll")]
+    //[return: MarshalAs(UnmanagedType.Bool)]
+    //private static partial bool SetCursorPos(int X, int Y);
 
     private const float DeadZoneMultiplier = 1.0f;
     private const float ThumbstickValMax = 32768.0f;

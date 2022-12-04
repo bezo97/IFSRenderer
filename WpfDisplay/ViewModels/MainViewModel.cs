@@ -309,12 +309,12 @@ public sealed partial class MainViewModel : IAsyncDisposable
     private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();
 
     [RelayCommand]
-    private void ExitApplication() => Application.Current.MainWindow.Close();
+    private static void ExitApplication() => Application.Current.MainWindow.Close();
 
     public async ValueTask DisposeAsync() => await workspace.Renderer.DisposeAsync();
 
     [RelayCommand]
-    private void VisitIssues()
+    private static void VisitIssues()
     {
         //Open the Issues page in user's default browser
         string link = "https://github.com/bezo97/IFSRenderer/issues/";
@@ -322,7 +322,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [RelayCommand]
-    private void VisitForum()
+    private static void VisitForum()
     {
         //Open the Discussions page in user's default browser
         string link = "https://github.com/bezo97/IFSRenderer/discussions";
@@ -330,7 +330,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [RelayCommand]
-    private void ReportBug()
+    private static void ReportBug()
     {
         //Open the bug report template in user's default browser
         string link = "https://github.com/bezo97/IFSRenderer/issues/new?assignees=&labels=&template=bug_report.md";
@@ -338,7 +338,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [RelayCommand]
-    private void CheckUpdates()
+    private static void CheckUpdates()
     {
         //Open the Releases page in user's default browser
         string link = "https://github.com/bezo97/IFSRenderer/releases";
@@ -346,7 +346,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     }
 
     [RelayCommand]
-    private void VisitWiki()
+    private static void VisitWiki()
     {
         //Open the Wiki page in user's default browser
         string link = "https://github.com/bezo97/IFSRenderer/wiki";

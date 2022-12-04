@@ -419,8 +419,8 @@ public sealed class RendererGL : IAsyncDisposable
                 var itWeights = new List<double>(currentIterators.Count);
                 foreach (var toIt in currentIterators)
                 {
-                    if (it.WeightTo.ContainsKey(toIt))//multiply with base weights
-                        itWeights.Add(it.WeightTo[toIt] * normalizedBaseWeights[toIt]);
+                    if (it.WeightTo.TryGetValue(toIt, out var value))//multiply with base weights
+                        itWeights.Add(value * normalizedBaseWeights[toIt]);
                     else//fill missing transitions with 0
                         itWeights.Add(0);
                 }

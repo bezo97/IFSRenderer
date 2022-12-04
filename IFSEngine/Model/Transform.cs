@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace IFSEngine.Model;
 
-public class Transform
+public partial class Transform
 {
     public string Name { get; private set; }
     public string Version { get; private set; }
@@ -25,8 +25,10 @@ public class Transform
 
     //These cannot be parameter names:
     private static readonly List<string> _reservedFields = new() { "Name", "Version", "Description", "Tags", "Reference" };
-    private const string RegexFieldDef = @"^(\s*)@.+:.+$";//@Param1: 0.0, 0 0 0, min 1
     private const string DefaultDescription = "Description not provided by the plugin developer";
+
+    [GeneratedRegex("^(\\s*)@.+:.+$")] //@Param1: 0.0, 0 0 0, min 1
+    private static partial Regex fieldMatcher();
 
     public static async Task<Transform> FromFile(string path)
     {
@@ -41,7 +43,7 @@ public class Transform
         var lines = s.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                      .Select(l => l.Trim());
 
-        var fieldDefinitionLines = lines.Where(l => Regex.IsMatch(l, RegexFieldDef));
+        var fieldDefinitionLines = lines.Where(l => fieldMatcher().IsMatch(l));
         Dictionary<string, string> fields = fieldDefinitionLines.ToDictionary(
             l => l.Split(":")[0].TrimStart('@').Trim(),
             l => l.Split(":", 2)[1].Trim());
@@ -125,5 +127,4 @@ public class Transform
     {
         return $"{Name} ({Version})";
     }
-
 }

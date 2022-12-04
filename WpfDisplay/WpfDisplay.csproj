@@ -13,6 +13,7 @@
 		<Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
 		<Version>1.2.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">

@@ -202,8 +202,7 @@ public partial class AnimationViewModel
         if (nextTimestep.ToTimeSpan() > Workspace.Ifs.Dopesheet.Length)
         {
             nextTimestep = TimeOnly.MinValue;
-            if (_audioPlayer is not null)
-                _audioPlayer.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
+            _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
         }
         JumpToTime(nextTimestep.ToTimeSpan().TotalSeconds);
     }

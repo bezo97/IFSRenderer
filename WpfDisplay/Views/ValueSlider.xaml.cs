@@ -14,8 +14,9 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class ValueSlider : UserControl
 {
-    [DllImport("User32.dll")]
-    private static extern bool SetCursorPos(int X, int Y);
+    [LibraryImport("User32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetCursorPos(int X, int Y);
 
     private ValueSliderViewModel vm => (ValueSliderViewModel)DataContext;
 

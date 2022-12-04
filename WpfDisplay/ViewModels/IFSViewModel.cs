@@ -338,7 +338,7 @@ public partial class IFSViewModel
     }
 
     [RelayCommand]
-    private void EditTransformSource(string filePath)
+    private static void EditTransformSource(string filePath)
     {
         //open transform source file with the preferred text editor
         Process.Start(new ProcessStartInfo

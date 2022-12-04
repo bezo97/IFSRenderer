@@ -14,7 +14,7 @@ namespace WpfDisplay.Views.AnimationControls;
 /// </summary>
 public partial class Spectrogram : UserControl
 {
-    private AnimationViewModel vm => ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//ugh
+    private static AnimationViewModel vm => ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//ugh
     private const int DisplayStartFreq = 4;
     private const int DisplayEndFreqMax = 20000;
 

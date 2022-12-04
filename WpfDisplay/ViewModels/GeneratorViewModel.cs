@@ -105,8 +105,7 @@ public partial class GeneratorViewModel
     [RelayCommand]
     private async Task Pin(IFS param)
     {
-        if (param == null)//pin ifs from main if commandparam not provided
-            param = _mainvm.workspace.Ifs.DeepClone();
+        param ??= _mainvm.workspace.Ifs.DeepClone();//pin ifs from main if commandparam not provided
         _workspace.PinIFS(param);
         await Task.Run(_workspace.ProcessQueue);
         SendToMainCommand.Execute(param);
