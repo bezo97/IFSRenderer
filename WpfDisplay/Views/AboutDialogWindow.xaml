@@ -47,6 +47,7 @@
                     <TextBlock TextWrapping="Wrap">
                         <Hyperlink NavigateUri="https://github.com/Dirkster99/AvalonDock">AvalonDock</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/StephenCleary/AsyncEx">AsyncEx</Hyperlink>, 
+                        <Hyperlink NavigateUri="https://github.com/VoidXH/Cavern">Cavern</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/JamesNK/Newtonsoft.Json">Json.NET</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit">Material Design Themes</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/CommunityToolkit/WindowsCommunityToolkit">Mvvm Toolkit</Hyperlink>, 
