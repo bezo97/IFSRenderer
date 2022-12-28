@@ -93,6 +93,17 @@ public partial class AnimationViewModel
             .Select(a => new ChannelViewModel(this, a.Key, a.Value)));
     }
 
+    /// <summary>
+    /// null: not animated. false: interpolated. true: keyframe
+    /// </summary>
+    public bool? GetChannelCurrentState(string path)
+    {
+        if (!Workspace.Ifs.Dopesheet.Channels.TryGetValue(path, out var channel))
+            return null;
+        var currentTimeSeconds = CurrentTime.ToTimeSpan().TotalSeconds;
+        return channel.Keyframes.Any(kf => kf.t == currentTimeSeconds);
+    }
+
     private ValueSliderViewModel? _lengthSlider;
     public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(Workspace)
     {
@@ -149,12 +160,32 @@ public partial class AnimationViewModel
 
     public void AddOrUpdateChannel(string name, string path, double value)
     {
-        Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
         var vm = Channels.FirstOrDefault(c => c.Path == path);
-        if (vm is null)//add vm
+        if (vm is null)
+        {//add new channel with single keyframe
+            Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
             Channels.Add(new ChannelViewModel(this, path, Workspace.Ifs.Dopesheet.Channels[path]));
+        }
         else
+        {
+            //remove existing keyframe if value equals
+            var currentTimeSeconds = CurrentTime.ToTimeSpan().TotalSeconds;
+            var keyOnFrame = vm.Keyframes.FirstOrDefault(kf => kf._k.Value == value && kf._k.t == currentTimeSeconds);
+            if (keyOnFrame is not null)
+            {
+                if(vm.Keyframes.Count == 1)
+                {
+                    Workspace.Ifs.Dopesheet.RemoveChannel(vm.Path, CurrentTime);
+                    Channels.Remove(vm);
+                }
+                else
+                    vm.RemoveKeyframe(keyOnFrame);
+            }
+            else
+                Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
+
             vm.UpdateKeyframes();
+        }
     }
 
     [RelayCommand]

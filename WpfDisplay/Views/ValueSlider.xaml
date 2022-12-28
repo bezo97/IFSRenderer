@@ -7,7 +7,7 @@
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="60" d:DesignWidth="125"
+             d:DesignHeight="40" d:DesignWidth="125"
              d:DataContext="{d:DesignInstance Type=vm:ValueSliderViewModel, IsDesignTimeCreatable=True}"
              x:Name="valueSlider"
              ToolTip="{Binding ToolTip}"
@@ -26,11 +26,12 @@
     <StackPanel>
         <Label IsTabStop="False"
                Content="{Binding Label}" 
-               Visibility="{Binding Label, Converter={StaticResource nullVisibilityConverter}}"/>
+               Visibility="{Binding Label, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Button 
@@ -42,8 +43,8 @@
             <Label x:Name="displayLabel" Grid.Column="1"
                    Content="{Binding Value}"
                    ContentStringFormat="{Binding ValueLabelFormat}"
-                   Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}" 
-                   Background="#303030" Cursor="Hand"
+                   Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}"
+                   Background="#303030" Cursor="SizeWE"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
@@ -73,7 +74,12 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>
+            <Button
+                Grid.Column="3" IsTabStop="False" Padding="8" ToolTip="Animation keyframe"
+                Visibility="{Binding AnimationPath, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
+                Content="{Binding AnimatedSymbol}"
+                Style="{StaticResource MaterialDesignToolButton }" Foreground="Gray"
+                Command="{Binding AnimateCommand}"/>
         </Grid>
-        
     </StackPanel>
 </UserControl>

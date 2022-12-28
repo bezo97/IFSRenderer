@@ -16,10 +16,12 @@ public partial class ValueSliderViewModel
         {
             if ((IsAnimated && e.PropertyName == "AnimationFrame" && AnimationPath != null) || e.PropertyName == "Ifs")
                 OnPropertyChanged(nameof(Value));
+            OnPropertyChanged(nameof(AnimatedSymbol));
         };
     }
 
-    public double Value {
+    public double Value
+    {
         get => GetV();
         set
         {
@@ -32,7 +34,7 @@ public partial class ValueSliderViewModel
             OnPropertyChanged(nameof(Value));
         }
     }
-    
+
     public Func<double> GetV { get; set; }
     public Action<double> SetV { get; set; }
     public string AnimationPath { get; set; }
@@ -54,6 +56,22 @@ public partial class ValueSliderViewModel
     /// Hide decimal places for integers, show fix 4 decimal places for double
     /// </summary>
     public string ValueLabelFormat => (Increment % 1 == 0) ? "D" : "N4";
+
+    public char AnimatedSymbol
+    {
+        get
+        {
+            if (AnimationPath is null) return ' ';
+            var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
+            var animatedState = main.AnimationViewModel.GetChannelCurrentState(AnimationPath);
+            switch (animatedState)
+            {
+                case null: return '◇';
+                case false: return '◆';
+                case true: return '◈';
+            }
+        }
+    }
 
     public void RaiseValueChanged()
     {
@@ -95,6 +113,7 @@ public partial class ValueSliderViewModel
         main.workspace.TakeSnapshot();
         main.AnimationViewModel.AddOrUpdateChannel(Label, AnimationPath, Value);
         IsAnimated = true;
+        OnPropertyChanged(nameof(AnimatedSymbol));
     }
 
 }
