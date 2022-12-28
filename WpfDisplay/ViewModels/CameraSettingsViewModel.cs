@@ -146,13 +146,13 @@ public partial class CameraSettingsViewModel
     {
         _workspace.TakeSnapshot();
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.X", _workspace.Ifs.Camera.Position.X);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera-X", "Camera.Position.X", _workspace.Ifs.Camera.Position.X);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera-Y", "Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
+        main.AnimationViewModel.AddOrUpdateChannel("Camera-Z", "Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
+        main.AnimationViewModel.AddOrUpdateChannel("Orientation-X", "Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
+        main.AnimationViewModel.AddOrUpdateChannel("Orientation-Y", "Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
+        main.AnimationViewModel.AddOrUpdateChannel("Orientation-Z", "Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
+        main.AnimationViewModel.AddOrUpdateChannel("Orientation-W", "Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
     }
 
     public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);///?

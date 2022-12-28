@@ -93,7 +93,7 @@ public partial class ValueSliderViewModel
     {
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
         main.workspace.TakeSnapshot();
-        main.AnimationViewModel.AddOrUpdateChannel(AnimationPath, Value);
+        main.AnimationViewModel.AddOrUpdateChannel(Label, AnimationPath, Value);
         IsAnimated = true;
     }
 

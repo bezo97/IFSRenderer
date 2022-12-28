@@ -19,7 +19,7 @@ public class Dopesheet
 
     private double keyframeEpsilon => 1.0 / Fps;
 
-    public void AddOrUpdateChannel(string path, TimeOnly time, double value)
+    public void AddOrUpdateChannel(string name, string path, TimeOnly time, double value)
     {
         var t = time.ToTimeSpan().TotalSeconds;
         if (Channels.TryGetValue(path, out var channel))
@@ -39,7 +39,7 @@ public class Dopesheet
         }
         else
         {
-            Channels[path] = new Channel(new Keyframe
+            Channels[path] = new Channel(name, new Keyframe
             {
                 t = t,
                 Value = value

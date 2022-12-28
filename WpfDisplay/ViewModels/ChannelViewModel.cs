@@ -16,7 +16,8 @@ namespace WpfDisplay.ViewModels;
 [ObservableObject]
 public partial class ChannelViewModel
 {
-    public string Name { get; }
+    public string Name => channel.Name;
+    public string Path { get; }
 
     public AnimationViewModel AnimationVM => _vm;
 
@@ -108,10 +109,10 @@ public partial class ChannelViewModel
         ValueWillChange = _vm.Workspace.TakeSnapshot
     };
 
-    public ChannelViewModel(AnimationViewModel vm, string name, Channel c)
+    public ChannelViewModel(AnimationViewModel vm, string path, Channel c)
     {
         _vm = vm;
-        Name = name;
+        Path = path;
         channel = c;
 
         SelectedAudioChannelOption = (ReferenceChannel)(c.AudioChannelDriver?.AudioChannelId ?? 0);

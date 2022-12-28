@@ -147,10 +147,10 @@ public partial class AnimationViewModel
         Workspace.RaiseAnimationFrameChanged();
     }
 
-    public void AddOrUpdateChannel(string path, double value)
+    public void AddOrUpdateChannel(string name, string path, double value)
     {
-        Workspace.Ifs.Dopesheet.AddOrUpdateChannel(path, CurrentTime, value);
-        var vm = Channels.FirstOrDefault(c => c.Name == path);
+        Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
+        var vm = Channels.FirstOrDefault(c => c.Path == path);
         if (vm is null)//add vm
             Channels.Add(new ChannelViewModel(this, path, Workspace.Ifs.Dopesheet.Channels[path]));
         else
@@ -171,7 +171,7 @@ public partial class AnimationViewModel
     public void RemoveChannel(ChannelViewModel cvm)
     {
         Workspace.TakeSnapshot();
-        Workspace.Ifs.Dopesheet.RemoveChannel(cvm.Name, CurrentTime);
+        Workspace.Ifs.Dopesheet.RemoveChannel(cvm.Path, CurrentTime);
         Channels.Remove(cvm);
     }
 

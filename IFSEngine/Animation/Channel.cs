@@ -11,13 +11,15 @@ namespace IFSEngine.Animation;
 
 public class Channel
 {
+    public string Name { get; set; } = "Unnamed channel";
     public List<Keyframe> Keyframes { get; init; } = new();
     public AudioChannelDriver? AudioChannelDriver { get; set; } = null;
     //TODO: add other channel drivers: clamp, wrap, repeat
 
     public Channel() { }
-    public Channel(Keyframe keyframe)
+    public Channel(string name, Keyframe keyframe)
     {
+        Name = name;
         Keyframes.Add(keyframe);
     }
 
