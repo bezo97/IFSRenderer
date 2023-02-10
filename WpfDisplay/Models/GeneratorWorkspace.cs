@@ -1,7 +1,8 @@
-﻿using IFSEngine.Generation;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using CommunityToolkit.Mvvm.ComponentModel;
+using IFSEngine.Utility;
 using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace WpfDisplay.Models;
 
@@ -99,18 +99,22 @@ public partial class GeneratorWorkspace
             while (_renderQueue.TryDequeue(out IFS ifs))
             {
                 _context.MakeCurrent();
-                ifs.ImageResolution = new System.Drawing.Size(200, 200);
-                _renderer.LoadParams(ifs);
+                //modify settings to be optimal for thumbnail rendering
+                var previewIfs = ifs.DeepClone();
+                previewIfs.ImageResolution = new System.Drawing.Size(200, 200);
+                previewIfs.Entropy = 1.0/100;
+                previewIfs.Warmup = 0;
+                //render image after 1 compute pass
+                _renderer.LoadParams(previewIfs);
                 _renderer.SetHistogramScaleToDisplay();
                 _renderer.DispatchCompute();
                 _renderer.RenderImage();
-
+                //read rendered image data
                 WriteableBitmap wbm = new WriteableBitmap(_renderer.HistogramWidth, _renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-
                 _context.MakeNoneCurrent();
                 _renderer.CopyPixelDataToBitmap(wbm.BackBuffer).Wait();
-
                 wbm.Freeze();
+                //save thumbnail image
                 var thumbnail = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
                 thumbnail.Freeze();
                 _thumbnails[ifs] = thumbnail;
