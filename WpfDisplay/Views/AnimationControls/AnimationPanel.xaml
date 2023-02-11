@@ -192,7 +192,7 @@
                                         </ItemsControl>
                                     </Border>
                                     <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}" ClipToBounds="False">
-                                        <local1:Spectrogram HorizontalAlignment="Left"/>
+                                        <local1:Spectrogram HorizontalAlignment="Left" DataContext="{Binding AnimationVM}"/>
                                     </Grid>
                                 </Grid>
                                 <DataTemplate.Triggers>

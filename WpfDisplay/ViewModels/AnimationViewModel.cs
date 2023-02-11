@@ -1,20 +1,21 @@
 ﻿#nullable enable
 using Cavern.Format;
-using Clip = Cavern.Clip;
-using IFSEngine.Animation;
+using Cavern.QuickEQ;
+using Cavern.Remapping;
+using Cavern.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
-using System.Windows.Input;
-using WpfDisplay.Models;
-using WpfDisplay.Helper;
-using Cavern.Utilities;
 using System.Windows.Media;
-using Cavern.Remapping;
+using System.Windows.Media.Imaging;
+using WpfDisplay.Helper;
+using WpfDisplay.Models;
+using Clip = Cavern.Clip;
 
 namespace WpfDisplay.ViewModels;
 
@@ -47,7 +48,7 @@ public partial class AnimationViewModel
             CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
         };
-        _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0/workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
+        _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0 / workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
 
@@ -83,7 +84,7 @@ public partial class AnimationViewModel
         {
             JumpToTime(value);
         },
-        Increment = 1.0/60,
+        Increment = 1.0 / 60,
         MinValue = 0,
     };
 
@@ -173,7 +174,7 @@ public partial class AnimationViewModel
             var keyOnFrame = vm.Keyframes.FirstOrDefault(kf => kf._k.Value == value && kf._k.t == currentTimeSeconds);
             if (keyOnFrame is not null)
             {
-                if(vm.Keyframes.Count == 1)
+                if (vm.Keyframes.Count == 1)
                 {
                     Workspace.Ifs.Dopesheet.RemoveChannel(vm.Path, CurrentTime);
                     Channels.Remove(vm);
@@ -239,45 +240,82 @@ public partial class AnimationViewModel
     }
 
     [RelayCommand]
-    public void LoadAudio()
+    public async Task LoadAudio()
     {
         if (DialogHelper.ShowOpenSoundDialog(out string path))
         {
-            var r = new RIFFWaveReader(path);
-            LoadedAudioClip = r.ReadClip();
-            AudioClipCache = new FFTCache(CavernHelper.defaultSamplingResolution);
-            LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(LoadedAudioClip.Channels);
             _audioPlayer = new MediaPlayer();
             _audioPlayer.Open(new Uri(path));
-            AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
-            CreateAudioBarsDrawing();
-            OnPropertyChanged(nameof(LoadedAudioClip));
-            OnPropertyChanged(nameof(LoadedAudioChannels));
+            await Task.Run(() =>
+            {
+                //TODO: show loading dialog with cancel
+                var r = new RIFFWaveReader(path);
+                LoadedAudioClip = r.ReadClip();
+                AudioClipCache = new FFTCache(CavernHelper.defaultSamplingResolution);
+                LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(LoadedAudioClip.Channels);
+                AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
+
+                AudioBarsDrawing = CreateAudioBarsDrawing(LoadedAudioClip, 50.0/*viewScale*/);
+                var sampler = (double t) => CavernHelper.CavernSampler(LoadedAudioClip, AudioClipCache, 0/*TODO*/, t);
+                SpectrogramBitmap = DrawSpectrogram(LoadedAudioClip, sampler, 50.0/*viewScale*/);
+
+                OnPropertyChanged(nameof(LoadedAudioClip));
+                Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");
+            });
         }
     }
 
     [ObservableProperty] private DrawingImage _audioBarsDrawing = default!;
-    private void CreateAudioBarsDrawing()
+    private static DrawingImage CreateAudioBarsDrawing(Clip audioClip, double viewScale)
     {
         var g = new DrawingGroup();
         const double bars_resolution = 0.1;
-        //const double bars_offset = bars_resolution * 50.0/*view scale*/;
-        for (double t = 0.0; t < LoadedAudioClip!.Length; t += bars_resolution)
+        //const double bars_offset = bars_resolution * viewScale;
+        for (double t = 0.0; t < audioClip.Length; t += bars_resolution)
         {
-            int position = (int)(t * LoadedAudioClip.SampleRate);
+            int position = (int)(t * audioClip.SampleRate);
             float[] samples = new float[512];//2 hatványa!
-            LoadedAudioClip.GetData(samples, 0/*left channel*/, position);
+            audioClip.GetData(samples, 0/*left channel*/, position);
             float barHeight = samples.Max();
 
             var d = new GeometryDrawing
             {
                 Brush = new LinearGradientBrush(Color.FromRgb(55, 55, 55), Color.FromRgb(100, 100, 100), 90.0),
-                Geometry = new RectangleGeometry(new System.Windows.Rect(t * 50.0-2.5, 30 - 30 * barHeight, 4.0, 30.0))
+                Geometry = new RectangleGeometry(new System.Windows.Rect(t * viewScale - 2.5, 30 - 30 * barHeight, 4.0, 30.0))
             };
             g.Children.Add(d);
         }
-        AudioBarsDrawing = new DrawingImage(g);
-        AudioBarsDrawing.Freeze();
+        var audioBarsDrawing = new DrawingImage(g);
+        audioBarsDrawing.Freeze();
+        return audioBarsDrawing;
+    }
+
+    [ObservableProperty] private BitmapSource _spectrogramBitmap = default!;
+    private static BitmapSource DrawSpectrogram(Clip audioClip, Func<double, float[]> sampler, double viewScale)
+    {
+        const int displayStartFreq = 4;
+        const int displayEndFreqMax = 20000;
+
+        var displayEndFreq = Math.Min(displayEndFreqMax, audioClip.SampleRate * 0.95) / 2.0;
+
+        int wres = (int)(viewScale * audioClip.Length);
+        int hres = CavernHelper.defaultSamplingResolution / 2;
+        byte[] pxs = new byte[wres * hres];
+        for (int t = 0; t < wres; t++)
+        {
+            var samples = sampler(t / (double)wres * audioClip.Length);
+            //convert to log scale
+            samples = GraphUtils.ConvertToGraph(samples, displayStartFreq, displayEndFreq, audioClip.SampleRate, samples.Length / 2);
+            for (int f = 0; f < samples.Length; f++)
+            {
+                var s = Math.Pow(samples[f], 0.1);
+                var c = (byte)(255 * Math.Clamp(s, 0, 1));
+                pxs[t + (samples.Length - 1 - f) * wres] = c;
+            }
+        }
+        var bmp = BitmapSource.Create(wres, hres, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
+        bmp.Freeze();
+        return bmp;
     }
 
 

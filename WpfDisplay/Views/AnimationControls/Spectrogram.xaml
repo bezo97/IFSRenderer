@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views.AnimationControls"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid x:Name="grid" Height="256">
-        <!--<Grid.Background>
-            <ImageBrush x:Name="brush" Stretch="Fill" AlignmentX="Left" AlignmentY="Top"/>
-        </Grid.Background>-->
-        <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" x:Name="brush"/>
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=vm:AnimationViewModel, IsDesignTimeCreatable=False}">
+    <Grid x:Name="grid" Width="{Binding SpectrogramBitmap.Width}" Height="256">
+        <Image Source="{Binding SpectrogramBitmap}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" />
     </Grid>
 </UserControl>
