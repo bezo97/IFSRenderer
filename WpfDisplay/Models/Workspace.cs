@@ -94,6 +94,8 @@ public partial class Workspace
     {
         TakeSnapshot();
         _renderer?.LoadParams(ifs);
+        foreach (var i in Ifs.Iterators)//keep node positions for same iterators
+            ifs.Iterators.FirstOrDefault(i2 => i2.Id == i.Id)?.SetPosition(i.GetPosition());
         Ifs = ifs;
         EditedFilePath = null;
         HasUnsavedChanges = false;
