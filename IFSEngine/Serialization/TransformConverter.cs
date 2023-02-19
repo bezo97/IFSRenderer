@@ -25,13 +25,10 @@ public class TransformConverter : JsonConverter<Transform>
     {
         (string Name, string Version) = serializer.Deserialize<ValueTuple<string, string>>(reader);
         var tf = _loadedTransforms.FirstOrDefault(i => i.Name == Name && i.Version == Version);//TODO: override and use Equals
-        if (tf == null)
-        {
-            if (_ignoreVersion)
-                return _loadedTransforms.FirstOrDefault(i => i.Name == Name);
-            else
-                throw new SerializationException($"The Transform '{Name}' (Version: {Version}) is unknown.");
-        }
+        if (tf is null && _ignoreVersion)
+            tf = _loadedTransforms.FirstOrDefault(i => i.Name == Name);
+        if (tf is null)
+            throw new UnknownTransformException(Name, Version);
         return tf;
     }
 

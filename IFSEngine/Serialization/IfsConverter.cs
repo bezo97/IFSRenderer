@@ -4,8 +4,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace IFSEngine.Serialization;
 
@@ -16,8 +14,21 @@ public class IfsConverter : JsonConverter<IFS>
         JObject jo = JObject.Load(reader);
         double[][] xaos = jo["xaos"].ToObject<double[][]>(serializer);
         jo.Remove("xaos");
-        IEnumerable<Iterator> iterators = jo["Iterators"].ToObject<IEnumerable<Iterator>>(serializer);
+        //iterators
+        List<Iterator> iterators = new();
+        List<Exception> exceptions = new();
+        foreach (var iteratorToken in jo["Iterators"].Children())
+        {
+            try
+            {
+                iterators.Add(iteratorToken.ToObject<Iterator>(serializer));
+            }
+            catch (UnknownTransformException ex) { exceptions.Add(ex); }
+        }
+        if (exceptions.Count > 0)
+            throw new AggregateException("Failed to deserialize iterators", exceptions);
         jo.Remove("Iterators");
+
         serializer.Converters.Remove(this);
         var ifs = jo.ToObject<IFS>(serializer);
         serializer.Converters.Add(this);

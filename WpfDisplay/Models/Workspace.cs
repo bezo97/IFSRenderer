@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
+using IFSEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -112,12 +113,14 @@ public partial class Workspace
         {
             ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
         }
-        catch (System.Runtime.Serialization.SerializationException)
+        catch (System.Runtime.Serialization.SerializationException ex)
+            when (ex.InnerException is AggregateException exs)
         {
-            if (System.Windows.MessageBox.Show("Loading params failed. Try again and ignore transform versions?", "Loading failed", System.Windows.MessageBoxButton.OKCancel)
-                == System.Windows.MessageBoxResult.OK)
+            var unknownTransformNames = exs.InnerExceptions.Select(e => ((UnknownTransformException)e).TransformName);
+            if(unknownTransformNames.All(transformName => LoadedTransforms.Any(t => t.Name == transformName)))
             {
                 ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
+                System.Windows.MessageBox.Show($"The loaded file was created using different versions of the following transforms:\r\n{string.Join(", ", unknownTransformNames)}.", "Warning");
             }
             else
                 throw;

@@ -1,11 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IFSEngine.Model;
+using IFSEngine.Serialization;
 using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -193,6 +195,15 @@ public sealed partial class MainViewModel : IAsyncDisposable
         {
             await workspace.LoadParamsFileAsync(path);
             workspace.UpdateStatusText($"Parameters loaded from {path}");
+        }
+        catch (SerializationException ex)
+            when (ex.InnerException is AggregateException exs)
+        {//missing transforms
+            var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownTransformException)e);
+            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{
+                string.Join("\r\n", unknownTransforms.Select(t => $"{t.TransformName} ({t.TransformVersion})"))
+                }", "Error");
+            workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.TransformName))}");
         }
         catch (SerializationException ex)
         {
