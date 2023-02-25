@@ -23,27 +23,27 @@ public static class OpenEXR
     /// </list>
     /// </summary>
     /// <param name="stream">An empty stream where the exr file is written to.</param>
-    /// <param name="data">Image data must be passed in this specific format: [y, x, rgba].</param>
-    public static void WriteStream(Stream stream, float[,,] data)
+    /// <param name="data">Image data must be passed in this specific format: [y][x][rgba].</param>
+    public static void WriteStream(Stream stream, float[][][] data)
     {
-        int histogramHeight = data.GetLength(0);
-        int histogramWidth = data.GetLength(1);
+        int histogramHeight = data.Length;
+        int histogramWidth = data[0].Length;
         const int chnum = 4;
 
         using var bw = new BinaryWriter(stream);
 
         bw.Write(20000630);//openexr "magic number"
-                           //version field
+        //version field
         bw.Write((byte)2);//file format version
         bw.Write((byte)0);//regular single-part scan line file
         bw.Write((byte)0);//unused
         bw.Write((byte)0);//unused
-                          //header (sequence of attributes)
-                          //attribute:
-                          //name (string0)
-                          //type (string0)
-                          //size in bytes (int)
-                          //value
+        //header (sequence of attributes)
+        //attribute:
+        //name (string0)
+        //type (string0)
+        //size in bytes (int)
+        //value
         {
             bw.WriteString0("channels");
             bw.WriteString0("chlist");
@@ -145,7 +145,7 @@ public static class OpenEXR
             bw.Write(1.0f);//value
         }
         bw.Write((byte)0);//supposed to be omitted??
-                          //Offset tables
+        //Offset tables
         ulong headerLength = (ulong)stream.Length;//number of written bytes until this point
         int scanlineDataLength = chnum * histogramWidth * 4;
         int scanlineBlockLength = 2 * 4 + scanlineDataLength;
@@ -160,19 +160,19 @@ public static class OpenEXR
         {
             bw.Write(scanline);//(int) y coordinate of the scanline block
             bw.Write(scanlineDataLength);//(int) data size in bytes
-                                         //channels must be written in alphabetical order
-                                         //channel A
+            //channels must be written in alphabetical order
+            //channel A
             for (int x = 0; x < histogramWidth; x++)
-                bw.Write(data[scanline, x, 3]);
+                bw.Write(data[scanline][x][3]);
             //channel B
             for (int x = 0; x < histogramWidth; x++)
-                bw.Write(data[scanline, x, 2]);
+                bw.Write(data[scanline][x][2]);
             //channel G
             for (int x = 0; x < histogramWidth; x++)
-                bw.Write(data[scanline, x, 1]);
+                bw.Write(data[scanline][x][1]);
             //channel R
             for (int x = 0; x < histogramWidth; x++)
-                bw.Write(data[scanline, x, 0]);
+                bw.Write(data[scanline][x][0]);
         }
     }
 

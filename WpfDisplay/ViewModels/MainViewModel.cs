@@ -287,10 +287,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     private async Task SaveExr()
     {
         workspace.UpdateStatusText($"Exporting...");
-        Task<float[,,]> getDataTask = Task.Run(async () =>
-        {
-            return await workspace.Renderer.ReadHistogramData();
-        });
+        Task<float[][][]> getDataTask = Task.Run(workspace.Renderer.ReadHistogramData);
 
         if (DialogHelper.ShowExportExrDialog(workspace.Ifs.Title, out string path))
         {

@@ -660,20 +660,31 @@ public sealed class RendererGL : IAsyncDisposable
         return o;
     }
 
-    public async Task<float[,,]> ReadHistogramData()
+    public async Task<float[][][]> ReadHistogramData()
     {
         if (!IsInitialized)
             throw NewNotInitializedException();
 
         InvalidateDisplay();
-        float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
+        //float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
+        float[] o2 = new float[HistogramWidth * HistogramHeight * 4];
         await WithContext(() =>
         {
-            GL.GetNamedBufferSubData<float>(_histogramBufferHandle, IntPtr.Zero, HistogramWidth * HistogramHeight * 4 * sizeof(float), o);
+            GL.GetNamedBufferSubData<float>(_histogramBufferHandle, IntPtr.Zero, HistogramWidth * HistogramHeight * 4 * sizeof(float), o2);
             GL.Finish();
         });
 
-        return o;
+        var div = LoadedParams.Brightness * (1 + (TotalIterations / (ulong)(HistogramWidth * HistogramHeight)));
+        for (int i = 0; i < o2.Length; i++)
+            o2[i] = (float)(o2[i] / div);
+
+        var histogram = o2
+            .Chunk(4)
+            .Chunk(HistogramWidth)
+            .Chunk(HistogramHeight)
+            .First().Reverse().ToArray();
+
+        return histogram;
     }
 
     private void InitTAAPass()
