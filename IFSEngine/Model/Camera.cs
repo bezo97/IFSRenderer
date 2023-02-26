@@ -20,6 +20,7 @@ public class Camera
     public double Aperture { get; set; } = 0.0;
     public double FocusDistance { get; set; } = 10.0;
     public double DepthOfField { get; set; } = 0.25;
+    public ProjectionType Projection { get; set; } = ProjectionType.Perspective;
 
     /// <summary>
     /// Moves camera position by a translate vector given in camera space.
@@ -70,7 +71,8 @@ public class Camera
             aperture = (float)Aperture,
             focus_distance = (float)FocusDistance,
             depth_of_field = (float)DepthOfField,
-            focus_point = new Vector4(Position + (float)FocusDistance * ForwardDirection, 0.0f)
+            focus_point = new Vector4(Position + (float)FocusDistance * ForwardDirection, 0.0f),
+            projection_type = (int)Projection
         };
     }
 

@@ -27,7 +27,7 @@ struct camera_params
 	float aperture;
 	float focus_distance;
 	float depth_of_field;
-	float padding0;
+	int projection_type;//0: persp, 1: equirect
 };
 
 struct Iterator
@@ -245,6 +245,8 @@ vec2 ProjectEquirectangular(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
 
+    //TODO: dof?
+
     vec3 dir = normalize(p_norm.xyz);
     float a1 = atan(dir.y, dir.x);
     float a2 = asin(dir.z);
@@ -255,9 +257,9 @@ vec2 ProjectEquirectangular(camera_params c, vec3 p, inout uint next)
 
 vec2 Project(camera_params c, vec3 p, inout uint next)
 {
-    if (false)
+    if (c.projection_type == 0)
         return ProjectPerspective(c, p, next);
-    else
+    else //if(c.projection_type == 1)
         return ProjectEquirectangular(c, p, next);
 }
 

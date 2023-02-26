@@ -15,5 +15,5 @@ internal struct CameraStruct
     internal float aperture;
     internal float focus_distance;
     internal float depth_of_field;
-    internal float padding0;
+    internal int projection_type;
 }
