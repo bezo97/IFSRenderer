@@ -10,15 +10,22 @@
              x:Name="cameraSettingsView"
              Padding="8"
              d:DataContext="{d:DesignInstance Type=vm:CameraSettingsViewModel, IsDesignTimeCreatable=False}">
-    <!--TODO: add pictograms and tooltips-->
     <StackPanel>
         <Button
-            Command="{Binding ResetCameraCommand}"
-            ToolTip="Reset Camera"
-            Width="20" Height="20" FontSize="10" HorizontalAlignment="Right"
-            Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton }">
+                Command="{Binding ResetCameraCommand}"
+                ToolTip="Reset Camera"
+                Width="20" Height="20" FontSize="10" HorizontalAlignment="Right"
+                Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton }">
             ↩️
         </Button>
+        
+        <Label Style="{StaticResource MaterialDesignLabel}" VerticalAlignment="Bottom" Padding="4 0">
+            🧊 Projection
+        </Label>
+        <ComboBox Padding="8"
+            ItemsSource="{Binding ProjectionTypes}"
+            SelectedValue="{Binding ProjectionType}"/>
+        
         <!--TODO: Orthogrpahic, Stereographic, 360 Equirectangular etc. modes-->
         <local:ValueSlider DataContext="{Binding FieldOfView}">
             <!--<local:ValueSlider.ToolTip>

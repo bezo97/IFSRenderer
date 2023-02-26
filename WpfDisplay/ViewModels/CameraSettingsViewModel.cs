@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Numerics;
 using System.Windows.Input;
 using WpfDisplay.Models;
+using System;
 
 namespace WpfDisplay.ViewModels;
 
@@ -17,6 +18,8 @@ public partial class CameraSettingsViewModel
         _workspace = workspace;
         _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
+
+    public static Array ProjectionTypes => Enum.GetValues(typeof(ProjectionType));
 
     private ValueSliderViewModel _xPosViewModel;
     public ValueSliderViewModel XPosViewModel => _xPosViewModel ??= new ValueSliderViewModel(_workspace)
@@ -128,6 +131,18 @@ public partial class CameraSettingsViewModel
         AnimationPath = "Camera.DepthOfField",
         ValueWillChange = _workspace.TakeSnapshot,
     };
+
+    public ProjectionType ProjectionType
+    {
+        get => _workspace.Ifs.Camera.Projection;
+        set
+        {
+            _workspace.TakeSnapshot();
+            _workspace.Ifs.Camera.Projection = value; 
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(ProjectionType));
+        }
+    }
 
     [RelayCommand]
     private void ResetCamera()
