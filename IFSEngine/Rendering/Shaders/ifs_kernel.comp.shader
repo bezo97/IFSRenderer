@@ -208,42 +208,57 @@ float random(inout uint nextSample)
 	return f_hash21(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
-vec2 Project(camera_params c, vec4 p, inout uint next)
+vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
 {
+    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
+
     //discard behind camera
-	vec3 pointDir = normalize(p.xyz - c.position.xyz);
-	if (dot(pointDir, c.forward.xyz) < 0.0)
-		return vec2(-2.0, -2.0);
+    vec3 dir = normalize(p_norm.xyz);
+    if (dot(dir, vec3(0.0,0.0,-1.0)) < 0.0)
+        return vec2(-2.0, -2.0);
 
-	vec4 normalizedPoint = c.view_proj_mat * vec4(p.xyz, 1.0f);
-
-    if (any(isinf(normalizedPoint)))
-    {//may be projected to infinity
+    if (any(isinf(p_norm)) || p_norm.w == 0.0)
+    {//may be projected to infinity, or w is sometimes 0, not sure why
         return vec2(-2.0, -2.0);
     }
 
-	normalizedPoint /= normalizedPoint.w;
+    p_norm /= p_norm.w;
 
-    if (normalizedPoint.w == 0.0)
-    {//w is sometimes 0, not sure why
-        return vec2(-2.0, -2.0);
-    }
-
-	//dof
-	float ratio = width / float(height);
-	float blur = c.aperture * max(0, abs(dot(p.xyz - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
-	float ra = random(next);
-	float rl = random(next);
-	normalizedPoint.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+    //dof
+    float blur = c.aperture * max(0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
+    float ra = random(next);
+    float rl = random(next);
+    p_norm.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
     //discard at edges
-    vec2 cl = clamp(normalizedPoint.xy, vec2(-1.0), vec2(1.0));
-    if(length(normalizedPoint.xy - cl) != 0.0)
+    vec2 cl = clamp(p_norm.xy, vec2(-1.0), vec2(1.0));
+    if (length(p_norm.xy - cl) != 0.0)
         return vec2(-2.0, -2.0);
 
-	return vec2(
-		(normalizedPoint.x + 1) * width / 2.0f - 0.5,
-		(normalizedPoint.y * ratio + 1) * height / 2.0f - 0.5);
+    float ratio = width / float(height);
+    return vec2(
+        (p_norm.x + 1) * 0.5 * width - 0.5,
+        (p_norm.y * ratio + 1) * 0.5 * height - 0.5);
+}
+
+vec2 ProjectEquirectangular(camera_params c, vec3 p, inout uint next)
+{
+    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
+
+    vec3 dir = normalize(p_norm.xyz);
+    float a1 = atan(dir.y, dir.x);
+    float a2 = asin(dir.z);
+    float x_px = (a1 / PI + 0.5) / 2.0 * width;
+    float y_px = (a2 / PI + 0.5) * height;
+    return vec2(x_px, y_px);
+}
+
+vec2 Project(camera_params c, vec3 p, inout uint next)
+{
+    if (false)
+        return ProjectPerspective(c, p, next);
+    else
+        return ProjectEquirectangular(c, p, next);
 }
 
 //consts available in transforms
@@ -439,7 +454,7 @@ void main() {
 			continue;//avoid useless projection and histogram writes
 
 		//perspective project
-		vec2 projf = Project(settings.camera, p.pos, next);
+		vec2 projf = Project(settings.camera, p.pos.xyz, next);
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
