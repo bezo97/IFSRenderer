@@ -154,6 +154,7 @@ public partial class CameraSettingsViewModel
         FocusDistance.Value = FocusDistance.DefaultValue;
         DepthOfField.Value = DepthOfField.DefaultValue;
         _workspace.Renderer.InvalidateHistogramBuffer();
+        OnPropertyChanged(string.Empty);
     }
 
     [RelayCommand]

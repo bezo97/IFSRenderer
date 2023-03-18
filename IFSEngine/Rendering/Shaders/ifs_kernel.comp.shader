@@ -250,7 +250,7 @@ vec2 ProjectEquirectangular(camera_params c, vec3 p, inout uint next)
     vec3 dir = normalize(p_norm.xyz);
     float a1 = atan(dir.y, dir.x);
     float a2 = asin(dir.z);
-    float x_px = (a1 / PI + 0.5) / 2.0 * width;
+    float x_px = (a1 / PI + 1.0) / 2.0 * width;
     float y_px = (a2 / PI + 0.5) * height;
     return vec2(x_px, y_px);
 }
@@ -492,15 +492,17 @@ void main() {
 				//for (int ay = -filter_radius; ay <= filter_radius; ay++)
 				int ay = -filter_radius + int(random(next) * 2 * filter_radius);
 				{
-					vec2 nb = vec2(proj + ivec2(ax, ay));
-					float pd = distance(nb, projf);
+					ivec2 nb = proj + ivec2(ax, ay);
+					float pd = distance(vec2(nb), projf);
 
 					//TODO: use settings.filter_method to pick one
 					//float aw = max(0.0, 1.0-pd);
 					//float aw = max(0.0, Lanczos(pd, 2));
 					float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
+                    if (settings.camera.projection_type == 1)
+                        nb.x = nb.x % width;
 					if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
-						accumulate_hit(ivec2(nb), aw * color);
+						accumulate_hit(nb, aw * color);
 				}
 			}
 		}
