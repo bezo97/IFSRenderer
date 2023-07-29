@@ -55,7 +55,7 @@ public partial class ValueSliderViewModel
     /// <summary>
     /// Hide decimal places for integers, show fix 4 decimal places for double
     /// </summary>
-    public string ValueLabelFormat => (Increment % 1 == 0) ? "D" : "N4";
+    public string ValueLabelFormat => (Increment % 1 == 0) ? "N0" : "N4";
 
     public char AnimatedSymbol
     {
