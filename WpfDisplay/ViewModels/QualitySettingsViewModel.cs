@@ -54,6 +54,24 @@ public partial class QualitySettingsViewModel
         }
     }
 
+    private ValueSliderViewModel _stoppingIterationPower;
+    public ValueSliderViewModel StoppingIterationPower => _stoppingIterationPower ??= new ValueSliderViewModel(_workspace)
+    {
+        Label = "🎌 Stopping Iteration (2^Power)",
+        ToolTip = $"The image is considered finished after this number of 2^iterations. It is recommended to animate this value when rendering animations, since certain frames may require a lot more iterations than others. Default value is {IFS.Default.StoppingIterationPower}.",
+        AnimationPath = "StoppingIterationPower",
+        DefaultValue = IFS.Default.StoppingIterationPower,
+        GetV = () => _workspace.Ifs.StoppingIterationPower,
+        SetV = (value) =>
+        {
+            _workspace.Ifs.StoppingIterationPower = (int)value;
+        },
+        MinValue = 1,
+        MaxValue = 50,
+        Increment = 1,
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
     private ValueSliderViewModel _deMaxRadius;
     public ValueSliderViewModel DEMaxRadius => _deMaxRadius ??= new ValueSliderViewModel(_workspace)
     {

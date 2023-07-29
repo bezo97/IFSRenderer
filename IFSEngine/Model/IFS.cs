@@ -45,6 +45,10 @@ public class IFS
     public Size ImageResolution { get; set; } = new Size(1920, 1080);
     public FlamePalette Palette { get; set; } = FlamePalette.Default;
     public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
+    /// <summary>
+    /// Rendering stops after this number of iterations (2^Pow). Type is double to allow animation.
+    /// </summary>
+    public double StoppingIterationPower { get; set; } = 35;
 
     protected HashSet<Iterator> iterators = new();
     protected List<Author> authors = new();

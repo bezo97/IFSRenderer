@@ -70,6 +70,7 @@
             </Grid>
             <local:ValueSlider DataContext="{Binding MaxFilterRadius}" Margin="4"/>
         </StackPanel>
+        <local:ValueSlider DataContext="{Binding StoppingIterationPower}" Margin="4"/>
         <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <StackPanel Margin="4">
             <CheckBox IsChecked="{Binding EnableDE}" ToolTip="Using density estimation.">Noise reduction</CheckBox>
