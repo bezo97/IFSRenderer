@@ -550,6 +550,7 @@ public sealed class RendererGL : IAsyncDisposable
             new Thread(() =>
             {
                 _ctx.MakeCurrent();
+                bool isFrameFinished = false;
                 while (IsRendering)
                 {
                     GL.BeginQuery(QueryTarget.TimeElapsed, _timerQueryHandle);
@@ -558,7 +559,7 @@ public sealed class RendererGL : IAsyncDisposable
 
                     AdjustWorkloadSize();
 
-                    bool isFrameFinished = BitOperations.Log2(TotalIterations) >= LoadedParams.StoppingIterationPower;
+                    isFrameFinished = BitOperations.Log2(TotalIterations) >= LoadedParams.StoppingIterationPower;
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(_dispatchCnt);
                     
                     if (_updateDisplayNow || isFrameFinished || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
@@ -573,16 +574,13 @@ public sealed class RendererGL : IAsyncDisposable
                     }
 
                     if (isFrameFinished)
-                    {
-                        _stopRender.Set();
-                        //_ctx.MakeNoneCurrent();
-                        RenderingFinished?.Invoke(this, null);
-                        //_ctx.MakeCurrent();
-                    }
+                        IsRendering = false;
                 }
                 GL.Finish();
                 _ctx.MakeNoneCurrent();
                 _stopRender.Set();
+                if(isFrameFinished)
+                    RenderingFinished?.Invoke(this, null);
             }).Start();
         }
     }

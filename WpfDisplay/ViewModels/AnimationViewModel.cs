@@ -349,7 +349,6 @@ public partial class AnimationViewModel
         }
         else
         {
-            await Workspace.Renderer.StopRenderLoop();
             Workspace.UpdateStatusText($"Rendering animation frames interrupted.");
         }
     }
@@ -367,11 +366,16 @@ public partial class AnimationViewModel
             using FileStream stream = File.Create(framePath);
             enc.Save(stream);
 
-            if(JumpToNextFrame())
+            if (JumpToNextFrame())
             {//was last frame
                 IsSaveFramesChecked = false;
                 _saveFramesPath = null;
-                Workspace.Renderer.StopRenderLoop().Wait();
+            }
+            else
+            {
+                var totalFrames = Workspace.Ifs.Dopesheet.Length.TotalSeconds * Workspace.Ifs.Dopesheet.Fps;
+                Workspace.UpdateStatusText($"Saved frame '{framePath}' ({frameNr+1}/{totalFrames})");
+                Workspace.Renderer.StartRenderLoop();
             }
         }
     }
