@@ -211,7 +211,16 @@ public partial class AnimationViewModel
     public void RemoveKeyframe(KeyframeViewModel kfv)
     {
         Workspace.TakeSnapshot();
-        kfv._cvm.RemoveKeyframe(kfv);
+
+        if (kfv._cvm.Keyframes.Count == 1)
+        {//remove channel when last keyframe is removed
+            Workspace.Ifs.Dopesheet.RemoveChannel(kfv._cvm.Path, CurrentTime);
+            Channels.Remove(kfv._cvm);
+        }
+        else
+        {
+            kfv._cvm.RemoveKeyframe(kfv);
+        }
         Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.RaiseAnimationFrameChanged();
@@ -223,6 +232,8 @@ public partial class AnimationViewModel
         Workspace.TakeSnapshot();
         Workspace.Ifs.Dopesheet.RemoveChannel(cvm.Path, CurrentTime);
         Channels.Remove(cvm);
+        Workspace.Renderer.InvalidateParamsBuffer();
+        Workspace.RaiseAnimationFrameChanged();
     }
 
     [RelayCommand]

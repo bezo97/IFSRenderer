@@ -131,7 +131,7 @@ public partial class ChannelViewModel
     {
         var sk = _vm.SelectedKeyframes.ConvertAll(kvm => kvm._k);
         Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
-            .Select(k => new KeyframeViewModel(this, k, sk.Contains(k))));
+            .Select(k => new KeyframeViewModel(_vm, this, k, sk.Contains(k))));
     }
 
     [RelayCommand]

@@ -10,7 +10,7 @@ namespace IFSEngine.Animation;
 
 public class Keyframe
 {
-    public string InterpolationMode { get; set; } = "Linear";
+    public InterpolationMode InterpolationMode { get; set; } = InterpolationMode.CatmullRom;
     public double EasingPower { get; set; } = 1.0;
     public EasingDirection EasingDirection { get; set; } = EasingDirection.InOut;
     public double t { get; set; }

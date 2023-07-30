@@ -46,9 +46,21 @@ public class Channel
             };
 
             //interpolation
-            var p0 = keyframes.ElementAtOrDefault(keyframes.IndexOf(previousKeyframe) - 1) ?? previousKeyframe;
-            var p3 = keyframes.ElementAtOrDefault(keyframes.IndexOf(nextKeyframe) + 1) ?? nextKeyframe;
-            eval = CatmullRom(p0.Value, previousKeyframe.Value, nextKeyframe.Value, p3.Value, tEasing);
+            if (previousKeyframe.InterpolationMode == InterpolationMode.Linear)
+            {
+                eval = (1.0 - tEasing) * previousKeyframe.Value + tEasing * nextKeyframe.Value;
+            }
+            else if (previousKeyframe.InterpolationMode == InterpolationMode.Constant)
+            {
+                eval = previousKeyframe.Value;
+            }
+            else if (previousKeyframe.InterpolationMode == InterpolationMode.CatmullRom)
+            {
+                var p0 = keyframes.ElementAtOrDefault(keyframes.IndexOf(previousKeyframe) - 1) ?? previousKeyframe;
+                var p3 = keyframes.ElementAtOrDefault(keyframes.IndexOf(nextKeyframe) + 1) ?? nextKeyframe;
+                eval = CatmullRom(p0.Value, previousKeyframe.Value, nextKeyframe.Value, p3.Value, tEasing);
+            }
+            else throw new NotImplementedException();
         }
 
         if (AudioChannelDriver is not null)

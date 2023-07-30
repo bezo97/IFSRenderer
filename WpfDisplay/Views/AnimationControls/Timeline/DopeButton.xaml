@@ -3,17 +3,61 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:anim="clr-namespace:IFSEngine.Animation;assembly=IFSEngine"
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         mc:Ignorable="d" 
-        d:DesignHeight="10" d:DesignWidth="10" Width="10" Height="10"
-        Style="{DynamicResource MaterialDesignFlatDarkBgButton}" 
+        d:DesignHeight="15" d:DesignWidth="15" Width="15" Height="15"
+        d:DataContext="{d:DesignInstance Type=vm:KeyframeViewModel, IsDesignTimeCreatable=False}"
         PreviewMouseDown="OnMouseDown" PreviewMouseMove="OnMouseMove" PreviewMouseUp="OnMouseUp">
+    <Button.Style>
+        <Style BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}" TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="LightGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Button.Style>
     <Button.RenderTransform>
         <TransformGroup>
             <RotateTransform CenterX="5" CenterY="5" Angle="45"/>
             <TranslateTransform X="-5"/>
         </TransformGroup>
     </Button.RenderTransform>
+    <Button.Resources>
+        <ObjectDataProvider x:Key="easingDirectionEnumItemsProvider"
+                            MethodName="GetValues" 
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="anim:EasingDirection"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="interpolationModeEnumItemsProvider"
+                            MethodName="GetValues" 
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="anim:InterpolationMode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Button.Resources>
+    <Button.ContextMenu>
+        <ContextMenu>
+            <MenuItem Icon="〰️" Header="Interpolation mode" >
+                <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
+                          SelectedValue="{Binding SelectedInterpolationMode}"/>
+            </MenuItem>
+            <MenuItem Icon="↔️" Header="Easing direction" >
+                <ComboBox ItemsSource="{Binding Source={StaticResource easingDirectionEnumItemsProvider}}"
+                          SelectedValue="{Binding SelectedEasingDirection}"/>
+            </MenuItem>
+            <MenuItem Icon="⛎" Header="Easing power">
+                <local:ValueSlider DataContext="{Binding EasingPowerSlider}"/>
+            </MenuItem>
+            <MenuItem Icon="🗑️" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
+        </ContextMenu>
+    </Button.ContextMenu>
 </Button>

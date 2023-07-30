@@ -103,10 +103,8 @@ public partial class ValueSliderViewModel
             Value = DefaultValue;
     }
 
-    //public RelayCommand AnimateCommand { get; set; }
-    //TODO: CanExecute: AnimationPath!=null
-    //TODO: Bind from outside
-    [RelayCommand]
+    private bool isAnimatable => AnimationPath is not null;
+    [RelayCommand(CanExecute = nameof(isAnimatable))] //TODO: Bind from outside
     public void Animate()
     {
         var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh

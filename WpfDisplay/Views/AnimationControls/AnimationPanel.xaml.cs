@@ -58,10 +58,6 @@ public partial class AnimationPanel : UserControl
             //trigger click command
             dopeButton.Command.Execute(dopeButton.DataContext);
         }
-        else if(e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
-        {
-            _vm.RemoveKeyframeCommand.Execute((KeyframeViewModel)dopeButton.DataContext);
-        }
     }
 
     private void ChannelHeaderScroller_ScrollChanged(object sender, ScrollChangedEventArgs e)

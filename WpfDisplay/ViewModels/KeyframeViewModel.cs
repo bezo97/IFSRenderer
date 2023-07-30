@@ -1,12 +1,14 @@
 ﻿#nullable enable
 using IFSEngine.Animation;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace WpfDisplay.ViewModels;
 
 [ObservableObject]
 public partial class KeyframeViewModel
 {
+    private readonly AnimationViewModel _avm;
     public readonly ChannelViewModel _cvm;
     public readonly Keyframe _k;
 
@@ -15,7 +17,7 @@ public partial class KeyframeViewModel
     private float _offset;
     public double PositionMoveOffset
     {
-        get => _offset; 
+        get => _offset;
         set
         {
             _offset = (float)value;
@@ -24,10 +26,52 @@ public partial class KeyframeViewModel
     }
     [ObservableProperty] private bool _isSelected;
 
-    public KeyframeViewModel(ChannelViewModel cvm, Keyframe k, bool isSelected)
+    public EasingDirection SelectedEasingDirection
     {
+        get => _k.EasingDirection;
+        set
+        {
+            _k.EasingDirection = value;
+            OnPropertyChanged(nameof(SelectedEasingDirection));
+            _avm.Workspace.Renderer.InvalidateParamsBuffer();
+        }
+    }
+
+    public InterpolationMode SelectedInterpolationMode
+    {
+        get => _k.InterpolationMode;
+        set
+        {
+            _k.InterpolationMode = value;
+            OnPropertyChanged(nameof(SelectedInterpolationMode));
+            _avm.Workspace.Renderer.InvalidateParamsBuffer();
+        }
+    }
+
+    public KeyframeViewModel(AnimationViewModel avm, ChannelViewModel cvm, Keyframe k, bool isSelected)
+    {
+        _avm = avm;
         _cvm = cvm;
         _k = k;
         _isSelected = isSelected;
     }
+
+
+    private ValueSliderViewModel? _easingPowerSlider;
+    public ValueSliderViewModel EasingPowerSlider => _easingPowerSlider ??= new ValueSliderViewModel(_avm.Workspace)
+    {
+        ToolTip = $"Easing power. Default value is 1.0",
+        DefaultValue = 1.0,
+        GetV = () => _k.EasingPower,
+        SetV = (value) =>
+        {
+            _k.EasingPower = value;
+            _avm.Workspace.Renderer.InvalidateParamsBuffer();
+        },
+        Increment = 0.1,
+    };
+
+    [RelayCommand]
+    private void RemoveKeyframe() => _avm.RemoveKeyframeCommand.Execute(this);
+
 }
