@@ -31,7 +31,7 @@ public class Channel
             eval = keyframes.First().Value;
         else
         {//between keyframes
-            var previousKeyframe = keyframes.Where(c => c.t < t).MaxBy(c => c.t)!;
+            var previousKeyframe = keyframes.Where(c => c.t <= t).MaxBy(c => c.t)!;
             var nextKeyframe = keyframes.Where(c => c.t > t).MinBy(c => c.t)!;
 
             var tNorm = (t - previousKeyframe.t) / (nextKeyframe.t - previousKeyframe.t);
