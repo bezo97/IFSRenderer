@@ -17,6 +17,7 @@ public static class DialogHelper
     private static readonly Guid _exportExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
     private static readonly Guid _openPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
     private static readonly Guid _openSoundGuid = Guid.Parse("24E3A7D5-A565-4E98-87C4-06D676A9EBD3");
+    private static readonly Guid _animationFolderBrowserGuid = Guid.Parse("8E896C73-B414-447C-909E-7D15B2569357");
     private static readonly OpenFileDialog _openParamsDialog = new()
     {
         CheckFileExists = true,
@@ -65,6 +66,11 @@ public static class DialogHelper
         RestoreDirectory = true,
         Title = "Open sound"
     };
+    private static readonly FolderBrowserDialog _animationFolderBrowserDialog = new()
+    {
+        ClientGuid = _animationFolderBrowserGuid,
+        Description = "Select the folder where animation frames will be saved.",
+    };
 
     public static bool ShowOpenParamsDialog(out string FilePath)
     {
@@ -103,6 +109,12 @@ public static class DialogHelper
     {
         bool selected = _openSoundDialog.ShowDialog() is DialogResult.OK;
         FilePath = _openSoundDialog.FileName;
+        return selected;
+    }
+    public static bool ShowAnimationFolderBrowserDialog(out string FolderPath)
+    {
+        bool selected = _animationFolderBrowserDialog.ShowDialog() is DialogResult.OK;
+        FolderPath = _animationFolderBrowserDialog.SelectedPath;
         return selected;
     }
 

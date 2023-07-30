@@ -8,6 +8,7 @@
              xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels" 
              xmlns:local1="clr-namespace:WpfDisplay.Views.AnimationControls" 
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" x:Name="animationPanel"
              d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="300" d:DesignWidth="800">
@@ -55,15 +56,35 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Column="0" Grid.Row="0">
-            <Button Command="{Binding JumpToStartCommand}" HorizontalAlignment="Left">
+        <Grid Grid.Column="0" Grid.Row="0" Margin="4">
+            <Button Command="{Binding JumpToStartCommand}" ToolTip="Stop animation"
+                    IsEnabled="{Binding IsSaveFramesChecked, Converter={StaticResource InvertBooleanConverter}}"
+                    HorizontalAlignment="Left">
                 ⬜
             </Button>
-            <Button Command="{Binding PlayPauseCommand}" HorizontalAlignment="Center">
-                ▷
-            </Button>
+            <ToggleButton Command="{Binding PlayPauseCommand}" ToolTip="Play/Pause animation preview"
+                          IsEnabled="{Binding IsSaveFramesChecked, Converter={StaticResource InvertBooleanConverter}}"
+                          Style="{StaticResource MaterialDesignActionToggleButton}"
+                          HorizontalAlignment="Center">
+                <Label FontFamily="Monospace" Padding="2,2,0,0" Foreground="Black">▷</Label>
+                <md:ToggleButtonAssist.OnContent>
+                    <Label FontFamily="Monospace" Padding="0,2,0,0" Foreground="Black">❚❚</Label>
+                </md:ToggleButtonAssist.OnContent>
+            </ToggleButton>
+            <ToggleButton Command="{Binding StartSavingFramesCommand}"
+                          IsChecked="{Binding IsSaveFramesChecked}" 
+                          ToolTip="Save animation frames"
+                          Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}"
+                          HorizontalAlignment="Right">
+                <Grid>
+                    <Label Visibility="{Binding IsSaveFramesChecked, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                       FontFamily="Monospace" Padding="2,2,0,0">🎥</Label>
+                    <ProgressBar Visibility="{Binding IsSaveFramesChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
+                </Grid>
+            </ToggleButton>
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1">
+        <Grid Grid.Column="0" Grid.Row="1" Margin="4,0">
             <Button Command="{Binding LoadAudioCommand}" HorizontalAlignment="Left" Padding="5" ToolTip="{Binding AudioClipTitle, TargetNullValue=Load audio clip}">
                 <TextBlock TextTrimming="CharacterEllipsis">
                 🎵 <Run Text="{Binding AudioClipTitle, TargetNullValue=...}"/>

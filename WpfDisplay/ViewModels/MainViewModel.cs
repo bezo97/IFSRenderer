@@ -82,6 +82,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+        workspace.Renderer.RenderingFinished += (s, e) => OnPropertyChanged(nameof(IsRenderingIcon));
         workspace.UpdateStatusText($"Initialized");
     }
 
@@ -213,42 +214,10 @@ public sealed partial class MainViewModel : IAsyncDisposable
         OnPropertyChanged(nameof(IsRenderingIcon));
     }
 
-    /// <summary>
-    /// Converts the raw pixel data into a BitmapSource with WPF specific calls.
-    /// The Alpha channel is optionally removed and the image is flipped vertically, as required by CopyPixelDataToBitmap()
-    /// </summary>
-    /// <returns></returns>
-    private async Task<BitmapSource> GetExportBitmapSource()
-    {
-        BitmapSource bs;
-        WriteableBitmap wbm = new WriteableBitmap(workspace.Renderer.HistogramWidth, workspace.Renderer.HistogramHeight, 96, 96, PixelFormats.Bgra32, null);
-        await workspace.Renderer.CopyPixelDataToBitmap(wbm.BackBuffer);
-        wbm.Freeze();
-        bs = wbm;
-        if (!TransparentBackground)
-        {//option to remove alpha channel
-            var fcb = new FormatConvertedBitmap(wbm, PixelFormats.Bgr32, null, 0);
-            fcb.Freeze();
-            bs = fcb;
-        }
-        //flip vertically
-        await Application.Current.Dispatcher.InvokeAsync(() =>
-        {//This transformation must happen on ui thread
-            var tb = new TransformedBitmap();
-            tb.BeginInit();
-            tb.Source = bs;
-            tb.Transform = new ScaleTransform(1, -1, 0, 0);
-            tb.EndInit();
-            tb.Freeze();
-            bs = tb;
-        });
-        return bs;
-    }
-
     [RelayCommand]
     private async Task ExportToClipboard()
     {
-        BitmapSource bs = await GetExportBitmapSource();
+        BitmapSource bs = await workspace.Renderer.GetExportBitmapSource(TransparentBackground);
         Clipboard.SetImage(bs);
         //TODO: somehow alpha channel is not copied
 
@@ -261,7 +230,7 @@ public sealed partial class MainViewModel : IAsyncDisposable
     private async Task SaveImage()
     {
         workspace.UpdateStatusText($"Exporting...");
-        var makeBitmapTask = GetExportBitmapSource();
+        var makeBitmapTask = workspace.Renderer.GetExportBitmapSource(TransparentBackground);
 
         if (DialogHelper.ShowExportImageDialog(workspace.Ifs.Title, out string path))
         {

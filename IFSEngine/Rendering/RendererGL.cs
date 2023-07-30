@@ -19,7 +19,15 @@ namespace IFSEngine.Rendering;
 
 public sealed class RendererGL : IAsyncDisposable
 {
+    /// <summary>
+    /// Invoked by the rendering thread. The frequency of updates is influenced by <see cref="EnablePerceptualUpdates"/>.
+    /// </summary>
     public event EventHandler DisplayFramebufferUpdated;
+
+    /// <summary>
+    /// Invoked by the rendering thread when <see cref="TotalIterations"/> reaches the limit defined by <see cref="IFS.StoppingIterationPower"/>.
+    /// </summary>
+    public event EventHandler RenderingFinished;
 
     public bool IsInitialized { get; private set; } = false;
     public bool IsRendering { get; private set; } = false;
@@ -550,8 +558,10 @@ public sealed class RendererGL : IAsyncDisposable
 
                     AdjustWorkloadSize();
 
+                    bool isFrameFinished = BitOperations.Log2(TotalIterations) >= LoadedParams.StoppingIterationPower;
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(_dispatchCnt);
-                    if (_updateDisplayNow || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
+                    
+                    if (_updateDisplayNow || isFrameFinished || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                     {
                         //render image from histogram
                         RenderImage();
@@ -560,6 +570,14 @@ public sealed class RendererGL : IAsyncDisposable
                         _ctx.SwapBuffers();
                         DisplayFramebufferUpdated?.Invoke(this, null);
                         _updateDisplayNow = false;
+                    }
+
+                    if (isFrameFinished)
+                    {
+                        _stopRender.Set();
+                        //_ctx.MakeNoneCurrent();
+                        RenderingFinished?.Invoke(this, null);
+                        //_ctx.MakeCurrent();
                     }
                 }
                 GL.Finish();

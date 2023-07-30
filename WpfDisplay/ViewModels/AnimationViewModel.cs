@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -31,6 +32,8 @@ public partial class AnimationViewModel
     public FFTCache? AudioClipCache { get; private set; } = null;
     [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = Array.Empty<ReferenceChannel>();
     [ObservableProperty] public string? _audioClipTitle = null;
+    [ObservableProperty] public bool _isSaveFramesChecked = false;
+    private string? _saveFramesPath = null;
 
     public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
 
@@ -48,6 +51,7 @@ public partial class AnimationViewModel
             CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
         };
+        workspace.Renderer.RenderingFinished += OnFrameFinishedRendering;
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0 / workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
@@ -159,6 +163,20 @@ public partial class AnimationViewModel
         Workspace.RaiseAnimationFrameChanged();
     }
 
+    /// <returns>True when there is no next frame.</returns>
+    private bool JumpToNextFrame()
+    {
+        var nextTimestep = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps));
+        var lastFrame = nextTimestep.ToTimeSpan() > Workspace.Ifs.Dopesheet.Length;
+        if (lastFrame)
+        {
+            nextTimestep = TimeOnly.MinValue;
+            _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
+        }
+        JumpToTime(nextTimestep.ToTimeSpan().TotalSeconds);
+        return lastFrame;
+    }
+
     public void AddOrUpdateChannel(string name, string path, double value)
     {
         var vm = Channels.FirstOrDefault(c => c.Path == path);
@@ -230,13 +248,7 @@ public partial class AnimationViewModel
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
     {
-        var nextTimestep = CurrentTime.Add(TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps));
-        if (nextTimestep.ToTimeSpan() > Workspace.Ifs.Dopesheet.Length)
-        {
-            nextTimestep = TimeOnly.MinValue;
-            _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = TimeSpan.Zero);
-        }
-        JumpToTime(nextTimestep.ToTimeSpan().TotalSeconds);
+        JumpToNextFrame();
     }
 
     [RelayCommand]
@@ -318,5 +330,50 @@ public partial class AnimationViewModel
         return bmp;
     }
 
+    [RelayCommand]
+    public async Task StartSavingFrames()
+    {
+        if(IsSaveFramesChecked)
+        {
+            _realtimePlayer.Stop();
+            _audioPlayer?.Stop();
+
+            if (!DialogHelper.ShowAnimationFolderBrowserDialog(out string selectedFolderPath))
+                return;
+            _saveFramesPath = selectedFolderPath;
+
+            if (!Workspace.Renderer.IsRendering)
+                Workspace.Renderer.StartRenderLoop();
+
+            Workspace.UpdateStatusText($"Rendering animation frames...");
+        }
+        else
+        {
+            await Workspace.Renderer.StopRenderLoop();
+            Workspace.UpdateStatusText($"Rendering animation frames interrupted.");
+        }
+    }
+
+    private void OnFrameFinishedRendering(object? sender, EventArgs e)
+    {
+        if(IsSaveFramesChecked && _saveFramesPath is not null)
+        {
+            var bitmap = Workspace.Renderer.GetExportBitmapSource(false).Result;
+
+            PngBitmapEncoder enc = new PngBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(bitmap));
+            var frameNr = (int)(CurrentTime.ToTimeSpan().TotalSeconds * Workspace.Ifs.Dopesheet.Fps);
+            var framePath = Path.Combine(_saveFramesPath, $"{Workspace.Ifs.Title}-{frameNr:D6}.png"); //TODO: filter invalid chars
+            using FileStream stream = File.Create(framePath);
+            enc.Save(stream);
+
+            if(JumpToNextFrame())
+            {//was last frame
+                IsSaveFramesChecked = false;
+                _saveFramesPath = null;
+                Workspace.Renderer.StopRenderLoop().Wait();
+            }
+        }
+    }
 
 }
