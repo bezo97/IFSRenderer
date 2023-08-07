@@ -65,4 +65,11 @@ public partial class AnimationPanel : UserControl
         sheetScroller.ScrollToVerticalOffset(channelHeaderScroller.VerticalOffset);
     }
 
+    private void Channel_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
+        {//remember the location of the context menu where the keyframe will be inserted
+            _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+        }
+    }
 }

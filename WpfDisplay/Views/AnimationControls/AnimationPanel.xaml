@@ -175,11 +175,19 @@
                     <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid x:Name="alternatingBackgroundGrid2" Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}">
+                                <Grid x:Name="alternatingBackgroundGrid2" 
+                                      Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}"
+                                      MouseUp="Channel_MouseUp">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Icon="+" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
+                                            <MenuItem Icon="🗑️" Header="_Remove channel" Command="{Binding Source={x:Reference Name=animationPanel}, Path=DataContext.RemoveChannelCommand}" CommandParameter="{Binding}" Foreground="OrangeRed"/>
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
                                     <Border BorderThickness="0,0,0,0.5" BorderBrush="Black">
                                         <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
                                             <ItemsControl.ItemsPanel>

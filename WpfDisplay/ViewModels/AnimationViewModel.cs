@@ -32,6 +32,7 @@ public partial class AnimationViewModel
     public FFTCache? AudioClipCache { get; private set; } = null;
     [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = Array.Empty<ReferenceChannel>();
     [ObservableProperty] public string? _audioClipTitle = null;
+    [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
     [ObservableProperty] public bool _isSaveFramesChecked = false;
     private string? _saveFramesPath = null;
 

@@ -10,6 +10,7 @@ using WpfDisplay.Models;
 using WpfDisplay.Helper;
 using IFSEngine.Animation.ChannelDrivers;
 using Cavern.Remapping;
+using System;
 
 namespace WpfDisplay.ViewModels;
 
@@ -24,7 +25,7 @@ public partial class ChannelViewModel
     private readonly AnimationViewModel _vm;
     public readonly Channel channel;
     [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
-    [ObservableProperty] private bool _isEditing = false; 
+    [ObservableProperty] private bool _isEditing = false;
     private bool _hasDetails = false;
     public bool HasDetails
     { 
@@ -138,6 +139,17 @@ public partial class ChannelViewModel
     public void EditChannel()
     {
         IsEditing = !IsEditing;
+    }
+
+    [RelayCommand]
+    public void InsertKeyframe()
+    {
+        if(!_vm.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
+        var keyframePosition = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(_vm.KeyframeInsertPosition.Value));
+        var eval = channel.EvaluateAt(_vm.KeyframeInsertPosition.Value);
+        AnimationVM.Workspace.Ifs.Dopesheet.AddOrUpdateChannel(Name, Path, keyframePosition, eval);
+        UpdateKeyframes();
+        _vm.KeyframeInsertPosition = null;
     }
 
 }
