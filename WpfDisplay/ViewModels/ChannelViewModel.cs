@@ -130,7 +130,7 @@ public partial class ChannelViewModel
 
     public void UpdateKeyframes()
     {
-        var sk = _vm.SelectedKeyframes.ConvertAll(kvm => kvm._k);
+        var sk = _vm.SelectedKeyframes.Select(kvm => kvm._k).ToHashSet();
         Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
             .Select(k => new KeyframeViewModel(_vm, this, k, sk.Contains(k))));
     }

@@ -25,7 +25,7 @@ public partial class AnimationViewModel
 {
     public readonly Workspace Workspace;
     private readonly Timer _realtimePlayer;
-    public List<KeyframeViewModel> SelectedKeyframes { get; } = new();
+    public HashSet<KeyframeViewModel> SelectedKeyframes { get; } = new();
 
     private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
@@ -36,7 +36,7 @@ public partial class AnimationViewModel
     [ObservableProperty] public bool _isSaveFramesChecked = false;
     private string? _saveFramesPath = null;
 
-    public TimeOnly CurrentTime { get; set; } = TimeOnly.MinValue;
+    public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
     [ObservableProperty] private ObservableCollection<ChannelViewModel> _channels = new();
 
@@ -152,7 +152,7 @@ public partial class AnimationViewModel
         JumpToTime(kfv._k.t);
     }
 
-    private void JumpToTime(double t)
+    public void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
         Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
@@ -252,10 +252,10 @@ public partial class AnimationViewModel
         {
             kf._k.t += offset / 50.0/* / ViewScale */;
             kf.PositionMoveOffset = 0.0;
-            kf.IsSelected = false;
+            //kf.IsSelected = false;
         }
         Workspace.Renderer.InvalidateParamsBuffer();
-        SelectedKeyframes.Clear();
+        //SelectedKeyframes.Clear();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)
@@ -351,7 +351,10 @@ public partial class AnimationViewModel
             _audioPlayer?.Stop();
 
             if (!DialogHelper.ShowAnimationFolderBrowserDialog(out string selectedFolderPath))
+            {
+                IsSaveFramesChecked = false;
                 return;
+            }
             _saveFramesPath = selectedFolderPath;
 
             if (!Workspace.Renderer.IsRendering)

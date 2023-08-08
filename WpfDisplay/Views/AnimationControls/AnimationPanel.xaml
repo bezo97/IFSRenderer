@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
              xmlns:common="clr-namespace:WpfDisplay.Views"
              xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels" 
@@ -162,14 +163,18 @@
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Background="#333333">
-                    <Grid Background="#111111"/>
-                    <Grid>
-                        <Grid.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
-                        </Grid.Background>
+                <Grid Grid.Row="0" Background="#333333" Cursor="SizeWE"
+                      MouseMove="TimeScrubber_MouseMove" MouseDown="TimeScrubber_MouseMove">
+                    <!--Time scrubber-->
+                    <Grid IsHitTestVisible="False">
+                        <Grid Background="#111111"/>
+                        <Grid>
+                            <Grid.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
+                            </Grid.Background>
+                        </Grid>
+                        <Grid Background="{StaticResource linesBrush}"/>
                     </Grid>
-                    <Grid Background="{StaticResource linesBrush}"/>
                 </Grid>
                 <ScrollViewer x:Name="sheetScroller" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
                     <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2">
@@ -199,18 +204,7 @@
                                                 <DataTemplate>
                                                     <local:DopeButton
                                                             Command="{Binding DataContext.JumpToKeyframeCommand, ElementName=animationPanel}" CommandParameter="{Binding}"
-                                                            PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp">
-                                                        <Style TargetType="local:DopeButton">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                    <Setter Property="Button.Background" Value="Orange" />
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsSelected}" Value="False">
-                                                                    <Setter Property="Button.Background" Value="Gray" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </local:DopeButton>
+                                                            PreviewMouseDown="DopeButton_MouseDown" PreviewMouseMove="DopeButton_MouseMove" PreviewMouseUp="DopeButton_MouseUp"/>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                             <ItemsControl.ItemContainerStyle>
@@ -236,17 +230,32 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                <Line IsHitTestVisible="False" x:Name="DopesheetLine2" Grid.RowSpan="2"
+                <Line IsHitTestVisible="False" Grid.RowSpan="2"
                     X1="{Binding CurrentTimeScrollPosition}" Y1="0"
                     X2="{Binding CurrentTimeScrollPosition}" Y2="500"
                     Stroke="#88000000"
                     StrokeThickness="3"/>
-                <Line IsHitTestVisible="False" x:Name="DopesheetLine" Grid.RowSpan="2"
+                <Line IsHitTestVisible="False" Grid.RowSpan="2"
                     X1="{Binding CurrentTimeScrollPosition}" Y1="0"
                     X2="{Binding CurrentTimeScrollPosition}" Y2="500"
                     Stroke="White"
                     StrokeThickness="1"/>
+                <Line IsHitTestVisible="False"
+                    X1="{Binding CurrentTimeScrollPosition}" Y1="0"
+                    X2="{Binding CurrentTimeScrollPosition}" Y2="10"
+                    Stroke="White"
+                    StrokeThickness="5"/>
             </Grid>
         </ScrollViewer>
+        <!--Show guide text when animation sheet is empty-->
+        <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.Resources >
+                <sys:Int32 x:Key="empty">0</sys:Int32>
+            </Grid.Resources>
+            <Label Visibility="{Binding Channels.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={StaticResource empty}}"
+                   Foreground="#aaaaaa" FontSize="16">
+                🛈 Insert a keyframe by clicking ◇ next to the value!
+            </Label>
+        </Grid>
     </Grid>
 </UserControl>

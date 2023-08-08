@@ -24,10 +24,9 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            //vm.ValueWillChange?.Invoke();
+            //_vm.Workspace.TakeSnapshot();
             _vm.AddToSelection((KeyframeViewModel)dopeButton.DataContext);
             _dragp = e.GetPosition(Window.GetWindow(this));
-            //_lastv = vm.Value;
             dopeButton.CaptureMouse();
             Mouse.OverrideCursor = Cursors.None;
         }
@@ -70,6 +69,22 @@ public partial class AnimationPanel : UserControl
         if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
         {//remember the location of the context menu where the keyframe will be inserted
             _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+        }
+
+        //TODO: ClickCount not working
+        //if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Released && e.ClickCount == 2)
+        //{//Insert keyframe on double click
+        //    _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+        //    ((ChannelViewModel)((FrameworkElement)sender).DataContext).InsertKeyframe();
+        //}
+    }
+
+    private void TimeScrubber_MouseMove(object sender, MouseEventArgs e)
+    {
+        if(e.LeftButton == MouseButtonState.Pressed && e.OriginalSource == sender)
+        {
+            var t = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+            _vm.JumpToTime(t);
         }
     }
 }
