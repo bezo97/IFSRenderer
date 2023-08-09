@@ -99,16 +99,24 @@
                 🗎🗎
             </Button>
             <Button
+                Command="{Binding SplitCommand}" CommandParameter="{Binding}"
+                Width="30" Height="30" FontSize="14"
+                VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5"
+                FontWeight="Bold" ToolTip="Split (Ctrl+Shift+D)"
+                Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                🗎|🗎
+            </Button>
+            <!--<Button
                 Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5"
                 ToolTip="Remove (Delete)"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗑️
-            </Button>
+            </Button>-->
             <Button
                 Command="{Binding ConnectSelfCommand}"
-                Width="30" Height="30" FontSize="18"
+                Width="35" Height="35" FontSize="22"
                 VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="-15"
                 ToolTip="Connect self"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">

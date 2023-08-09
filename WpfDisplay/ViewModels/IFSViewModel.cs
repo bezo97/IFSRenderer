@@ -40,7 +40,10 @@ public partial class IFSViewModel
                 _selectedIterator.IsSelected = false;
 
             SetProperty(ref _selectedIterator, value);
+
             OnPropertyChanged(nameof(IsIteratorEditorVisible));
+            DuplicateSelectedCommand.NotifyCanExecuteChanged();
+            SplitSelectedCommand.NotifyCanExecuteChanged();
 
             if (_selectedIterator != null)
             {
@@ -50,6 +53,7 @@ public partial class IFSViewModel
         }
     }
 
+    private bool _hasIteratorSelection => SelectedIterator != null;
     public Visibility IsIteratorEditorVisible => SelectedIterator == null ? Visibility.Collapsed : Visibility.Visible;
 
     private ConnectionViewModel? _selectedConnection;
@@ -133,7 +137,8 @@ public partial class IFSViewModel
         var ivm = new IteratorViewModel(i, _workspace)
         {
             RemoveCommand = RemoveIteratorCommand,
-            DuplicateCommand = DuplicateSelectedCommand
+            DuplicateCommand = DuplicateCommand,
+            SplitCommand = SplitCommand,
         };
         ivm.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ivm.ConnectingStarted += Iterator_ConnectingStarted;
@@ -263,11 +268,27 @@ public partial class IFSViewModel
         HandleIteratorsChanged();
     }
 
+    [RelayCommand(CanExecute=nameof(_hasIteratorSelection))]
+    private void DuplicateSelected() => Duplicate(SelectedIterator!);
+
     [RelayCommand]
-    private void DuplicateSelected(IteratorViewModel vm)
+    private void Duplicate(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator);
+        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator, splitWeights: false);
+        _workspace.Renderer.InvalidateParamsBuffer();
+        HandleIteratorsChanged();
+        SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
+    }
+
+    [RelayCommand(CanExecute = nameof(_hasIteratorSelection))]
+    private void SplitSelected() => Split(SelectedIterator!);
+
+    [RelayCommand]
+    private void Split(IteratorViewModel vm)
+    {
+        _workspace.TakeSnapshot();
+        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator, splitWeights: true);
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
         SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
@@ -354,21 +375,13 @@ public partial class IFSViewModel
     [RelayCommand]
     private void SelectIterator(IteratorViewModel it) => SelectedIterator = it;
 
-    // TODO: Check how to update the canExecute delegate
+    private bool _canExecuteUndo => _workspace.IsHistoryUndoable;
+    [RelayCommand(CanExecute = "_canExecuteUndo")]
+    private void Undo() => _workspace.UndoHistory();
 
-    private RelayCommand? _undoCommand;
-    public RelayCommand UndoCommand => _undoCommand
-        ??= new(() =>
-        {
-            _workspace.UndoHistory();
-        }, () => _workspace.IsHistoryUndoable);
-
-    private RelayCommand? _redoCommand;
-    public RelayCommand RedoCommand => _redoCommand
-        ??= new(() =>
-        {
-            _workspace.RedoHistory();
-        }, () => _workspace.IsHistoryRedoable);
+    private bool _canExecuteRedo => _workspace.IsHistoryRedoable;
+    [RelayCommand(CanExecute = "_canExecuteRedo")]
+    private void Redo() => _workspace.RedoHistory();
 
     [RelayCommand]
     private void TakeSnapshot() => _workspace.TakeSnapshot();

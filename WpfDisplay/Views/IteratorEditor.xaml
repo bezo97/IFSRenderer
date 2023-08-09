@@ -27,14 +27,8 @@
                     md:HintAssist.Hint="Name"
                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button 
-                        Command="{Binding DuplicateCommand}"
-                        ToolTip="Duplicate (Ctrl+D)"
-                        FontWeight="Bold" Margin="4" Padding="6">
-                    🗎🗎
-                </Button>
-                <Button 
-                        Command="{Binding RemoveCommand}"
+                <Button Style="{StaticResource MaterialDesignFlatDarkButton}"
+                        Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
                         ToolTip="Remove (Delete)"
                         Margin="4" Padding="6">
                     🗑️
@@ -49,9 +43,10 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
-                    Command="{Binding FlipWeightCommand}"
-                    ToolTip="Enable/Disable (Ctrl+W)" IsTabStop="False"
-                    FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
+                        Command="{Binding FlipWeightCommand}"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        ToolTip="Enable/Disable (Ctrl+W)"
+                        Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
                 <local:ValueSlider Grid.Column="1" DataContext="{Binding StartWeight}"/>
@@ -63,9 +58,10 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
-                    Command="{Binding FlipOpacityCommand}"
-                    ToolTip="Show/Hide (Ctrl+O)" IsTabStop="False"
-                    FontWeight="Bold" Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
+                        Command="{Binding FlipOpacityCommand}"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        ToolTip="Show/Hide (Ctrl+O)"
+                        Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
                 </Button>
                 <local:ValueSlider Grid.Column="1" DataContext="{Binding Opacity}"/>

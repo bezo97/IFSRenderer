@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
 using System.Windows.Media;
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
@@ -23,6 +22,10 @@ public partial class IteratorViewModel
     public event EventHandler ConnectingEnded;
 
     public List<INotifyPropertyChanged> Parameters { get; } = new();
+
+    public required IRelayCommand<IteratorViewModel> RemoveCommand { get; init; }
+    public required IRelayCommand<IteratorViewModel> DuplicateCommand { get; init; }
+    public required IRelayCommand<IteratorViewModel> SplitCommand { get; init; }
 
     public IteratorViewModel(Iterator iterator, Workspace workspace)
     {
@@ -46,9 +49,6 @@ public partial class IteratorViewModel
             };
         }
     }
-
-    public IRelayCommand<IteratorViewModel> RemoveCommand { get; set; }
-    public IRelayCommand<IteratorViewModel> DuplicateCommand { get; set; }
 
     public void Redraw()
     {

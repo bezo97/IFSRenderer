@@ -67,49 +67,57 @@ public class IFS
         }
     }
 
-    public Iterator DuplicateIterator(Iterator a)
+    /// <param name="splitWeights">Whether to adjust the base weights of the original iterator and its duplicate in order to keep a similar look of the fractal. "False" results in the duplicate operation known from flame fractals.</param>
+    /// <returns>The created duplicate.</returns>
+    public Iterator DuplicateIterator(Iterator original, bool splitWeights)
     {
         //clone first
-        Iterator d = new(a.Transform)
+        Iterator dupe = new(original.Transform)
         {
-            BaseWeight = a.BaseWeight,
-            ColorIndex = a.ColorIndex,
-            ColorSpeed = a.ColorSpeed,
-            Opacity = a.Opacity,
-            ShadingMode = a.ShadingMode,
-            StartWeight = a.StartWeight,
-            Mix = a.Mix,
-            Add = a.Add,
-            Name = a.Name
+            BaseWeight = original.BaseWeight,
+            ColorIndex = original.ColorIndex,
+            ColorSpeed = original.ColorSpeed,
+            Opacity = original.Opacity,
+            ShadingMode = original.ShadingMode,
+            StartWeight = original.StartWeight,
+            Mix = original.Mix,
+            Add = original.Add,
+            Name = original.Name
         };
         //copy parameter values
-        foreach (var tv in a.RealParams)
-            d.RealParams[tv.Key] = tv.Value;
-        foreach (var tv in a.Vec3Params)
-            d.Vec3Params[tv.Key] = tv.Value;
+        foreach (var tv in original.RealParams)
+            dupe.RealParams[tv.Key] = tv.Value;
+        foreach (var tv in original.Vec3Params)
+            dupe.Vec3Params[tv.Key] = tv.Value;
         //add to the ifs
-        AddIterator(d, false);
+        AddIterator(dupe, false);
         //copy connection weights
         foreach (Iterator it in Iterators)
         {//'from' weights
-            if (it.WeightTo.TryGetValue(a, out double w))
-                it.WeightTo[d] = w;
+            if (it.WeightTo.TryGetValue(original, out double w))
+                it.WeightTo[dupe] = w;
         }
-        foreach (var w in a.WeightTo)
+        foreach (var w in original.WeightTo)
         {//'to' weights
-            if (w.Key == a)//if self-connected, do the same on the duplicate
-                d.WeightTo[d] = w.Value;
+            if (w.Key == original)//if self-connected, do the same on the duplicate
+                dupe.WeightTo[dupe] = w.Value;
             else
-                d.WeightTo[w.Key] = w.Value;
+                dupe.WeightTo[w.Key] = w.Value;
         }
-        //connect the original with the duplicate
-        //d.WeightTo[a] = 1.0;
-        //a.WeightTo[d] = 1.0;
-        a.WeightTo[d] = 0.0;
-        //split base weight
-        a.BaseWeight /= 2;
-        d.BaseWeight = a.BaseWeight;
-        return d;
+        
+        if (splitWeights)
+        {//split base weights, no connection between the two
+            original.BaseWeight /= 2;
+            dupe.BaseWeight = original.BaseWeight;
+            dupe.WeightTo[original] = 0.0;
+            original.WeightTo[dupe] = 0.0;
+        }
+        else
+        {//connect the original with the duplicate
+            dupe.WeightTo[original] = 1.0;
+            original.WeightTo[dupe] = 1.0;
+        }
+        return dupe;
     }
 
     public void RemoveIterator(Iterator it1)

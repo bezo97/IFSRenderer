@@ -28,6 +28,7 @@
         <KeyBinding Gesture="CTRL+W" Command="{Binding SelectedIterator.FlipWeightCommand}"/>
         <KeyBinding Gesture="CTRL+O" Command="{Binding SelectedIterator.FlipOpacityCommand}"/>
         <KeyBinding Gesture="CTRL+D" Command="{Binding DuplicateSelectedCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+D" Command="{Binding SplitSelectedCommand}"/>
         <KeyBinding Gesture="DELETE" Command="{Binding RemoveSelectedCommand}"/>
     </Window.InputBindings>
     <Grid>
@@ -39,11 +40,18 @@
         <Menu Grid.Row="0">
             <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+            <Separator/>
             <local:PaletteButton
                 Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 
                 Palette="{Binding DataContext.Palette, ElementName=editorWindow}"
                 ToolTip="Load Palette (Ctrl+P)"
                 Padding="30,8,30,8">🎨</local:PaletteButton>
+            <MenuItem Header="🗎 🗎"
+                      Command="{Binding DuplicateSelectedCommand}"
+                      ToolTip="Duplicate selection (Ctrl+D)" InputGestureText="Ctrl+D"/>
+            <MenuItem Header="🗎|🗎" 
+                      Command="{Binding SplitSelectedCommand}"
+                      ToolTip="Split selection (Ctrl+Shift+D)" InputGestureText="Ctrl+Shift+D"/>
         </Menu>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
