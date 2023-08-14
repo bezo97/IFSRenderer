@@ -59,30 +59,18 @@
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" Margin="4">
             <Button Command="{Binding JumpToStartCommand}" ToolTip="Stop animation"
-                    IsEnabled="{Binding IsSaveFramesChecked, Converter={StaticResource InvertBooleanConverter}}"
+                    IsEnabled="{Binding IsRenderingFrames, Converter={StaticResource InvertBooleanConverter}}"
                     HorizontalAlignment="Left">
                 ⬜
             </Button>
             <ToggleButton Command="{Binding PlayPauseCommand}" ToolTip="Play/Pause animation preview"
-                          IsEnabled="{Binding IsSaveFramesChecked, Converter={StaticResource InvertBooleanConverter}}"
+                          IsEnabled="{Binding IsRenderingFrames, Converter={StaticResource InvertBooleanConverter}}"
                           Style="{StaticResource MaterialDesignActionToggleButton}"
                           HorizontalAlignment="Center">
                 <Label FontFamily="Monospace" Padding="2,2,0,0" Foreground="Black">▷</Label>
                 <md:ToggleButtonAssist.OnContent>
                     <Label FontFamily="Monospace" Padding="0,2,0,0" Foreground="Black">❚❚</Label>
                 </md:ToggleButtonAssist.OnContent>
-            </ToggleButton>
-            <ToggleButton Command="{Binding StartSavingFramesCommand}"
-                          IsChecked="{Binding IsSaveFramesChecked}" 
-                          ToolTip="Save animation frames"
-                          Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}"
-                          HorizontalAlignment="Right">
-                <Grid>
-                    <Label Visibility="{Binding IsSaveFramesChecked, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
-                       FontFamily="Monospace" Padding="2,2,0,0">🎥</Label>
-                    <ProgressBar Visibility="{Binding IsSaveFramesChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                 Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
-                </Grid>
             </ToggleButton>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="1" Margin="4,0">
@@ -256,6 +244,16 @@
                    Foreground="#aaaaaa" FontSize="16">
                 🛈 Insert a keyframe by clicking ◇ next to the value!
             </Label>
+            <StackPanel Visibility="{Binding IsRenderingFrames, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
+                <TextBlock TextAlignment="Center" Foreground="#aaaaaa" FontSize="16" Margin="0,0,0,16">
+                    Rendering animation frames...     
+                </TextBlock>
+                <Button Command="{Binding StopRenderingFramesCommand}"
+                    HorizontalAlignment="Center" Style="{StaticResource MaterialDesignFlatButton}">
+                    Cancel
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

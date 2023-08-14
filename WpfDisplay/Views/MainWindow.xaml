@@ -31,9 +31,10 @@
         <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
         <KeyBinding Gesture="CTRL+S" Command="{Binding SaveParamsCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+S" Command="{Binding SaveParamsAsCommand}"/>
-        <KeyBinding Gesture="CTRL+E" Command="{Binding SaveImageCommand}"/>
-        <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
+        <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
+        <KeyBinding Gesture="CTRL+E" Command="{Binding SaveImageCommand}"/>
+        <KeyBinding Gesture="CTRL+A" Command="{Binding AnimationViewModel.StartRenderingFramesCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
         <KeyBinding Gesture="PAUSE" Command="{Binding StartStopRenderingCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
@@ -76,10 +77,11 @@
                 <local:TitleBox Width="200" Height="30"/>
                 <Menu>
                     <MenuItem Icon="{md:PackIcon Kind=ImageMove}" Header="E_xport">
-                        <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
-                        <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
-                        <Separator/>
                         <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
+                        <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                        <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                        <Separator/>
+                        <MenuItem Icon="🎥" Header="Export _animation frames..." Command="{Binding AnimationViewModel.StartRenderingFramesCommand}" InputGestureText="Ctrl+A"/>
                     </MenuItem>
                 </Menu>
             </ToolBar>

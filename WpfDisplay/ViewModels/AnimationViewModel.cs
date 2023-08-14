@@ -33,7 +33,7 @@ public partial class AnimationViewModel
     [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = Array.Empty<ReferenceChannel>();
     [ObservableProperty] public string? _audioClipTitle = null;
     [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
-    [ObservableProperty] public bool _isSaveFramesChecked = false;
+    [ObservableProperty] public bool _isRenderingFrames = false;
     private string? _saveFramesPath = null;
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
@@ -342,35 +342,29 @@ public partial class AnimationViewModel
         return bmp;
     }
 
-    [RelayCommand]
-    public async Task StartSavingFrames()
+    private bool _canExecuteStart => !IsRenderingFrames;
+    [RelayCommand(/*CanExecute = nameof(_canExecuteStart)*/)]
+    public async Task StartRenderingFrames()
     {
-        if(IsSaveFramesChecked)
-        {
-            _realtimePlayer.Stop();
-            _audioPlayer?.Stop();
+        if(IsRenderingFrames) throw new InvalidOperationException();
 
-            if (!DialogHelper.ShowAnimationFolderBrowserDialog(out string selectedFolderPath))
-            {
-                IsSaveFramesChecked = false;
-                return;
-            }
-            _saveFramesPath = selectedFolderPath;
+        _realtimePlayer.Stop();
+        _audioPlayer?.Stop();
 
-            if (!Workspace.Renderer.IsRendering)
-                Workspace.Renderer.StartRenderLoop();
+        if (!DialogHelper.ShowAnimationFolderBrowserDialog(out string selectedFolderPath))
+            return;
+        _saveFramesPath = selectedFolderPath;
 
-            Workspace.UpdateStatusText($"Rendering animation frames...");
-        }
-        else
-        {
-            Workspace.UpdateStatusText($"Rendering animation frames interrupted.");
-        }
+        if (!Workspace.Renderer.IsRendering)
+            Workspace.Renderer.StartRenderLoop();
+
+        IsRenderingFrames = true;
+        Workspace.UpdateStatusText($"Rendering animation frames...");
     }
 
     private void OnFrameFinishedRendering(object? sender, EventArgs e)
     {
-        if(IsSaveFramesChecked && _saveFramesPath is not null)
+        if(IsRenderingFrames && _saveFramesPath is not null)
         {
             var bitmap = Workspace.Renderer.GetExportBitmapSource(false).Result;
 
@@ -383,8 +377,7 @@ public partial class AnimationViewModel
 
             if (JumpToNextFrame())
             {//was last frame
-                IsSaveFramesChecked = false;
-                _saveFramesPath = null;
+                StopRenderingFrames().Wait();
             }
             else
             {
@@ -393,6 +386,16 @@ public partial class AnimationViewModel
                 Workspace.Renderer.StartRenderLoop();
             }
         }
+    }
+
+    [RelayCommand(/*CanExecute = nameof(IsRenderingFrames)*/)]
+    public async Task StopRenderingFrames()
+    {
+        IsRenderingFrames = false;
+        _saveFramesPath = null;
+        if(Workspace.Renderer.IsRendering)
+            await Workspace.Renderer.StopRenderLoop();
+        Workspace.UpdateStatusText($"Rendering animation frames stopped.");
     }
 
 }
