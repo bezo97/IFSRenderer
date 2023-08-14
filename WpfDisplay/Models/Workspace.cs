@@ -34,9 +34,9 @@ public partial class Workspace
     public bool InvertAxisY;
     public double Sensitivity;
     public bool UseWhiteForBlankParams;
-    public bool IsExportVideoFileEnabled;
-    public string FfmpegPath;
-    public string FfmpegArgs;
+    public bool IsExportVideoFileEnabled { get; private set; }
+    public string FfmpegPath { get; private set; }
+    public string FfmpegArgs { get; private set; }
     public string? EditedFilePath { get; private set; }
     [ObservableProperty] private bool _hasUnsavedChanges;
 

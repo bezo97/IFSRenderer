@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Media;
@@ -377,7 +378,10 @@ public partial class AnimationViewModel
 
             if (JumpToNextFrame())
             {//was last frame
-                StopRenderingFrames().Wait();
+                if(Workspace.IsExportVideoFileEnabled)
+                {
+                    RunFfmpegProcess().Wait();
+                }
             }
             else
             {
@@ -396,6 +400,36 @@ public partial class AnimationViewModel
         if(Workspace.Renderer.IsRendering)
             await Workspace.Renderer.StopRenderLoop();
         Workspace.UpdateStatusText($"Rendering animation frames stopped.");
+    }
+
+    private async Task RunFfmpegProcess()
+    {
+        StringBuilder argsBuilder = new();
+        argsBuilder.AppendJoin(' ',
+            $"-y",//overwrite
+            $"-nostdin",//disable inout
+            $"-r {Workspace.Ifs.Dopesheet.Fps}",//fps
+            $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.png\"",//input files
+            $"-vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\"",//divisible by 2, as required by some codecs
+            Workspace.FfmpegArgs,
+            $"{Workspace.Ifs.Title}.mp4");//user args
+        var args = argsBuilder.ToString();
+
+        var ffmpegProc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Workspace.FfmpegPath, args)
+        {
+            WorkingDirectory = _saveFramesPath
+        });
+        if(ffmpegProc is null)
+        {
+            Workspace.UpdateStatusText("Video file creation failed - unable to run ffmpeg.");
+            return;
+        }
+        Workspace.UpdateStatusText("Generating video...");
+        await ffmpegProc.WaitForExitAsync();
+
+        Workspace.UpdateStatusText($"Video file created successfully at '{_saveFramesPath}'.");
+        IsRenderingFrames = false;
+        _saveFramesPath = null;
     }
 
 }
