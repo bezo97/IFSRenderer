@@ -24,7 +24,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" MinHeight="50"/>
         </Grid.RowDefinitions>
-        <TabControl Grid.Row="0">
+        <TabControl Grid.Row="0" Style="{StaticResource MaterialDesignNavigationRailTabControl}">
             <TabItem Header="👤 User settings" MinWidth="150">
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
@@ -112,6 +112,44 @@
                         ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <local:ValueSlider DataContext="{Binding Sensitivity}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
+            </TabItem>
+            <TabItem Header="🖼 Export options" MinWidth="150">
+                <StackPanel Margin="8">
+                    <Label HorizontalContentAlignment="Center" FontSize="18">
+                        Export options
+                    </Label>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Animation</Label>
+                        <Label ToolTip="In order to save video files, install ffmpeg and select the executable below." Content="{md:PackIcon InformationOutline}"/>
+                    </StackPanel>
+                    <StackPanel Margin="16,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding ShowFfmpegPathSelectorDialogCommand}"
+                                    Content="ffmpeg.exe:"
+                                    Style="{StaticResource MaterialDesignPaperButton}" Padding="4"/>
+                            <Label Content="{Binding FfmpegPath}"
+                                   VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel IsEnabled="{Binding IsFfmpegPathSet}">
+                            <Grid>
+                                <Label VerticalAlignment="Bottom">ffmpeg args:</Label>
+                                <Menu HorizontalAlignment="Right" Height="22">
+                                    <MenuItem Header="▼ Presets" HorizontalAlignment="Right" Padding="4" FontSize="12" Height="22">
+                                        <MenuItem Header="HD mp4"/>
+                                        <MenuItem Header="web-optimized"/>
+                                    </MenuItem>
+                                </Menu>
+                            </Grid>
+                            <TextBox Text="{Binding FfmpegArgs}"
+                                TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" MinLines="5" 
+                                Style="{StaticResource MaterialDesignFilledTextBox}" TextAlignment="Left"/>
+                        <CheckBox 
+                            IsChecked="{Binding IsExportVideoFileEnabled}">
+                            Save video file after frames have rendered
+                        </CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
             </TabItem>
             <TabItem Header="⏱️ Performance" MinWidth="150">
                 <Grid Margin="8">

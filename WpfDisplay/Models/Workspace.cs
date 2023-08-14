@@ -34,6 +34,9 @@ public partial class Workspace
     public bool InvertAxisY;
     public double Sensitivity;
     public bool UseWhiteForBlankParams;
+    public bool IsExportVideoFileEnabled;
+    public string FfmpegPath;
+    public string FfmpegArgs;
     public string? EditedFilePath { get; private set; }
     [ObservableProperty] private bool _hasUnsavedChanges;
 
@@ -219,6 +222,9 @@ public partial class Workspace
         InvertAxisY = Settings.Default.InvertAxisY;
         Sensitivity = Settings.Default.Sensitivity;
         UseWhiteForBlankParams = Settings.Default.UseWhiteForBlankParams;
+        IsExportVideoFileEnabled = Settings.Default.IsExportVideoFileEnabled;
+        FfmpegPath = Settings.Default.FfmpegPath;
+        FfmpegArgs = Settings.Default.FfmpegArgs;
         CurrentUser = new Author
         {
             Name = Settings.Default.AuthorName,

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using WpfDisplay.Helper;
 using WpfDisplay.Properties;
 
 namespace WpfDisplay.ViewModels;
@@ -150,5 +151,45 @@ internal partial class SettingsViewModel
         MaxValue = 10.0,
         Increment = 0.1,
     };
+
+    public bool? IsExportVideoFileEnabled
+    {
+        get => Settings.Default.IsExportVideoFileEnabled;
+        set
+        {
+            Settings.Default.IsExportVideoFileEnabled = value ?? false;
+            OnPropertyChanged(nameof(IsExportVideoFileEnabled));
+        }
+    }
+
+    public string FfmpegPath
+    {
+        get => Settings.Default.FfmpegPath;
+        set
+        {
+            Settings.Default.FfmpegPath = value;
+            OnPropertyChanged(nameof(FfmpegPath));
+            OnPropertyChanged(nameof(IsFfmpegPathSet));
+        }
+    }
+
+    public bool IsFfmpegPathSet => !string.IsNullOrEmpty(FfmpegPath);
+
+    public string FfmpegArgs
+    {
+        get => Settings.Default.FfmpegArgs;
+        set
+        {
+            Settings.Default.FfmpegArgs = value;
+            OnPropertyChanged(nameof(FfmpegArgs));
+        }
+    }
+
+    [RelayCommand]
+    private async Task ShowFfmpegPathSelectorDialog()
+    {
+        if (DialogHelper.ShowFfmpegPathSelectorDialog(out string selectedPath))
+            FfmpegPath = selectedPath;
+    }
 
 }
