@@ -120,33 +120,55 @@
                     </Label>
                     <StackPanel Orientation="Horizontal">
                         <Label>Animation</Label>
-                        <Label ToolTip="In order to save video files, install ffmpeg and select the executable below." Content="{md:PackIcon InformationOutline}"/>
                     </StackPanel>
                     <StackPanel Margin="16,0">
-                        <StackPanel Orientation="Horizontal">
+                        <Label>Frame export format:</Label>
+                        <ListBox
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4">
+                            <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled, Converter={StaticResource InvertBooleanConverter}}">png (8-bit)</ListBoxItem>
+                            <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled}">exr (32-bit)</ListBoxItem>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal" Margin="0,8">
                             <Button Command="{Binding ShowFfmpegPathSelectorDialogCommand}"
                                     Content="ffmpeg.exe:"
-                                    Style="{StaticResource MaterialDesignPaperButton}" Padding="4"/>
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Padding="8"/>
+                            <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                ToolTip="In order to save video files, install ffmpeg and select the executable." Content="{md:PackIcon InformationOutline}"/>
                             <Label Content="{Binding FfmpegPath}"
                                    VerticalAlignment="Center"/>
                         </StackPanel>
-                        <StackPanel IsEnabled="{Binding IsFfmpegPathSet}">
+                        <CheckBox 
+                            IsChecked="{Binding IsExportVideoFileEnabled}"
+                            IsEnabled="{Binding IsFfmpegPathSet}">
+                            Save video file after frames have rendered
+                        </CheckBox>
+                        <StackPanel IsEnabled="{Binding IsExportVideoFileEnabled}">
                             <Grid>
-                                <Label VerticalAlignment="Bottom">ffmpeg args:</Label>
+                                <TextBlock>
+                                    <Run BaselineAlignment="Center">ffmpeg args: </Run>
+                                    <Label ToolTip="Provide additional ffmpeg settings here. IFSRenderer handles the following arguments: input, output, fps, audio." Content="{md:PackIcon InformationOutline}"/>
+                                </TextBlock>
                                 <Menu HorizontalAlignment="Right" Height="22">
                                     <MenuItem Header="▼ Presets" HorizontalAlignment="Right" Padding="4" FontSize="12" Height="22">
-                                        <MenuItem Header="HD mp4"/>
-                                        <MenuItem Header="web-optimized"/>
+                                        <MenuItem Header="HQ h265 (.mp4)" Command="{Binding ApplyFfmpegPresetCommand}" 
+                                                  CommandParameter="-c:v libx265 -crf 21 -preset veryslow -tag:v hvc1"/>
+                                        <MenuItem Header="HQ prores (.mov)" Command="{Binding ApplyFfmpegPresetCommand}" 
+                                                  CommandParameter="-c:v prores -profile:v 3 -qscale:v 21 -pix_fmt yuv422p10le"/>
+                                        <Separator/>
+                                        <MenuItem Header="Lossless h265 (.mp4)" Command="{Binding ApplyFfmpegPresetCommand}" 
+                                                  CommandParameter="-c:v libx265 -x265-params lossless=1 -preset veryslow -tag:v hvc1"/>
+                                        <Separator/>
+                                        <MenuItem Header="Web h265 (.mp4)" Command="{Binding ApplyFfmpegPresetCommand}" 
+                                                  CommandParameter="-movflags faststart -c:v libx265 -crf 32 -preset veryslow -tag:v hvc1"/>
+                                        <MenuItem Header="Web VP9 (.webm)" Command="{Binding ApplyFfmpegPresetCommand}" 
+                                                  CommandParameter="-c:v libvpx-vp9 -crf 40 -deadline best"/>
                                     </MenuItem>
                                 </Menu>
                             </Grid>
                             <TextBox Text="{Binding FfmpegArgs}"
                                 TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" MinLines="5" 
                                 Style="{StaticResource MaterialDesignFilledTextBox}" TextAlignment="Left"/>
-                        <CheckBox 
-                            IsChecked="{Binding IsExportVideoFileEnabled}">
-                            Save video file after frames have rendered
-                        </CheckBox>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

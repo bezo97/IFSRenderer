@@ -37,7 +37,6 @@ public partial class AnimationViewModel
     [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
     [ObservableProperty] public bool _isRenderingFrames = false;
     private string? _saveFramesPath = null;
-    private string _framesExtension = "exr";
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
@@ -161,7 +160,7 @@ public partial class AnimationViewModel
         Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
-            _audioPlayer.Position = CurrentTime.ToTimeSpan();
+            _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = CurrentTime.ToTimeSpan());
         CurrentTimeSlider.RaiseValueChanged();
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
         Workspace.RaiseAnimationFrameChanged();
@@ -369,24 +368,24 @@ public partial class AnimationViewModel
     {
         if(IsRenderingFrames && _saveFramesPath is not null)
         {
+            var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
             var frameNr = (int)(CurrentTime.ToTimeSpan().TotalSeconds * Workspace.Ifs.Dopesheet.Fps);
-            var framePath = Path.Combine(_saveFramesPath, $"{Workspace.Ifs.Title}-{frameNr:D6}.{_framesExtension}"); //TODO: filter invalid chars
+            var framePath = Path.Combine(_saveFramesPath, $"{Workspace.Ifs.Title}-{frameNr:D6}.{frameFileExtension}"); //TODO: filter invalid chars
 
-            if (_framesExtension == "png")
-            {
+            if (!Workspace.IsRawFrameExportEnabled)
+            {//png
                 var bitmap = Workspace.Renderer.GetExportBitmapSource(false).Result;
                 var enc = new PngBitmapEncoder();
                 enc.Frames.Add(BitmapFrame.Create(bitmap));
                 using var fstream = File.Create(framePath);
                 enc.Save(fstream);
             }
-            else if(_framesExtension == "exr")
-            {
+            else
+            {//exr
                 var histogramData = Workspace.Renderer.ReadHistogramData().Result;
                 using var fstream = File.Create(framePath);
                 OpenEXR.WriteStream(fstream, histogramData);
             }
-            else throw new NotSupportedException();
 
             if (JumpToNextFrame())
             {//was last frame
@@ -416,21 +415,20 @@ public partial class AnimationViewModel
 
     private async Task RunFfmpegProcess()
     {
-        var videoExtension = _framesExtension switch
-        {
-            "png" => "mp4", 
-            "exr" => "mov", 
-            _ => throw new NotSupportedException(), 
-        };
+        var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
+        var videoFileExtension = 
+            Workspace.FfmpegArgs.Contains("prores") ? "mov" :
+            Workspace.FfmpegArgs.Contains("libvpx-vp9") ? "webm" : 
+            "mp4";//figure out extension based on codec
         StringBuilder argsBuilder = new();
         argsBuilder.AppendJoin(' ',
             $"-y",//overwrite
             $"-nostdin",//disable inout
             $"-r {Workspace.Ifs.Dopesheet.Fps}",//fps
-            $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{_framesExtension}\"",//input files
+            $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{frameFileExtension}\"",//input files
             $"-vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\"",//divisible by 2, as required by some codecs
             Workspace.FfmpegArgs,
-            $"{Workspace.Ifs.Title}.{videoExtension}");//user args
+            $"{Workspace.Ifs.Title}.{videoFileExtension}");//user args
         var args = argsBuilder.ToString();
 
         var ffmpegProc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Workspace.FfmpegPath, args)

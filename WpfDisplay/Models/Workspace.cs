@@ -34,6 +34,7 @@ public partial class Workspace
     public bool InvertAxisY;
     public double Sensitivity;
     public bool UseWhiteForBlankParams;
+    public bool IsRawFrameExportEnabled { get; private set; }
     public bool IsExportVideoFileEnabled { get; private set; }
     public string FfmpegPath { get; private set; }
     public string FfmpegArgs { get; private set; }
@@ -222,6 +223,7 @@ public partial class Workspace
         InvertAxisY = Settings.Default.InvertAxisY;
         Sensitivity = Settings.Default.Sensitivity;
         UseWhiteForBlankParams = Settings.Default.UseWhiteForBlankParams;
+        IsRawFrameExportEnabled = Settings.Default.IsRawFrameExportEnabled;
         IsExportVideoFileEnabled = Settings.Default.IsExportVideoFileEnabled;
         FfmpegPath = Settings.Default.FfmpegPath;
         FfmpegArgs = Settings.Default.FfmpegArgs;

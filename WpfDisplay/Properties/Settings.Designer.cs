@@ -210,5 +210,17 @@ namespace WpfDisplay.Properties {
                 this["FfmpegArgs"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsRawFrameExportEnabled {
+            get {
+                return ((bool)(this["IsRawFrameExportEnabled"]));
+            }
+            set {
+                this["IsRawFrameExportEnabled"] = value;
+            }
+        }
     }
 }

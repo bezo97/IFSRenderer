@@ -192,4 +192,20 @@ internal partial class SettingsViewModel
             FfmpegPath = selectedPath;
     }
 
+    public bool? IsRawFrameExportEnabled
+    {
+        get => Settings.Default.IsRawFrameExportEnabled;
+        set
+        {
+            Settings.Default.IsRawFrameExportEnabled = value ?? false;
+            OnPropertyChanged(nameof(IsRawFrameExportEnabled));
+        }
+    }
+
+    [RelayCommand]
+    private void ApplyFfmpegPreset(string args)
+    {
+        FfmpegArgs = args;
+    }
+
 }

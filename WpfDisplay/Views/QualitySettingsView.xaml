@@ -20,13 +20,6 @@
             HorizontalAlignment="Center"
             Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4"
             SelectedIndex="0">
-            <ListBox.ToolTip>
-                <StackPanel>
-                    <TextBlock Text="MaterialDesignToolToggleListBox"/>
-                    <TextBlock Text="Exclusive selection"/>
-                    <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour"/>
-                </StackPanel>
-            </ListBox.ToolTip>
             <ListBoxItem>🧭 Exploration</ListBoxItem>
             <ListBoxItem IsSelected="{Binding IsFinalRenderingMode}">📸 Final</ListBoxItem>
         </ListBox>
