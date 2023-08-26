@@ -185,7 +185,7 @@ internal partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ShowFfmpegPathSelectorDialog()
+    private void ShowFfmpegPathSelectorDialog()
     {
         if (DialogHelper.ShowFfmpegPathSelectorDialog(out string selectedPath))
             FfmpegPath = selectedPath;

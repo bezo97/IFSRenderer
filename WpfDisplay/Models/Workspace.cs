@@ -35,8 +35,8 @@ public partial class Workspace : ObservableObject
     public bool UseWhiteForBlankParams;
     public bool IsRawFrameExportEnabled { get; private set; }
     public bool IsExportVideoFileEnabled { get; private set; }
-    public string FfmpegPath { get; private set; }
-    public string FfmpegArgs { get; private set; }
+    public string? FfmpegPath { get; private set; }
+    public string? FfmpegArgs { get; private set; }
     public string? EditedFilePath { get; private set; }
     [ObservableProperty] private bool _hasUnsavedChanges;
 

@@ -345,7 +345,7 @@ public partial class AnimationViewModel : ObservableObject
 
     private bool _canExecuteStart => !IsRenderingFrames;
     [RelayCommand(/*CanExecute = nameof(_canExecuteStart)*/)]
-    public async Task StartRenderingFrames()
+    public void StartRenderingFrames()
     {
         if(IsRenderingFrames) throw new InvalidOperationException();
 
@@ -414,10 +414,14 @@ public partial class AnimationViewModel : ObservableObject
 
     private async Task RunFfmpegProcess()
     {
+        if (!File.Exists(Workspace.FfmpegPath))
+            throw new InvalidOperationException();
+
+        var userArgs = Workspace.FfmpegArgs ?? "";
         var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
-        var videoFileExtension = 
-            Workspace.FfmpegArgs.Contains("prores") ? "mov" :
-            Workspace.FfmpegArgs.Contains("libvpx-vp9") ? "webm" : 
+        var videoFileExtension =
+            userArgs.Contains("prores") ? "mov" :
+            userArgs.Contains("libvpx-vp9") ? "webm" : 
             "mp4";//figure out extension based on codec
         StringBuilder argsBuilder = new();
         argsBuilder.AppendJoin(' ',
@@ -426,8 +430,8 @@ public partial class AnimationViewModel : ObservableObject
             $"-r {Workspace.Ifs.Dopesheet.Fps}",//fps
             $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{frameFileExtension}\"",//input files
             $"-vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\"",//divisible by 2, as required by some codecs
-            Workspace.FfmpegArgs,
-            $"{Workspace.Ifs.Title}.{videoFileExtension}");//user args
+            userArgs,
+            $"{Workspace.Ifs.Title}.{videoFileExtension}");
         var args = argsBuilder.ToString();
 
         var ffmpegProc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Workspace.FfmpegPath, args)
