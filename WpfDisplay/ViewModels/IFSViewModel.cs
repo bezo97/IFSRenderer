@@ -19,8 +19,7 @@ using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class IFSViewModel
+public partial class IFSViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
 

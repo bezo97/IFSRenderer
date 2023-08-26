@@ -5,8 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class KeyframeViewModel
+public partial class KeyframeViewModel : ObservableObject
 {
     private readonly AnimationViewModel _avm;
     public readonly ChannelViewModel _cvm;

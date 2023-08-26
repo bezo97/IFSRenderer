@@ -10,8 +10,7 @@ using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class ConnectionViewModel
+public partial class ConnectionViewModel : ObservableObject
 {
     private readonly IEnumerable<ConnectionViewModel> _nodemapConnections;
     public readonly IteratorViewModel from;

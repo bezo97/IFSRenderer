@@ -12,8 +12,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class IteratorViewModel
+public partial class IteratorViewModel : ObservableObject
 {
     public readonly Iterator iterator;
     private readonly Workspace _workspace;

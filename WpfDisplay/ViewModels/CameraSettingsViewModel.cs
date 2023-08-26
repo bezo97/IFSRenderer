@@ -8,8 +8,7 @@ using System;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class CameraSettingsViewModel
+public partial class CameraSettingsViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
 

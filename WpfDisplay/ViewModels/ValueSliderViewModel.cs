@@ -6,8 +6,7 @@ using System.Windows.Input;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class ValueSliderViewModel
+public partial class ValueSliderViewModel : ObservableObject
 {
     public ValueSliderViewModel() { }
     public ValueSliderViewModel(INotifyPropertyChanged inpc)

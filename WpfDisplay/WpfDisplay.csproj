@@ -34,7 +34,7 @@
 		<PackageReference Include="Cavern" Version="1.6.0" />
 		<PackageReference Include="Cavern.Format" Version="1.6.0" />
 		<PackageReference Include="Cavern.QuickEQ" Version="1.6.0" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.3" />
 		<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.70.3" />
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />

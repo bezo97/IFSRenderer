@@ -4,8 +4,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public abstract partial class ParamViewModelBase<T>
+public abstract partial class ParamViewModelBase<T> : ObservableObject
 {
     protected readonly Iterator iterator;
     protected readonly Workspace workspace;

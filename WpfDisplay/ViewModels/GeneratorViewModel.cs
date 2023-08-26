@@ -11,8 +11,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class GeneratorViewModel
+public partial class GeneratorViewModel : ObservableObject
 {
     private readonly MainViewModel _mainvm;
     private readonly GeneratorWorkspace _workspace;

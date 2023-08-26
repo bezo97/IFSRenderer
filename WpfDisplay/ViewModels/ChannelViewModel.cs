@@ -14,8 +14,7 @@ using System;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class ChannelViewModel
+public partial class ChannelViewModel : ObservableObject
 {
     public string Name => channel.Name;
     public string Path { get; }

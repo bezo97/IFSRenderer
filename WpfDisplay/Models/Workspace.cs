@@ -20,8 +20,7 @@ namespace WpfDisplay.Models;
 /// The main workspace model that contains a <see cref="RendererGL"/> 
 /// and an <see cref="IFSEngine.Model.IFS"/> that it is rendering.
 /// </summary>
-[ObservableObject]
-public partial class Workspace
+public partial class Workspace : ObservableObject
 {
     private readonly IFSHistoryTracker _tracker = new();
     private List<Transform> _loadedTransforms = new();

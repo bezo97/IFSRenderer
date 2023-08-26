@@ -17,8 +17,7 @@ namespace WpfDisplay.Models;
 /// The generator workspace model that contains a utility <see cref="RendererGL"/> 
 /// and lists of <see cref="IFSEngine.Model.IFS"/> that it is rendering.
 /// </summary>
-[ObservableObject]
-public partial class GeneratorWorkspace
+public partial class GeneratorWorkspace : ObservableObject
 {
     public IReadOnlyList<IFS> PinnedIFS => _pinnedIFS;
     public IReadOnlyList<IFS> GeneratedIFS => _generatedIFS;

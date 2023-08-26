@@ -22,8 +22,7 @@ using Clip = Cavern.Clip;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class AnimationViewModel
+public partial class AnimationViewModel : ObservableObject
 {
     public readonly Workspace Workspace;
     private readonly Timer _realtimePlayer;

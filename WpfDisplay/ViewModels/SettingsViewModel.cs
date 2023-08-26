@@ -8,8 +8,7 @@ using WpfDisplay.Properties;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-internal partial class SettingsViewModel
+internal partial class SettingsViewModel : ObservableObject
 {
     private readonly MainViewModel _mainvm;
     public event EventHandler SettingsSaved;

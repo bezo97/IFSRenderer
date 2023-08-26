@@ -19,8 +19,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public sealed partial class MainViewModel : IAsyncDisposable
+public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 {
     internal readonly Workspace workspace;
 

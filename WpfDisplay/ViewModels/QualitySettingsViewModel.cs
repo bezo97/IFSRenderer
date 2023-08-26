@@ -5,8 +5,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class QualitySettingsViewModel
+public partial class QualitySettingsViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
 

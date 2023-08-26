@@ -5,8 +5,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class ToneMappingViewModel
+public partial class ToneMappingViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
 

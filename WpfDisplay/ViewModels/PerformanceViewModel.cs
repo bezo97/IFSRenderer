@@ -6,8 +6,7 @@ using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
-[ObservableObject]
-public partial class PerformanceViewModel
+public partial class PerformanceViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
     private readonly DispatcherTimer _dt;
