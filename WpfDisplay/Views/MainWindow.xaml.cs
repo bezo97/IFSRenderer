@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
         ContentRendered += MainWindow_ContentRendered;
     }
 

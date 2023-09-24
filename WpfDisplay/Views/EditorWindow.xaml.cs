@@ -16,6 +16,7 @@ public partial class EditorWindow : Window
     public EditorWindow()
     {
         InitializeComponent();
+        MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
     }
 
     //fix laggy ui by disabling wpf hardware rendering
