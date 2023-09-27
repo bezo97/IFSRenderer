@@ -71,6 +71,13 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public MainViewModel(Workspace workspace)
     {
         this.workspace = workspace;
+        workspace.PropertyChanged += (s, e) =>
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(this.workspace.HasUnsavedChanges): OnPropertyChanged(nameof(WindowTitle)); break;
+            }
+        };
         workspace.StatusTextChanged += (s, e) => StatusBarText = e;
         workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
         PerformanceViewModel = new PerformanceViewModel(workspace);
