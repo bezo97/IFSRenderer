@@ -46,9 +46,11 @@ public class IFS
     public FlamePalette Palette { get; set; } = FlamePalette.Default;
     public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
     /// <summary>
-    /// Rendering stops after this number of iterations (2^Pow). Type is double to allow animation.
+    /// Defines the number of iterations that has to be performed for the image to be considered "done".
+    /// The formula is <code> log2(1+iters/(w*h)) > target </code>
+    /// Type is double to allow animation.
     /// </summary>
-    public double StoppingIterationPower { get; set; } = 35;
+    public double TargetIterationLevel { get; set; } = 15;
 
     protected HashSet<Iterator> iterators = new();
     protected List<Author> authors = new();

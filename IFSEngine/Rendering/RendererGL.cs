@@ -25,9 +25,9 @@ public sealed class RendererGL : IAsyncDisposable
     public event EventHandler DisplayFramebufferUpdated;
 
     /// <summary>
-    /// Invoked by the rendering thread when <see cref="TotalIterations"/> reaches the limit defined by <see cref="IFS.StoppingIterationPower"/>.
+    /// Invoked by the rendering thread when <see cref="TotalIterations"/> reaches the limit defined by <see cref="IFS.TargetIterationLevel"/>.
     /// </summary>
-    public event EventHandler RenderingFinished;
+    public event EventHandler TargetIterationReached;
 
     public bool IsInitialized { get; private set; } = false;
     public bool IsRendering { get; private set; } = false;
@@ -550,7 +550,7 @@ public sealed class RendererGL : IAsyncDisposable
             new Thread(() =>
             {
                 _ctx.MakeCurrent();
-                bool isFrameFinished = false;
+                bool isTargetIterationReached = false;
                 while (IsRendering)
                 {
                     GL.BeginQuery(QueryTarget.TimeElapsed, _timerQueryHandle);
@@ -559,10 +559,13 @@ public sealed class RendererGL : IAsyncDisposable
 
                     AdjustWorkloadSize();
 
-                    isFrameFinished = BitOperations.Log2(TotalIterations) >= LoadedParams.StoppingIterationPower;
+                    bool target = BitOperations.Log2(1 + TotalIterations / (ulong)(HistogramWidth * HistogramHeight)) >= LoadedParams.TargetIterationLevel;
+                    bool isTargetIterationReachedByCurrentDispatch = !isTargetIterationReached && target;
+                    isTargetIterationReached = target;
+
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(_dispatchCnt);
                     
-                    if (_updateDisplayNow || isFrameFinished || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
+                    if (_updateDisplayNow || isTargetIterationReachedByCurrentDispatch || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                     {
                         //render image from histogram
                         RenderImage();
@@ -573,14 +576,12 @@ public sealed class RendererGL : IAsyncDisposable
                         _updateDisplayNow = false;
                     }
 
-                    if (isFrameFinished)
-                        IsRendering = false;
+                    if (isTargetIterationReachedByCurrentDispatch)
+                        TargetIterationReached?.Invoke(this, null);
                 }
                 GL.Finish();
                 _ctx.MakeNoneCurrent();
                 _stopRender.Set();
-                if(isFrameFinished)
-                    RenderingFinished?.Invoke(this, null);
             }).Start();
         }
     }
@@ -597,14 +598,14 @@ public sealed class RendererGL : IAsyncDisposable
     }
 
     /// <summary>
-    /// Helper to call opengl from current thread with context. Stops the render thread.
+    /// Helper to call opengl from current thread with context. Stops the render thread if context is not current.
     /// </summary>
     /// <param name="action"></param>
     /// <returns></returns>
     private async Task WithContext(Action action)
     {
-        bool continueRendering = IsRendering;
-        if (IsRendering)
+        bool renderingPaused = IsRendering && !_ctx.IsCurrent;
+        if (renderingPaused)
             await StopRenderLoop();
         bool wasCurrentContext = _ctx.IsCurrent;
         if (!_ctx.IsCurrent)
@@ -612,7 +613,7 @@ public sealed class RendererGL : IAsyncDisposable
         action();
         if (!wasCurrentContext)
             _ctx.MakeNoneCurrent();//release
-        if (continueRendering)
+        if (renderingPaused)
             StartRenderLoop();//restart render thread if it was running
     }
 

@@ -53,7 +53,7 @@ public partial class AnimationViewModel : ObservableObject
             CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
         };
-        workspace.Renderer.RenderingFinished += OnFrameFinishedRendering;
+        workspace.Renderer.TargetIterationReached += OnFrameFinishedRendering;
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0 / workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
@@ -360,6 +360,7 @@ public partial class AnimationViewModel : ObservableObject
             Workspace.Renderer.StartRenderLoop();
 
         IsRenderingFrames = true;
+        Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.UpdateStatusText($"Rendering animation frames...");
     }
 
@@ -397,18 +398,15 @@ public partial class AnimationViewModel : ObservableObject
             {
                 var totalFrames = Workspace.Ifs.Dopesheet.Length.TotalSeconds * Workspace.Ifs.Dopesheet.Fps;
                 Workspace.UpdateStatusText($"Saved frame '{framePath}' ({frameNr+1}/{totalFrames})");
-                Workspace.Renderer.StartRenderLoop();
             }
         }
     }
 
     [RelayCommand(/*CanExecute = nameof(IsRenderingFrames)*/)]
-    public async Task StopRenderingFrames()
+    public void StopRenderingFrames()
     {
         IsRenderingFrames = false;
         _saveFramesPath = null;
-        if(Workspace.Renderer.IsRendering)
-            await Workspace.Renderer.StopRenderLoop();
         Workspace.UpdateStatusText($"Rendering animation frames stopped.");
     }
 

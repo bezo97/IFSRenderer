@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using IFSEngine.Model;
+using System;
+using System.Numerics;
 using System.Windows;
 using WpfDisplay.Models;
 
@@ -11,9 +13,10 @@ public partial class QualitySettingsViewModel : ObservableObject
 
     [ObservableProperty] private bool _isResolutionLinked;
     private bool _isFinalRenderingMode = false;
-    public bool IsFinalRenderingMode { 
-        get => _isFinalRenderingMode; 
-        set 
+    public bool IsFinalRenderingMode
+    {
+        get => _isFinalRenderingMode;
+        set
         {
             if (value)
                 SetFinalRenderSettings();
@@ -27,6 +30,11 @@ public partial class QualitySettingsViewModel : ObservableObject
     {
         _workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.Renderer.DisplayFramebufferUpdated += (s, e) =>
+        {
+            OnPropertyChanged(nameof(IterationLevel));
+            OnPropertyChanged(nameof(IterationProgressPercent));
+        };
     }
 
     public bool EnableDE
@@ -53,23 +61,26 @@ public partial class QualitySettingsViewModel : ObservableObject
         }
     }
 
-    private ValueSliderViewModel _stoppingIterationPower;
-    public ValueSliderViewModel StoppingIterationPower => _stoppingIterationPower ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderViewModel _targetIterationLevel;
+    public ValueSliderViewModel TargetIterationLevel => _targetIterationLevel ??= new ValueSliderViewModel(_workspace)
     {
-        Label = "🎌 Stopping Iteration (2^Power)",
-        ToolTip = $"The image is considered finished after this number of 2^iterations. It is recommended to animate this value when rendering animations, since certain frames may require a lot more iterations than others. Default value is {IFS.Default.StoppingIterationPower}.",
-        AnimationPath = "StoppingIterationPower",
-        DefaultValue = IFS.Default.StoppingIterationPower,
-        GetV = () => _workspace.Ifs.StoppingIterationPower,
+        Label = "🎌 Target Iteration Level",
+        ToolTip = $"The image is considered finished when the rendering progress reaches this level. It is recommended to animate this value when rendering animations, since certain frames may require a lot more iterations than others. Default value is {IFS.Default.TargetIterationLevel}.",
+        AnimationPath = "TargetIterationLevel",
+        DefaultValue = IFS.Default.TargetIterationLevel,
+        GetV = () => _workspace.Ifs.TargetIterationLevel,
         SetV = (value) =>
         {
-            _workspace.Ifs.StoppingIterationPower = (int)value;
+            _workspace.Ifs.TargetIterationLevel = (int)value;
         },
         MinValue = 1,
         MaxValue = 50,
         Increment = 1,
         ValueWillChange = _workspace.TakeSnapshot,
     };
+
+    public string IterationLevel => BitOperations.Log2(1 + _workspace.Renderer.TotalIterations / (ulong)(_workspace.Renderer.HistogramWidth * _workspace.Renderer.HistogramHeight)).ToString();
+    public double IterationProgressPercent => 100.0*(_workspace.Renderer.TotalIterations / (double)(_workspace.Renderer.HistogramWidth * _workspace.Renderer.HistogramHeight)) / (Math.Pow(2, _workspace.Ifs.TargetIterationLevel)-1);
 
     private ValueSliderViewModel _deMaxRadius;
     public ValueSliderViewModel DEMaxRadius => _deMaxRadius ??= new ValueSliderViewModel(_workspace)

@@ -81,7 +81,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
-        workspace.Renderer.RenderingFinished += (s, e) => OnPropertyChanged(nameof(IsRenderingIcon));
+        workspace.Renderer.TargetIterationReached += (s, e) => OnPropertyChanged(nameof(IsRenderingIcon));
         workspace.UpdateStatusText($"Initialized");
     }
 
