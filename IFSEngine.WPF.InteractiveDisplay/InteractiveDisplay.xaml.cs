@@ -231,4 +231,19 @@ public partial class InteractiveDisplay : WindowsFormsHost
         }
     }
 
+    /// <summary>
+    /// Forward the winforms event to wpf
+    /// </summary>
+    private void GLControl1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+    {
+        if (e.Button != System.Windows.Forms.MouseButtons.Left)
+            return;
+
+        RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
+            {
+                RoutedEvent = Mouse.MouseDownEvent,
+                Source = this,
+            });
+    }
+
 }
