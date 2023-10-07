@@ -242,6 +242,12 @@ public partial class QualitySettingsViewModel : ObservableObject
         }
     }
 
+    public void UpdatePreviewRenderSettings()
+    {
+        if (!IsFinalRenderingMode)
+            SetPreviewRenderSettings();
+    }
+
     private void SetPreviewRenderSettings()
     {
         _workspace.Renderer.SetHistogramScaleToDisplay();

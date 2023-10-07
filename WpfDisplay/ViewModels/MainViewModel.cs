@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IFSEngine.Model;
 using IFSEngine.Serialization;
@@ -44,7 +45,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         }
     }
 
-    [ObservableProperty] private string _statusBarText;
+    [ObservableProperty] private string _statusBarText = string.Empty;
     [ObservableProperty] private bool _isHintsPanelVisible = true;
     [ObservableProperty] private bool _isGamepadConnected = false;
 
@@ -79,7 +80,6 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
             }
         };
         workspace.StatusTextChanged += (s, e) => StatusBarText = e;
-        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
         PerformanceViewModel = new PerformanceViewModel(workspace);
         QualitySettingsViewModel = new QualitySettingsViewModel(workspace);
         IFSViewModel = new IFSViewModel(workspace);
@@ -88,7 +88,6 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
-        workspace.Renderer.TargetIterationReached += (s, e) => OnPropertyChanged(nameof(IsRenderingIcon));
         workspace.UpdateStatusText($"Initialized");
     }
 

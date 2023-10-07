@@ -113,7 +113,7 @@
                     <TextBlock Text="{Binding DataContext.IFSTitle, ElementName=mainWindow, Mode=OneWay, StringFormat='\{0\}'}"/>
                 </DataTemplate>
             </DockingManager.DocumentHeaderTemplate>
-            <LayoutRoot PropertyChanged="LayoutRoot_PropertyChanged">
+            <LayoutRoot>
                 <LayoutPanel Orientation="Vertical">
                     <LayoutPanel Orientation="Horizontal">
                         <!--Left Side-->
@@ -177,6 +177,7 @@
                                         <Grid Background="Black">
                                             <disp:InteractiveDisplay x:Name="mainDisplay"
                                                 Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}}"
+                                                DisplayResolutionChanged="mainDisplay_DisplayResolutionChanged"
                                                 InteractionStartedCommand="{Binding TakeSnapshotCommand}"
                                                 InteractionFinishedCommand="{Binding InteractionFinishedCommand}"
                                                 GamepadConnectionStateChanged="mainDisplay_GamepadConnectionStateChanged"
@@ -195,9 +196,10 @@
                             </LayoutDocumentPaneGroup>
                             <LayoutAnchorablePaneGroup DockHeight="300">
                                 <LayoutAnchorablePane>
-                                    <LayoutAnchorable
+                                    <LayoutAnchorable x:Name="animationsPanel"
                                         Title="Animations" ToolTip="Animations" ContentId="Animations"
-                                        CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                        CanHide="False" CanClose="False" CanFloat="True" CanMove="True"
+                                        >
                                         <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
                                         <!--<Grid>
                                             <Grid>

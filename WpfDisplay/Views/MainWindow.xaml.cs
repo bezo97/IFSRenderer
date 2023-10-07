@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
+        animationsPanel.ToggleAutoHide();
         ContentRendered += MainWindow_ContentRendered;
     }
 
@@ -55,7 +56,11 @@ public partial class MainWindow : Window
         }
 
         DataContext = new MainViewModel(workspace);
-
+        vm.AnimationViewModel.Channels.CollectionChanged += (s, e) =>
+        {
+            if (vm.workspace.Ifs.Dopesheet.Channels.Count > 0)
+                ShowAnimationsPanel();
+        };
     }
 
     /// <summary>
@@ -243,16 +248,19 @@ public partial class MainWindow : Window
         vm.workspace.LoadParams(IFS.Default);
     }
 
-    private void LayoutRoot_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        //TODO: fix docking panel resizing
-        //SetDisplayResolution
-        //if preview -> SetHistogramScaleToDisplay
-        vm?.workspace.Renderer.InvalidateDisplay();
-    }
-
     private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e)
     {
         await Dispatcher.InvokeAsync(() => vm.IsGamepadConnected = e);
+    }
+
+    private void ShowAnimationsPanel()
+    {
+        if(animationsPanel.IsAutoHidden)
+            animationsPanel.ToggleAutoHide();
+    }
+
+    private void mainDisplay_DisplayResolutionChanged(object sender, System.EventArgs e)
+    {
+        vm?.QualitySettingsViewModel?.UpdatePreviewRenderSettings();
     }
 }

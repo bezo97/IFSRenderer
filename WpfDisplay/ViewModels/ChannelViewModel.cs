@@ -146,8 +146,7 @@ public partial class ChannelViewModel : ObservableObject
         if(!_vm.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
         var keyframePosition = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(_vm.KeyframeInsertPosition.Value));
         var eval = channel.EvaluateAt(_vm.KeyframeInsertPosition.Value);
-        AnimationVM.Workspace.Ifs.Dopesheet.AddOrUpdateChannel(Name, Path, keyframePosition, eval);
-        UpdateKeyframes();
+        AnimationVM.AddOrUpdateChannel(Name, Path, eval, keyframePosition);
         _vm.KeyframeInsertPosition = null;
     }
 

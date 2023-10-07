@@ -1,15 +1,18 @@
-﻿using IFSEngine.Rendering;
+﻿#nullable enable
+using IFSEngine.Rendering;
 using OpenTK.Windowing.Common;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Vortice.XInput;
+using Timer = System.Timers.Timer;
 
 namespace IFSEngine.WPF.InteractiveDisplay;
 
@@ -19,7 +22,7 @@ namespace IFSEngine.WPF.InteractiveDisplay;
 public partial class InteractiveDisplay : WindowsFormsHost
 {
     public IGraphicsContext GraphicsContext => GLControl1.Context;
-    public RendererGL Renderer { get; private set; }
+    public RendererGL? Renderer { get; private set; }
 
     public ICommand InteractionStartedCommand
     {
@@ -58,7 +61,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
             new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a)._sensitivity = (float)b.NewValue; }));
 
     bool _isGamepadConnected = false;
-    public event EventHandler<bool> GamepadConnectionStateChanged;
+    public event EventHandler<bool>? GamepadConnectionStateChanged;
+    public event EventHandler? DisplayResolutionChanged;
 
     //[LibraryImport("User32.dll")]
     //[return: MarshalAs(UnmanagedType.Bool)]
@@ -85,9 +89,9 @@ public partial class InteractiveDisplay : WindowsFormsHost
         _controlTimer.Start();
     }
 
-    private void Control_Tick(object sender, EventArgs e)
+    private void Control_Tick(object? sender, EventArgs e)
     {
-        if (IsInteractionEnabled)
+        if (IsInteractionEnabled && Renderer is not null)
         {
             //TODO: InteractionStartedCommand?.Execute(null);
             Vector3 translateVec = new();
@@ -175,12 +179,12 @@ public partial class InteractiveDisplay : WindowsFormsHost
     {
         Renderer = renderer;
         Renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
-        GLControl1.Resize += (s2, e2) => renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
+        //GLControl1.Resize += (s2, e2) => renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
     }
 
     private void GLControl1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
     {
-        if (IsInteractionEnabled)
+        if (IsInteractionEnabled && Renderer is not null)
         {
             InteractionStartedCommand?.Execute(null);
             Renderer.LoadedParams.Camera.FocusDistance += e.Delta * Renderer.LoadedParams.Camera.FocusDistance * 0.001;
@@ -191,7 +195,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
 
     private void GLControl1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
     {
-        if (IsInteractionEnabled)
+        if (IsInteractionEnabled && Renderer is not null)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left && GLControl1.Capture)
             {
@@ -246,4 +250,18 @@ public partial class InteractiveDisplay : WindowsFormsHost
             });
     }
 
+    private CancellationTokenSource _cts = new();
+    private void WindowsFormsHost_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        _cts.Cancel();
+        _cts = new CancellationTokenSource();
+        var c = _cts.Token;
+        Renderer?.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
+        System.Threading.Tasks.Task.Run(async () =>
+        {
+            await System.Threading.Tasks.Task.Delay(250);
+            if (c.IsCancellationRequested) return;
+            Dispatcher.Invoke(() => DisplayResolutionChanged?.Invoke(this, e));
+        }, c);
+    }
 }

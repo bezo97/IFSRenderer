@@ -39,7 +39,7 @@ public partial class AnimationViewModel : ObservableObject
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
-    [ObservableProperty] private ObservableCollection<ChannelViewModel> _channels = new();
+    public ObservableCollection<ChannelViewModel> Channels { get; } = new();
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
@@ -96,8 +96,9 @@ public partial class AnimationViewModel : ObservableObject
 
     public void UpdateChannels()
     {
-        Channels = new(Workspace.Ifs.Dopesheet.Channels.ToList()
-            .Select(a => new ChannelViewModel(this, a.Key, a.Value)));
+        Channels.Clear();
+        Workspace.Ifs.Dopesheet.Channels.ToList()
+            .Select(a => new ChannelViewModel(this, a.Key, a.Value)).ToList().ForEach(Channels.Add);
     }
 
     /// <summary>
@@ -179,31 +180,33 @@ public partial class AnimationViewModel : ObservableObject
         return lastFrame;
     }
 
-    public void AddOrUpdateChannel(string name, string path, double value)
+    public void AddOrUpdateChannel(string name, string path, double value) => AddOrUpdateChannel(name, path, value, CurrentTime);
+
+    public void AddOrUpdateChannel(string name, string path, double value, TimeOnly position)
     {
         var vm = Channels.FirstOrDefault(c => c.Path == path);
         if (vm is null)
         {//add new channel with single keyframe
-            Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
+            Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, position, value);
             Channels.Add(new ChannelViewModel(this, path, Workspace.Ifs.Dopesheet.Channels[path]));
         }
         else
         {
             //remove existing keyframe if value equals
-            var currentTimeSeconds = CurrentTime.ToTimeSpan().TotalSeconds;
-            var keyOnFrame = vm.Keyframes.FirstOrDefault(kf => kf._k.Value == value && kf._k.t == currentTimeSeconds);
+            var positionSeconds = position.ToTimeSpan().TotalSeconds;
+            var keyOnFrame = vm.Keyframes.FirstOrDefault(kf => kf._k.Value == value && kf._k.t == positionSeconds);
             if (keyOnFrame is not null)
             {
                 if (vm.Keyframes.Count == 1)
                 {
-                    Workspace.Ifs.Dopesheet.RemoveChannel(vm.Path, CurrentTime);
+                    Workspace.Ifs.Dopesheet.RemoveChannel(vm.Path, position);
                     Channels.Remove(vm);
                 }
                 else
                     vm.RemoveKeyframe(keyOnFrame);
             }
             else
-                Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, CurrentTime, value);
+                Workspace.Ifs.Dopesheet.AddOrUpdateChannel(name, path, position, value);
 
             vm.UpdateKeyframes();
         }
