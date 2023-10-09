@@ -121,7 +121,7 @@
                             <LayoutAnchorablePane x:Name="tonemappingPane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Tonemapping" ToolTip="Tonemapping" ContentId="Tonemapping"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:ToneMappingView DataContext="{Binding ToneMappingViewModel}"/>
                                     </ScrollViewer>
@@ -130,7 +130,7 @@
                             <LayoutAnchorablePane x:Name="environmentPane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Environment" ToolTip="Environment" ContentId="Environment"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" >
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel Margin="8">
                                             <Label>Background</Label>
@@ -153,14 +153,14 @@
                             <LayoutAnchorablePane DockHeight="*">
                                 <LayoutAnchorable
                                     Title="Camera" ToolTip="Camera" ContentId="Camera"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" >
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:CameraSettingsView DataContext="{Binding CameraSettingsViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
                                 <LayoutAnchorable
                                     Title="Camera Transform" ToolTip="Camera Transform" ContentId="Camera Transform"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:CameraNavigationPanel DataContext="{Binding CameraSettingsViewModel}"/>
                                     </ScrollViewer>
@@ -172,6 +172,7 @@
                             <LayoutDocumentPaneGroup>
                                 <LayoutDocumentPane>
                                     <LayoutDocument
+                                        CanClose="False"
                                         ContentId="mainDocument"
                                         IconSource="/Resources/icon_128.png">
                                         <Grid Background="Black">
@@ -198,7 +199,7 @@
                                 <LayoutAnchorablePane>
                                     <LayoutAnchorable x:Name="animationsPanel"
                                         Title="Animations" ToolTip="Animations" ContentId="Animations"
-                                        CanHide="False" CanClose="False" CanFloat="True" CanMove="True"
+                                        CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" 
                                         >
                                         <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
                                         <!--<Grid>
@@ -222,8 +223,8 @@
                         <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="250">
                             <LayoutAnchorablePane>
                                 <LayoutAnchorable
-                                    Title="Rendering Settings" ToolTip="Rendering Settings" ContentId="Rendering Settings"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    Title="Rendering Settings" ToolTip="Rendering Settings" ContentId="Rendering Settings"                                    
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" >
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                                     </ScrollViewer>
@@ -237,7 +238,7 @@
                             <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">
                                 <LayoutAnchorable
                                     Title="Performance" ToolTip="Performance" ContentId="Performance"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:PerformanceView DataContext="{Binding PerformanceViewModel}"/>
                                     </ScrollViewer>
