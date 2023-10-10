@@ -1,0 +1,141 @@
+﻿<Window x:Class="WpfDisplay.Views.WelcomeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+        xmlns:conv="clr-namespace:WpfDisplay.Converters" 
+        xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
+        Style="{StaticResource MaterialDesignWindow}"
+        TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="16"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignDarkBackground}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        WindowStartupLocation="CenterOwner" 
+        ShowInTaskbar="False"
+        WindowStyle="ToolWindow"
+        mc:Ignorable="d"
+        Title="Welcome" Height="650" Width="600"
+        d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="300"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <TextBlock>
+                <Hyperlink Command="{Binding VisitFeaturedArtworkCommand}">
+                    <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/icon_128.png"/>
+                </Hyperlink>
+            </TextBlock>
+            <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="Consolas">
+                <Label.Effect>
+                    <DropShadowEffect/>
+                </Label.Effect>
+                IFSRenderer
+            </Label>
+            <TextBlock HorizontalAlignment="Right" Margin="8">
+                <TextBlock.Effect>
+                    <DropShadowEffect/>
+                </TextBlock.Effect>
+                <Hyperlink NavigateUri="{Binding VisitUpdatesUri}">
+                    v1.3.0 @
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
+        <Grid Grid.Row="1" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <md:Card Grid.Column="0" Padding="4" Margin="4">
+                <StackPanel MinWidth="200">
+                    <Label>Choose a workflow</Label>
+                    <StackPanel Margin="8,0">
+                        <TextBlock Margin="0,4">
+                            <Hyperlink>Start from scratch</Hyperlink>
+                        </TextBlock>
+                        <TextBlock Margin="0,4">
+                            <Hyperlink>Load params...</Hyperlink>
+                        </TextBlock>
+                        <TextBlock Margin="0,4">
+                            <Hyperlink>Browse randoms...</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <Grid Width="100" Height="100" Margin="4" HorizontalAlignment="Right">
+                        <Grid.Effect>
+                            <DropShadowEffect ShadowDepth="1"/>
+                        </Grid.Effect>
+                        <TextBlock>
+                            <Hyperlink>
+                                <Image Source="/IFSRenderer;component/Resources/icon_128.png"/>
+                            </Hyperlink>
+                        </TextBlock>
+                        <Label VerticalAlignment="Bottom" HorizontalAlignment="Right" IsHitTestVisible="False" FontSize="14">
+                            <Label.Effect>
+                                <DropShadowEffect/>
+                            </Label.Effect>
+                            ▷ Explore this
+                        </Label>
+                    </Grid>
+                </StackPanel>
+            </md:Card>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Expander Header="Getting Started" Grid.Row="0">
+                    <md:Card Margin="8" Padding="8">
+                        <StackPanel>
+                            <TextBlock>
+                                <Hyperlink>Getting Started Guide</Hyperlink>
+                            </TextBlock>
+                            <TextBlock>
+                                <Hyperlink>Wiki</Hyperlink>
+                            </TextBlock>
+                            <TextBlock>
+                                <Hyperlink>Visit settings...</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                    </md:Card>
+                </Expander>
+                <Expander Header="Templates" Grid.Row="1" IsExpanded="False">
+                    <md:Card Margin="8" Padding="8">
+                        <ItemsControl ItemsSource="{Binding TemplateFiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button>Title</Button>
+                                    <!--TODO: thumbnail-->
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </md:Card>
+                </Expander>
+                <Expander Header="Recent Files" Grid.Row="2" IsExpanded="False">
+                    <md:Card Margin="8" Padding="8">
+                        <ItemsControl ItemsSource="{Binding RecentFiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button>Title</Button>
+                                    <!--TODO: thumbnail-->
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </md:Card>
+                </Expander>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" Margin="4">
+            <Button HorizontalAlignment="Center" Margin="4" IsDefault="True">Continue</Button>
+            <CheckBox IsChecked="True" VerticalAlignment="Bottom" HorizontalAlignment="Right">Show on startup</CheckBox>
+        </Grid>
+    </Grid>
+</Window>
