@@ -38,10 +38,7 @@ public partial class GeneratorWorkspace : ObservableObject
     public GeneratorWorkspace(IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
     {
         //init thumbnail renderer
-        GameWindow hw = new(new GameWindowSettings
-        {
-            IsMultiThreaded = false,
-        }, new NativeWindowSettings
+        GameWindow hw = new(new GameWindowSettings(), new NativeWindowSettings
         {
             Flags = OpenTK.Windowing.Common.ContextFlags.Offscreen,
             IsEventDriven = true,
@@ -101,7 +98,7 @@ public partial class GeneratorWorkspace : ObservableObject
                 //modify settings to be optimal for thumbnail rendering
                 var previewIfs = ifs.DeepClone();
                 previewIfs.ImageResolution = new System.Drawing.Size(200, 200);
-                previewIfs.Entropy = 1.0/100;
+                previewIfs.Entropy = 1.0 / 100;
                 previewIfs.Warmup = 0;
                 //render image after 1 compute pass
                 _renderer.LoadParams(previewIfs);
