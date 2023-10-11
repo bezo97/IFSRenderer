@@ -1,16 +1,13 @@
 ﻿#nullable enable
-using IFSEngine.Animation;
+using Cavern.Channels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.Generic;
+using IFSEngine.Animation;
+using IFSEngine.Animation.ChannelDrivers;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
-using WpfDisplay.Models;
 using WpfDisplay.Helper;
-using IFSEngine.Animation.ChannelDrivers;
-using Cavern.Remapping;
-using System;
 
 namespace WpfDisplay.ViewModels;
 

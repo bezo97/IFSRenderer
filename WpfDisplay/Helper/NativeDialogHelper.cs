@@ -10,14 +10,14 @@ public static class DialogHelper
     private static readonly string _imageFilter = "PNG Images|*.png";
     private static readonly string _exrFilter = "EXR Images|*.exr";
     private static readonly string _paletteFilter = "Flame Palettes|*.gradient;*.ugr";
-    private static readonly string _soundFilter = "Sound files|*.wav";
+    private static readonly string _audioFilter = "Audio files|" + Cavern.Format.AudioReader.filter;//allow any file supported by Cavern
     private static readonly string _ffmpegExeFilter = "FFmpeg executable|ffmpeg.exe";
     private static readonly Guid _openParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
     private static readonly Guid _saveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
     private static readonly Guid _exportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
     private static readonly Guid _exportExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
     private static readonly Guid _openPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
-    private static readonly Guid _openSoundGuid = Guid.Parse("24E3A7D5-A565-4E98-87C4-06D676A9EBD3");
+    private static readonly Guid _openAudioGuid = Guid.Parse("24E3A7D5-A565-4E98-87C4-06D676A9EBD3");
     private static readonly Guid _animationFolderBrowserGuid = Guid.Parse("8E896C73-B414-447C-909E-7D15B2569357");
     private static readonly Guid _ffmpegSelectorGuid = Guid.Parse("324D0CB0-3B30-4C91-94C3-094BC67C8100");
     private static readonly OpenFileDialog _openParamsDialog = new()
@@ -60,13 +60,13 @@ public static class DialogHelper
         RestoreDirectory = true,
         Title = "Open palette"
     };
-    private static readonly OpenFileDialog _openSoundDialog = new()
+    private static readonly OpenFileDialog _openAudioDialog = new()
     {
         CheckFileExists = true,
-        Filter = _soundFilter,
-        ClientGuid = _openSoundGuid,
+        Filter = _audioFilter,
+        ClientGuid = _openAudioGuid,
         RestoreDirectory = true,
-        Title = "Open sound"
+        Title = "Open audio"
     };
     private static readonly FolderBrowserDialog _animationFolderBrowserDialog = new()
     {
@@ -115,10 +115,10 @@ public static class DialogHelper
         FilePath = _openPaletteDialog.FileName;
         return selected;
     }
-    public static bool ShowOpenSoundDialog(out string FilePath)
+    public static bool ShowOpenAudioDialog(out string FilePath)
     {
-        bool selected = _openSoundDialog.ShowDialog() is DialogResult.OK;
-        FilePath = _openSoundDialog.FileName;
+        bool selected = _openAudioDialog.ShowDialog() is DialogResult.OK;
+        FilePath = _openAudioDialog.FileName;
         return selected;
     }
     public static bool ShowAnimationFolderBrowserDialog(out string FolderPath)

@@ -31,9 +31,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cavern" Version="1.6.0" />
-		<PackageReference Include="Cavern.Format" Version="1.6.0" />
-		<PackageReference Include="Cavern.QuickEQ" Version="1.6.0" />
+		<PackageReference Include="Cavern" Version="2.0.2" />
+		<PackageReference Include="Cavern.Format" Version="2.0.2" />
+		<PackageReference Include="Cavern.QuickEQ" Version="2.0.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
 		<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />

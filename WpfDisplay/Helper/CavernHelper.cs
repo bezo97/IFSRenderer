@@ -1,10 +1,7 @@
 ﻿using Cavern;
 using Cavern.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfDisplay.Helper;
 
@@ -24,29 +21,21 @@ internal static class CavernHelper
     /// <returns>Audio sample, a value between 0-1</returns>
     public static float CavernSampler(Clip clip, FFTCache cache, int channelId, double minFreq, double maxFreq, double t)
     {
-        t = Math.Clamp(t, 0, clip.Length);
-        int samplePosition = (int)(t * clip.SampleRate);
-        float[] samples = new float[defaultSamplingResolution];
-        clip.GetData(samples, channelId, samplePosition);
-        var spectrum = Measurements.FFT1D(samples, cache);
-        WaveformUtils.Gain(spectrum, 1.0f / spectrum.Length);
-
-        int startBin = (int)(minFreq / clip.SampleRate * samples.Length);
-        int endBin = (int)(maxFreq / clip.SampleRate * samples.Length);
-        endBin = Math.Clamp(endBin, startBin+1, clip.SampleRate);
-
+        var spectrum = CavernSpectrum(clip, cache, channelId, t);
+        int startBin = (int)(2 * minFreq / clip.SampleRate * spectrum.Length);
+        int endBin = (int)(2 * maxFreq / clip.SampleRate * spectrum.Length);
+        endBin = Math.Clamp(endBin, startBin+1, spectrum.Length);
         return spectrum[startBin..endBin].Max();
     }
 
-    public static float[] CavernSampler(Clip clip, FFTCache cache, int channelId, double t)
+    public static float[] CavernSpectrum(Clip clip, FFTCache cache, int channelId, double t)
     {
         t = Math.Clamp(t, 0, clip.Length);
         int samplePosition = (int)(t * clip.SampleRate);
         float[] samples = new float[defaultSamplingResolution];
         clip.GetData(samples, channelId, samplePosition);
-        var spectrum = Measurements.FFT1D(samples, cache);
+        var spectrum = Measurements.GetSpectrum(Measurements.FFT(samples.Select(r => new Complex(r, 0)).ToArray(), cache));
         WaveformUtils.Gain(spectrum, 1.0f / spectrum.Length);
-
         return spectrum;
     }
 }

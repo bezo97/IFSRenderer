@@ -1,7 +1,7 @@
 ﻿#nullable enable
+using Cavern.Channels;
 using Cavern.Format;
-using Cavern.QuickEQ;
-using Cavern.Remapping;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -270,21 +270,20 @@ public partial class AnimationViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAudio()
     {
-        if (DialogHelper.ShowOpenSoundDialog(out string path))
+        if (DialogHelper.ShowOpenAudioDialog(out string path))
         {
             _audioPlayer = new MediaPlayer();
             _audioPlayer.Open(new Uri(path));
             await Task.Run(() =>
             {
                 //TODO: show loading dialog with cancel
-                var r = new RIFFWaveReader(path);
-                LoadedAudioClip = r.ReadClip();
+                LoadedAudioClip = AudioReader.ReadClip(path);
                 AudioClipCache = new FFTCache(CavernHelper.defaultSamplingResolution);
                 LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(LoadedAudioClip.Channels);
                 AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
 
                 AudioBarsDrawing = CreateAudioBarsDrawing(LoadedAudioClip, 50.0/*viewScale*/);
-                var sampler = (double t) => CavernHelper.CavernSampler(LoadedAudioClip, AudioClipCache, 0/*TODO*/, t);
+                var sampler = (double t) => CavernHelper.CavernSpectrum(LoadedAudioClip, AudioClipCache, 0/*TODO*/, t);
                 SpectrogramBitmap = DrawSpectrogram(LoadedAudioClip, sampler, 50.0/*viewScale*/);
 
                 OnPropertyChanged(nameof(LoadedAudioClip));
@@ -302,7 +301,7 @@ public partial class AnimationViewModel : ObservableObject
         for (double t = 0.0; t < audioClip.Length; t += bars_resolution)
         {
             int position = (int)(t * audioClip.SampleRate);
-            float[] samples = new float[512];//2 hatványa!
+            float[] samples = new float[512];//must be pow of 2
             audioClip.GetData(samples, 0/*left channel*/, position);
             float barHeight = samples.Max();
 
@@ -333,7 +332,7 @@ public partial class AnimationViewModel : ObservableObject
         {
             var samples = sampler(t / (double)wres * audioClip.Length);
             //convert to log scale
-            samples = GraphUtils.ConvertToGraph(samples, displayStartFreq, displayEndFreq, audioClip.SampleRate, samples.Length / 2);
+            samples = GraphUtils.ConvertToGraph(samples, displayStartFreq, displayEndFreq, audioClip.SampleRate, samples.Length);
             for (int f = 0; f < samples.Length; f++)
             {
                 var s = Math.Pow(samples[f], 0.1);

@@ -152,7 +152,7 @@
                                 <Menu HorizontalAlignment="Right" Height="22">
                                     <MenuItem Header="▼ Presets" HorizontalAlignment="Right" Padding="4" FontSize="12" Height="22">
                                         <MenuItem Header="HQ h265 (.mp4)" Command="{Binding ApplyFfmpegPresetCommand}" 
-                                                  CommandParameter="-c:v libx265 -crf 21 -preset veryslow -tag:v hvc1"/>
+                                                  CommandParameter="-c:v libx265 -crf 18 -preset veryslow -tag:v hvc1"/>
                                         <MenuItem Header="HQ prores (.mov)" Command="{Binding ApplyFfmpegPresetCommand}" 
                                                   CommandParameter="-c:v prores -profile:v 3 -qscale:v 21 -pix_fmt yuv422p10le"/>
                                         <Separator/>
