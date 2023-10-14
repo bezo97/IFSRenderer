@@ -20,6 +20,7 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class WelcomeWindow : Window
 {
+    WelcomeViewModel vm => (WelcomeViewModel)DataContext;
     public WelcomeWindow()
     {
         InitializeComponent();
@@ -30,9 +31,9 @@ public partial class WelcomeWindow : Window
                 DialogResult = true;
             };
         };
-        ContentRendered += (s, e) =>
+        ContentRendered += async (s, e) =>
         {
-            //TODO: generate thumbnails
+            await vm.Initialize();
         };
     }
 }

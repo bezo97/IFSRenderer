@@ -85,11 +85,19 @@
                         <Grid.Effect>
                             <DropShadowEffect ShadowDepth="1"/>
                         </Grid.Effect>
-                        <TextBlock>
-                            <Hyperlink Command="{Binding ExploreRandomCommand}">
-                                <Image Source="/IFSRenderer;component/Resources/icon_128.png"/>
-                            </Hyperlink>
-                        </TextBlock>
+                        <Button 
+                            Width="100" Height="100"
+                            Command="{Binding ExploreCommand}" BorderThickness="1">
+                            <Button.Background>
+                                <ImageBrush 
+                                        ImageSource="{Binding ExploreThumbnail}" 
+                                        Stretch="UniformToFill">
+                                    <ImageBrush.RelativeTransform>
+                                        <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                                    </ImageBrush.RelativeTransform>
+                                </ImageBrush>
+                            </Button.Background>
+                        </Button>
                         <Label VerticalAlignment="Bottom" HorizontalAlignment="Right" IsHitTestVisible="False" FontSize="14">
                             <Label.Effect>
                                 <DropShadowEffect/>

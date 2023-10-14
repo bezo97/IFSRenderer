@@ -59,7 +59,7 @@ public partial class MainWindow : Window
         }
         else if (App.OpenVerbPath is null/* && Settings.Default.IsWelcomeScreenEnabled*/)
         {
-            var welcomeViewModel = new WelcomeViewModel();
+            var welcomeViewModel = new WelcomeViewModel(workspace.LoadedTransforms);
             var welcomeWindow = new WelcomeWindow
             {
                 Owner = this,
