@@ -28,7 +28,7 @@
         <DataTemplate x:Key="thumbnailTemplate">
             <Button 
                 Width="100" Height="100" Margin="4"
-                Command="{Binding DataContext.ExploreCommand, ElementName=welcomeWindow}"
+                Command="{Binding DataContext.SelectExploreWorkflowCommand, ElementName=welcomeWindow}"
                 CommandParameter="{Binding Key}" BorderThickness="0">
                 <Button.Background>
                     <ImageBrush 
@@ -83,17 +83,17 @@
                     <Label>Choose a workflow</Label>
                     <StackPanel Margin="8,0">
                         <TextBlock Margin="0,4">
-                            <Hyperlink Command="{Binding StartFromScratchCommand}">
+                            <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.FromScratch}">
                                 Start from scratch
                             </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,4">
-                            <Hyperlink Command="{Binding LoadFileCommand}">
+                            <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.LoadFile}">
                                 Load file...
                             </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,4">
-                            <Hyperlink Command="{Binding BrowseRandomsCommand}">
+                            <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.BrowseRandoms}">
                                 Browse randoms...
                             </Hyperlink>
                         </TextBlock>
@@ -104,7 +104,7 @@
                         </Grid.Effect>
                         <Button 
                             Width="100" Height="100"
-                            Command="{Binding ExploreCommand}"
+                            Command="{Binding SelectExploreWorkflowCommand}"
                             BorderThickness="1">
                             <Button.Background>
                                 <ImageBrush 
@@ -146,7 +146,7 @@
                                 </Hyperlink>
                             </TextBlock>
                             <TextBlock>
-                                <Hyperlink Command="{Binding VisitSettingsCommand}">
+                                <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.VisitSettings}">
                                     Visit settings...
                                 </Hyperlink>
                             </TextBlock>
@@ -186,7 +186,7 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="2" Margin="4">
-            <Button HorizontalAlignment="Center" Margin="4" IsDefault="True">Continue</Button>
+            <Button Command="{Binding ContinueCommand}" IsDefault="True" HorizontalAlignment="Center" Margin="4">Continue</Button>
             <CheckBox IsChecked="True" VerticalAlignment="Bottom" HorizontalAlignment="Right">Show on startup</CheckBox>
         </Grid>
     </Grid>

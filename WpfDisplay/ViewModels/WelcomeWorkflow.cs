@@ -2,7 +2,7 @@
 
 using WpfDisplay;
 
-namespace WpfDisplay.Models;
+namespace WpfDisplay.ViewModels;
 
 public enum WelcomeWorkflow
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,10 +27,10 @@ public partial class WelcomeWindow : Window
         InitializeComponent();
         DataContextChanged += (s, e) =>
         {
-            ((WelcomeViewModel)e.NewValue).WorkflowSelected += (ss, ee) =>
+            ((WelcomeViewModel)e.NewValue).ContinueCommand = new RelayCommand(() =>
             {
                 DialogResult = true;
-            };
+            });
         };
         ContentRendered += async (s, e) =>
         {

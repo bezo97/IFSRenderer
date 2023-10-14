@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using WpfDisplay.Models;
 using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
@@ -24,14 +23,14 @@ public sealed partial class WelcomeViewModel : ObservableObject
 {
     private readonly IReadOnlyCollection<Transform> _loadedTransforms;
 
-    public EventHandler<WelcomeWorkflow>? WorkflowSelected;
+    public RelayCommand? ContinueCommand { get; set; }
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
     public IFS ExploreParams { get; private set; } = new IFS();
 
     [ObservableProperty] private string _selectedExpander = "0";
     [ObservableProperty] private ImageSource? _exploreThumbnail;
-    [ObservableProperty] private IEnumerable<KeyValuePair<IFS, ImageSource>> _templates;
-    [ObservableProperty] private IEnumerable<KeyValuePair<IFS, ImageSource>> _recentFiles;
+    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = new();
+    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = new();
 
     public WelcomeViewModel(IReadOnlyCollection<Transform> loadedTransforms)
     {
@@ -88,39 +87,18 @@ public sealed partial class WelcomeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void StartFromScratch()
+    private void SelectWorkflow(WelcomeWorkflow selection)
     {
-        SelectedWorkflow = WelcomeWorkflow.FromScratch;
-        WorkflowSelected?.Invoke(this, SelectedWorkflow);
+        SelectedWorkflow = selection;
+        ContinueCommand?.Execute(null);
     }
 
     [RelayCommand]
-    private void LoadFile()
+    private void SelectExploreWorkflow(IFS? ifs)
     {
-        SelectedWorkflow = WelcomeWorkflow.LoadFile;
-        WorkflowSelected?.Invoke(this, SelectedWorkflow);
-    }
-
-    [RelayCommand]
-    private void BrowseRandoms()
-    { 
-        SelectedWorkflow = WelcomeWorkflow.BrowseRandoms;
-        WorkflowSelected?.Invoke(this, SelectedWorkflow);
-    }
-
-    [RelayCommand]
-    private void Explore(IFS? ifs)
-    {
-        if(ifs is not null)
-            ExploreParams = ifs;
         SelectedWorkflow = WelcomeWorkflow.Explore;
-        WorkflowSelected?.Invoke(this, SelectedWorkflow);
-    }
-
-    [RelayCommand]
-    private void VisitSettings()
-    {
-        SelectedWorkflow = WelcomeWorkflow.VisitSettings;
-        WorkflowSelected?.Invoke(this, SelectedWorkflow);
+        if (ifs is not null)
+            ExploreParams = ifs;
+        ContinueCommand?.Execute(null);
     }
 }
