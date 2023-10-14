@@ -17,11 +17,14 @@
         Background="{DynamicResource MaterialDesignDarkBackground}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
-        ShowInTaskbar="True"
+        ShowInTaskbar="False"
         WindowStyle="ToolWindow"
         mc:Ignorable="d"
         Title="Welcome" Height="650" Width="600"
         d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
+    <Window.Resources>
+        <conv:ParameterEqualityToBoolConverter x:Key="expanderConv"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="300"/>
@@ -103,7 +106,7 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Expander Header="Getting Started" Grid.Row="0" 
-                          IsExpanded="True" d:IsExpanded="False">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=0}">
                     <md:Card Margin="8" Padding="8">
                         <StackPanel>
                             <TextBlock>
@@ -124,7 +127,8 @@
                         </StackPanel>
                     </md:Card>
                 </Expander>
-                <Expander Header="Templates" Grid.Row="1" IsExpanded="False">
+                <Expander Header="Templates" Grid.Row="1" 
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=1}">
                     <md:Card Margin="8" Padding="8">
                         <ItemsControl ItemsSource="{Binding TemplateFiles}">
                             <ItemsControl.ItemTemplate>
@@ -136,7 +140,8 @@
                         </ItemsControl>
                     </md:Card>
                 </Expander>
-                <Expander Header="Recent Files" Grid.Row="2" IsExpanded="False">
+                <Expander Header="Recent Files" Grid.Row="2" 
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=2}">
                     <md:Card Margin="8" Padding="8">
                         <ItemsControl ItemsSource="{Binding RecentFiles}">
                             <ItemsControl.ItemTemplate>

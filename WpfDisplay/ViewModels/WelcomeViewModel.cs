@@ -18,6 +18,8 @@ public sealed partial class WelcomeViewModel : ObservableObject
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
     public IFS ExploreParams { get; private set; } = new IFS();
 
+    [ObservableProperty] private string _selectedExpander = "0";
+
     [RelayCommand]
     private void StartFromScratch()
     {
