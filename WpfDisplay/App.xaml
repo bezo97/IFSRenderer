@@ -13,7 +13,14 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml"/>
                 <ResourceDictionary>
                     <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">
+                        <Setter Property="TextBlock.TextDecorations" Value="None" />
                         <Setter Property="Foreground" Value="LightBlue"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="TextBlock.TextDecorations" Value="Underline" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>

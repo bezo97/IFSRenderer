@@ -17,7 +17,7 @@
         Background="{DynamicResource MaterialDesignDarkBackground}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
-        ShowInTaskbar="False"
+        ShowInTaskbar="True"
         WindowStyle="ToolWindow"
         mc:Ignorable="d"
         Title="Welcome" Height="650" Width="600"
@@ -29,9 +29,13 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBlock>
-                <Hyperlink Command="{Binding VisitFeaturedArtworkCommand}">
-                    <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/icon_128.png"/>
+            <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/icon_128.png"/>
+            <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="8" FontSize="14">
+                <TextBlock.Effect>
+                    <DropShadowEffect/>
+                </TextBlock.Effect>
+                <Hyperlink NavigateUri="https://ifsrenderer.z97.io/">
+                    Artwork [🡥]
                 </Hyperlink>
             </TextBlock>
             <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="Consolas">
@@ -40,12 +44,12 @@
                 </Label.Effect>
                 IFSRenderer
             </Label>
-            <TextBlock HorizontalAlignment="Right" Margin="8">
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">
                 <TextBlock.Effect>
                     <DropShadowEffect/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="{Binding VisitUpdatesUri}">
-                    v1.3.0 @
+                <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases">
+                    v1.3.0
                 </Hyperlink>
             </TextBlock>
         </Grid>
@@ -59,21 +63,27 @@
                     <Label>Choose a workflow</Label>
                     <StackPanel Margin="8,0">
                         <TextBlock Margin="0,4">
-                            <Hyperlink>Start from scratch</Hyperlink>
+                            <Hyperlink Command="{Binding StartFromScratchCommand}">
+                                Start from scratch
+                            </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,4">
-                            <Hyperlink>Load params...</Hyperlink>
+                            <Hyperlink Command="{Binding LoadFileCommand}">
+                                Load file...
+                            </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,4">
-                            <Hyperlink>Browse randoms...</Hyperlink>
+                            <Hyperlink Command="{Binding BrowseRandomsCommand}">
+                                Browse randoms...
+                            </Hyperlink>
                         </TextBlock>
                     </StackPanel>
-                    <Grid Width="100" Height="100" Margin="4" HorizontalAlignment="Right">
+                    <Grid Width="100" Height="100" Margin="16" HorizontalAlignment="Center">
                         <Grid.Effect>
                             <DropShadowEffect ShadowDepth="1"/>
                         </Grid.Effect>
                         <TextBlock>
-                            <Hyperlink>
+                            <Hyperlink Command="{Binding ExploreRandomCommand}">
                                 <Image Source="/IFSRenderer;component/Resources/icon_128.png"/>
                             </Hyperlink>
                         </TextBlock>
@@ -92,17 +102,24 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Expander Header="Getting Started" Grid.Row="0">
+                <Expander Header="Getting Started" Grid.Row="0" 
+                          IsExpanded="True" d:IsExpanded="False">
                     <md:Card Margin="8" Padding="8">
                         <StackPanel>
                             <TextBlock>
-                                <Hyperlink>Getting Started Guide</Hyperlink>
+                                <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki/Getting-Started-Guide">
+                                    Getting Started Guide
+                                </Hyperlink>
                             </TextBlock>
                             <TextBlock>
-                                <Hyperlink>Wiki</Hyperlink>
+                                <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki">
+                                    Wiki
+                                </Hyperlink>
                             </TextBlock>
                             <TextBlock>
-                                <Hyperlink>Visit settings...</Hyperlink>
+                                <Hyperlink Command="{Binding VisitSettingsCommand}">
+                                    Visit settings...
+                                </Hyperlink>
                             </TextBlock>
                         </StackPanel>
                     </md:Card>

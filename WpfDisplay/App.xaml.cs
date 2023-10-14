@@ -12,6 +12,8 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using WpfDisplay.Helper;
 using WpfDisplay.Serialization;
+using WpfDisplay.ViewModels;
+using WpfDisplay.Views;
 
 namespace WpfDisplay;
 

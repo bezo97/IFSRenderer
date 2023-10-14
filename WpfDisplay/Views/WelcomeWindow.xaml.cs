@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
 
@@ -22,5 +23,16 @@ public partial class WelcomeWindow : Window
     public WelcomeWindow()
     {
         InitializeComponent();
+        DataContextChanged += (s, e) =>
+        {
+            ((WelcomeViewModel)e.NewValue).WorkflowSelected += (ss, ee) =>
+            {
+                DialogResult = true;
+            };
+        };
+        ContentRendered += (s, e) =>
+        {
+            //TODO: generate thumbnails
+        };
     }
 }

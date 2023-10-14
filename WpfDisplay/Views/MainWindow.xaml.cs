@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using WpfDisplay.Models;
+using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
 using WpfDisplay.ViewModels;
 
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
         MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
         animationsPanel.ToggleAutoHide();
         ContentRendered += MainWindow_ContentRendered;
@@ -33,15 +35,16 @@ public partial class MainWindow : Window
     {
         FixAutoDockHeight();
 
+
         //init workspace
         var renderer = new RendererGL(mainDisplay.GraphicsContext);
         mainDisplay.AttachRenderer(renderer);
         var workspace = new Workspace(renderer);
         await workspace.Initialize();
 
-        //handle open verb
+        var workflow = WelcomeWorkflow.FromScratch;
         if (App.OpenVerbPath is not null)
-        {
+        {//handle open verb, no welcome screen
             IFS ifs;
             try
             {
@@ -54,8 +57,27 @@ public partial class MainWindow : Window
             }
             workspace.LoadParams(ifs);
         }
+        else if (App.OpenVerbPath is null/* && Settings.Default.IsWelcomeScreenEnabled*/)
+        {
+            var welcomeViewModel = new WelcomeViewModel();
+            var welcomeWindow = new WelcomeWindow
+            {
+                Owner = this,
+                DataContext = welcomeViewModel
+            };
+            welcomeWindow.ShowDialog();
+            workflow = welcomeViewModel.SelectedWorkflow;
+            if(workflow == WelcomeWorkflow.Explore)
+                workspace.LoadParams(welcomeViewModel.ExploreParams);
+        }
 
-        DataContext = new MainViewModel(workspace);
+        DataContext = new MainViewModel(workspace, workflow);
+
+        if (workflow == WelcomeWorkflow.BrowseRandoms)
+            GeneratorButton_Click(null, null);
+        if (workflow == WelcomeWorkflow.VisitSettings)
+            SettingsButton_Click(null, null);
+
         vm.AnimationViewModel.Channels.CollectionChanged += (s, e) =>
         {
             if (vm.workspace.Ifs.Dopesheet.Channels.Count > 0)
@@ -73,7 +95,7 @@ public partial class MainWindow : Window
         performancePane.DockHeight = GridLength.Auto;
     }
 
-    private async void GeneratorButton_Click(object sender, RoutedEventArgs e)
+    private void GeneratorButton_Click(object sender, RoutedEventArgs e)
     {
         //create window
         if (_generatorWindow == null || !_generatorWindow.IsLoaded)
@@ -84,8 +106,6 @@ public partial class MainWindow : Window
             };
             var generatorViewModel = new GeneratorViewModel(vm);
             _generatorWindow.DataContext = generatorViewModel;
-
-            await generatorViewModel.Initialize();
         }
 
         if (_generatorWindow.ShowActivated)
@@ -93,8 +113,6 @@ public partial class MainWindow : Window
         //bring to foreground
         if (!_generatorWindow.IsActive)
             _generatorWindow.Activate();
-
-        _generatorWindow.WindowState = WindowState.Normal;
     }
 
     private void EditorButton_Click(object sender, RoutedEventArgs e)
@@ -114,8 +132,6 @@ public partial class MainWindow : Window
         //bring to foreground
         if (!_editorWindow.IsActive)
             _editorWindow.Activate();
-
-        _editorWindow.WindowState = WindowState.Normal;
     }
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {

@@ -26,9 +26,9 @@ public partial class GeneratorWindow : Window
     {
         InitializeComponent();
 
-        ContentRendered += (s, e) =>
+        ContentRendered += async (s, e) =>
         {
-            GeneratorViewModel vm = (GeneratorViewModel)DataContext;
+            await ((GeneratorViewModel)DataContext).Initialize();
         };
 
     }

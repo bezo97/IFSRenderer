@@ -83,7 +83,11 @@ public partial class GeneratorViewModel : ObservableObject
         _workspace.PropertyChanged += (s, e) => OnPropertyChanged(nameof(GeneratedIFSThumbnails));//tmp hack
     }
 
-    public async Task Initialize() => await _workspace.Initialize();
+    public async Task Initialize()
+    {
+        await _workspace.Initialize();
+        await GenerateRandomBatch();
+    }
 
     [RelayCommand]
     private void SendToMain(IFS generated_params)

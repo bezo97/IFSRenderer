@@ -69,7 +69,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     }
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
 
-    public MainViewModel(Workspace workspace)
+    public MainViewModel(Workspace workspace, WelcomeWorkflow workflow)
     {
         this.workspace = workspace;
         workspace.PropertyChanged += (s, e) =>
@@ -88,6 +88,10 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+
+        if(workflow == WelcomeWorkflow.LoadFile)
+            LoadParamsCommand?.Execute(this);
+
         workspace.UpdateStatusText($"Initialized");
     }
 
