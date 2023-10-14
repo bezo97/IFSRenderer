@@ -22,13 +22,16 @@ namespace WpfDisplay.ViewModels;
 
 public sealed partial class WelcomeViewModel : ObservableObject
 {
+    private readonly IReadOnlyCollection<Transform> _loadedTransforms;
+
     public EventHandler<WelcomeWorkflow>? WorkflowSelected;
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
     public IFS ExploreParams { get; private set; } = new IFS();
 
     [ObservableProperty] private string _selectedExpander = "0";
     [ObservableProperty] private ImageSource? _exploreThumbnail;
-    private readonly IReadOnlyCollection<Transform> _loadedTransforms;
+    [ObservableProperty] private IEnumerable<KeyValuePair<IFS, ImageSource>> _templates;
+    [ObservableProperty] private IEnumerable<KeyValuePair<IFS, ImageSource>> _recentFiles;
 
     public WelcomeViewModel(IReadOnlyCollection<Transform> loadedTransforms)
     {
@@ -53,6 +56,12 @@ public sealed partial class WelcomeViewModel : ObservableObject
 
         ExploreParams = new Generator(_loadedTransforms).GenerateOne(new());
         ExploreThumbnail = RenderThumbnail(renderer, ExploreParams);
+
+        var templateParams = new Generator(_loadedTransforms).GenerateBatch(new() { BatchSize = 5 });
+        Templates = templateParams.ToDictionary(p => p, p => RenderThumbnail(renderer, p)).ToList();
+
+        var recentFilesParams = new Generator(_loadedTransforms).GenerateBatch(new() { BatchSize = 5 });
+        RecentFiles = templateParams.ToDictionary(p => p, p => RenderThumbnail(renderer, p)).ToList();
 
     }
 
@@ -100,8 +109,10 @@ public sealed partial class WelcomeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Explore()
+    private void Explore(IFS? ifs)
     {
+        if(ifs is not null)
+            ExploreParams = ifs;
         SelectedWorkflow = WelcomeWorkflow.Explore;
         WorkflowSelected?.Invoke(this, SelectedWorkflow);
     }

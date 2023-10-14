@@ -21,9 +21,26 @@
         WindowStyle="ToolWindow"
         mc:Ignorable="d"
         Title="Welcome" Height="650" Width="600"
+        x:Name="welcomeWindow"
         d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
         <conv:ParameterEqualityToBoolConverter x:Key="expanderConv"/>
+        <DataTemplate x:Key="thumbnailTemplate">
+            <Button 
+                Width="100" Height="100" Margin="4"
+                Command="{Binding DataContext.ExploreCommand, ElementName=welcomeWindow}"
+                CommandParameter="{Binding Key}" BorderThickness="0">
+                <Button.Background>
+                    <ImageBrush 
+                        ImageSource="{Binding Value}" 
+                        Stretch="UniformToFill">
+                        <ImageBrush.RelativeTransform>
+                            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+                        </ImageBrush.RelativeTransform>
+                    </ImageBrush>
+                </Button.Background>
+            </Button>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -38,7 +55,7 @@
                     <DropShadowEffect/>
                 </TextBlock.Effect>
                 <Hyperlink NavigateUri="https://ifsrenderer.z97.io/">
-                    Artwork [🡥]
+                    Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
             <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="Consolas">
@@ -52,7 +69,7 @@
                     <DropShadowEffect/>
                 </TextBlock.Effect>
                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases">
-                    v1.3.0
+                    v1.3.0 <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
         </Grid>
@@ -87,7 +104,8 @@
                         </Grid.Effect>
                         <Button 
                             Width="100" Height="100"
-                            Command="{Binding ExploreCommand}" BorderThickness="1">
+                            Command="{Binding ExploreCommand}"
+                            BorderThickness="1">
                             <Button.Background>
                                 <ImageBrush 
                                         ImageSource="{Binding ExploreThumbnail}" 
@@ -113,18 +131,18 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Expander Header="Getting Started" Grid.Row="0" 
+                <Expander Header="Getting Started" Grid.Row="0" md:ExpanderAssist.HorizontalHeaderPadding="4"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=0}">
-                    <md:Card Margin="8" Padding="8">
-                        <StackPanel>
+                    <md:Card Padding="2">
+                        <StackPanel Margin="8">
                             <TextBlock>
                                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki/Getting-Started-Guide">
-                                    Getting Started Guide
+                                    Getting Started Guide <md:PackIcon Kind="ExternalLink"/>
                                 </Hyperlink>
                             </TextBlock>
                             <TextBlock>
                                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki">
-                                    Wiki
+                                    Wiki <md:PackIcon Kind="ExternalLink"/>
                                 </Hyperlink>
                             </TextBlock>
                             <TextBlock>
@@ -135,30 +153,34 @@
                         </StackPanel>
                     </md:Card>
                 </Expander>
-                <Expander Header="Templates" Grid.Row="1" 
+                <Expander Header="Templates" Grid.Row="1" md:ExpanderAssist.HorizontalHeaderPadding="4"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=1}">
-                    <md:Card Margin="8" Padding="8">
-                        <ItemsControl ItemsSource="{Binding TemplateFiles}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button>Title</Button>
-                                    <!--TODO: thumbnail-->
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                    <md:Card Padding="2">
+                        <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Templates}" Padding="0,0,0,4"
+                                          ItemTemplate="{StaticResource thumbnailTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </md:Card>
                 </Expander>
-                <Expander Header="Recent Files" Grid.Row="2" 
+                <Expander Header="Recent Files" Grid.Row="2" md:ExpanderAssist.HorizontalHeaderPadding="4"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=2}">
-                    <md:Card Margin="8" Padding="8">
-                        <ItemsControl ItemsSource="{Binding RecentFiles}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button>Title</Button>
-                                    <!--TODO: thumbnail-->
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                    <md:Card Padding="2">
+                        <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding RecentFiles}" Padding="0,0,0,4"
+                                          ItemTemplate="{StaticResource thumbnailTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </md:Card>
                 </Expander>
             </Grid>
