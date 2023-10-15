@@ -108,7 +108,8 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(Ifs));
     }
 
-    public async Task LoadParamsFileAsync(string path)
+    /// <param name="setEditedFilePath">Whether to consider the loaded file as being edited. False when loading templates.</param>
+    public async Task LoadParamsFileAsync(string path, bool setEditedFilePath)
     {
         IFS ifs;
         try
@@ -128,7 +129,7 @@ public partial class Workspace : ObservableObject
                 throw;
         }
         LoadParams(ifs);
-        EditedFilePath = path;
+        EditedFilePath = setEditedFilePath ? path : null;
     }
 
     public void RaiseAnimationFrameChanged() => OnPropertyChanged("AnimationFrame");

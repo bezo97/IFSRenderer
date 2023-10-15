@@ -68,6 +68,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         }
     }
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
+    public IReadOnlyDictionary<string, string> Templates { get; private set; }
 
     public MainViewModel(Workspace workspace, WelcomeWorkflow workflow)
     {
@@ -89,8 +90,12 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
 
-        if(workflow == WelcomeWorkflow.LoadFile)
-            LoadParamsCommand?.Execute(this);
+        if(workflow == WelcomeWorkflow.ShowFileDialog)
+            ShowLoadParamsDialogCommand?.Execute(this);
+
+        //load list of templates
+        Templates = Directory.GetFiles(App.TemplatesDirectoryPath, "*.ifsjson")
+            .ToDictionary(path => path, path => Path.GetFileNameWithoutExtension(path));
 
         workspace.UpdateStatusText($"Initialized");
     }
@@ -160,11 +165,11 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     }
 
     [RelayCommand]
-    private async Task LoadParams()
+    private async Task ShowLoadParamsDialog()
     {
         if (DialogHelper.ShowOpenParamsDialog(out string path))
         {
-            await LoadParamsFromFile(path);
+            await LoadParamsFromFile(path, false);
         }
     }
 
@@ -192,18 +197,25 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 
     /// <summary>
     /// From a drag & drop operation.
+    /// TODO: support dropping gradients, transforms
     /// </summary>
     [RelayCommand]
     private async Task DropParams(string path)
     {
-        await LoadParamsFromFile(path);
+        await LoadParamsFromFile(path, false);
     }
 
-    private async Task LoadParamsFromFile(string path)
+    [RelayCommand]
+    private async Task LoadTemplate(string path)
+    {
+        await LoadParamsFromFile(path, true);
+    }
+
+    private async Task LoadParamsFromFile(string path, bool isTemplate)
     {
         try
         {
-            await workspace.LoadParamsFileAsync(path);
+            await workspace.LoadParamsFileAsync(path, setEditedFilePath: !isTemplate);
             workspace.UpdateStatusText($"Parameters loaded from {path}");
         }
         catch (SerializationException ex)

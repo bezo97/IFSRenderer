@@ -88,7 +88,7 @@
                             </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,4">
-                            <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.LoadFile}">
+                            <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.ShowFileDialog}">
                                 Load file...
                             </Hyperlink>
                         </TextBlock>

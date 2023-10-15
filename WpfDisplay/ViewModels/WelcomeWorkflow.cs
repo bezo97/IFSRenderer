@@ -7,7 +7,7 @@ namespace WpfDisplay.ViewModels;
 public enum WelcomeWorkflow
 {
     FromScratch,
-    LoadFile,
+    ShowFileDialog,
     BrowseRandoms,
     Explore,
     VisitSettings

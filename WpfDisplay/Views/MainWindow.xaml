@@ -28,7 +28,7 @@
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+N" Command="{Binding NewCommand}"/>
-        <KeyBinding Gesture="CTRL+O" Command="{Binding LoadParamsCommand}"/>
+        <KeyBinding Gesture="CTRL+O" Command="{Binding ShowLoadParamsDialogCommand}"/>
         <KeyBinding Gesture="CTRL+S" Command="{Binding SaveParamsCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+S" Command="{Binding SaveParamsAsCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
@@ -51,7 +51,20 @@
                 <Menu IsMainMenu="True">
                     <MenuItem Header="📑 _File">
                         <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
-                        <MenuItem Header="📂 _Load..." Command="{Binding LoadParamsCommand}" InputGestureText="Ctrl+O"/>
+                        <MenuItem Header="📑 _Templates" ItemsSource="{Binding Templates}">
+                            <MenuItem.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Value}"/>
+                                </DataTemplate>
+                            </MenuItem.ItemTemplate>
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="{x:Type MenuItem}">
+                                    <Setter Property="Command" Value="{Binding DataContext.LoadTemplateCommand, ElementName=mainWindow}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding Key}"/>
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
+                        <MenuItem Header="📂 _Load..." Command="{Binding ShowLoadParamsDialogCommand}" InputGestureText="Ctrl+O"/>
                         <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
                         <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
                         <Separator/>
