@@ -63,19 +63,27 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='ReleasePortable' OR '$(Configuration)'=='Debug'">
-		<!--Mark transform files as Content to be included next to the executable-->
+		<!--Mark files as Content to be included next to the executable-->
 		<Content Include="..\IFSTransforms\Transforms\**\*.ifstf">
 			<Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+    <Content Include="Assets\Templates\*.ifsjson">
+      <Link>Templates%(RecursiveDir)\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='ReleaseInstaller'">
-		<!--Mark transform files as Content to be included in the Installer-->
+		<!--Mark files as Content to be included in the Installer-->
 		<Content Include="..\IFSTransforms\Transforms\**\*.ifstf">
 			<Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>false</CopyToOutputDirectory>
 		</Content>
+    <Content Include="Assets\Templates\*.ifsjson">
+      <Link>Tempaltes%(RecursiveDir)\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
 	</ItemGroup>
 
 	<ItemGroup>

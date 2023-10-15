@@ -27,7 +27,6 @@ public partial class Workspace : ObservableObject
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
-    public string TransformsDirectoryPath { get; } = Path.Combine(App.AppDataPath, "Transforms");
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisY;
@@ -88,7 +87,7 @@ public partial class Workspace : ObservableObject
     private async Task LoadTransformLibrary()
     {
         var loadTasks = Directory
-            .GetFiles(TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
+            .GetFiles(App.TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
             .Select(file => Transform.FromFile(file));
         _loadedTransforms = (await Task.WhenAll(loadTasks)).ToList();
         OnPropertyChanged(nameof(LoadedTransforms));

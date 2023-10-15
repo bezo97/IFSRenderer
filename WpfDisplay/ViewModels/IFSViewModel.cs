@@ -347,12 +347,12 @@ public partial class IFSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenTransformsDirectory()
+    private static void OpenTransformsDirectory()
     {
         //show the directory with the os file explorer
         Process.Start(new ProcessStartInfo
         {
-            FileName = _workspace.TransformsDirectoryPath,
+            FileName = App.TransformsDirectoryPath,
             UseShellExecute = true
         });
     }

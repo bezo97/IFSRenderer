@@ -31,6 +31,9 @@ public partial class App : Application
     public static string AppDataPath { get; } = AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
+    public static string TransformsDirectoryPath { get; } = Path.Combine(AppDataPath, "Transforms");
+    public static string TemplatesDirectoryPath { get; } = Path.Combine(AppDataPath, "Templates");
+
     public App()
     {
         DispatcherUnhandledException += App_DispatcherUnhandledException;

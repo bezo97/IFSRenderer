@@ -10,11 +10,14 @@ using OpenTK.Windowing.Desktop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WpfDisplay.Properties;
+using WpfDisplay.Serialization;
 using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
@@ -56,12 +59,33 @@ public sealed partial class WelcomeViewModel : ObservableObject
         ExploreParams = new Generator(_loadedTransforms).GenerateOne(new());
         ExploreThumbnail = RenderThumbnail(renderer, ExploreParams);
 
-        var templateParams = new Generator(_loadedTransforms).GenerateBatch(new() { BatchSize = 5 });
-        Templates = templateParams.ToDictionary(p => p, p => RenderThumbnail(renderer, p)).ToList();
+        //load template files and recent files.
+        List<Task<IFS>> templateFilesTasks = new();
+        List<Task<IFS>> recentFilesTasks = new();
+        try
+        {
+            templateFilesTasks = Directory
+                .GetFiles(App.TemplatesDirectoryPath, "*.ifsjson")
+                .Select(templatePath => IfsNodesSerializer.LoadJsonFileAsync(templatePath, _loadedTransforms, true))
+                .ToList();
+            var recentFilePaths = Settings.Default.RecentFiles.Cast<string>();
+            recentFilesTasks = recentFilePaths
+                .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, true))
+                .ToList();
+            await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
+        }
+        catch (System.Runtime.Serialization.SerializationException){ /*Ignore broken files*/ }
 
-        var recentFilesParams = new Generator(_loadedTransforms).GenerateBatch(new() { BatchSize = 5 });
-        RecentFiles = templateParams.ToDictionary(p => p, p => RenderThumbnail(renderer, p)).ToList();
+        //render thumbnails
+        Templates = templateFilesTasks
+            .Where(t=>t.IsCompletedSuccessfully).Select(t=>t.Result)
+            .ToDictionary(p => p, p => RenderThumbnail(renderer, p))
+            .ToList();
 
+        RecentFiles = recentFilesTasks
+            .Where(t => t.IsCompletedSuccessfully).Select(t => t.Result)
+            .ToDictionary(p => p, p => RenderThumbnail(renderer, p))
+            .ToList();
     }
 
     private static ImageSource RenderThumbnail(RendererGL renderer, IFS ifs)

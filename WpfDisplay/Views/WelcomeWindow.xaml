@@ -58,7 +58,7 @@
                     Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
-            <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="Consolas">
+            <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="{StaticResource MaterialDesignFont}">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
