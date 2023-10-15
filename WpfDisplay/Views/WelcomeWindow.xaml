@@ -147,7 +147,7 @@
                             </TextBlock>
                             <TextBlock>
                                 <Hyperlink Command="{Binding SelectWorkflowCommand}" CommandParameter="{x:Static vm:WelcomeWorkflow.VisitSettings}">
-                                    Visit settings...
+                                    Visit Settings ⚙️
                                 </Hyperlink>
                             </TextBlock>
                         </StackPanel>

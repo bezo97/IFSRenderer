@@ -17,7 +17,7 @@
         ShowInTaskbar="False"
         WindowStyle="ToolWindow"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
-        Title="Settings" x:Name="settingsWindow"
+        Title="⚙️ Settings" x:Name="settingsWindow"
         Width="500" Height="500" MinWidth="500" MinHeight="500">
     <Grid Margin="10">
         <Grid.RowDefinitions>

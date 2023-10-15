@@ -68,7 +68,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         }
     }
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
-    public IReadOnlyDictionary<string, string> Templates { get; private set; }
+    public IReadOnlyDictionary<string, string> Templates => Workspace.TemplateFilePaths.ToDictionary(path => path, path => Path.GetFileNameWithoutExtension(path));
 
     public MainViewModel(Workspace workspace, WelcomeWorkflow workflow)
     {
@@ -92,10 +92,6 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 
         if(workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
-
-        //load list of templates
-        Templates = Directory.GetFiles(App.TemplatesDirectoryPath, "*.ifsjson")
-            .ToDictionary(path => path, path => Path.GetFileNameWithoutExtension(path));
 
         workspace.UpdateStatusText($"Initialized");
     }

@@ -56,6 +56,8 @@ public partial class Workspace : ObservableObject
     public bool IsHistoryUndoable => _tracker.IsHistoryUndoable;
     public bool IsHistoryRedoable => _tracker.IsHistoryRedoable;
 
+    public static string[] TemplateFilePaths => Directory.GetFiles(App.TemplatesDirectoryPath, "*.ifsjson");
+
     /// <summary>
     /// Call <see cref="Initialize"/> before using
     /// </summary>

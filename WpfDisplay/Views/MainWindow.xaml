@@ -51,7 +51,7 @@
                 <Menu IsMainMenu="True">
                     <MenuItem Header="📑 _File">
                         <MenuItem Header="📑 _New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
-                        <MenuItem Header="📑 _Templates" ItemsSource="{Binding Templates}">
+                        <MenuItem Header="🗂️ _Templates" ItemsSource="{Binding Templates}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Value}"/>
@@ -61,6 +61,8 @@
                                 <Style TargetType="{x:Type MenuItem}">
                                     <Setter Property="Command" Value="{Binding DataContext.LoadTemplateCommand, ElementName=mainWindow}"/>
                                     <Setter Property="CommandParameter" Value="{Binding Key}"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
                                 </Style>
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>
@@ -73,7 +75,7 @@
                         <Separator/>
                         <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
                         <Separator/>
-                        <MenuItem Header="🚪 Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
+                        <MenuItem Header="🏃‍ Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
                     </MenuItem>
                     <MenuItem Header="💾" Command="{Binding SaveParamsCommand}" ToolTip="Save (Ctrl+S)" InputGestureText="Ctrl+S"/>
                     <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
