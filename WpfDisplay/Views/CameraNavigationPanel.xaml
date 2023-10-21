@@ -16,7 +16,7 @@
                 Command="{Binding AnimateCameraCommand}"
                 ToolTip="Animate camera transform"
                 HorizontalAlignment="Left"
-                Height="30" FontSize="10" Margin="8"
+                Height="30" FontSize="10" Margin="4 0 0 4"
                 Style="{StaticResource MaterialDesignOutlinedButton }">
                 🎬 Animate Camera
             </Button>

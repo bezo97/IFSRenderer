@@ -23,6 +23,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _xPosViewModel;
     public ValueSliderViewModel XPosViewModel => _xPosViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Camera-X",
+        IsLabelShown = false,
         ToolTip = "Camera position on X axis.",
         DefaultValue = IFS.Default.Camera.Position.X,
         GetV = () => _workspace.Ifs.Camera.Position.X,
@@ -39,6 +41,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _yPosViewModel;
     public ValueSliderViewModel YPosViewModel => _yPosViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Camera-Y",
+        IsLabelShown = false,
         ToolTip = "Camera position on Y axis.",
         DefaultValue = IFS.Default.Camera.Position.Y,
         GetV = () => _workspace.Ifs.Camera.Position.Y,
@@ -55,6 +59,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _zPosViewModel;
     public ValueSliderViewModel ZPosViewModel => _zPosViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Camera-Z",
+        IsLabelShown = false,
         ToolTip = "Camera position on Z axis.",
         DefaultValue = IFS.Default.Camera.Position.Z,
         GetV = () => _workspace.Ifs.Camera.Position.Z,
@@ -71,6 +77,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _xOrientationViewModel;
     public ValueSliderViewModel XOrientationViewModel => _xOrientationViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Orientation-X",
+        IsLabelShown = false,
         ToolTip = "Camera rotation around X axis.",
         DefaultValue = IFS.Default.Camera.Orientation.X,
         GetV = () => _workspace.Ifs.Camera.Orientation.X,
@@ -88,6 +96,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _yOrientationViewModel;
     public ValueSliderViewModel YOrientationViewModel => _yOrientationViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Orientation-Y",
+        IsLabelShown = false,
         ToolTip = "Camera rotation around Y axis.",
         DefaultValue = IFS.Default.Camera.Orientation.Y,
         GetV = () => _workspace.Ifs.Camera.Orientation.Y,
@@ -105,6 +115,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _zOrientationViewModel;
     public ValueSliderViewModel ZOrientationViewModel => _zOrientationViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Orientation-Z",
+        IsLabelShown = false,
         ToolTip = "Camera rotation around Z axis.",
         DefaultValue = IFS.Default.Camera.Orientation.Z,
         GetV = () => _workspace.Ifs.Camera.Orientation.Z,
@@ -122,6 +134,8 @@ public partial class CameraSettingsViewModel : ObservableObject
     private ValueSliderViewModel _wOrientationViewModel;
     public ValueSliderViewModel WOrientationViewModel => _wOrientationViewModel ??= new ValueSliderViewModel(_workspace)
     {
+        Label = "Orientation-W",
+        IsLabelShown = false,
         ToolTip = "Camera rotation around W axis.",
         DefaultValue = IFS.Default.Camera.Orientation.W,
         GetV = () => _workspace.Ifs.Camera.Orientation.W,
@@ -229,19 +243,19 @@ public partial class CameraSettingsViewModel : ObservableObject
     {
         _workspace.TakeSnapshot();
         var vm = ((MainViewModel)System.Windows.Application.Current.MainWindow.DataContext).AnimationViewModel;//ugh
-        vm.AddOrUpdateChannel("Camera-X", "Camera.Position.X", _workspace.Ifs.Camera.Position.X);
+        vm.AddOrUpdateChannel(XPosViewModel.Label, XPosViewModel.AnimationPath, _workspace.Ifs.Camera.Position.X);
         XPosViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Camera-Y", "Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
+        vm.AddOrUpdateChannel(YPosViewModel.Label, YPosViewModel.AnimationPath, _workspace.Ifs.Camera.Position.Y);
         YPosViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Camera-Z", "Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
+        vm.AddOrUpdateChannel(ZPosViewModel.Label, ZPosViewModel.AnimationPath, _workspace.Ifs.Camera.Position.Z);
         ZPosViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Orientation-X", "Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
+        vm.AddOrUpdateChannel(XOrientationViewModel.Label, XOrientationViewModel.AnimationPath, _workspace.Ifs.Camera.Orientation.X);
         XOrientationViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Orientation-Y", "Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
+        vm.AddOrUpdateChannel(YOrientationViewModel.Label, YOrientationViewModel.AnimationPath, _workspace.Ifs.Camera.Orientation.Y);
         YOrientationViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Orientation-Z", "Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
+        vm.AddOrUpdateChannel(ZOrientationViewModel.Label, ZOrientationViewModel.AnimationPath, _workspace.Ifs.Camera.Orientation.Z);
         ZOrientationViewModel.IsAnimated = true;
-        vm.AddOrUpdateChannel("Orientation-W", "Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
+        vm.AddOrUpdateChannel(WOrientationViewModel.Label, WOrientationViewModel.AnimationPath, _workspace.Ifs.Camera.Orientation.W);
         WOrientationViewModel.IsAnimated = true;
     }
 

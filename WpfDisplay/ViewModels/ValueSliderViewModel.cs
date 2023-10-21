@@ -44,6 +44,7 @@ public partial class ValueSliderViewModel : ObservableObject
     [ObservableProperty] private bool _isAnimated;
 
     [ObservableProperty] private string _label;
+    [ObservableProperty] private bool _isLabelShown = true;
     [ObservableProperty] private string _toolTip;
     public double Increment { get; set; } = 0.1;
     public double? MinValue { get; set; }

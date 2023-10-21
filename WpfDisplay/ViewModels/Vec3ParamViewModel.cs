@@ -11,7 +11,8 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     private ValueSliderViewModel _xSliderViewModel;
     public ValueSliderViewModel XSliderViewModel => _xSliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        Label = null,
+        Label = $"{Name}-X",
+        IsLabelShown = false,
         DefaultValue = iterator.Transform.Vec3Params[Name].X,
         GetV = () => iterator.Vec3Params[Name].X,
         SetV = (value) =>
@@ -27,7 +28,8 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     private ValueSliderViewModel _ySliderViewModel;
     public ValueSliderViewModel YSliderViewModel => _ySliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        Label = null,
+        Label = $"{Name}-Y",
+        IsLabelShown = false,
         DefaultValue = iterator.Transform.Vec3Params[Name].Y,
         GetV = () => iterator.Vec3Params[Name].Y,
         SetV = (value) =>
@@ -43,7 +45,8 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     private ValueSliderViewModel _zSliderViewModel;
     public ValueSliderViewModel ZSliderViewModel => _zSliderViewModel ??= new ValueSliderViewModel(workspace)
     {
-        Label = null,
+        Label = $"{Name}-Z",
+        IsLabelShown = false,
         DefaultValue = iterator.Transform.Vec3Params[Name].Z,
         GetV = () => iterator.Vec3Params[Name].Z,
         SetV = (value) =>

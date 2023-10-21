@@ -12,15 +12,6 @@
              d:DataContext="{d:DesignInstance Type=vm:CameraSettingsViewModel, IsDesignTimeCreatable=False}">
     <StackPanel>
         <Grid>
-            <local:ValueSlider DataContext="{Binding FieldOfView}" Margin="0 4 0 0">
-                <!--<local:ValueSlider.ToolTip>
-                    <MediaElement
-                        LoadedBehavior="Play"
-                        Width="200"
-                        Height="200"
-                        Source=""/>
-                </local:ValueSlider.ToolTip>-->
-            </local:ValueSlider>
             <Button
                 Command="{Binding ResetCameraCommand}"
                 ToolTip="Reset Camera"
@@ -29,6 +20,15 @@
                 Style="{StaticResource MaterialDesignOutlinedButton }">
                 ↩️ Reset
             </Button>
+            <local:ValueSlider DataContext="{Binding FieldOfView}" Margin="0 16 0 0">
+                <!--<local:ValueSlider.ToolTip>
+                    <MediaElement
+                        LoadedBehavior="Play"
+                        Width="200"
+                        Height="200"
+                        Source=""/>
+                </local:ValueSlider.ToolTip>-->
+            </local:ValueSlider>
         </Grid>
         <local:ValueSlider DataContext="{Binding Aperture}">
             <local:ValueSlider.ToolTip>
