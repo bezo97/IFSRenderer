@@ -189,7 +189,7 @@
                                     </ScrollViewer>
                                 </LayoutAnchorable>
                                 <LayoutAnchorable
-                                    Title="Camera Transform" ToolTip="Camera Transform" ContentId="Camera Transform"
+                                    Title="Navigation" ToolTip="Transforms to navigate the camera" ContentId="Navigation"
                                     CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:CameraNavigationPanel DataContext="{Binding CameraSettingsViewModel}"/>

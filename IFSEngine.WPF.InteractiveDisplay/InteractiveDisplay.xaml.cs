@@ -179,7 +179,6 @@ public partial class InteractiveDisplay : WindowsFormsHost
     {
         Renderer = renderer;
         Renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
-        //GLControl1.Resize += (s2, e2) => renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
     }
 
     private void GLControl1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -187,7 +186,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
         if (IsInteractionEnabled && Renderer is not null)
         {
             InteractionStartedCommand?.Execute(null);
-            Renderer.LoadedParams.Camera.FocusDistance += e.Delta * Renderer.LoadedParams.Camera.FocusDistance * 0.001;
+            Renderer.LoadedParams.Camera.FocusDistance += e.Delta/Mouse.MouseWheelDeltaForOneLine * Renderer.LoadedParams.Camera.FocusDistance * 0.1;
             Renderer.InvalidateHistogramBuffer();
             InteractionFinishedCommand?.Execute(null);
         }

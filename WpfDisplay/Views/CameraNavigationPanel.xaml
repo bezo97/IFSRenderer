@@ -12,34 +12,31 @@
              d:DataContext="{d:DesignInstance Type=vm:CameraSettingsViewModel, IsDesignTimeCreatable=False}">
     <StackPanel>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
             <Button
                 Command="{Binding AnimateCameraCommand}"
                 ToolTip="Animate camera transform"
-                Width="30" Height="30" FontSize="10" Margin="10"
-                Style="{StaticResource MaterialDesignFloatingActionDarkButton }">
-                🎬
+                HorizontalAlignment="Left"
+                Height="30" FontSize="10" Margin="8"
+                Style="{StaticResource MaterialDesignOutlinedButton }">
+                🎬 Animate Camera
             </Button>
             <Button
                 Command="{Binding ResetCameraCommand}"
                 ToolTip="Reset Camera"
-                Width="20" Height="20" FontSize="10" VerticalAlignment="Top"
-                Style="{StaticResource MaterialDesignFloatingActionDarkButton }">
-                ↩️
+                Height="20" FontSize="10" Padding="4"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Style="{StaticResource MaterialDesignOutlinedButton }">
+                ↩️ Reset
             </Button>
-            </StackPanel>
         </Grid>
         <Label Content="Position"/>
         <local:ValueSlider DataContext="{Binding XPosViewModel}"/>
         <local:ValueSlider DataContext="{Binding YPosViewModel}"/>
         <local:ValueSlider DataContext="{Binding ZPosViewModel}"/>
-        <!--<Label Content="Orientation"/>
+        <Label Content="Orientation"/>
         <local:ValueSlider DataContext="{Binding XOrientationViewModel}"/>
         <local:ValueSlider DataContext="{Binding YOrientationViewModel}"/>
-        <local:ValueSlider DataContext="{Binding ZOrientationViewModel}"/>-->
+        <local:ValueSlider DataContext="{Binding ZOrientationViewModel}"/>
+        <local:ValueSlider DataContext="{Binding WOrientationViewModel}"/>
     </StackPanel>
 </UserControl>

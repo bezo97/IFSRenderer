@@ -15,7 +15,7 @@ public partial class CameraSettingsViewModel : ObservableObject
     public CameraSettingsViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace.LoadedParamsChanged += (s, e) => RaiseCameraParamsChanged();
     }
 
     public static Array ProjectionTypes => Enum.GetValues(typeof(ProjectionType));
@@ -65,6 +65,74 @@ public partial class CameraSettingsViewModel : ObservableObject
         },
         Increment = 0.01,
         AnimationPath = "Camera.Position.Z",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _xOrientationViewModel;
+    public ValueSliderViewModel XOrientationViewModel => _xOrientationViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera rotation around X axis.",
+        DefaultValue = IFS.Default.Camera.Orientation.X,
+        GetV = () => _workspace.Ifs.Camera.Orientation.X,
+        SetV = (value) => {
+            var o = _workspace.Ifs.Camera.Orientation;
+            _workspace.Ifs.Camera.Orientation = new Quaternion((float)value, o.Y, o.Z, o.W);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(XOrientationViewModel));
+        },
+        Increment = 0.001,
+        AnimationPath = "Camera.Orientation.X",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _yOrientationViewModel;
+    public ValueSliderViewModel YOrientationViewModel => _yOrientationViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera rotation around Y axis.",
+        DefaultValue = IFS.Default.Camera.Orientation.Y,
+        GetV = () => _workspace.Ifs.Camera.Orientation.Y,
+        SetV = (value) => {
+            var o = _workspace.Ifs.Camera.Orientation;
+            _workspace.Ifs.Camera.Orientation = new Quaternion(o.X, (float)value, o.Z, o.W);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(YOrientationViewModel));
+        },
+        Increment = 0.001,
+        AnimationPath = "Camera.Orientation.Y",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _zOrientationViewModel;
+    public ValueSliderViewModel ZOrientationViewModel => _zOrientationViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera rotation around Z axis.",
+        DefaultValue = IFS.Default.Camera.Orientation.Z,
+        GetV = () => _workspace.Ifs.Camera.Orientation.Z,
+        SetV = (value) => {
+            var o = _workspace.Ifs.Camera.Orientation;
+            _workspace.Ifs.Camera.Orientation = new Quaternion(o.X, o.Y, (float)value, o.W);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(ZOrientationViewModel));
+        },
+        Increment = 0.001,
+        AnimationPath = "Camera.Orientation.Z",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
+
+    private ValueSliderViewModel _wOrientationViewModel;
+    public ValueSliderViewModel WOrientationViewModel => _wOrientationViewModel ??= new ValueSliderViewModel(_workspace)
+    {
+        ToolTip = "Camera rotation around W axis.",
+        DefaultValue = IFS.Default.Camera.Orientation.W,
+        GetV = () => _workspace.Ifs.Camera.Orientation.W,
+        SetV = (value) => {
+            var o = _workspace.Ifs.Camera.Orientation;
+            _workspace.Ifs.Camera.Orientation = new Quaternion(o.X, o.Y, o.Z, (float)value);
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(WOrientationViewModel));
+        },
+        Increment = 0.001,
+        AnimationPath = "Camera.Orientation.W",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -153,22 +221,41 @@ public partial class CameraSettingsViewModel : ObservableObject
         FocusDistance.Value = FocusDistance.DefaultValue;
         DepthOfField.Value = DepthOfField.DefaultValue;
         _workspace.Renderer.InvalidateHistogramBuffer();
-        OnPropertyChanged(string.Empty);
+        RaiseCameraParamsChanged();
     }
 
     [RelayCommand]
     private void AnimateCamera()
     {
         _workspace.TakeSnapshot();
-        var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
-        main.AnimationViewModel.AddOrUpdateChannel("Camera-X", "Camera.Position.X", _workspace.Ifs.Camera.Position.X);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera-Y", "Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
-        main.AnimationViewModel.AddOrUpdateChannel("Camera-Z", "Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
-        main.AnimationViewModel.AddOrUpdateChannel("Orientation-X", "Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
-        main.AnimationViewModel.AddOrUpdateChannel("Orientation-Y", "Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
-        main.AnimationViewModel.AddOrUpdateChannel("Orientation-Z", "Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
-        main.AnimationViewModel.AddOrUpdateChannel("Orientation-W", "Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
+        var vm = ((MainViewModel)System.Windows.Application.Current.MainWindow.DataContext).AnimationViewModel;//ugh
+        vm.AddOrUpdateChannel("Camera-X", "Camera.Position.X", _workspace.Ifs.Camera.Position.X);
+        XPosViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Camera-Y", "Camera.Position.Y", _workspace.Ifs.Camera.Position.Y);
+        YPosViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Camera-Z", "Camera.Position.Z", _workspace.Ifs.Camera.Position.Z);
+        ZPosViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Orientation-X", "Camera.Orientation.X", _workspace.Ifs.Camera.Orientation.X);
+        XOrientationViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Orientation-Y", "Camera.Orientation.Y", _workspace.Ifs.Camera.Orientation.Y);
+        YOrientationViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Orientation-Z", "Camera.Orientation.Z", _workspace.Ifs.Camera.Orientation.Z);
+        ZOrientationViewModel.IsAnimated = true;
+        vm.AddOrUpdateChannel("Orientation-W", "Camera.Orientation.W", _workspace.Ifs.Camera.Orientation.W);
+        WOrientationViewModel.IsAnimated = true;
     }
 
-    public void RaisePropertyChanged() => OnPropertyChanged(string.Empty);///?
+    public void RaiseCameraParamsChanged()
+    {
+        XPosViewModel.RaiseValueChanged();
+        YPosViewModel.RaiseValueChanged();
+        ZPosViewModel.RaiseValueChanged();
+        XOrientationViewModel.RaiseValueChanged();
+        YOrientationViewModel.RaiseValueChanged();
+        ZOrientationViewModel.RaiseValueChanged();
+        WOrientationViewModel.RaiseValueChanged();
+        FocusDistance.RaiseValueChanged();
+
+    }
+
 }

@@ -302,7 +302,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     }
 
     [RelayCommand]
-    private void InteractionFinished() => CameraSettingsViewModel.RaisePropertyChanged();
+    private void InteractionFinished() => CameraSettingsViewModel.RaiseCameraParamsChanged();
 
     [RelayCommand]
     private static void ExitApplication() => Application.Current.MainWindow.Close();

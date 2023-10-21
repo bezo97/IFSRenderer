@@ -40,7 +40,9 @@ public partial class ValueSliderViewModel : ObservableObject
     public double DefaultValue { get; set; }
     public Action ValueWillChange { get; set; }
 
+    [NotifyPropertyChangedFor(nameof(AnimatedSymbol))]
     [ObservableProperty] private bool _isAnimated;
+
     [ObservableProperty] private string _label;
     [ObservableProperty] private string _toolTip;
     public double Increment { get; set; } = 0.1;
@@ -110,7 +112,6 @@ public partial class ValueSliderViewModel : ObservableObject
         main.workspace.TakeSnapshot();
         main.AnimationViewModel.AddOrUpdateChannel(Label, AnimationPath, Value);
         IsAnimated = true;
-        OnPropertyChanged(nameof(AnimatedSymbol));
     }
 
 }
