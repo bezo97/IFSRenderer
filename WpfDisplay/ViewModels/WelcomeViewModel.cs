@@ -29,6 +29,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
     public RelayCommand? ContinueCommand { get; set; }
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
     public IFS ExploreParams { get; private set; } = new IFS();
+    public string? SelectedFilePath { get; private set; }
 
     [ObservableProperty] private string _selectedExpander = "0";
     [ObservableProperty] private ImageSource? _exploreThumbnail;
@@ -71,6 +72,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
             var recentFilePaths = Settings.Default.RecentFiles.Cast<string>();
             recentFilesTasks = recentFilePaths
                 .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, true))
+                .Reverse()
                 .ToList();
             await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
         }
@@ -120,7 +122,13 @@ public sealed partial class WelcomeViewModel : ObservableObject
     [RelayCommand]
     private void SelectExploreWorkflow(IFS? ifs)
     {
-        SelectedWorkflow = WelcomeWorkflow.Explore;
+        if(RecentFiles.Any(f => f.Key == ifs))
+        {
+            SelectedWorkflow = WelcomeWorkflow.LoadRecent;
+            SelectedFilePath = Settings.Default.RecentFiles[RecentFiles.Count-1-RecentFiles.IndexOf(RecentFiles.First(f=>f.Key == ifs))];//TODO: ugh
+        }
+        else
+            SelectedWorkflow = WelcomeWorkflow.Explore;
         if (ifs is not null)
             ExploreParams = ifs;
         ContinueCommand?.Execute(null);

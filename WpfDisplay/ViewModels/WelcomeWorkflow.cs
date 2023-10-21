@@ -10,5 +10,6 @@ public enum WelcomeWorkflow
     ShowFileDialog,
     BrowseRandoms,
     Explore,
+    LoadRecent,
     VisitSettings
 }

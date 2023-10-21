@@ -213,7 +213,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     {
         try
         {
-            await workspace.LoadParamsFileAsync(path, setEditedFilePath: !isTemplate);
+            await workspace.LoadParamsFileAsync(path, isTemplate);
             workspace.UpdateStatusText($"Parameters loaded from {path}");
         }
         catch (SerializationException ex)

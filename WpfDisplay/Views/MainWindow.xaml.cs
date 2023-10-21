@@ -55,7 +55,7 @@ public partial class MainWindow : Window
                 MessageBox.Show(this, $"Failed to load params from '{App.OpenVerbPath}'");
                 ifs = new IFS();
             }
-            workspace.LoadParams(ifs);
+            workspace.LoadParams(ifs, App.OpenVerbPath);
         }
         else if (App.OpenVerbPath is null/* && Settings.Default.IsWelcomeScreenEnabled*/)
         {
@@ -68,7 +68,9 @@ public partial class MainWindow : Window
             welcomeWindow.ShowDialog();
             workflow = welcomeViewModel.SelectedWorkflow;
             if(workflow == WelcomeWorkflow.Explore)
-                workspace.LoadParams(welcomeViewModel.ExploreParams);
+                workspace.LoadParams(welcomeViewModel.ExploreParams, null);
+            else if (workflow == WelcomeWorkflow.LoadRecent)
+                workspace.LoadParams(welcomeViewModel.ExploreParams, welcomeViewModel.SelectedFilePath);
         }
 
         DataContext = new MainViewModel(workspace, workflow);
@@ -261,7 +263,7 @@ public partial class MainWindow : Window
 
     private void dockManager_DocumentClosing(object sender, AvalonDock.DocumentClosingEventArgs e)
     {
-        vm.workspace.LoadParams(IFS.Default);
+        vm.workspace.LoadParams(IFS.Default, null);
     }
 
     private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e)

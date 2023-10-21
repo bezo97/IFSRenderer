@@ -94,7 +94,7 @@ public partial class GeneratorViewModel : ObservableObject
     {
         IFS param = generated_params.DeepClone();
         param.ImageResolution = new System.Drawing.Size(1920, 1080);
-        _mainvm.workspace.LoadParams(param);//
+        _mainvm.workspace.LoadParams(param, null);
     }
 
     [RelayCommand]

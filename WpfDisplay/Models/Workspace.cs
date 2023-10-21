@@ -105,14 +105,14 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
-    public void LoadParams(IFS ifs)
+    public void LoadParams(IFS ifs, string? loadedFilePath)
     {
         TakeSnapshot();
         _renderer?.LoadParams(ifs);
         foreach (var i in Ifs.Iterators)//keep node positions for same iterators
             ifs.Iterators.FirstOrDefault(i2 => i2.Id == i.Id)?.SetPosition(i.GetPosition());
         Ifs = ifs;
-        SetEditedFilePath(null);
+        SetEditedFilePath(loadedFilePath);
         HasUnsavedChanges = false;
         if (!Renderer.IsRendering)
             Renderer.StartRenderLoop();
@@ -120,8 +120,8 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(Ifs));
     }
 
-    /// <param name="setEditedFilePath">Whether to consider the loaded file as being edited. False when loading templates.</param>
-    public async Task LoadParamsFileAsync(string path, bool setEditedFilePath)
+    /// <param name="isTemplate">Whether to consider the loaded file as a template so it cannot be saved over. Pass false to consider it being edited.</param>
+    public async Task LoadParamsFileAsync(string path, bool isTemplate)
     {
         IFS ifs;
         try
@@ -140,8 +140,7 @@ public partial class Workspace : ObservableObject
             else
                 throw;
         }
-        LoadParams(ifs);
-        SetEditedFilePath(setEditedFilePath? path : null);
+        LoadParams(ifs, isTemplate ? null : path);
     }
 
     public void RaiseAnimationFrameChanged() => OnPropertyChanged("AnimationFrame");
@@ -151,7 +150,7 @@ public partial class Workspace : ObservableObject
         var blankParams = new IFS();
         if (!UseWhiteForBlankParams)
             blankParams.Palette = Generator.GenerateRandomIqPalette();
-        LoadParams(blankParams);
+        LoadParams(blankParams, null);
     }
 
     public void LoadRandomParams()
@@ -159,7 +158,7 @@ public partial class Workspace : ObservableObject
         Generator g = new Generator(LoadedTransforms);
         IFS r = g.GenerateOne(new GeneratorOptions());
         r.ImageResolution = new System.Drawing.Size(1920, 1080);
-        LoadParams(r);
+        LoadParams(r, null);
     }
 
     public async Task SaveParamsAsync()
@@ -204,7 +203,7 @@ public partial class Workspace : ObservableObject
     {
         string jsonData = System.Windows.Clipboard.GetText();
         IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
-        LoadParams(ifs);
+        LoadParams(ifs, null);
     }
 
     public void UndoHistory()

@@ -29,7 +29,8 @@
             <Button 
                 Width="100" Height="100" Margin="4"
                 Command="{Binding DataContext.SelectExploreWorkflowCommand, ElementName=welcomeWindow}"
-                CommandParameter="{Binding Key}" BorderThickness="0">
+                CommandParameter="{Binding Key}"
+                ToolTip="{Binding Key.Title}" BorderThickness="0">
                 <Button.Background>
                     <ImageBrush 
                         ImageSource="{Binding Value}" 
