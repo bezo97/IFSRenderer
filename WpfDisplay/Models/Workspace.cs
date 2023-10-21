@@ -24,6 +24,7 @@ public partial class Workspace : ObservableObject
 {
     private readonly IFSHistoryTracker _tracker = new();
     private List<Transform> _loadedTransforms = new();
+    private string? _editedFilePath;
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
@@ -36,7 +37,16 @@ public partial class Workspace : ObservableObject
     public bool IsExportVideoFileEnabled { get; private set; }
     public string? FfmpegPath { get; private set; }
     public string? FfmpegArgs { get; private set; }
-    public string? EditedFilePath { get; private set; }
+    public string? EditedFilePath => _editedFilePath;
+    public static IReadOnlyList<string> RecentFilePaths
+    {
+        get
+        {
+            var paths = new string[Settings.Default.RecentFiles.Count];
+            Settings.Default.RecentFiles.CopyTo(paths, 0);
+            return paths;
+        }
+    }
     [ObservableProperty] private bool _hasUnsavedChanges;
 
     private RendererGL _renderer = null!;
@@ -102,7 +112,7 @@ public partial class Workspace : ObservableObject
         foreach (var i in Ifs.Iterators)//keep node positions for same iterators
             ifs.Iterators.FirstOrDefault(i2 => i2.Id == i.Id)?.SetPosition(i.GetPosition());
         Ifs = ifs;
-        EditedFilePath = null;
+        SetEditedFilePath(null);
         HasUnsavedChanges = false;
         if (!Renderer.IsRendering)
             Renderer.StartRenderLoop();
@@ -131,7 +141,7 @@ public partial class Workspace : ObservableObject
                 throw;
         }
         LoadParams(ifs);
-        EditedFilePath = setEditedFilePath ? path : null;
+        SetEditedFilePath(setEditedFilePath? path : null);
     }
 
     public void RaiseAnimationFrameChanged() => OnPropertyChanged("AnimationFrame");
@@ -163,8 +173,25 @@ public partial class Workspace : ObservableObject
     {
         Ifs.AddAuthor(CurrentUser);
         await IfsNodesSerializer.SaveJsonFileAsync(Ifs, path);
-        EditedFilePath = path;
+        SetEditedFilePath(path);
         HasUnsavedChanges = false;
+    }
+
+    private void SetEditedFilePath(string? path)
+    {
+        _editedFilePath = path;
+        if(path != null)
+        {//update recent files list
+            var paths = Settings.Default.RecentFiles;
+            if(paths.Contains(path))
+                paths.Remove(path);
+            paths.Add(path);
+            if(paths.Count > 5)
+                paths.RemoveAt(0);
+            Settings.Default.Save();
+            OnPropertyChanged(nameof(RecentFilePaths));
+        }
+        OnPropertyChanged(nameof(EditedFilePath));
     }
 
     public void CopyToClipboard()

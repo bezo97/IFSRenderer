@@ -67,6 +67,21 @@
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>
                         <MenuItem Header="📂 _Load..." Command="{Binding ShowLoadParamsDialogCommand}" InputGestureText="Ctrl+O"/>
+                        <MenuItem Header="📜 Recents" ItemsSource="{Binding RecentFilePaths}" IsEnabled="{Binding RecentFilePaths.Count, Converter={StaticResource NotZeroConverter}}">
+                            <MenuItem.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"/>
+                                </DataTemplate>
+                            </MenuItem.ItemTemplate>
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="{x:Type MenuItem}">
+                                    <Setter Property="Command" Value="{Binding DataContext.DropParamsCommand, ElementName=mainWindow}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
                         <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
                         <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
                         <Separator/>
