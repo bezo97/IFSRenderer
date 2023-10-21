@@ -36,11 +36,13 @@
                         <RowDefinition Height="auto" MinHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="0.75*"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">User settings</Label>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                        User settings
+                    </TextBlock>
                     <!--Author name-->
                     <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Author name
@@ -57,30 +59,30 @@
                         ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                     <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                         Text="{Binding AuthorLink}" md:HintAssist.Hint="https://example.com"/>
-                    <!--Watermark-->
-                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
-                        Apply watermark
-                    </TextBlock>
-                    <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                        IsChecked="{Binding Watermark}" IsEnabled="False"/>
-                    <!--Notification-->
-                    <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
-                        Notifications
-                    </TextBlock>
-                    <Label Grid.Row="4" Grid.Column="1"
-                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                        IsChecked="{Binding Notifications}" IsEnabled="False"/>
                     <!--UseWhiteForBlankParams-->
-                    <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
+                    <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         White blank params
                     </TextBlock>
-                    <Label Grid.Row="5" Grid.Column="1"
+                    <Label Grid.Row="3" Grid.Column="1"
                         ToolTip="Check this to use a simple white palette instead of random colors When starting from scratch in blank params." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <CheckBox Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding UseWhiteForBlankParams}"/>
+                    <!--IsWelcomeShownOnStartup-->
+                    <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        Welcome screen
+                    </TextBlock>
+                    <Label Grid.Row="4" Grid.Column="1"
+                        ToolTip="Option to hide or show the welcome screen when IFSRenderer starts." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding IsWelcomeShownOnStartup}"/>
+                    <!--Notification-->
+                    <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
+                        Notifications
+                    </TextBlock>
+                    <Label Grid.Row="5" Grid.Column="1"
+                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <CheckBox Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding Notifications}" IsEnabled="False"/>
                 </Grid>
             </TabItem>
             <TabItem Header="🕹️ Controls" MinWidth="150">
@@ -91,11 +93,13 @@
                         <RowDefinition Height="auto" MinHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="0.75*"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">Controls</Label>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                        Controls
+                    </TextBlock>
                     <!--Invert Axis-->
                     <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Invert Y axis (pitch)
@@ -115,13 +119,31 @@
             </TabItem>
             <TabItem Header="🖼 Export options" MinWidth="150">
                 <StackPanel Margin="8">
-                    <Label HorizontalContentAlignment="Center" FontSize="18">
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
                         Export options
-                    </Label>
+                    </TextBlock>
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" MinHeight="50"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <!--Watermark-->
+                        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
+                        Apply watermark
+                        </TextBlock>
+                        <Label Grid.Row="0" Grid.Column="1"
+                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        <CheckBox Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsChecked="{Binding Watermark}" IsEnabled="False"/>
+                    </Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Label>Animation</Label>
+                        <TextBlock Style="{StaticResource MaterialDesignSubtitle2TextBlock}">Animation</TextBlock>
                     </StackPanel>
-                    <StackPanel Margin="16,0">
+                    <StackPanel Margin="16 0">
                         <Label>Frame export format:</Label>
                         <ListBox
                             HorizontalAlignment="Right"
@@ -182,11 +204,13 @@
                         <RowDefinition Height="auto" MinHeight="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.66*"/>
+                        <ColumnDefinition Width="0.75*"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" FontSize="18">Performance settings</Label>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                        Performance settings
+                    </TextBlock>
                     <!--Perceptually uniform updates-->
                     <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Perceptually uniform updates

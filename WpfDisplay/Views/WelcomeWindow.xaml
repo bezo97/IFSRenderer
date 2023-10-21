@@ -188,7 +188,10 @@
         </Grid>
         <Grid Grid.Row="2" Margin="4">
             <Button Command="{Binding ContinueCommand}" IsDefault="True" HorizontalAlignment="Center" Margin="4">Continue</Button>
-            <CheckBox IsChecked="True" VerticalAlignment="Bottom" HorizontalAlignment="Right">Show on startup</CheckBox>
+            <CheckBox Command="{Binding DisableStartupCommand}"
+                IsChecked="True" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                Show on startup
+            </CheckBox>
         </Grid>
     </Grid>
 </Window>

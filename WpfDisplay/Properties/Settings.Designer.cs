@@ -235,5 +235,17 @@ namespace WpfDisplay.Properties {
                 this["RecentFiles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsWelcomeShownOnStartup {
+            get {
+                return ((bool)(this["IsWelcomeShownOnStartup"]));
+            }
+            set {
+                this["IsWelcomeShownOnStartup"] = value;
+            }
+        }
     }
 }

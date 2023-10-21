@@ -57,7 +57,7 @@ public partial class MainWindow : Window
             }
             workspace.LoadParams(ifs, App.OpenVerbPath);
         }
-        else if (App.OpenVerbPath is null/* && Settings.Default.IsWelcomeScreenEnabled*/)
+        else if (App.OpenVerbPath is null && Settings.Default.IsWelcomeShownOnStartup)
         {
             var welcomeViewModel = new WelcomeViewModel(workspace.LoadedTransforms);
             var welcomeWindow = new WelcomeWindow

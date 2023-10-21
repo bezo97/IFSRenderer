@@ -133,4 +133,12 @@ public sealed partial class WelcomeViewModel : ObservableObject
             ExploreParams = ifs;
         ContinueCommand?.Execute(null);
     }
+
+    [RelayCommand]
+    private void DisableStartup()
+    {
+        Settings.Default.IsWelcomeShownOnStartup = false;
+        Settings.Default.Save();
+        ContinueCommand?.Execute(null);
+    }
 }

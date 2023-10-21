@@ -87,6 +87,16 @@ internal partial class SettingsViewModel : ObservableObject
         }
     }
 
+    public bool? IsWelcomeShownOnStartup
+    {
+        get => Settings.Default.IsWelcomeShownOnStartup;
+        set
+        {
+            Settings.Default.IsWelcomeShownOnStartup = value ?? true;
+            OnPropertyChanged(nameof(IsWelcomeShownOnStartup));
+        }
+    }
+
     public bool? PerceptuallyUniformUpdates
     {
         get => Settings.Default.PerceptuallyUniformUpdates;
