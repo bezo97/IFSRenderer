@@ -10,9 +10,9 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         mc:Ignorable="d" 
+        Cursor="SizeWE"
         d:DesignHeight="15" d:DesignWidth="15" Width="15" Height="15"
-        d:DataContext="{d:DesignInstance Type=vm:KeyframeViewModel, IsDesignTimeCreatable=False}"
-        PreviewMouseDown="OnMouseDown" PreviewMouseMove="OnMouseMove" PreviewMouseUp="OnMouseUp">
+        d:DataContext="{d:DesignInstance Type=vm:KeyframeViewModel, IsDesignTimeCreatable=False}">
     <Button.Style>
         <Style BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}" TargetType="{x:Type Button}">
             <Style.Triggers>

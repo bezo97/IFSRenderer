@@ -118,17 +118,20 @@ public partial class ChannelViewModel : ObservableObject
         UpdateKeyframes();
     }
 
-    public void RemoveKeyframe(KeyframeViewModel kfv)
+    public void RemoveKeyframe(KeyframeViewModel kvm)
     {
-        Keyframes.Remove(kfv);
-        channel.Keyframes.Remove(kfv._k);
+        Keyframes.Remove(kvm);
+        channel.Keyframes.Remove(kvm._k);
     }
 
     public void UpdateKeyframes()
     {
-        var sk = _vm.SelectedKeyframes.Select(kvm => kvm._k).ToHashSet();
-        Keyframes = new ObservableCollection<KeyframeViewModel>(channel.Keyframes
-            .Select(k => new KeyframeViewModel(_vm, this, k, sk.Contains(k))));
+        var removed = Keyframes.Where(k => !channel.Keyframes.Contains(k._k));
+        foreach (var kvm in removed)
+            Keyframes.Remove(kvm);
+        var newKeyframes = channel.Keyframes.Where(k => !Keyframes.Any(kvm => kvm._k == k));
+        foreach (var k in newKeyframes)
+            Keyframes.Add(new KeyframeViewModel(_vm, this, k, false));
     }
 
     [RelayCommand]

@@ -43,6 +43,8 @@ public partial class AnimationViewModel : ObservableObject
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
+    public double KeyframeRepositionOffset { get; internal set; }
+
     public AnimationViewModel(Workspace workspace)
     {
         this.Workspace = workspace;
@@ -248,18 +250,24 @@ public partial class AnimationViewModel : ObservableObject
         kvm.IsSelected = true;
     }
 
-    [RelayCommand]
-    public void MoveSelectedKeyframes(double offset)
+    public void PreviewRepositionSelectedKeyframes(double offset)
+    {
+        var timeOffset = offset / 50.0/* / ViewScale */;
+        //clamp offset so first and last keyframes dont offset beyond bounds of the animation
+        timeOffset = Math.Max(timeOffset, -SelectedKeyframes.Min(k => k.KeyframeTime));
+        timeOffset = Math.Min(timeOffset, (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds - SelectedKeyframes.Max(k => k.KeyframeTime));
+        KeyframeRepositionOffset = timeOffset * 50/* / ViewScale */;
+        foreach (var kf in SelectedKeyframes)
+            kf.NotifyPositionChanged();
+    }
+
+    public void ApplyRepositionOfSelectedKeyframes()
     {
         Workspace.TakeSnapshot();
         foreach (var kf in SelectedKeyframes)
-        {
-            kf._k.t += offset / 50.0/* / ViewScale */;
-            kf.PositionMoveOffset = 0.0;
-            //kf.IsSelected = false;
-        }
+            kf._k.t += KeyframeRepositionOffset / 50.0/* / ViewScale */;
+        KeyframeRepositionOffset = 0.0;
         Workspace.Renderer.InvalidateParamsBuffer();
-        //SelectedKeyframes.Clear();
     }
 
     private void OnPlayerTick(object? sender, ElapsedEventArgs e)

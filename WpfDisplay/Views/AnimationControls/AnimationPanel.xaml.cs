@@ -39,9 +39,8 @@ public partial class AnimationPanel : UserControl
         if (e.LeftButton == MouseButtonState.Pressed && dopeButton.IsMouseCaptured)
         {
             double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
-            ((KeyframeViewModel)dopeButton.DataContext).PositionMoveOffset = delta;
+            _vm.PreviewRepositionSelectedKeyframes(delta);
         }
-
     }
 
     private void DopeButton_MouseUp(object sender, MouseButtonEventArgs e)
@@ -49,8 +48,7 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Released)
         {
-            double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
-            _vm.MoveSelectedKeyframesCommand.Execute(delta);
+            _vm.ApplyRepositionOfSelectedKeyframes();
             Mouse.OverrideCursor = null;//no override
             dopeButton.ReleaseMouseCapture();
             _dragp = new Point(0, 0);

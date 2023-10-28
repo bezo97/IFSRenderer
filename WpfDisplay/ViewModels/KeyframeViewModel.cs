@@ -12,17 +12,7 @@ public partial class KeyframeViewModel : ObservableObject
     public readonly Keyframe _k;
 
     public double KeyframeTime => _k.t;
-    public float TimelinePositon => (float)_k.t * 50.0f/* * ViewScale */ + _offset;//add offset
-    private float _offset;
-    public double PositionMoveOffset
-    {
-        get => _offset;
-        set
-        {
-            _offset = (float)value;
-            OnPropertyChanged(nameof(TimelinePositon));
-        }
-    }
+    public float TimelinePositon => (float)(_k.t * 50/* * ViewScale */ + _avm.KeyframeRepositionOffset);
     [ObservableProperty] private bool _isSelected;
 
     public EasingDirection SelectedEasingDirection
@@ -72,5 +62,7 @@ public partial class KeyframeViewModel : ObservableObject
 
     [RelayCommand]
     private void RemoveKeyframe() => _avm.RemoveKeyframeCommand.Execute(this);
+
+    public void NotifyPositionChanged() => OnPropertyChanged(nameof(TimelinePositon));
 
 }

@@ -25,7 +25,7 @@
     </UserControl.ContextMenu>
     <StackPanel>
         <Grid Visibility="{Binding IsLabelShown, Converter={StaticResource BooleanToVisibilityConverter}}" d:Visibility="Visible">
-            <Label IsTabStop="False"
+            <Label IsTabStop="False" VerticalContentAlignment="Center"
                    Content="{Binding Label}" d:Content="Label"/>
             <Button HorizontalAlignment="Right"
                 IsTabStop="False" Padding="8" ToolTip="Animation keyframe"
