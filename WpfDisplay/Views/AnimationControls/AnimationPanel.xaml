@@ -166,11 +166,16 @@
                 </Grid>
                 <ScrollViewer x:Name="sheetScroller" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
                     <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel MouseDown="Dopesheet_MouseDown" Background="Transparent"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="alternatingBackgroundGrid2" 
                                       Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}"
-                                      MouseUp="Channel_MouseUp">
+                                      MouseUp="Channel_MouseUp" MouseDown="Dopesheet_MouseDown">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>

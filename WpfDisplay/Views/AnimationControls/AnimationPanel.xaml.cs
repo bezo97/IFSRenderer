@@ -24,8 +24,6 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            //_vm.Workspace.TakeSnapshot();
-            _vm.AddToSelection((KeyframeViewModel)dopeButton.DataContext);
             _dragp = e.GetPosition(Window.GetWindow(this));
             dopeButton.CaptureMouse();
             Mouse.OverrideCursor = Cursors.None;
@@ -39,7 +37,11 @@ public partial class AnimationPanel : UserControl
         if (e.LeftButton == MouseButtonState.Pressed && dopeButton.IsMouseCaptured)
         {
             double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
-            _vm.PreviewRepositionSelectedKeyframes(delta);
+            if (delta != 0.0)
+            {
+                _vm.AddToSelection((KeyframeViewModel)dopeButton.DataContext);
+                _vm.PreviewRepositionSelectedKeyframes(delta);
+            }
         }
     }
 
@@ -48,7 +50,10 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Released)
         {
-            _vm.ApplyRepositionOfSelectedKeyframes();
+            if(_vm.KeyframeRepositionOffset != 0.0)
+                _vm.ApplyRepositionOfSelectedKeyframes();
+            else
+                _vm.FlipSelection((KeyframeViewModel)dopeButton.DataContext);
             Mouse.OverrideCursor = null;//no override
             dopeButton.ReleaseMouseCapture();
             _dragp = new Point(0, 0);
@@ -68,13 +73,6 @@ public partial class AnimationPanel : UserControl
         {//remember the location of the context menu where the keyframe will be inserted
             _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
         }
-
-        //TODO: ClickCount not working
-        //if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Released && e.ClickCount == 2)
-        //{//Insert keyframe on double click
-        //    _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
-        //    ((ChannelViewModel)((FrameworkElement)sender).DataContext).InsertKeyframe();
-        //}
     }
 
     private void TimeScrubber_MouseMove(object sender, MouseEventArgs e)
@@ -83,6 +81,22 @@ public partial class AnimationPanel : UserControl
         {
             var t = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
             _vm.JumpToTime(t);
+        }
+    }
+
+    private void Dopesheet_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Pressed)
+        {
+            if (e.ClickCount == 1)
+            {
+                _vm.ClearSelectionCommand.Execute(null);
+            }
+            else if (e.ClickCount == 2 && ((FrameworkElement)sender).DataContext is ChannelViewModel channel)
+            {//Insert keyframe to channel on double click
+                _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+                channel.InsertKeyframe();
+            }
         }
     }
 }

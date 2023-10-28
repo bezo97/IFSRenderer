@@ -17,10 +17,10 @@
         <Style BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}" TargetType="{x:Type Button}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="Background" Value="Orange"/>
+                    <Setter Property="Background" Value="DarkOrange"/>
                 </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="LightGray"/>
+                    <Setter Property="Background" Value="Orange"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

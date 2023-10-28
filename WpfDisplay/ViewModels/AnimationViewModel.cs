@@ -243,11 +243,31 @@ public partial class AnimationViewModel : ObservableObject
         Workspace.RaiseAnimationFrameChanged();
     }
 
-    [RelayCommand]
     public void AddToSelection(KeyframeViewModel kvm)
     {
         SelectedKeyframes.Add(kvm);
         kvm.IsSelected = true;
+    }
+
+    public void FlipSelection(KeyframeViewModel kvm)
+    {
+        if (SelectedKeyframes.Contains(kvm))
+        {
+            SelectedKeyframes.Remove(kvm);
+            kvm.IsSelected = false;
+        }
+        else
+        {
+            AddToSelection(kvm);
+        }
+    }
+
+    [RelayCommand]
+    public void ClearSelection()
+    {
+        foreach (var kvm in SelectedKeyframes)
+            kvm.IsSelected = false;
+        SelectedKeyframes.Clear();
     }
 
     public void PreviewRepositionSelectedKeyframes(double offset)
