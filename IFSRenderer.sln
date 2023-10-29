@@ -1,7 +1,6 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28922.388
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfDisplay", "WpfDisplay\WpfDisplay.csproj", "{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,6 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IFSEngine.WPF.InteractiveDi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{F3FF3650-B674-4321-886B-F5ABE49FF727}"
 	ProjectSection(SolutionItems) = preProject
+		Assets\featured_artwork.jpg = Assets\featured_artwork.jpg
 		Assets\icon_128.png = Assets\icon_128.png
 	EndProjectSection
 EndProject
@@ -47,36 +47,6 @@ Global
 		ReleasePortable|x86 = ReleasePortable|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM.Build.0 = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x64.Build.0 = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x86.Build.0 = Debug|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|Any CPU.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|Any CPU.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM64.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM64.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x64.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x64.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x86.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x86.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|Any CPU.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|Any CPU.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM64.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM64.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x64.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x64.Build.0 = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x86.ActiveCfg = Release|Any CPU
-		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x86.Build.0 = Release|Any CPU
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -107,6 +77,36 @@ Global
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.ReleasePortable|x64.Build.0 = ReleasePortable|Any CPU
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.ReleasePortable|x86.ActiveCfg = ReleasePortable|Any CPU
 		{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}.ReleasePortable|x86.Build.0 = ReleasePortable|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM.Build.0 = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x64.Build.0 = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.Debug|x86.Build.0 = Debug|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|Any CPU.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|Any CPU.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM64.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|ARM64.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x64.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x64.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x86.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleaseInstaller|x86.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|Any CPU.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|Any CPU.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM64.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|ARM64.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x64.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x64.Build.0 = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x86.ActiveCfg = Release|Any CPU
+		{CD8AE533-71A9-4409-8C68-FE48F2F0FA61}.ReleasePortable|x86.Build.0 = Release|Any CPU
 		{1121F381-0FA3-4CF3-B94B-9B73DCBB62D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1121F381-0FA3-4CF3-B94B-9B73DCBB62D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1121F381-0FA3-4CF3-B94B-9B73DCBB62D1}.Debug|ARM.ActiveCfg = Debug|Any CPU

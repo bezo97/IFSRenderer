@@ -317,7 +317,7 @@
                         </TextBlock.Triggers>
                     </TextBlock>
                 </StatusBarItem>
-                <StatusBarItem Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right">
+                <StatusBarItem Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" HorizontalAlignment="Right">
                     <StatusBarItem.Style>
                         <Style TargetType="{x:Type StatusBarItem}">
                             <Style.Triggers>

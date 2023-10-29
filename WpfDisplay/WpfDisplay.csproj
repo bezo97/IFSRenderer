@@ -88,6 +88,7 @@
 
 	<ItemGroup>
 		<Resource Include="..\Assets\icon_128.png" Link="Resources\icon_128.png" />
+    <Resource Include="..\Assets\featured_artwork.jpg" Link="Resources\featured_artwork.jpg" />
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>

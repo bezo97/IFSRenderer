@@ -44,18 +44,18 @@
         </DataTemplate>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
+        <Grid.RowDefinitions> 
             <RowDefinition Height="300"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/icon_128.png"/>
+            <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/featured_artwork.jpg"/>
             <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="8" FontSize="14">
                 <TextBlock.Effect>
                     <DropShadowEffect/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="https://ifsrenderer.z97.io/">
+                <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir/art/Blue-Nebula-with-Yellow-Star-922994842" Foreground="LightGray">
                     Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
