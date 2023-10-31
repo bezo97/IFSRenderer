@@ -113,6 +113,10 @@ public sealed class RendererGL : IAsyncDisposable
     /// </summary>
     public int MaxFilterRadius { get; set; } = 0;
     public double HistogramScale { get; private set; } = 1.0;
+    /// <summary>
+    /// Seed value used to generate random numbers. Recommended to change this for each animation frame.
+    /// </summary>
+    public uint Seed { get; set; } = 0;
 
     private bool _updateDisplayNow = false;
     private readonly IGraphicsContext _ctx;
@@ -459,6 +463,7 @@ public sealed class RendererGL : IAsyncDisposable
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "reset_points_state"), _invalidPointsStateBuffer ? 1 : 0);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "dispatch_cnt"), _dispatchCnt);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "invocation_iters"), InvocationIters);
+        GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "seed"), Seed);
 
         GL.Finish(); //blocking call
         GL.DispatchCompute(WorkgroupCount, 1, 1);

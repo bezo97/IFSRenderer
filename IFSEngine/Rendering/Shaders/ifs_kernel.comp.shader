@@ -117,6 +117,7 @@ layout(std140, binding = 7) uniform vec3_params_ubo
 	vec4 vec3_params[MAX_PARAMS];//vec3 transform parameters of all iterators
 };
 
+uniform uint seed;
 uniform int width;
 uniform int height;
 uniform int dispatch_cnt;
@@ -180,17 +181,6 @@ float f_hash1(float f) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
-float f_hash21(float f1, float f2, uint nextSample) {
-	const uint mantissaMask = 0x007FFFFFu;
-	const uint one = 0x3F800000u;
-
-	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
-	h &= mantissaMask;
-	h |= one;
-
-	float  r2 = uintBitsToFloat(h);
-	return r2 - 1.0;
-}
 float f_hash3(float f1, float f2, float f3) {
 	const uint mantissaMask = 0x007FFFFFu;
 	const uint one = 0x3F800000u;
@@ -202,10 +192,32 @@ float f_hash3(float f1, float f2, float f3) {
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
 }
+float f_hash21(float f1, float f2, uint nextSample) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
+float f_hash121(uint seed, float f1, float f2, uint nextSample) {
+	const uint mantissaMask = 0x007FFFFFu;
+	const uint one = 0x3F800000u;
+
+	uint h = hash4(uvec4(seed, floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
+	h &= mantissaMask;
+	h |= one;
+
+	float  r2 = uintBitsToFloat(h);
+	return r2 - 1.0;
+}
 
 float random(inout uint nextSample)
 {
-	return f_hash21(gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash121(seed, gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
 }
 
 vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
@@ -353,7 +365,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++);
+	float workgroup_random = f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, next++);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -412,7 +424,7 @@ void accumulate_hit(ivec2 proj, vec4 color)
 void main() {
 	const uint gid = gl_GlobalInvocationID.x;
 
-	uint next = 34567;//TODO: option to change this seed by animation frame number
+	uint next = hash1(54321 + seed);
 
 	p_state p;
 	if (reset_points_state == 1)//after invalidation
@@ -424,11 +436,11 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash21(gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
             p.iteration_depth == -1 || //invalid point position
-			f_hash21(gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy) //chance to reset by entropy
+			f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy) //chance to reset by entropy
 		{//reset if invalid
 			p = reset_state(next);
 		}

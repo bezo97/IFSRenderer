@@ -159,6 +159,7 @@ public partial class AnimationViewModel : ObservableObject
     public void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
+        Workspace.Renderer.Seed = (uint)(Workspace.Ifs.Dopesheet.Fps * t);//set frame number as seed
         Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
