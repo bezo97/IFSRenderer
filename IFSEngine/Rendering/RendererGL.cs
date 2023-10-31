@@ -48,11 +48,6 @@ public sealed class RendererGL : IAsyncDisposable
     public double DEThreshold { get; set; } = 0.4;
 
     /// <summary>
-    /// Enable Epic's Temporal Anti-Aliasing.
-    /// </summary>
-    public bool EnableTAA { get; set; } = false;
-
-    /// <summary>
     /// Number of dispatches since accumulation reset.
     /// This is needed for random generation.
     /// </summary>
@@ -136,10 +131,8 @@ public sealed class RendererGL : IAsyncDisposable
     //fragment shader handles
     private int _tonemapProgramHandle;
     private int _deProgramHandle;
-    private int _taaProgramHandle;
     private int _offscreenFBOHandle;
     private int _renderTextureHandle;
-    private int _taaTextureHandle;
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
@@ -203,7 +196,6 @@ public sealed class RendererGL : IAsyncDisposable
         InitTonemapPass();
         InitDEPass();
         InitComputeProgram();
-        InitTAAPass();
         GL.DeleteShader(_vertexShaderHandle);
 
         _timerQueryHandle = GL.GenQuery();
@@ -306,15 +298,9 @@ public sealed class RendererGL : IAsyncDisposable
         GL.UseProgram(_deProgramHandle);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "width"), HistogramWidth);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "height"), HistogramHeight);
-        GL.UseProgram(_taaProgramHandle);
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "width"), HistogramWidth);
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "height"), HistogramHeight);
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _renderTextureHandle);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-        GL.ActiveTexture(TextureUnit.Texture2);
-        GL.BindTexture(TextureTarget.Texture2D, _taaTextureHandle);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
         GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
@@ -499,17 +485,6 @@ public sealed class RendererGL : IAsyncDisposable
             GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "de_power"), (float)DEPower);
             GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "de_threshold"), (float)DEThreshold);
             GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-        }
-
-        if (EnableTAA)
-        {
-            GL.UseProgram(_taaProgramHandle);
-            GL.BindVertexArray(_vao);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "width"), HistogramWidth);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "height"), HistogramHeight);
-            GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "new_frame_tex"), 0);
-            GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
         }
     }
@@ -706,53 +681,6 @@ public sealed class RendererGL : IAsyncDisposable
             .First().Reverse().ToArray();
 
         return histogram;
-    }
-
-    private void InitTAAPass()
-    {
-
-        var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(_shadersPath + "taa.frag.shader");
-        string taaShaderSource = new StreamReader(resource).ReadToEnd();
-        //compile taa shader
-        int taaShaderH = GL.CreateShader(ShaderType.FragmentShader);
-        GL.ShaderSource(taaShaderH, taaShaderSource);
-        GL.CompileShader(taaShaderH);
-        GL.GetShader(taaShaderH, ShaderParameter.CompileStatus, out int status);
-        if (status == 0)
-        {
-            throw new Exception(
-                String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(taaShaderH)));
-        }
-
-        //init taa image texture
-        _taaTextureHandle = GL.GenTexture();
-        GL.ActiveTexture(TextureUnit.Texture2);//1
-        GL.BindTexture(TextureTarget.Texture2D, _taaTextureHandle);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        //TODO: display resolution?
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
-        GL.BindImageTexture(0, _taaTextureHandle, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-
-        _taaProgramHandle = GL.CreateProgram();
-        GL.AttachShader(_taaProgramHandle, _vertexShaderHandle);
-        GL.AttachShader(_taaProgramHandle, taaShaderH);
-        GL.LinkProgram(_taaProgramHandle);
-        GL.GetProgram(_taaProgramHandle, GetProgramParameterName.LinkStatus, out status);
-        if (status == 0)
-        {
-            throw new Exception(
-                String.Format("Error linking taa program: {0}", GL.GetProgramInfoLog(_taaProgramHandle)));
-        }
-
-        GL.DetachShader(_taaProgramHandle, _vertexShaderHandle);
-        GL.DetachShader(_taaProgramHandle, taaShaderH);
-        GL.DeleteShader(_vertexShaderHandle);
-        GL.DeleteShader(taaShaderH);
-
-        GL.UseProgram(_taaProgramHandle);
-
-        GL.Uniform1(GL.GetUniformLocation(_taaProgramHandle, "new_frame_tex"), 0);
     }
 
     private void InitDEPass()

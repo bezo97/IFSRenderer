@@ -28,7 +28,6 @@
             <TextBlock HorizontalAlignment="Center" Margin="4,16">
                 Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
             </TextBlock>
-            <CheckBox IsChecked="{Binding EnableTAA}" Margin="4">Temporal Anti-Aliasing</CheckBox>
         </StackPanel>
         <!--"Final" settings-->
         <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8">

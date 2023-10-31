@@ -130,17 +130,6 @@ public partial class QualitySettingsViewModel : ObservableObject
         Increment = 0.01,
     };
 
-    public bool EnableTAA
-    {
-        get => _workspace.Renderer.EnableTAA;
-        set
-        {
-            _workspace.Renderer.EnableTAA = value;
-            OnPropertyChanged(nameof(EnableTAA));
-            _workspace.Renderer.InvalidateDisplay();
-        }
-    }
-
     private ValueSliderViewModel _entropyInv;
     public ValueSliderViewModel EntropyInv => _entropyInv ??= new ValueSliderViewModel(_workspace)
     {
@@ -257,7 +246,6 @@ public partial class QualitySettingsViewModel : ObservableObject
 
     private void SetFinalRenderSettings()
     {
-        EnableTAA = false;
         MaxFilterRadius.Value = 3;
         _workspace.Renderer.SetHistogramScale(1.0);
         OnPropertyChanged(nameof(PreviewResolutionText));
