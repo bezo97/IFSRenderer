@@ -146,78 +146,93 @@ uint pcg_hash(uint x)
 	uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
 	return (word >> 22u) ^ word;
 }
-//random hash without sin: http://amindforeverprogramming.blogspot.com/2013/07/random-floats-in-glsl-330.html
-uint no_sin_hash(uint x) {
-	x += (x << 10u);
-	x ^= (x >> 6u);
-	x += (x << 3u);
-	x ^= (x >> 11u);
-	x += (x << 15u);
-	return x;
-}
-uint hash1(uint x)
+uvec2 pcg_hash_2d(uvec2 v)
 {
-	return pcg_hash(x);
-}
-uint hash2(uvec2 v) {
-	return hash1(v.x ^ hash1(v.y));
-}
+    v = v * 1664525u + 1013904223u;
 
-uint hash3(uvec3 v) {
-	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z));
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+
+    v = v ^ (v>>16u);
+
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+
+    v = v ^ (v>>16u);
+
+    return v;
 }
+//https://www.jcgt.org/published/0009/03/02/
+uvec3 pcg_hash_3d(uvec3 v) {
 
-uint hash4(uvec4 v) {
-	return hash1(v.x ^ hash1(v.y) ^ hash1(v.z) ^ hash1(v.w));
+    v = v * 1664525u + 1013904223u;
+
+    v.x += v.y*v.z;
+    v.y += v.z*v.x;
+    v.z += v.x*v.y;
+
+    v ^= v >> 16u;
+
+    v.x += v.y*v.z;
+    v.y += v.z*v.x;
+    v.z += v.x*v.y;
+
+    return v;
 }
-float f_hash1(float f) {
-	const uint mantissaMask = 0x007FFFFFu;
-	const uint one = 0x3F800000u;
-
-	uint h = hash1(floatBitsToUint(f));
-	h &= mantissaMask;
-	h |= one;
-
+uvec4 pcg_hash_4d(uvec4 v)
+{
+    v = v * 1664525u + 1013904223u;
+    
+    v.x += v.y*v.w;
+    v.y += v.z*v.x;
+    v.z += v.x*v.y;
+    v.w += v.y*v.z;
+    
+    v ^= v >> 16u;
+    
+    v.x += v.y*v.w;
+    v.y += v.z*v.x;
+    v.z += v.x*v.y;
+    v.w += v.y*v.z;
+    
+    return v;
+}
+// 128-bit xorshift - Marsaglia, Xorshift RNGs, Journal of Statistical Software, v8n14, 2003
+uint xorshift128(uvec4 v)
+{
+    v.w ^= v.w << 11u;
+    v.w ^= v.w >> 8u;
+    v = v.wxyz;
+    v.x ^= v.y;
+    v.x ^= v.y >> 19u;
+    return v.x;
+}
+//uint hash -> float 0-1
+float f_hash(uint h) {
+	h &= 0x007FFFFFu;//mantissa mask
+	h |= 0x3F800000u;//one mask
 	float  r2 = uintBitsToFloat(h);
 	return r2 - 1.0;
+}
+
+//float variants of hash functions
+float f_hash1(float f) {
+	return f_hash(pcg_hash(floatBitsToUint(f)));
+}
+float f_hash2(float f1, float f2) {
+	return f_hash(pcg_hash_2d(uvec2(floatBitsToUint(f1), floatBitsToUint(f2))).x);    
 }
 float f_hash3(float f1, float f2, float f3) {
-	const uint mantissaMask = 0x007FFFFFu;
-	const uint one = 0x3F800000u;
-
-	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3)));
-	h &= mantissaMask;
-	h |= one;
-
-	float  r2 = uintBitsToFloat(h);
-	return r2 - 1.0;
+	return f_hash(pcg_hash_3d(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), floatBitsToUint(f3))).x);
 }
-float f_hash21(float f1, float f2, uint nextSample) {
-	const uint mantissaMask = 0x007FFFFFu;
-	const uint one = 0x3F800000u;
-
-	uint h = hash3(uvec3(floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
-	h &= mantissaMask;
-	h |= one;
-
-	float  r2 = uintBitsToFloat(h);
-	return r2 - 1.0;
-}
-float f_hash121(uint seed, float f1, float f2, uint nextSample) {
-	const uint mantissaMask = 0x007FFFFFu;
-	const uint one = 0x3F800000u;
-
-	uint h = hash4(uvec4(seed, floatBitsToUint(f1), floatBitsToUint(f2), nextSample));
-	h &= mantissaMask;
-	h |= one;
-
-	float  r2 = uintBitsToFloat(h);
-	return r2 - 1.0;
+float f_hash4(uint u1, uint u2, uint u3, uint u4) {
+	return f_hash(xorshift128(pcg_hash_4d(uvec4(u1, u2, u3, u4))));
 }
 
+//This may be used by plugins like this: random(next++);
 float random(inout uint nextSample)
 {
-	return f_hash121(seed, gl_GlobalInvocationID.x, dispatch_cnt, nextSample++);
+	return f_hash4(seed, gl_GlobalInvocationID.x, uint(dispatch_cnt), nextSample++);
 }
 
 vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
@@ -365,7 +380,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, next++);
+	float workgroup_random = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), next++);
 	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
@@ -424,7 +439,7 @@ void accumulate_hit(ivec2 proj, vec4 color)
 void main() {
 	const uint gid = gl_GlobalInvocationID.x;
 
-	uint next = hash1(54321 + seed);
+	uint next = pcg_hash(54321 + seed);
 
 	p_state p;
 	if (reset_points_state == 1)//after invalidation
@@ -436,11 +451,11 @@ void main() {
 	{
 		//pick a random xaos weighted Transform index
 		int r_index = -1;
-		float r = f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, i);//random(next);
+		float r = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), i);//random(next);
 		r_index = alias_sample_xaos(p.iterator_index, r);
 		if (r_index == -1 || //no outgoing weight
             p.iteration_depth == -1 || //invalid point position
-			f_hash121(seed, gl_WorkGroupID.x, dispatch_cnt, next++) < settings.entropy) //chance to reset by entropy
+			f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), next++) < settings.entropy) //chance to reset by entropy
 		{//reset if invalid
 			p = reset_state(next);
 		}
