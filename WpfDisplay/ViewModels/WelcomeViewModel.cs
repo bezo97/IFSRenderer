@@ -31,7 +31,16 @@ public sealed partial class WelcomeViewModel : ObservableObject
     public IFS ExploreParams { get; private set; } = new IFS();
     public string? SelectedFilePath { get; private set; }
 
-    [ObservableProperty] private string _selectedExpander = "0";
+    public string SelectedExpander
+    {
+        get => Settings.Default.WelcomeExpanderState;
+        set
+        {
+            Settings.Default.WelcomeExpanderState = value;
+            Settings.Default.Save();
+            OnPropertyChanged(nameof(SelectedExpander));
+        }
+    }
     [ObservableProperty] private ImageSource? _exploreThumbnail;
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = new();
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = new();

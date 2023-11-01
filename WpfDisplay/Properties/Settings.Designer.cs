@@ -247,5 +247,17 @@ namespace WpfDisplay.Properties {
                 this["IsWelcomeShownOnStartup"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string WelcomeExpanderState {
+            get {
+                return ((string)(this["WelcomeExpanderState"]));
+            }
+            set {
+                this["WelcomeExpanderState"] = value;
+            }
+        }
     }
 }
