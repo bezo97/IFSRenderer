@@ -239,6 +239,8 @@ public partial class IFSViewModel : ObservableObject
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
         SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == newIterator);
+        if(!_workspace.Renderer.IsRendering)//Start rendering when user started from blank params and added the first iterator.
+            _workspace.Renderer.StartRenderLoop();
     }
 
     [RelayCommand]
