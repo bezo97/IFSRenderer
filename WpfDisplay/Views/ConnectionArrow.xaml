@@ -10,6 +10,20 @@
              x:Name="connectionArrow" 
              Cursor="Hand"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="Path">
+            <Style.Triggers>
+                <!--Shadow effect when selected-->
+                <DataTrigger Binding="{Binding Path=IsSelected, FallbackValue=False}" Value="True">
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <!--Transparent area around arrow for easier clicking-->
         <Path x:Name="arrowClickArea"
@@ -18,18 +32,10 @@
         <!--Arrow body-->
         <Path x:Name="arrowBody"
             Stroke="White"
-            StrokeThickness="2">
-            <Path.Effect>
-                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
-            </Path.Effect>
-        </Path>
+            StrokeThickness="2"/>
         <!--Arrow head-->
         <Path x:Name="arrowHead"
-        Stroke="White" 
-        StrokeThickness="2">
-            <Path.Effect>
-                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
-            </Path.Effect>
-        </Path>
+            Stroke="White" 
+            StrokeThickness="2"/>
     </Grid>
 </UserControl>

@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="150"
+             x:Name="root"
              d:DataContext="{d:DesignInstance Type=vm:IteratorViewModel}"
              Width="{Binding NodeSize}" Height="{Binding NodeSize}"
              Focusable="True" IsTabStop="True" GotFocus="UserControl_GotFocus">
@@ -32,12 +33,23 @@
                         <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=grid}" Value="False">
                             <Setter Property="StrokeThickness" Value="4"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="StrokeThickness" Value="8"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsMouseDown, ElementName=root}" Value="True">
+                            <Setter Property="StrokeThickness" Value="4"/>
+                        </DataTrigger>
+                        <!--Shadow effect when selected-->
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20"/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Ellipse.Resources>
-            <Ellipse.Effect>
-                <DropShadowEffect ShadowDepth="5" Direction="-90" BlurRadius="20" Opacity="{Binding IsSelected}"/>
-            </Ellipse.Effect>
             <Ellipse.Fill>
                 <RadialGradientBrush>
                     <GradientStop Color="{Binding OpacityColor, UpdateSourceTrigger=PropertyChanged}" Offset="0.98"/>

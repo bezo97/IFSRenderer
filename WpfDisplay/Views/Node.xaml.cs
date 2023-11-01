@@ -16,6 +16,9 @@ public partial class Node : UserControl
     private ContentPresenter _parentContainer;
     private Vector? _t;
 
+    public static readonly DependencyProperty IsMouseDownProperty =
+        DependencyProperty.Register("IsMouseDown", typeof(bool), typeof(Node), new PropertyMetadata(false));
+
     public RelayCommand<IteratorViewModel> SelectCommand
     {
         get { return (RelayCommand<IteratorViewModel>)GetValue(SelectCommandProperty); }
@@ -72,19 +75,22 @@ public partial class Node : UserControl
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
-        e.Handled = true;
+        e.Handled = true; 
+        SetValue(IsMouseDownProperty, true);
     }
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
         e.Handled = true;
+        SetValue(IsMouseDownProperty, false);
         _t = null;
         Mouse.Capture(null);
         if (e.ChangedButton == MouseButton.Left)
         {
             var vm = (IteratorViewModel)DataContext;
             vm.FinishConnecting();
+            SelectCommand.Execute(vm);
         }
     }
 
