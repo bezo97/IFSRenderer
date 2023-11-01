@@ -316,7 +316,11 @@ void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index)
 		speed *= (1.0 - 1.0 / (1.0 + p_delta));
 	}
 
-	color_index = fract ( speed * it.color_index + (1.0f - speed) * in_color );
+    float new_index = mix(in_color, it.color_index, speed);
+    if(new_index != 0.0 && fract(new_index) == 0.0)
+        color_index = new_index;
+    else
+	    color_index = fract(new_index);
 }
 
 vec3 getPaletteColor(float pos)
@@ -324,6 +328,8 @@ vec3 getPaletteColor(float pos)
 	float palettepos = pos * (settings.palettecnt - 1);
 	int index = int(floor(palettepos));
 	vec3 c1 = palette[index].xyz;
+    if (index + 1 == settings.palettecnt)
+        return c1;
 	vec3 c2 = palette[index+1].xyz;
 	float a = fract(palettepos);
 	//TODO: interpolate in a different color space?

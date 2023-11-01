@@ -86,11 +86,12 @@
                         Alternative Coloring
                     </CheckBox>
                 </Grid>
+                <local:ValueSlider DataContext="{Binding ColorIndex}"/>
                 <local:PaletteSlider
                     ToolTip="The color of the iterator."
-                    ColorIndex="{Binding ColorIndex, Mode=TwoWay}"
+                    ColorIndex="{Binding ColorIndex.Value, Mode=TwoWay}"
                     Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
-                <local:ValueSlider Grid.Column="1" DataContext="{Binding ColorSpeed}"/>
+                <local:ValueSlider DataContext="{Binding ColorSpeed}"/>
             </StackPanel>
         </StackPanel>
         <Separator Margin="10"/>

@@ -115,12 +115,14 @@ public partial class FlamePalette
 
     public Vector4 GetColorLerp(float colorIndex)
     {
-        float palettepos = (colorIndex%1) * (Colors.Count - 1);
+        float palettepos = colorIndex * (Colors.Count - 1);
         int index = (int)Math.Floor(palettepos);
         Vector4 c1 = Colors[index];
+        if (index + 1 == Colors.Count)
+            return c1;
         Vector4 c2 = Colors[index + 1];
         float a = palettepos % 1;
-        return MathExtensions.Lerp(c1, c2, a);//lerp
+        return MathExtensions.Lerp(c1, c2, a);
     }
 
 }

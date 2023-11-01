@@ -74,7 +74,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Controls the probability that the iteration starts in this state.",
         DefaultValue = 1.0,
         GetV = () => iterator.StartWeight,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.StartWeight = value;
             _workspace.Renderer.InvalidateParamsBuffer();
         },
@@ -91,7 +92,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Setting this to 0 means this iterator will not draw anything.",
         DefaultValue = 1.0,
         GetV = () => iterator.Opacity,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.Opacity = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(OpacityColor));
@@ -103,20 +105,24 @@ public partial class IteratorViewModel : ObservableObject
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    // TODO: color index undoredo, animation
-    //    AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorIndex)}",
-    //    ValueWillChange = _workspace.TakeSnapshot,
-    public double ColorIndex
+    private ValueSliderViewModel _colorIndex;
+    public ValueSliderViewModel ColorIndex => _colorIndex ??= new ValueSliderViewModel(_workspace)
     {
-        get => iterator.ColorIndex;
-        set
-        {
+        Label = "Color Index",
+        ToolTip = "Indexes to the color on the palette. 0 -> Left most color, 1 -> Right most color.",
+        DefaultValue = 0.0,
+        GetV = () => iterator.ColorIndex,
+        SetV = (value) => {
             iterator.ColorIndex = value;
             _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(ColorIndex));
             OnPropertyChanged(nameof(ColorRGB));
-        }
-    }
+        },
+        MinValue = 0,
+        MaxValue = 1,
+        Increment = 0.01,
+        AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorIndex)}",
+        ValueWillChange = _workspace.TakeSnapshot,
+    };
 
     private ValueSliderViewModel _colorSpeed;
     public ValueSliderViewModel ColorSpeed => _colorSpeed ??= new ValueSliderViewModel(_workspace)
@@ -125,7 +131,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "The Color Speed controls how fast the color state of the IFS progresses towards this iterator's Color Index. 0 -> no effect on colors. 1 -> Draw with the selected color index immediately.",
         DefaultValue = 0.0,
         GetV = () => iterator.ColorSpeed,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.ColorSpeed = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(ColorRGB));
@@ -139,8 +146,8 @@ public partial class IteratorViewModel : ObservableObject
     {
         get
         {
-            var c = _workspace.Ifs.Palette.GetColorLerp((float)ColorIndex);
-            return Color.FromRgb((byte)(c.X*255), (byte)(c.Y * 255), (byte)(c.Z * 255));
+            var c = _workspace.Ifs.Palette.GetColorLerp((float)iterator.ColorIndex);
+            return Color.FromRgb((byte)(c.X * 255), (byte)(c.Y * 255), (byte)(c.Z * 255));
         }
     }
 
@@ -151,7 +158,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Linearly interpolate between the states before/after the transform. 0 -> The transform has no effect on the position. 1 -> Default.",
         DefaultValue = 1.0,
         GetV = () => iterator.Mix,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.Mix = value;
             _workspace.Renderer.InvalidateParamsBuffer();
         },
@@ -167,7 +175,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Add up the positions before/after the transform.",
         DefaultValue = 0.0,
         GetV = () => iterator.Add,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.Add = value;
             _workspace.Renderer.InvalidateParamsBuffer();
         },
@@ -203,7 +212,8 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Multiplies incoming connection weights for ease of use. 0 base weight means this iterator does not take part in the iteration process, because the IFS never transitions here.",
         DefaultValue = 1.0,
         GetV = () => iterator.BaseWeight,
-        SetV = (value) => {
+        SetV = (value) =>
+        {
             iterator.BaseWeight = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(NodeSize));
@@ -222,7 +232,7 @@ public partial class IteratorViewModel : ObservableObject
         {
             //if (!EnableWeightedSize)
             //    return BaseSize;
-            return 100 + Math.Clamp(10*BaseWeight.Value, 0.0, 50.0) * 2;
+            return 100 + Math.Clamp(10 * BaseWeight.Value, 0.0, 50.0) * 2;
         }
     }
 
