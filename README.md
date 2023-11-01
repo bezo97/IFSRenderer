@@ -150,7 +150,7 @@ Below is a list of awesome people who contributed to IFSRenderer, thank you!
 I'd like to also mention people who indirectly helped the project succeed through teachings/mentorship/advices/etc.: 
 [ancientc](https://github.com/ancientc), [BenceKovari](https://github.com/BenceKovari), [drecouse](https://github.com/drecouse), [lycium](https://github.com/lycium), [tibitoth](https://github.com/tibitoth)
 ### Contributors
-[bezo97](https://github.com/bezo97) (Creator & Maintainer), [AliBee](https://github.com/BenjaminBako), [KuraiAndras](https://github.com/KuraiAndras), [Rychveldir](https://www.deviantart.com/rychveldir), [Sekkmer](https://github.com/TiborDravecz), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)
+[bezo97](https://github.com/bezo97) (Creator & Maintainer), [AliBee](https://github.com/BenjaminBako), [KuraiAndras](https://github.com/KuraiAndras), [Rychveldir](https://www.deviantart.com/rychveldir), [Sekkmer](https://github.com/TiborDravecz), [Bastitron](https://github.com/Bastitron), [*Add Your Name*](https://github.com/bezo97/IFSRenderer/fork)
 
 ---
 

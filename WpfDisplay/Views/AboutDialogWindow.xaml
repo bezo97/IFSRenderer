@@ -62,7 +62,8 @@
                         <Hyperlink NavigateUri="https://github.com/BenjaminBako">@AliBee42</Hyperlink>,
                         <Hyperlink NavigateUri="https://github.com/KuraiAndras">@KuraiAndras</Hyperlink>, 
                         <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir">@Rychveldir</Hyperlink>,
-                        <Hyperlink NavigateUri="https://github.com/TiborDravecz">@Sekkmer</Hyperlink>
+                        <Hyperlink NavigateUri="https://github.com/TiborDravecz">@Sekkmer</Hyperlink>,
+                        <Hyperlink NavigateUri="https://github.com/Bastitron">@Bastitron</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </ScrollViewer>
