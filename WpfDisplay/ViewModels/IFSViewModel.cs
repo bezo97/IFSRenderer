@@ -24,9 +24,14 @@ public partial class IFSViewModel : ObservableObject
     private readonly Workspace _workspace;
 
     public CompositeCollection NodeMapElements { get; private set; }
-    public IReadOnlyCollection<Transform> RegisteredTransforms => _workspace.LoadedTransforms;
+    public IReadOnlyCollection<Transform> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
     public IReadOnlyCollection<ConnectionViewModel> ConnectionViewModels => _connectionViewModels;
+
     [ObservableProperty] private IteratorViewModel? _connectingIterator;
+
+    [NotifyPropertyChangedFor(nameof(FilteredTransforms))]
+    [ObservableProperty] private string _transformSearchFilter = "";
+
     private readonly ObservableCollection<IteratorViewModel> _iteratorViewModels = new();
     private readonly ObservableCollection<ConnectionViewModel> _connectionViewModels = new();
     private IteratorViewModel? _selectedIterator;
@@ -225,6 +230,17 @@ public partial class IFSViewModel : ObservableObject
         }
     }
 
+    private IReadOnlyCollection<Transform> FilterTransforms(IEnumerable<Transform> transforms)
+    {
+        if (string.IsNullOrEmpty(TransformSearchFilter))
+            return transforms.ToList();
+        var startsWithResults = transforms.Where(tr => tr.Name.StartsWith(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
+        var containsResults = transforms.Where(tr => tr.Name.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
+        var tagResults = transforms.Where(tr => tr.Tags.Any(tag=>tag.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase)));
+        var searchResults = startsWithResults.Concat(containsResults.Concat(tagResults)).Distinct();
+        return searchResults.ToList();
+    }
+
     [RelayCommand]
     private void AddIterator(Transform tf)
     {
@@ -345,7 +361,7 @@ public partial class IFSViewModel : ObservableObject
         }
         foreach (IteratorViewModel ivm in _iteratorViewModels)
             ivm.ReloadParameters();//handles when the number and names of parameters have changed.
-        OnPropertyChanged(nameof(RegisteredTransforms));
+        OnPropertyChanged(nameof(FilteredTransforms));
     }
 
     [RelayCommand]
