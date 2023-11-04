@@ -95,7 +95,6 @@
                     <MenuItem Header="💾" Command="{Binding SaveParamsCommand}" ToolTip="Save (Ctrl+S)" InputGestureText="Ctrl+S"/>
                     <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
                     <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
-                    <MenuItem Icon="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}" FontFamily="Monospace" Width="45" InputGestureText="PAUSE" ToolTip="Resume/Pause rendering (Pause key)"/>
                 </Menu>
                 <Separator/>
                 <Menu>
@@ -302,6 +301,12 @@
 
         <md:Card Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
             <StatusBar Background="Transparent">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <!--Avoid filling up unused space on status bar-->
+                        <DockPanel LastChildFill="False" />
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
                 <StatusBarItem>
                     <TextBlock
                         Text="{Binding StatusBarText, NotifyOnTargetUpdated=True}"
@@ -317,7 +322,15 @@
                         </TextBlock.Triggers>
                     </TextBlock>
                 </StatusBarItem>
-                <StatusBarItem Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" HorizontalAlignment="Right">
+                <StatusBarItem DockPanel.Dock="Right">
+                    <ToggleButton 
+                        Content="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}"
+                        Width="20" Height="20" Padding="0"
+                        Style="{StaticResource MaterialDesignFlatButton}" FontFamily="Monospace" ToolTip="Resume/Pause rendering (Pause key)" d:Content="||"/>
+                </StatusBarItem>
+                <Separator DockPanel.Dock="Right"/>
+                <StatusBarItem DockPanel.Dock="Right"
+                               Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" d:Visibility="Visible">
                     <StatusBarItem.Style>
                         <Style TargetType="{x:Type StatusBarItem}">
                             <Style.Triggers>
