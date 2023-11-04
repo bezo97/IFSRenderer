@@ -324,17 +324,17 @@
                 </StatusBarItem>
                 <StatusBarItem DockPanel.Dock="Right" VerticalContentAlignment="Stretch">
                     <Grid>
-                        <ProgressBar Width="100" Value="{Binding IterationProgressPercent, Mode=OneWay}" VerticalAlignment="Bottom" Margin="0 4"/>
-                        <TextBlock VerticalAlignment="Top" Margin="0 -3" TextAlignment="Center"
+                        <ProgressBar Width="100" Value="{Binding IterationProgressPercent, Mode=OneWay}" VerticalAlignment="Bottom"/>
+                        <TextBlock VerticalAlignment="Top" Margin="0 -4" TextAlignment="Center"
                                    ToolTip="Iteration progress" Style="{StaticResource MaterialDesignCharacterCounterTextBlock}" Foreground="White">
                             Progress: <Run Text="{Binding IterationLevel, Mode=OneWay}"/> / <Run Text="{Binding QualitySettingsViewModel.TargetIterationLevel.Value, Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
                 </StatusBarItem>
-                <StatusBarItem DockPanel.Dock="Right">
+                <StatusBarItem DockPanel.Dock="Right" Padding="0">
                         <ToggleButton 
                             Content="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}"
-                            Width="20" Height="20" Padding="0"
+                            Width="20" Height="20" Padding="0" Margin="0"
                             Style="{StaticResource MaterialDesignFlatButton}" FontFamily="Monospace" ToolTip="Resume/Pause rendering (Pause key)" d:Content="||"/>
                 </StatusBarItem>
                 <Separator DockPanel.Dock="Right"/>

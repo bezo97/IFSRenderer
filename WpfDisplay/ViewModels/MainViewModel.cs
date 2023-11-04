@@ -52,7 +52,15 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public string IterationLevel => BitOperations.Log2(1 + workspace.Renderer.TotalIterations / (ulong)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)).ToString("00.");
-    public double IterationProgressPercent => 100.0 * (workspace.Renderer.TotalIterations / (double)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)) / (Math.Pow(2, workspace.Ifs.TargetIterationLevel) - 1);
+    public double IterationProgressPercent
+    {
+        get
+        {
+            //this is to avoid interrupting the render thread with gui updates
+            Task.Delay(50).ContinueWith(t => OnPropertyChanged(nameof(IterationProgressPercent)));
+            return 100.0 * (workspace.Renderer.TotalIterations / (double)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)) / (Math.Pow(2, workspace.Ifs.TargetIterationLevel) - 1);
+        }
+    }
 
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
@@ -99,11 +107,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         if(workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
 
-        workspace.Renderer.DisplayFramebufferUpdated += (s, e) =>
-        {
-            OnPropertyChanged(nameof(IterationLevel));
-            OnPropertyChanged(nameof(IterationProgressPercent));
-        };
+        workspace.Renderer.DisplayFramebufferUpdated += (s, e) => OnPropertyChanged(nameof(IterationLevel));
 
         workspace.UpdateStatusText($"Initialized");
     }
