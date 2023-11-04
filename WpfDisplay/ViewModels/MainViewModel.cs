@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -50,6 +51,9 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     [ObservableProperty] private bool _isGamepadConnected = false;
 
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
+    public string IterationLevel => BitOperations.Log2(1 + workspace.Renderer.TotalIterations / (ulong)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)).ToString("00.");
+    public double IterationProgressPercent => 100.0 * (workspace.Renderer.TotalIterations / (double)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)) / (Math.Pow(2, workspace.Ifs.TargetIterationLevel) - 1);
+
     public bool IsColorPickerEnabled => !TransparentBackground;
     //Main display settings:
     public bool InvertAxisY => workspace.InvertAxisY;
@@ -94,6 +98,12 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 
         if(workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
+
+        workspace.Renderer.DisplayFramebufferUpdated += (s, e) =>
+        {
+            OnPropertyChanged(nameof(IterationLevel));
+            OnPropertyChanged(nameof(IterationProgressPercent));
+        };
 
         workspace.UpdateStatusText($"Initialized");
     }

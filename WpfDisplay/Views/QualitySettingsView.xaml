@@ -64,11 +64,6 @@
         </StackPanel>
         <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <local:ValueSlider DataContext="{Binding TargetIterationLevel}" Margin="4"/>
-        <TextBlock Margin="8">
-                Iteration progress: 
-                <Run Text="{Binding IterationLevel, Mode=OneWay}"/> / <Run Text="{Binding TargetIterationLevel.Value, Mode=OneWay}"/>
-        </TextBlock>
-        <ProgressBar Value="{Binding IterationProgressPercent, Mode=OneWay}" Margin="8 0"/>
         <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <StackPanel Margin="4">
             <CheckBox IsChecked="{Binding EnableDE}" ToolTip="Using density estimation.">Noise reduction</CheckBox>

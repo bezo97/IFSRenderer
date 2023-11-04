@@ -30,11 +30,6 @@ public partial class QualitySettingsViewModel : ObservableObject
     {
         _workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
-        workspace.Renderer.DisplayFramebufferUpdated += (s, e) =>
-        {
-            OnPropertyChanged(nameof(IterationLevel));
-            OnPropertyChanged(nameof(IterationProgressPercent));
-        };
     }
 
     public bool EnableDE
@@ -78,9 +73,6 @@ public partial class QualitySettingsViewModel : ObservableObject
         Increment = 1,
         ValueWillChange = _workspace.TakeSnapshot,
     };
-
-    public string IterationLevel => BitOperations.Log2(1 + _workspace.Renderer.TotalIterations / (ulong)(_workspace.Renderer.HistogramWidth * _workspace.Renderer.HistogramHeight)).ToString();
-    public double IterationProgressPercent => 100.0*(_workspace.Renderer.TotalIterations / (double)(_workspace.Renderer.HistogramWidth * _workspace.Renderer.HistogramHeight)) / (Math.Pow(2, _workspace.Ifs.TargetIterationLevel)-1);
 
     private ValueSliderViewModel _deMaxRadius;
     public ValueSliderViewModel DEMaxRadius => _deMaxRadius ??= new ValueSliderViewModel(_workspace)
