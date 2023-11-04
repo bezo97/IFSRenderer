@@ -69,12 +69,13 @@ public partial class AnimationViewModel : ObservableObject
     {
         Label = "🎞 Framerate (fps)",
         ToolTip = "Frames per second",
-        DefaultValue = 25,
+        DefaultValue = 30,
         GetV = () => Workspace.Ifs.Dopesheet.Fps,
         SetV = (value) =>
         {
             Workspace.Ifs.Dopesheet.Fps = (int)value;
             _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
+            CurrentTimeSlider.Increment = 1 / value;
         },
         Increment = 1,
         MinValue = 1,
@@ -92,8 +93,9 @@ public partial class AnimationViewModel : ObservableObject
         {
             JumpToTime(value);
         },
-        Increment = 1.0 / 60,
+        Increment = 1.0 / Workspace.Ifs.Dopesheet.Fps,
         MinValue = 0,
+        MaxValue = Workspace.Ifs.Dopesheet.Length.TotalSeconds
     };
 
     public void UpdateChannels()

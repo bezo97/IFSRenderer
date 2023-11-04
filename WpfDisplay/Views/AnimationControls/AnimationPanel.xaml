@@ -82,9 +82,9 @@
         </Grid>
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="Black"/>
         <Grid Grid.Column="2" Grid.Row="0">
-            <common:ValueSlider DataContext="{Binding FpsSlider}" HorizontalAlignment="Left"/>
-            <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center"/>
-            <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right"/>
+            <common:ValueSlider DataContext="{Binding FpsSlider}" HorizontalAlignment="Left" MinWidth="100"/>
+            <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center" MinWidth="125"/>
+            <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right" MinWidth="100"/>
         </Grid>
         <ScrollViewer x:Name="channelHeaderScroller" Grid.Column="0" Grid.Row="2" 
                       VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
