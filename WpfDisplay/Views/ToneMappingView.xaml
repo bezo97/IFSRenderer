@@ -12,9 +12,9 @@
              Padding="8"
              d:DataContext="{d:DesignInstance Type=vm:ToneMappingViewModel, IsDesignTimeCreatable=False}">
     <StackPanel>
-        <local:ValueSlider DataContext="{Binding Brightness}"/>
-        <local:ValueSlider DataContext="{Binding Gamma}"/>
-        <local:ValueSlider DataContext="{Binding GammaThreshold}"/>
-        <local:ValueSlider DataContext="{Binding Vibrancy}"/>
+        <local:ValueSlider Value="{Binding Ifs.Brightness}" SliderSettings="{Binding BrightnessSlider}"/>
+        <local:ValueSlider Value="{Binding Ifs.Gamma}" SliderSettings="{Binding GammaSettings}"/>
+        <local:ValueSlider Value="{Binding Ifs.GammaThreshold}" SliderSettings="{Binding GammaThresholdSettings}"/>
+        <local:ValueSlider Value="{Binding Ifs.Vibrancy}" SliderSettings="{Binding VibrancySettings}"/>
     </StackPanel>
 </UserControl>

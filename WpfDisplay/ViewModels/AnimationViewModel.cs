@@ -5,6 +5,7 @@ using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using IFSEngine.Model;
 using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,9 @@ public partial class AnimationViewModel : ObservableObject
 
     public double KeyframeRepositionOffset { get; internal set; }
 
+    [ObservableProperty] private double _currentTimeMaxValue = IFS.Default.Dopesheet.Length.TotalSeconds;
+    [ObservableProperty] private double _currentTimeIncrement = 1.0 / IFS.Default.Dopesheet.Fps;
+
     public AnimationViewModel(Workspace workspace)
     {
         this.Workspace = workspace;
@@ -52,7 +56,8 @@ public partial class AnimationViewModel : ObservableObject
         {
             SelectedKeyframes.Clear();
             UpdateChannels();
-            CurrentTimeSlider.MaxValue = workspace.Ifs.Dopesheet?.Length.TotalSeconds;
+            if(workspace.Ifs.Dopesheet is not null)
+                CurrentTimeMaxValue = workspace.Ifs.Dopesheet.Length.TotalSeconds;
             OnPropertyChanged(string.Empty);
         };
         workspace.Renderer.TargetIterationReached += OnFrameFinishedRendering;
@@ -64,35 +69,40 @@ public partial class AnimationViewModel : ObservableObject
 
     public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * 50.0f /* * ViewScale */;
 
-    private ValueSliderViewModel? _fpsSlider;
-    public ValueSliderViewModel FpsSlider => _fpsSlider ??= new ValueSliderViewModel(Workspace)
+    public double ClipFps
+    {
+        get => Workspace.Ifs.Dopesheet.Fps;
+        set
+        {
+            Workspace.Ifs.Dopesheet.Fps = (int)value;
+            _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
+            CurrentTimeIncrement = 1 / value;
+        }
+    }
+
+    private ValueSliderSettings? _fpsSlider;
+    public ValueSliderSettings FpsSlider => _fpsSlider ??= new()
     {
         Label = "🎞 Framerate (fps)",
         ToolTip = "Frames per second",
         DefaultValue = 30,
-        GetV = () => Workspace.Ifs.Dopesheet.Fps,
-        SetV = (value) =>
-        {
-            Workspace.Ifs.Dopesheet.Fps = (int)value;
-            _realtimePlayer.Interval = TimeSpan.FromSeconds(1.0 / Workspace.Ifs.Dopesheet.Fps).TotalMilliseconds;
-            CurrentTimeSlider.Increment = 1 / value;
-        },
         Increment = 1,
         MinValue = 1,
         ValueWillChange = Workspace.TakeSnapshot
     };
 
-    private ValueSliderViewModel? _currentTimeSlider;
-    public ValueSliderViewModel CurrentTimeSlider => _currentTimeSlider ??= new ValueSliderViewModel(Workspace)
+    public double CurrentTimeSeconds
+    {
+        get => CurrentTime.ToTimeSpan().TotalSeconds;
+        set => JumpToTime(value);
+    }
+
+    private ValueSliderSettings? _currentTimeSlider;
+    public ValueSliderSettings CurrentTimeSlider => _currentTimeSlider ??= new()
     {
         Label = "⏱️ Time (s)",
         ToolTip = "Current time in seconds",
         DefaultValue = 0.0,
-        GetV = () => CurrentTime.ToTimeSpan().TotalSeconds,
-        SetV = (value) =>
-        {
-            JumpToTime(value);
-        },
         Increment = 1.0 / Workspace.Ifs.Dopesheet.Fps,
         MinValue = 0,
         MaxValue = Workspace.Ifs.Dopesheet.Length.TotalSeconds
@@ -116,23 +126,49 @@ public partial class AnimationViewModel : ObservableObject
         return channel.Keyframes.Any(kf => kf.t == currentTimeSeconds);
     }
 
-    private ValueSliderViewModel? _lengthSlider;
-    public ValueSliderViewModel LengthSlider => _lengthSlider ??= new ValueSliderViewModel(Workspace)
+    public double ClipLength
+    {
+        get => Workspace.Ifs.Dopesheet.Length.TotalSeconds;
+        set
+        {
+            Workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
+            CurrentTimeMaxValue = value;
+            OnPropertyChanged(nameof(SheetWidth));
+        }
+    }
+
+    private ValueSliderSettings? _lengthSlider;
+    public ValueSliderSettings LengthSlider => _lengthSlider ??= new()
     {
         Label = "↔️ Length (s)",
         ToolTip = "Animation length in seconds",
         DefaultValue = 10,
-        GetV = () => Workspace.Ifs.Dopesheet.Length.TotalSeconds,
-        SetV = (value) =>
-        {
-            Workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
-            CurrentTimeSlider.MaxValue = value;
-            OnPropertyChanged(nameof(SheetWidth));
-        },
         Increment = 1,
         MinValue = 1,
         ValueWillChange = Workspace.TakeSnapshot
     };
+
+
+    public class AnimateValueCommandParameters
+    {
+        public AnimateValueCommandParameters(string label, string path, double val)
+        {
+            Label = label;
+            Path = path;
+            Val = val;
+        }
+
+        public string Label { get; }
+        public string Path { get; }
+        public double Val { get; }
+    }
+    
+    [RelayCommand]
+    public void AnimateValue(AnimateValueCommandParameters param)
+    {
+        Workspace.TakeSnapshot();
+        AddOrUpdateChannel(param.Label, param.Path, param.Val);
+    }
 
     [RelayCommand]
     public void PlayPause()
@@ -166,7 +202,7 @@ public partial class AnimationViewModel : ObservableObject
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
             _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = CurrentTime.ToTimeSpan());
-        CurrentTimeSlider.RaiseValueChanged();
+        OnPropertyChanged(nameof(CurrentTimeSeconds));
         OnPropertyChanged(nameof(CurrentTimeScrollPosition));
         Workspace.RaiseAnimationFrameChanged();
     }

@@ -58,7 +58,7 @@
                           SelectedValue="{Binding SelectedEasingDirection}"/>
             </MenuItem>
             <MenuItem Icon="⛎" Header="Easing power">
-                <local:ValueSlider DataContext="{Binding EasingPowerSlider}"/>
+                <local:ValueSlider Value="{Binding EasingPower}" SliderSettings="{Binding EasingPowerSlider}"/>
             </MenuItem>
             <MenuItem Icon="🗑️" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
         </ContextMenu>

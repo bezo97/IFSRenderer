@@ -113,8 +113,8 @@
                         Movement sensitivity
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                        ToolTip="Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <local:ValueSlider DataContext="{Binding Sensitivity}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
+                        ToolTip="{Binding SensitivitySlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <local:ValueSlider Value="{Binding Sensitivity}" SliderSettings="{Binding SensitivitySlider}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
             <TabItem Header="🖼 Export options" MinWidth="150">
@@ -224,15 +224,15 @@
                         Target Framerate
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                         ToolTip="{Binding TargetFramerate.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <local:ValueSlider DataContext="{Binding TargetFramerate}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
+                         ToolTip="{Binding TargetFramerateSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <local:ValueSlider Value="{Binding TargetFramerate}" SliderSettings="{Binding TargetFramerateSlider}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                     <!--Workgroup-->
                     <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Workgroups
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="{Binding WorkgroupCount.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
-                    <local:ValueSlider DataContext="{Binding WorkgroupCount}" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"/>
+                        ToolTip="{Binding WorkgroupCountSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                    <local:ValueSlider Value="{Binding WorkgroupCount}" SliderSettings="{Binding WorkgroupCountSlider}" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
         </TabControl>

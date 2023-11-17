@@ -16,49 +16,33 @@ public partial class GeneratorViewModel : ObservableObject
     private readonly MainViewModel _mainvm;
     private readonly GeneratorWorkspace _workspace;
     private readonly GeneratorOptions _options = new();
+    public GeneratorOptions Options => _options;
 
-    public bool MutateIterators { get => _options.MutateIterators; set => SetProperty(ref _options.MutateIterators, value); }
-    public bool MutateConnections { get => _options.MutateConnections; set => SetProperty(ref _options.MutateConnections, value); }
-    public bool MutateConnectionWeights { get => _options.MutateConnectionWeights; set => SetProperty(ref _options.MutateConnectionWeights, value); }
-    public bool MutateParameters { get => _options.MutateParameters; set => SetProperty(ref _options.MutateParameters, value); }
-    public bool MutatePalette { get => _options.MutatePalette; set => SetProperty(ref _options.MutatePalette, value); }
-    public bool MutateColoring { get => _options.MutateColoring; set => SetProperty(ref _options.MutateColoring, value); }
-    private ValueSliderViewModel _mutationChance;
-    public ValueSliderViewModel MutationChance => _mutationChance ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _mutationChanceSlider;
+    public ValueSliderSettings MutationChanceSlider => _mutationChanceSlider ??= new()
     {
         Label = "Mutation chance",
         DefaultValue = 0.5,
-        GetV = () => _options.MutationChance,
-        SetV = (value) => {
-            _options.MutationChance = value;
-        },
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
     };
 
-    private ValueSliderViewModel _mutationStrength;
-    public ValueSliderViewModel MutationStrength => _mutationStrength ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _mutationStrengthSlider;
+    public ValueSliderSettings MutationStrengthSlider => _mutationStrengthSlider ??= new()
     {
         Label = "Mutation strength",
         DefaultValue = 1.0,
-        GetV = () => _options.MutationStrength,
-        SetV = (value) => {
-            _options.MutationStrength = value;
-        },
         MinValue = 0,
         Increment = 0.1,
     };
 
-    private ValueSliderViewModel _batchSize;
-    public ValueSliderViewModel BatchSize => _batchSize ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _batchSizeSlider;
+    public ValueSliderSettings BatchSizeSlider => _batchSizeSlider ??= new()
     {
         Label = "Batch size",
+        ToolTip = "The number of fractals to generate.",
         DefaultValue = 30,
-        GetV = () => _options.BatchSize,
-        SetV = (value) => {
-            _options.BatchSize = (int)value;
-        },
         MinValue = 1,
         MaxValue = 50,
         Increment = 5,

@@ -8,9 +8,7 @@
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="150"
-             d:DataContext="{d:DesignInstance Type=vm:ValueSliderViewModel, IsDesignTimeCreatable=True}"
              x:Name="valueSlider"
-             ToolTip="{Binding ToolTip}"
              >
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
@@ -19,20 +17,20 @@
     </UserControl.Resources>
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
-            <MenuItem Header="Animate" Icon="🎬" Command="{Binding AnimateCommand}"/>
+            <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <MenuItem Header="Animate" Icon="🎬" 
+                      Command="{Binding Path=PlacementTarget.InternalAnimateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
-        <Grid Visibility="{Binding IsLabelShown, Converter={StaticResource BooleanToVisibilityConverter}}" d:Visibility="Visible">
+        <Grid Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource BooleanToVisibilityConverter}}" d:Visibility="Visible">
             <Label IsTabStop="False" VerticalContentAlignment="Center"
-                   Content="{Binding Label}" d:Content="Label"/>
-            <Button HorizontalAlignment="Right"
+                   Content="{Binding Label, ElementName=valueSlider}" d:Content="Label"/>
+            <Button x:Name="symbolButton1" HorizontalAlignment="Right" d:Content="*"
                 IsTabStop="False" Padding="8" ToolTip="Animation keyframe"
-                Visibility="{Binding AnimationPath, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
-                Content="{Binding AnimatedSymbol}" d:Content="*"
+                Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
                 Style="{StaticResource MaterialDesignToolButton }" Foreground="Gray"
-                Command="{Binding AnimateCommand}"/>
+                Command="{Binding InternalAnimateCommand, ElementName=valueSlider}"/>
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -48,23 +46,23 @@
                 Background="#303030"
                 Click="Down_Click">-</Button>
             <Label x:Name="displayLabel" Grid.Column="1"
-                   Content="{Binding Value}"
-                   ContentStringFormat="{Binding ValueLabelFormat}"
+                   Content="{Binding Value, ElementName=valueSlider}"
                    Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}"
                    Background="#303030" Cursor="SizeWE"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
-                     Text="{Binding Value, StringFormat={}{0:0.####}}" d:Text="0.5000"
+                     Text="{Binding Value, ElementName=valueSlider, StringFormat={}{0:0.####}}" d:Text="0.5000"
                      Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      MouseDoubleClick="valueEditor_MouseDoubleClick"
                      PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus" LostKeyboardFocus="valueEditor_LostKeyboardFocus">
                 <TextBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Reset" Icon="🔄" Command="{Binding ResetValueCommand}"/>
-                        <MenuItem Header="Animate" Icon="🎬" Command="{Binding AnimateCommand}"/>
+                        <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <MenuItem Header="Animate" Icon="🎬" 
+                                  Command="{Binding Path=PlacementTarget.InternalAnimateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                         <Separator/>
                         <!--Must recreate native items to extend context menu-->
                         <MenuItem Command="ApplicationCommands.Cut"/>
@@ -80,13 +78,12 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>
-            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, Converter={StaticResource InverseBoolToVisConverter}}">
-                <Button
-                    IsTabStop="False" Padding="8" ToolTip="Animation keyframe"
-                    Visibility="{Binding AnimationPath, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
-                    Content="{Binding AnimatedSymbol}" d:Content="*"
+            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource InverseBoolToVisConverter}}">
+                <Button x:Name="symbolButton2"
+                    IsTabStop="False" Padding="8" ToolTip="Animation keyframe" d:Content="*"
+                    Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
                     Style="{StaticResource MaterialDesignToolButton }" Foreground="Gray"
-                    Command="{Binding AnimateCommand}"/>
+                    Command="{Binding InternalAnimateCommand, ElementName=valueSlider}"/>
             </Grid>
         </Grid>
     </StackPanel>

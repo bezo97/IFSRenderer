@@ -20,7 +20,7 @@
                 Style="{StaticResource MaterialDesignOutlinedButton }">
                 ↩️ Reset
             </Button>
-            <local:ValueSlider DataContext="{Binding FieldOfView}" Margin="0 16 0 0">
+            <local:ValueSlider Value="{Binding Camera.FieldOfView}" SliderSettings="{Binding FieldOfViewSlider}" Margin="0 16 0 0">
                 <!--<local:ValueSlider.ToolTip>
                     <MediaElement
                         LoadedBehavior="Play"
@@ -30,7 +30,7 @@
                 </local:ValueSlider.ToolTip>-->
             </local:ValueSlider>
         </Grid>
-        <local:ValueSlider DataContext="{Binding Aperture}">
+        <local:ValueSlider Value="{Binding Camera.Aperture}" SliderSettings="{Binding ApertureSlider}">
             <local:ValueSlider.ToolTip>
                 <MediaElement
                     LoadedBehavior="Play"
@@ -39,7 +39,7 @@
                     Source="https://upload.wikimedia.org/wikipedia/commons/4/4f/Aperture_Helios_44M-4.gif"/>
             </local:ValueSlider.ToolTip>
         </local:ValueSlider>
-        <local:ValueSlider DataContext="{Binding FocusDistance}">
+        <local:ValueSlider Value="{Binding Camera.FocusDistance}" SliderSettings="{Binding FocusDistanceSlider}">
             <!--<local:ValueSlider.ToolTip>
                 <MediaElement
                     LoadedBehavior="Play"
@@ -50,7 +50,7 @@
         </local:ValueSlider>
         <!--TODO: Ability to lock focus on current focus point-->
         <CheckBox IsEnabled="False" ToolTip="🛠️ Under Construction" Foreground="White">🔒 Lock focus point</CheckBox>
-        <local:ValueSlider DataContext="{Binding DepthOfField}"/>
+        <local:ValueSlider Value="{Binding Camera.DepthOfField}" SliderSettings="{Binding DepthOfFieldSlider}"/>
         <Label Style="{StaticResource MaterialDesignLabel}" Margin="0 8 0 0">
             🧊 Projection
         </Label>

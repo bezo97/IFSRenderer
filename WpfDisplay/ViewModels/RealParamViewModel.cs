@@ -7,20 +7,21 @@ public partial class RealParamViewModel : ParamViewModelBase<double>
 {
     public RealParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
 
-    private ValueSliderViewModel _sliderViewModel;
-    public ValueSliderViewModel SliderViewModel => _sliderViewModel ??= new ValueSliderViewModel(workspace)
+    public double RealParamValue
+    {
+        get => iterator.RealParams[Name];
+        set => iterator.RealParams[Name] = value;
+    }
+
+    private ValueSliderSettings _realParamSlider;
+    public ValueSliderSettings RealParamSlider => _realParamSlider ??= new()
     {
         Label = Name,
         DefaultValue = iterator.Transform.RealParams[Name],
-        GetV = () => iterator.RealParams[Name],
-        SetV = (value) =>
-        {
-            iterator.RealParams[Name] = value;
-            workspace.Renderer.InvalidateParamsBuffer();
-        },
         Increment = 0.001,
         AnimationPath = $"[{iterator.Id}].RealParams.[{Name}]",
         ValueWillChange = workspace.TakeSnapshot,
+        ValueChanged = (Value) => workspace.Renderer.InvalidateParamsBuffer()
     };
 
 }

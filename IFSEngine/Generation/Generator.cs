@@ -29,7 +29,7 @@ public class Generator
 
     public IFS GenerateOne(GeneratorOptions options)
     {
-        IFS gen = options.baseParams.DeepClone();
+        IFS gen = options.BaseParams.DeepClone();
         var preferredTranforms = SelectedTransforms.Where(t => _preferredTransformNames.Contains(t.Name)).ToList();
         if (options.MutateIterators)
         {

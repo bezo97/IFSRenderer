@@ -49,8 +49,8 @@
                         Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
                 </Button>
-                <local:ValueSlider Grid.Column="1" DataContext="{Binding StartWeight}"/>
-                <local:ValueSlider Grid.Column="2" DataContext="{Binding BaseWeight}"/>
+                <local:ValueSlider Grid.Column="1" Value="{Binding Iterator.StartWeight}" SliderSettings="{Binding StartWeightSlider}"/>
+                <local:ValueSlider Grid.Column="2" Value="{Binding BaseWeight}" SliderSettings="{Binding BaseWeightSlider}"/>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -64,7 +64,7 @@
                         Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
                 </Button>
-                <local:ValueSlider Grid.Column="1" DataContext="{Binding Opacity}"/>
+                <local:ValueSlider Grid.Column="1" Value="{Binding Opacity}" SliderSettings="{Binding OpacitySlider}"/>
             </Grid>
             <Separator Margin="10"/>
             <StackPanel>
@@ -86,12 +86,12 @@
                         Alternative Coloring
                     </CheckBox>
                 </Grid>
-                <local:ValueSlider DataContext="{Binding ColorIndex}"/>
-                <local:PaletteSlider
+                <local:ValueSlider Value="{Binding ColorIndex}" SliderSettings="{Binding ColorIndexSlider}"/>
+                <local:PaletteSlider Margin="0 4"
                     ToolTip="The color of the iterator."
-                    ColorIndex="{Binding ColorIndex.Value, Mode=TwoWay}"
+                    ColorIndex="{Binding ColorIndex}"
                     Palette="{Binding Path=DataContext.Palette, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
-                <local:ValueSlider DataContext="{Binding ColorSpeed}"/>
+                <local:ValueSlider Value="{Binding Iterator.ColorSpeed}" SliderSettings="{Binding ColorSpeedSlider}"/>
             </StackPanel>
         </StackPanel>
         <Separator Margin="10"/>
@@ -101,19 +101,19 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <local:ValueSlider DataContext="{Binding Mix}" Grid.Column="0"/>
-                <local:ValueSlider DataContext="{Binding Add}" Grid.Column="1"/>
+                <local:ValueSlider Grid.Column="0" Value="{Binding Iterator.Mix}" SliderSettings="{Binding MixSlider}"/>
+                <local:ValueSlider Grid.Column="1" Value="{Binding Iterator.Add}" SliderSettings="{Binding AddSlider}"/>
             </Grid>
             <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
             <ItemsControl ItemsSource="{Binding Parameters}" IsTabStop="False">
                 <ItemsControl.Resources>
                     <!--real-->
                     <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
-                        <local:ValueSlider DataContext="{Binding SliderViewModel}"/>
+                        <local:ValueSlider Value="{Binding RealParamValue}" SliderSettings="{Binding RealParamSlider}"/>
                     </DataTemplate>
                     <!--vec3-->
                     <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">
-                        <local:Vec3Control DataContext="{Binding}"/>
+                        <local:Vec3Control XValue="{Binding XValue}" YValue="{Binding YValue}" ZValue="{Binding ZValue}" Vec3Settings="{Binding}"/>
                     </DataTemplate>
                 </ItemsControl.Resources>
             </ItemsControl>

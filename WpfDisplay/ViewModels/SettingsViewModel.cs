@@ -107,31 +107,41 @@ internal partial class SettingsViewModel : ObservableObject
         }
     }
 
-    private ValueSliderViewModel _targetFramerate;
-    public ValueSliderViewModel TargetFramerate => _targetFramerate ??= new ValueSliderViewModel(_mainvm)
+    public int TargetFramerate
+    {
+        get => Settings.Default.TargetFramerate;
+        set
+        {
+            Settings.Default.TargetFramerate = value;
+            OnPropertyChanged(nameof(TargetFramerate));
+        }
+    }
+
+    private ValueSliderSettings _targetFramerate;
+    public ValueSliderSettings TargetFramerateSlider => _targetFramerate ??= new()
     {
         ToolTip = "Define a target framerate (FPS) for interactive exploration. Default value is 60.",
         DefaultValue = 60,
-        GetV = () => Settings.Default.TargetFramerate,
-        SetV = (value) =>
-        {
-            Settings.Default.TargetFramerate = (int)value;
-        },
         MinValue = 5,
         MaxValue = 144,
         Increment = 30,
     };
 
-    private ValueSliderViewModel _workgroupCount;
-    public ValueSliderViewModel WorkgroupCount => _workgroupCount ??= new ValueSliderViewModel(_mainvm)
+    public int WorkgroupCount
+    {
+        get => Settings.Default.WorkgroupCount;
+        set
+        {
+            Settings.Default.WorkgroupCount = value;
+            OnPropertyChanged(nameof(WorkgroupCount));
+        }
+    }
+
+    private ValueSliderSettings _workgroupCount;
+    public ValueSliderSettings WorkgroupCountSlider => _workgroupCount ??= new()
     {
         ToolTip = "Number of workgroups to be dispatched. Each workgroup consists of 64 kernel invocations. Default value is 256.",
         DefaultValue = 256,
-        GetV = () => Settings.Default.WorkgroupCount,
-        SetV = (value) =>
-        {
-            Settings.Default.WorkgroupCount = (int)value;
-        },
         MinValue = 1,
         MaxValue = 5000,
         Increment = 100,
@@ -147,15 +157,21 @@ internal partial class SettingsViewModel : ObservableObject
         }
     }
 
-    private ValueSliderViewModel _sensitivity;
-    public ValueSliderViewModel Sensitivity => _sensitivity ??= new ValueSliderViewModel(_mainvm)
+    public double Sensitivity
     {
-        DefaultValue = 1,
-        GetV = () => Settings.Default.Sensitivity,
-        SetV = (value) =>
+        get => Settings.Default.Sensitivity;
+        set
         {
             Settings.Default.Sensitivity = value;
-        },
+            OnPropertyChanged(nameof(Sensitivity));
+        }
+    }
+
+    private ValueSliderSettings _sensitivity;
+    public ValueSliderSettings SensitivitySlider => _sensitivity ??= new()
+    {
+        DefaultValue = 1,
+        ToolTip = "Fine-tune the sensitivity of camera movement controls. This applies to mouse, keyboard and gamepad thumbsticks. Default value is 1.",
         MinValue = 0.1,
         MaxValue = 10.0,
         Increment = 0.1,

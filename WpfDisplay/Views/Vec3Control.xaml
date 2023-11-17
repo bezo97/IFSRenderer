@@ -5,12 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             mc:Ignorable="d" x:Name="vec3Control"
-             d:DataContext="{d:DesignInstance Type=vm:Vec3ParamViewModel}">
+             mc:Ignorable="d" x:Name="vec3Control">
     <StackPanel>
-        <Label Content="{Binding Name}"/>
-        <local:ValueSlider DataContext="{Binding XSliderViewModel}"/>
-        <local:ValueSlider DataContext="{Binding YSliderViewModel}"/>
-        <local:ValueSlider DataContext="{Binding ZSliderViewModel}"/>
+        <Label Content="{Binding Vec3Settings.Name, ElementName=vec3Control}"/>
+        <local:ValueSlider Value="{Binding XValue, ElementName=vec3Control}" SliderSettings="{Binding Vec3Settings.XSlider, ElementName=vec3Control}"/>
+        <local:ValueSlider Value="{Binding YValue, ElementName=vec3Control}" SliderSettings="{Binding Vec3Settings.YSlider, ElementName=vec3Control}"/>
+        <local:ValueSlider Value="{Binding ZValue, ElementName=vec3Control}" SliderSettings="{Binding Vec3Settings.ZSlider, ElementName=vec3Control}"/>
     </StackPanel>
 </UserControl>

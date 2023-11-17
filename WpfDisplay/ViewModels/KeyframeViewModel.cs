@@ -11,6 +11,12 @@ public partial class KeyframeViewModel : ObservableObject
     public readonly ChannelViewModel _cvm;
     public readonly Keyframe _k;
 
+    public double EasingPower
+    {
+        get => _k.EasingPower;
+        set => _k.EasingPower = value;
+    }
+
     public double KeyframeTime => _k.t;
     public float TimelinePositon => (float)(_k.t * 50/* * ViewScale */ + _avm.KeyframeRepositionOffset);
     [ObservableProperty] private bool _isSelected;
@@ -46,18 +52,14 @@ public partial class KeyframeViewModel : ObservableObject
     }
 
 
-    private ValueSliderViewModel? _easingPowerSlider;
-    public ValueSliderViewModel EasingPowerSlider => _easingPowerSlider ??= new ValueSliderViewModel(_avm.Workspace)
+    private ValueSliderSettings? _easingPowerSlider;
+    public ValueSliderSettings EasingPowerSlider => _easingPowerSlider ??= new()
     {
         ToolTip = $"Easing power. Default value is 1.0",
         DefaultValue = 1.0,
-        GetV = () => _k.EasingPower,
-        SetV = (value) =>
-        {
-            _k.EasingPower = value;
-            _avm.Workspace.Renderer.InvalidateParamsBuffer();
-        },
         Increment = 0.1,
+        ValueWillChange = _avm.Workspace.TakeSnapshot,
+        ValueChanged = (v) => _avm.Workspace.Renderer.InvalidateParamsBuffer()
     };
 
     [RelayCommand]

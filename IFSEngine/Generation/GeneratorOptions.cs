@@ -10,16 +10,16 @@ namespace IFSEngine.Generation;
 
 public class GeneratorOptions
 {
-    public double MutationChance = 0.5;
-    public double MutationStrength = 1.0;
-    public int BatchSize = 30;
-    public bool MutateIterators = true;
-    public bool MutateConnections = true;
-    public bool MutateConnectionWeights = true;
-    public bool MutateParameters = true;
-    public bool MutatePalette = true;
-    public bool MutateColoring = true;
-    public IFS baseParams = DefaultStartingIfs;
+    public double MutationChance { get; set; } = 0.5;
+    public double MutationStrength { get; set; } = 1.0;
+    public int BatchSize { get; set; } = 30;
+    public bool MutateIterators { get; set; } = true;
+    public bool MutateConnections { get; set; } = true;
+    public bool MutateConnectionWeights { get; set; } = true;
+    public bool MutateParameters { get; set; } = true;
+    public bool MutatePalette { get; set; } = true;
+    public bool MutateColoring { get; set; } = true;
+    public IFS BaseParams { get; set; } = DefaultStartingIfs;
     //TODO: select transforms
 
     public static readonly IFS DefaultStartingIfs = new()

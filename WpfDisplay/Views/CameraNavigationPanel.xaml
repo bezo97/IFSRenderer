@@ -30,13 +30,13 @@
             </Button>
         </Grid>
         <Label Content="Position"/>
-        <local:ValueSlider DataContext="{Binding XPosViewModel}"/>
-        <local:ValueSlider DataContext="{Binding YPosViewModel}"/>
-        <local:ValueSlider DataContext="{Binding ZPosViewModel}"/>
+        <local:ValueSlider Value="{Binding XPos}" SliderSettings="{Binding XPosSlider}"/>
+        <local:ValueSlider Value="{Binding YPos}" SliderSettings="{Binding YPosSlider}"/>
+        <local:ValueSlider Value="{Binding ZPos}" SliderSettings="{Binding ZPosSlider}"/>
         <Label Content="Orientation"/>
-        <local:ValueSlider DataContext="{Binding XOrientationViewModel}"/>
-        <local:ValueSlider DataContext="{Binding YOrientationViewModel}"/>
-        <local:ValueSlider DataContext="{Binding ZOrientationViewModel}"/>
-        <local:ValueSlider DataContext="{Binding WOrientationViewModel}"/>
+        <local:ValueSlider Value="{Binding XOrientation}" SliderSettings="{Binding XOrientationSlider}"/>
+        <local:ValueSlider Value="{Binding YOrientation}" SliderSettings="{Binding YOrientationSlider}"/>
+        <local:ValueSlider Value="{Binding ZOrientation}" SliderSettings="{Binding ZOrientationSlider}"/>
+        <local:ValueSlider Value="{Binding WOrientation}" SliderSettings="{Binding WOrientationSlider}"/>
     </StackPanel>
 </UserControl>

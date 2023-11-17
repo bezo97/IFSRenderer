@@ -12,76 +12,55 @@ public partial class ToneMappingViewModel : ObservableObject
     public ToneMappingViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        _workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
-    private ValueSliderViewModel _brightness;
-    public ValueSliderViewModel Brightness => _brightness ??= new ValueSliderViewModel(_workspace)
+    public IFS Ifs => _workspace.Ifs;
+
+    private ValueSliderSettings _brightness;
+    public ValueSliderSettings BrightnessSlider => _brightness ??= new()
     {
         Label = "💡 Brightness",
         DefaultValue = IFS.Default.Brightness,
-        GetV = () => _workspace.Ifs.Brightness,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.Brightness = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         Increment = 0.05,
         AnimationPath = nameof(_workspace.Ifs.Brightness),
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _gamma;
-    public ValueSliderViewModel Gamma => _gamma ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _gamma;
+    public ValueSliderSettings GammaSettings => _gamma ??= new()
     {
         Label = "◑ Gamma",
         DefaultValue = IFS.Default.Gamma,
-        GetV = () => _workspace.Ifs.Gamma,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.Gamma = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         Increment = 0.005,
         AnimationPath = nameof(_workspace.Ifs.Gamma),
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _gammaThreshold;
-    public ValueSliderViewModel GammaThreshold => _gammaThreshold ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _gammaThreshold;
+    public ValueSliderSettings GammaThresholdSettings => _gammaThreshold ??= new()
     {
         Label = "◓ Gamma threshold",
         DefaultValue = IFS.Default.GammaThreshold,
-        GetV = () => _workspace.Ifs.GammaThreshold,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.GammaThreshold = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         Increment = 0.0001,
         AnimationPath = nameof(_workspace.Ifs.GammaThreshold),
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _vibrancy;
-    public ValueSliderViewModel Vibrancy => _vibrancy ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _vibrancy;
+    public ValueSliderSettings VibrancySettings => _vibrancy ??= new()
     {
         Label = "🌷 Vibrancy",
         DefaultValue = IFS.Default.Vibrancy,
-        GetV = () => _workspace.Ifs.Vibrancy,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.Vibrancy = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         Increment = 0.005,
         AnimationPath = nameof(_workspace.Ifs.Vibrancy),
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
-
-    [RelayCommand]
-    private void TakeSnapshot() => _workspace.TakeSnapshot();
 }

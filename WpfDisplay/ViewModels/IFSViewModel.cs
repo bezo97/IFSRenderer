@@ -99,18 +99,14 @@ public partial class IFSViewModel : ObservableObject
 
     public FlamePalette Palette => _workspace.Ifs.Palette;
     
-    private ValueSliderViewModel? _fogEffect;
-    public ValueSliderViewModel FogEffect => _fogEffect ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings? _fogEffect;
+    public ValueSliderSettings FogEffectSlider => _fogEffect ??= new()
     {
         Label = "🌫 Fog effect",
         ToolTip = "Fades parts that are out of focus.",
         DefaultValue = IFS.Default.FogEffect,
-        GetV = () => _workspace.Ifs.FogEffect,
-        SetV = (value) => {
-            _workspace.Ifs.FogEffect = value;
-            _workspace.Renderer.InvalidateHistogramBuffer();
-        },
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer(),
         AnimationPath = "FogEffect",
         MinValue = 0,
     };
@@ -144,7 +140,6 @@ public partial class IFSViewModel : ObservableObject
             DuplicateCommand = DuplicateCommand,
             SplitCommand = SplitCommand,
         };
-        ivm.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ivm.ConnectingStarted += Iterator_ConnectingStarted;
         ivm.ConnectingEnded += Iterator_ConnectingEnded;
         if (SelectedIterator != null)
@@ -173,10 +168,10 @@ public partial class IFSViewModel : ObservableObject
 
         var ivm = (IteratorViewModel)sender!;
         _workspace.TakeSnapshot();
-        if (ConnectingIterator.iterator.WeightTo[ivm.iterator] > 0.0)
-            ConnectingIterator.iterator.WeightTo[ivm.iterator] = 0.0;
+        if (ConnectingIterator.Iterator.WeightTo[ivm.Iterator] > 0.0)
+            ConnectingIterator.Iterator.WeightTo[ivm.Iterator] = 0.0;
         else
-            ConnectingIterator.iterator.WeightTo[ivm.iterator] = 1.0;
+            ConnectingIterator.Iterator.WeightTo[ivm.Iterator] = 1.0;
         _workspace.Renderer.InvalidateParamsBuffer();
 
         HandleIteratorsChanged();
@@ -187,16 +182,16 @@ public partial class IFSViewModel : ObservableObject
     private void HandleIteratorsChanged()
     {
         //remove nodes
-        var removedIteratorVMs = _iteratorViewModels.Where(vm => !_workspace.Ifs.Iterators.Any(i => vm.iterator == i)).ToList();
+        var removedIteratorVMs = _iteratorViewModels.Where(vm => !_workspace.Ifs.Iterators.Any(i => vm.Iterator == i)).ToList();
         removedIteratorVMs.ForEach(vm =>
         {
             _iteratorViewModels.Remove(vm);
         });
         //remove connections
-        var removedConnections = _connectionViewModels.Where(c => !c.from.iterator.WeightTo.TryGetValue(c.to.iterator, out double ww) || ww == 0.0 || !_iteratorViewModels.Any(i => i == c.from) || !_iteratorViewModels.Any(i => i == c.to));
+        var removedConnections = _connectionViewModels.Where(c => !c.from.Iterator.WeightTo.TryGetValue(c.to.Iterator, out double ww) || ww == 0.0 || !_iteratorViewModels.Any(i => i == c.from) || !_iteratorViewModels.Any(i => i == c.to));
         removedConnections.ToList().ForEach(vm2 => _connectionViewModels.Remove(vm2));
         //add nodes
-        var newIterators = _workspace.Ifs.Iterators.Where(i => !_iteratorViewModels.Any(vm => vm.iterator == i));
+        var newIterators = _workspace.Ifs.Iterators.Where(i => !_iteratorViewModels.Any(vm => vm.Iterator == i));
         newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
         //add connections:
         _iteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
@@ -205,10 +200,10 @@ public partial class IFSViewModel : ObservableObject
     }
     private void HandleConnectionsChanged(IteratorViewModel vm)
     {
-        var newConnections = vm.iterator.WeightTo.Where(w => w.Value > 0.0 && !_connectionViewModels.Any(c => c.from == vm && c.to.iterator == w.Key));
+        var newConnections = vm.Iterator.WeightTo.Where(w => w.Value > 0.0 && !_connectionViewModels.Any(c => c.from == vm && c.to.Iterator == w.Key));
         foreach (var c in newConnections)
         {
-            var cvm = new ConnectionViewModel(_connectionViewModels, vm, _iteratorViewModels.First(vm2 => vm2.iterator == c.Key), _workspace);
+            var cvm = new ConnectionViewModel(_connectionViewModels, vm, _iteratorViewModels.First(vm2 => vm2.Iterator == c.Key), _workspace);
             cvm.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == "Weight")
@@ -249,12 +244,12 @@ public partial class IFSViewModel : ObservableObject
         _workspace.Ifs.AddIterator(newIterator, false);
         if (SelectedIterator != null)
         {
-            SelectedIterator.iterator.WeightTo[newIterator] = 1.0;
-            newIterator.WeightTo[SelectedIterator.iterator] = 1.0;
+            SelectedIterator.Iterator.WeightTo[newIterator] = 1.0;
+            newIterator.WeightTo[SelectedIterator.Iterator] = 1.0;
         }
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
-        SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == newIterator);
+        SelectedIterator = _iteratorViewModels.First(vm => vm.Iterator == newIterator);
         if(!_workspace.Renderer.IsRendering)//Start rendering when user started from blank params and added the first iterator.
             _workspace.Renderer.StartRenderLoop();
     }
@@ -265,7 +260,7 @@ public partial class IFSViewModel : ObservableObject
         if (SelectedConnection is not null)
         {
             _workspace.TakeSnapshot();
-            SelectedConnection.from.iterator.WeightTo[SelectedConnection.to.iterator] = 0.0;
+            SelectedConnection.from.Iterator.WeightTo[SelectedConnection.to.Iterator] = 0.0;
             _workspace.Renderer.InvalidateParamsBuffer();
             SelectedConnection = null;
             HandleIteratorsChanged();
@@ -278,7 +273,7 @@ public partial class IFSViewModel : ObservableObject
     private void RemoveIterator(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        _workspace.Ifs.RemoveIterator(vm.iterator);
+        _workspace.Ifs.RemoveIterator(vm.Iterator);
         _workspace.Renderer.InvalidateParamsBuffer();
         if(SelectedIterator == vm)
             SelectedIterator = null;
@@ -292,10 +287,10 @@ public partial class IFSViewModel : ObservableObject
     private void Duplicate(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator, splitWeights: false);
+        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.Iterator, splitWeights: false);
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
-        SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
+        SelectedIterator = _iteratorViewModels.First(vm => vm.Iterator == dupe);
     }
 
     [RelayCommand(CanExecute = nameof(_hasIteratorSelection))]
@@ -305,10 +300,10 @@ public partial class IFSViewModel : ObservableObject
     private void Split(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.iterator, splitWeights: true);
+        Iterator dupe = _workspace.Ifs.DuplicateIterator(vm.Iterator, splitWeights: true);
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
-        SelectedIterator = _iteratorViewModels.First(vm => vm.iterator == dupe);
+        SelectedIterator = _iteratorViewModels.First(vm => vm.Iterator == dupe);
     }
 
     [RelayCommand]

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using IFSEngine.Model;
+using IFSEngine.Rendering;
 using System;
 using System.Numerics;
 using System.Windows;
@@ -10,9 +11,12 @@ namespace WpfDisplay.ViewModels;
 public partial class QualitySettingsViewModel : ObservableObject
 {
     private readonly Workspace _workspace;
+    public RendererGL Renderer => _workspace.Renderer;
+    public IFS Ifs => _workspace.Ifs;
 
     [ObservableProperty] private bool _isResolutionLinked;
     private bool _isFinalRenderingMode = false;
+    public string MaxFilterRadiusLabel => "Filter Radius" + (_workspace.Renderer.MaxFilterRadius > 0 ? "" : " (Off)");
     public bool IsFinalRenderingMode
     {
         get => _isFinalRenderingMode;
@@ -29,7 +33,7 @@ public partial class QualitySettingsViewModel : ObservableObject
     public QualitySettingsViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
+        _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 
     public bool EnableDE
@@ -56,123 +60,96 @@ public partial class QualitySettingsViewModel : ObservableObject
         }
     }
 
-    private ValueSliderViewModel _targetIterationLevel;
-    public ValueSliderViewModel TargetIterationLevel => _targetIterationLevel ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _targetIterationLevel;
+    public ValueSliderSettings TargetIterationLevelSlider => _targetIterationLevel ??= new()
     {
         Label = "🎌 Target Iteration Level",
         ToolTip = $"The image is considered finished when the rendering progress reaches this level. It is recommended to animate this value when rendering animations, since certain frames may require a lot more iterations than others. Default value is {IFS.Default.TargetIterationLevel}.",
         AnimationPath = "TargetIterationLevel",
         DefaultValue = IFS.Default.TargetIterationLevel,
-        GetV = () => _workspace.Ifs.TargetIterationLevel,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.TargetIterationLevel = (int)value;
-        },
         MinValue = 1,
         MaxValue = 50,
         Increment = 1,
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    private ValueSliderViewModel _deMaxRadius;
-    public ValueSliderViewModel DEMaxRadius => _deMaxRadius ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _deMaxRadius;
+    public ValueSliderSettings DEMaxRadiusSlider => _deMaxRadius ??= new()
     {
         Label = "Radius",
         DefaultValue = 0,
-        GetV = () => _workspace.Renderer.DEMaxRadius,
-        SetV = (value) =>
-        {
-            _workspace.Renderer.DEMaxRadius = (int)value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         MaxValue = 20,
         Increment = 1,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _dePower;
-    public ValueSliderViewModel DEPower => _dePower ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _dePower;
+    public ValueSliderSettings DEPowerSlider => _dePower ??= new()
     {
         Label = "Power",
         DefaultValue = 0.4,
-        GetV = () => _workspace.Renderer.DEPower,
-        SetV = (value) =>
-        {
-            _workspace.Renderer.DEPower = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _deThreshold;
-    public ValueSliderViewModel DEThreshold => _deThreshold ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _deThreshold;
+    public ValueSliderSettings DEThresholdSlider => _deThreshold ??= new()
     {
         Label = "Threshold",
         DefaultValue = 0,
-        GetV = () => _workspace.Renderer.DEThreshold,
-        SetV = (value) =>
-        {
-            _workspace.Renderer.DEThreshold = value;
-            _workspace.Renderer.InvalidateDisplay();
-        },
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    private ValueSliderViewModel _entropyInv;
-    public ValueSliderViewModel EntropyInv => _entropyInv ??= new ValueSliderViewModel(_workspace)
+    public int EntropyInv
     {
-        Label = "🔬 1 / Entropy",
+        get => (int)(1.0 / _workspace.Ifs.Entropy);
+        set => _workspace.Ifs.Entropy = 1.0 / value;
+    }
+
+    private ValueSliderSettings _entropyInv;
+    public ValueSliderSettings EntropyInvSlider => _entropyInv ??= new()
+    {
+        Label = "☁︎ 1 / Entropy",
         ToolTip = $"Entropy is the chance to reset the point state in each iteration. This replaces the constant 10 000 iteration depth in Flame. Default value is {(int)(1.0 / IFS.Default.Entropy)}.",
         DefaultValue = (int)(1.0 / IFS.Default.Entropy),
-        GetV = () => (int)(1.0 / _workspace.Ifs.Entropy),
-        SetV = (value) =>
-        {
-            _workspace.Ifs.Entropy = 1.0 / value;
-            _workspace.Renderer.InvalidateHistogramBuffer();
-        },
         MinValue = 10,
-        MaxValue = 10000,//TODO: increase
+        MaxValue = 100000,
         Increment = 10,
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer()
     };
 
-    private ValueSliderViewModel _warmup;
-    public ValueSliderViewModel Warmup => _warmup ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _warmup;
+    public ValueSliderSettings WarmupSlider => _warmup ??= new()
     {
         Label = "🌡 Warmup",
         ToolTip = $"A.k.a. 'fuse count', the number of iterations before plotting starts. Default is {IFS.Default.Warmup}.",
         DefaultValue = IFS.Default.Warmup,
-        GetV = () => _workspace.Ifs.Warmup,
-        SetV = (value) =>
-        {
-            _workspace.Ifs.Warmup = (int)value;
-            _workspace.Renderer.InvalidateHistogramBuffer();
-        },
         MinValue = 0,
         Increment = 10,
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer()
     };
 
-    private ValueSliderViewModel _maxFilterRadius;
-    public ValueSliderViewModel MaxFilterRadius => _maxFilterRadius ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _maxFilterRadius;
+    public ValueSliderSettings MaxFilterRadiusSlider => _maxFilterRadius ??= new()
     {
-        Label = "Filter Radius (Off)",
+        Label = "Filter Radius",
         DefaultValue = 0,
-        GetV = () => _workspace.Renderer.MaxFilterRadius,
-        SetV = (value) =>
-        {
-            _workspace.Renderer.MaxFilterRadius = (int)value;
-            _workspace.Renderer.InvalidateHistogramBuffer();
-            MaxFilterRadius.Label = "Filter Radius" + (MaxFilterRadius.Value > 0 ? "" : " (Off)");
-            OnPropertyChanged("Label");//TODO: MaxFilterRadius.Raise.. 
-        },
         MinValue = 0,
         MaxValue = 3,
         Increment = 1,
+        ValueChanged = (v) =>
+        {
+            _workspace.Renderer.InvalidateHistogramBuffer();
+            OnPropertyChanged(nameof(MaxFilterRadiusLabel));
+        }
     };
 
     public int ImageWidth
@@ -232,14 +209,17 @@ public partial class QualitySettingsViewModel : ObservableObject
     private void SetPreviewRenderSettings()
     {
         _workspace.Renderer.SetHistogramScaleToDisplay();
-        MaxFilterRadius.Value = 0;
+        Renderer.MaxFilterRadius = 0;
+        OnPropertyChanged(nameof(Renderer));
         OnPropertyChanged(nameof(PreviewResolutionText));
     }
 
     private void SetFinalRenderSettings()
     {
-        MaxFilterRadius.Value = 3;
+        Renderer.MaxFilterRadius = 3;
         _workspace.Renderer.SetHistogramScale(1.0);
+        OnPropertyChanged(nameof(Renderer));
         OnPropertyChanged(nameof(PreviewResolutionText));
+        OnPropertyChanged(nameof(MaxFilterRadiusLabel));
     }
 }

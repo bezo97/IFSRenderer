@@ -24,6 +24,7 @@ namespace WpfDisplay.ViewModels;
 public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 {
     internal readonly Workspace workspace;
+    public IFS Ifs => workspace.Ifs;
 
     public ToneMappingViewModel ToneMappingViewModel { get; }
     public CameraSettingsViewModel CameraSettingsViewModel { get; }

@@ -14,8 +14,9 @@ namespace WpfDisplay.ViewModels;
 
 public partial class IteratorViewModel : ObservableObject
 {
-    public readonly Iterator iterator;
+    private readonly Iterator iterator;
     private readonly Workspace _workspace;
+    public Iterator Iterator => iterator;
 
     public event EventHandler ConnectingStarted;
     public event EventHandler ConnectingEnded;
@@ -30,7 +31,7 @@ public partial class IteratorViewModel : ObservableObject
     {
         this.iterator = iterator;
         _workspace = workspace;
-        workspace.LoadedParamsChanged += (s, e) => OnPropertyChanged(string.Empty);
+        workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
     }
 
@@ -66,38 +67,25 @@ public partial class IteratorViewModel : ObservableObject
     private bool _isSelected;
 
     public int ForegroundZIndex => IsSelected ? 3 : 2;
-
-    private ValueSliderViewModel _startWeight;
-    public ValueSliderViewModel StartWeight => _startWeight ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _startWeight;
+    public ValueSliderSettings StartWeightSlider => _startWeight ??= new()
     {
         Label = "Start Weight",
         ToolTip = "Controls the probability that the iteration starts in this state.",
         DefaultValue = 1.0,
-        GetV = () => iterator.StartWeight,
-        SetV = (value) =>
-        {
-            iterator.StartWeight = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-        },
         MinValue = 0,
         Increment = 0.01,
         AnimationPath = $"[{iterator.Id}].{nameof(iterator.StartWeight)}",
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
     };
 
-    private ValueSliderViewModel _opacity;
-    public ValueSliderViewModel Opacity => _opacity ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _opacity;
+    public ValueSliderSettings OpacitySlider => _opacity ??= new()
     {
         Label = "Opacity",
         ToolTip = "Setting this to 0 means this iterator will not draw anything.",
         DefaultValue = 1.0,
-        GetV = () => iterator.Opacity,
-        SetV = (value) =>
-        {
-            iterator.Opacity = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(OpacityColor));
-        },
         MinValue = -1,
         MaxValue = 1,
         Increment = 0.01,
@@ -105,18 +93,12 @@ public partial class IteratorViewModel : ObservableObject
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    private ValueSliderViewModel _colorIndex;
-    public ValueSliderViewModel ColorIndex => _colorIndex ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _colorIndex;
+    public ValueSliderSettings ColorIndexSlider => _colorIndex ??= new()
     {
         Label = "Color Index",
         ToolTip = "Indexes to the color on the palette. 0 -> Left most color, 1 -> Right most color.",
         DefaultValue = 0.0,
-        GetV = () => iterator.ColorIndex,
-        SetV = (value) => {
-            iterator.ColorIndex = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(ColorRGB));
-        },
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
@@ -124,66 +106,62 @@ public partial class IteratorViewModel : ObservableObject
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    private ValueSliderViewModel _colorSpeed;
-    public ValueSliderViewModel ColorSpeed => _colorSpeed ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _colorSpeed;
+    public ValueSliderSettings ColorSpeedSlider => _colorSpeed ??= new()
     {
         Label = "Color Speed",
         ToolTip = "The Color Speed controls how fast the color state of the IFS progresses towards this iterator's Color Index. 0 -> no effect on colors. 1 -> Draw with the selected color index immediately.",
         DefaultValue = 0.0,
-        GetV = () => iterator.ColorSpeed,
-        SetV = (value) =>
-        {
-            iterator.ColorSpeed = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(ColorRGB));
-        },
         Increment = 0.01,
         AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorSpeed)}",
         ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => { _workspace.Renderer.InvalidateParamsBuffer(); OnPropertyChanged(nameof(ColorRGB)); }
     };
+
+    private ValueSliderSettings _mix;
+    public ValueSliderSettings MixSlider => _mix ??= new()
+    {
+        Label = "Mix",
+        ToolTip = "Linearly interpolate between the states before/after the transform. 0 -> The transform has no effect on the position. 1 -> Default.",
+        DefaultValue = 1.0,
+        Increment = 0.001,
+        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Mix)}",
+        ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
+    };
+
+    private ValueSliderSettings _add;
+    public ValueSliderSettings AddSlider => _add ??= new()
+    {
+        Label = "Add",
+        ToolTip = "Add up the positions before/after the transform.",
+        DefaultValue = 0.0,
+        Increment = 0.001,
+        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Add)}",
+        ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
+    };
+
+    public double ColorIndex
+    {
+        get => iterator.ColorIndex;
+        set
+        {
+            iterator.ColorIndex = value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(ColorIndex));
+            OnPropertyChanged(nameof(ColorRGB));
+        }
+    }
 
     public Color ColorRGB
     {
         get
         {
-            var c = _workspace.Ifs.Palette.GetColorLerp((float)iterator.ColorIndex);
+            var c = _workspace.Ifs.Palette.GetColorLerp((float)ColorIndex);
             return Color.FromRgb((byte)(c.X * 255), (byte)(c.Y * 255), (byte)(c.Z * 255));
         }
     }
-
-    private ValueSliderViewModel _mix;
-    public ValueSliderViewModel Mix => _mix ??= new ValueSliderViewModel(_workspace)
-    {
-        Label = "Mix",
-        ToolTip = "Linearly interpolate between the states before/after the transform. 0 -> The transform has no effect on the position. 1 -> Default.",
-        DefaultValue = 1.0,
-        GetV = () => iterator.Mix,
-        SetV = (value) =>
-        {
-            iterator.Mix = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-        },
-        Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Mix)}",
-        ValueWillChange = _workspace.TakeSnapshot,
-    };
-
-    private ValueSliderViewModel _add;
-    public ValueSliderViewModel Add => _add ??= new ValueSliderViewModel(_workspace)
-    {
-        Label = "Add",
-        ToolTip = "Add up the positions before/after the transform.",
-        DefaultValue = 0.0,
-        GetV = () => iterator.Add,
-        SetV = (value) =>
-        {
-            iterator.Add = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-        },
-        Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Add)}",
-        ValueWillChange = _workspace.TakeSnapshot,
-    };
 
     public bool DeltaColoring
     {
@@ -196,30 +174,47 @@ public partial class IteratorViewModel : ObservableObject
         }
     }
 
+    public double Opacity
+    {
+        get => iterator.Opacity;
+        set
+        {
+            iterator.Opacity = value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(Opacity));
+            OnPropertyChanged(nameof(OpacityColor));
+        }
+    }
+
+    public double BaseWeight
+    {
+        get => iterator.BaseWeight;
+        set
+        {
+            iterator.BaseWeight = value;
+            _workspace.Renderer.InvalidateParamsBuffer();
+            OnPropertyChanged(nameof(BaseWeight));
+            OnPropertyChanged(nameof(NodeSize));
+            OnPropertyChanged(nameof(RenderTranslateValue));
+            RaiseConnectionPropertyChanged();
+        }
+    }
+
     public Color OpacityColor
     {
         get
         {
-            byte o = (byte)(100 + Math.Clamp(Opacity.Value, 0, 1) * 255 * 0.6);
+            byte o = (byte)(100 + Math.Clamp(iterator.Opacity, 0, 1) * 255 * 0.6);
             return Color.FromRgb(o, o, o);//grayscale
         }
     }
 
-    private ValueSliderViewModel _baseWeight;
-    public ValueSliderViewModel BaseWeight => _baseWeight ??= new ValueSliderViewModel(_workspace)
+    private ValueSliderSettings _baseWeight;
+    public ValueSliderSettings BaseWeightSlider => _baseWeight ??= new()
     {
         Label = "Base Weight",
         ToolTip = "Multiplies incoming connection weights for ease of use. 0 base weight means this iterator does not take part in the iteration process, because the IFS never transitions here.",
         DefaultValue = 1.0,
-        GetV = () => iterator.BaseWeight,
-        SetV = (value) =>
-        {
-            iterator.BaseWeight = value;
-            _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(NodeSize));
-            OnPropertyChanged(nameof(RenderTranslateValue));
-            RaiseConnectionPropertyChanged();
-        },
         MinValue = 0,
         Increment = 0.01,
         AnimationPath = $"[{iterator.Id}].{nameof(iterator.BaseWeight)}",
@@ -232,7 +227,7 @@ public partial class IteratorViewModel : ObservableObject
         {
             //if (!EnableWeightedSize)
             //    return BaseSize;
-            return 100 + Math.Clamp(10 * BaseWeight.Value, 0.0, 50.0) * 2;
+            return 100 + Math.Clamp(10 * iterator.BaseWeight, 0.0, 50.0) * 2;
         }
     }
 
@@ -283,20 +278,19 @@ public partial class IteratorViewModel : ObservableObject
     private void FlipOpacity()
     {
         _workspace.TakeSnapshot();
-        if (Opacity.Value > 0.0f)
-            Opacity.Value = 0.0f;
+        if (Opacity > 0.0f)
+            Opacity = 0.0f;
         else
-            Opacity.Value = 1.0f;
-
+            Opacity = 1.0f;
     }
 
     [RelayCommand]
     private void FlipWeight()
     {
         _workspace.TakeSnapshot();
-        if (BaseWeight.Value > 0.0f)
-            BaseWeight.Value = 0.0f;
+        if (BaseWeight > 0.0f)
+            BaseWeight = 0.0f;
         else
-            BaseWeight.Value = 1.0f;
+            BaseWeight = 1.0f;
     }
 }

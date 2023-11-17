@@ -1,118 +1,20 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿#nullable enable
 using System;
-using System.ComponentModel;
 using System.Windows.Input;
 
 namespace WpfDisplay.ViewModels;
 
-public partial class ValueSliderViewModel : ObservableObject
+public class ValueSliderSettings
 {
-    public ValueSliderViewModel() { }
-    public ValueSliderViewModel(INotifyPropertyChanged inpc)
-    {
-        inpc.PropertyChanged += (s, e) =>
-        {
-            if ((IsAnimated && e.PropertyName == "AnimationFrame" && AnimationPath != null) || e.PropertyName == "Ifs")
-                OnPropertyChanged(nameof(Value));
-            OnPropertyChanged(nameof(AnimatedSymbol));
-        };
-    }
-
-    public double Value
-    {
-        get => GetV();
-        set
-        {
-            double constrainedValue = value;
-            if (MinValue != null)
-                constrainedValue = Math.Max(MinValue ?? 0, constrainedValue);
-            if (MaxValue != null)
-                constrainedValue = Math.Min(MaxValue ?? 0, constrainedValue);
-            SetV(constrainedValue);
-            OnPropertyChanged(nameof(Value));
-        }
-    }
-
-    public Func<double> GetV { get; set; }
-    public Action<double> SetV { get; set; }
-    public string AnimationPath { get; set; }
-    public double DefaultValue { get; set; }
-    public Action ValueWillChange { get; set; }
-
-    [NotifyPropertyChangedFor(nameof(AnimatedSymbol))]
-    [ObservableProperty] private bool _isAnimated;
-
-    [ObservableProperty] private string _label;
-    [ObservableProperty] private bool _isLabelShown = true;
-    [ObservableProperty] private string _toolTip;
-    public double Increment { get; set; } = 0.1;
-    public double? MinValue { get; set; }
-    public double? MaxValue { get; set; }
-
-    public static double IncrementMultiplier => 1.0
-        * (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? 10 : 1)
-        * (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? 0.1 : 1);
-
-    /// <summary>
-    /// Hide decimal places for integers, show fix 4 decimal places for double
-    /// </summary>
-    public string ValueLabelFormat => (Increment % 1 == 0) ? "N0" : "N4";
-
-    public char AnimatedSymbol
-    {
-        get
-        {
-            if (AnimationPath is null) return ' ';
-            var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
-            var animatedState = main.AnimationViewModel.GetChannelCurrentState(AnimationPath);
-            switch (animatedState)
-            {
-                case null: return '◇';
-                case false: return '◆';
-                case true: return '◈';
-            }
-        }
-    }
-
-    public void RaiseValueChanged()
-    {
-        OnPropertyChanged(nameof(Value));
-    }
-
-    [RelayCommand]
-    public void IncreaseValue()
-    {
-        ValueWillChange?.Invoke();
-        Value += Increment * IncrementMultiplier;
-    }
-
-    [RelayCommand]
-    public void DecreaseValue()
-    {
-        ValueWillChange?.Invoke();
-        Value -= Increment * IncrementMultiplier;
-    }
-
-    [RelayCommand]
-    public void ResetValue()
-    {
-        ValueWillChange?.Invoke();
-        //Same as in Apophysis: reset to default value, or zero if value is already the default.
-        if (Value == DefaultValue)
-            Value = 0.0;
-        else
-            Value = DefaultValue;
-    }
-
-    private bool isAnimatable => AnimationPath is not null;
-    [RelayCommand(CanExecute = nameof(isAnimatable))] //TODO: Bind from outside
-    public void Animate()
-    {
-        var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
-        main.workspace.TakeSnapshot();
-        main.AnimationViewModel.AddOrUpdateChannel(Label, AnimationPath, Value);
-        IsAnimated = true;
-    }
-
+    public Action? ValueWillChange { get; init; }
+    public Action<double>? ValueChanged { get; init; }
+    public ICommand? AnimateCommand { get; init; }
+    public string? AnimationPath { get; init; }
+    public double? DefaultValue { get; init; }
+    public string? Label { get; init; }
+    public bool? IsLabelShown { get; init; }
+    public string? ToolTip { get; init; }
+    public double? Increment { get; init; }
+    public double? MinValue { get; init; }
+    public double? MaxValue { get; init; }
 }

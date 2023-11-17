@@ -65,7 +65,7 @@ public partial class GeneratorWorkspace : ObservableObject
 
     public void GenerateNewRandomBatch(GeneratorOptions options)
     {
-        options.baseParams = _pinnedIFS.LastOrDefault() ?? GeneratorOptions.DefaultStartingIfs;//TODO: use selection of pinned fractals
+        options.BaseParams = _pinnedIFS.LastOrDefault() ?? GeneratorOptions.DefaultStartingIfs;//TODO: use selection of pinned fractals
         _generatedIFS.Clear();
 
         foreach (var r in _generator.GenerateBatch(options))

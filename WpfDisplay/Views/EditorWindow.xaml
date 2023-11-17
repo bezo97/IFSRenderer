@@ -181,7 +181,7 @@
                                 <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
                                     Selected Connection
                                 </TextBlock>
-                                <local:ValueSlider DataContext="{Binding SelectedConnection.Weight}"/>
+                                <local:ValueSlider Value="{Binding SelectedConnection.Weight}" SliderSettings="{Binding SelectedConnection.WeightSlider}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

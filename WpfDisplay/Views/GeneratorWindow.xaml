@@ -105,23 +105,23 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Margin="8">
-                                    <CheckBox IsChecked="{Binding MutateIterators}">Iterators</CheckBox>
-                                    <CheckBox IsChecked="{Binding MutateConnections}">Connections</CheckBox>
-                                    <CheckBox IsChecked="{Binding MutateConnectionWeights}">Weights</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutateIterators}">Iterators</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutateConnections}">Connections</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutateConnectionWeights}">Weights</CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="8">
-                                    <CheckBox IsChecked="{Binding MutatePalette}">Palette</CheckBox>
-                                    <CheckBox IsChecked="{Binding MutateColoring}">Coloring</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutatePalette}">Palette</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutateColoring}">Coloring</CheckBox>
                                     <md:ColorZone>Dominant Color</md:ColorZone>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Margin="8">
                                     <CheckBox IsEnabled="False">Transforms</CheckBox>
                                     <ListBox IsEnabled="False">Transforms</ListBox>
-                                    <CheckBox IsChecked="{Binding MutateParameters}">Parameters</CheckBox>
+                                    <CheckBox IsChecked="{Binding Options.MutateParameters}">Parameters</CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4" Margin="8">
-                                    <local:ValueSlider DataContext="{Binding MutationChance}"/>
-                                    <local:ValueSlider DataContext="{Binding MutationStrength}"/>
+                                    <local:ValueSlider Value="{Binding Options.MutationChance}" SliderSettings="{Binding MutationChanceSlider}"/>
+                                    <local:ValueSlider Value="{Binding Options.MutationStrength}" SliderSettings="{Binding MutationStrengthSlider}"/>
                                 </StackPanel>
                             </Grid>
                             <Grid HorizontalAlignment="Center">
@@ -129,7 +129,7 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <local:ValueSlider Grid.Column="0" Margin="8 0" Width="110" DataContext="{Binding BatchSize}"/>
+                                <local:ValueSlider Grid.Column="0" Margin="8 0" Width="110" Value="{Binding Options.BatchSize}" SliderSettings="{Binding BatchSizeSlider}"/>
                                 <Button VerticalAlignment="Bottom" Margin="8 0" Padding="30 0" Grid.Column="1" Command="{Binding GenerateRandomBatchCommand}">
                                     <Grid>
                                         <TextBlock HorizontalAlignment="Center" Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">

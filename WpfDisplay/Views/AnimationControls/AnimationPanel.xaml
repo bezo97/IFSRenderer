@@ -82,9 +82,12 @@
         </Grid>
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="Black"/>
         <Grid Grid.Column="2" Grid.Row="0">
-            <common:ValueSlider DataContext="{Binding FpsSlider}" HorizontalAlignment="Left" MinWidth="100"/>
-            <common:ValueSlider DataContext="{Binding CurrentTimeSlider}" HorizontalAlignment="Center" MinWidth="125"/>
-            <common:ValueSlider DataContext="{Binding LengthSlider}" HorizontalAlignment="Right" MinWidth="100"/>
+            <common:ValueSlider Value="{Binding ClipFps}" SliderSettings="{Binding FpsSlider}" HorizontalAlignment="Left" MinWidth="100"/>
+            <common:ValueSlider Value="{Binding CurrentTimeSeconds}" SliderSettings="{Binding CurrentTimeSlider}"
+                                MaxValue="{Binding CurrentTimeMaxValue}"
+                                Increment="{Binding CurrentTimeIncrement}"
+                                HorizontalAlignment="Center" MinWidth="125"/>
+            <common:ValueSlider Value="{Binding ClipLength}" SliderSettings="{Binding LengthSlider}" HorizontalAlignment="Right" MinWidth="100"/>
         </Grid>
         <ScrollViewer x:Name="channelHeaderScroller" Grid.Column="0" Grid.Row="2" 
                       VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
@@ -126,9 +129,9 @@
                                             ItemsSource="{Binding AnimationVM.LoadedAudioChannels}" 
                                             SelectedItem="{Binding SelectedAudioChannelOption}"/>
                                     <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <common:ValueSlider DataContext="{Binding EffectSlider}"/>
-                                        <common:ValueSlider DataContext="{Binding MinFreqSlider}"/>
-                                        <common:ValueSlider DataContext="{Binding MaxFreqSlider}"/>
+                                        <common:ValueSlider Value="{Binding EffectStrength}" SliderSettings="{Binding EffectSlider}"/>
+                                        <common:ValueSlider Value="{Binding MinFreq}" SliderSettings="{Binding MinFreqSlider}"/>
+                                        <common:ValueSlider Value="{Binding MaxFreq}" SliderSettings="{Binding MaxFreqSlider}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>

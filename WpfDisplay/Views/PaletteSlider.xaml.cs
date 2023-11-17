@@ -32,7 +32,7 @@ public partial class PaletteSlider : UserControl
         set { SetValue(ColorIndexProperty, value); }
     }
     public static readonly DependencyProperty ColorIndexProperty =
-        DependencyProperty.Register("ColorIndex", typeof(double), typeof(PaletteSlider), new PropertyMetadata(0.0));
+        DependencyProperty.Register("ColorIndex", typeof(double), typeof(PaletteSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     public FlamePalette Palette
     {
