@@ -17,5 +17,6 @@ public abstract partial class ParamViewModelBase<T> : ObservableObject
         Name = name;
         this.iterator = iterator;
         this.workspace = workspace;
+        this.workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);
     }
 }

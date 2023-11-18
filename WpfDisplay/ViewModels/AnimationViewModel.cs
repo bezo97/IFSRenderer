@@ -27,12 +27,12 @@ public partial class AnimationViewModel : ObservableObject
 {
     public readonly Workspace Workspace;
     private readonly Timer _realtimePlayer;
-    public HashSet<KeyframeViewModel> SelectedKeyframes { get; } = new();
+    public HashSet<KeyframeViewModel> SelectedKeyframes { get; } = [];
 
     private MediaPlayer? _audioPlayer;
     public Clip? LoadedAudioClip { get; private set; } = null;
     public FFTCache? AudioClipCache { get; private set; } = null;
-    [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = Array.Empty<ReferenceChannel>();
+    [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = [];
     [ObservableProperty] public string? _audioClipTitle = null;
     [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
     [ObservableProperty] public bool _isRenderingFrames = false;
@@ -40,13 +40,12 @@ public partial class AnimationViewModel : ObservableObject
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
-    public ObservableCollection<ChannelViewModel> Channels { get; } = new();
+    public ObservableCollection<ChannelViewModel> Channels { get; } = [];
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
     public double KeyframeRepositionOffset { get; internal set; }
 
-    [ObservableProperty] private double _currentTimeMaxValue = IFS.Default.Dopesheet.Length.TotalSeconds;
     [ObservableProperty] private double _currentTimeIncrement = 1.0 / IFS.Default.Dopesheet.Fps;
 
     public AnimationViewModel(Workspace workspace)
@@ -55,9 +54,9 @@ public partial class AnimationViewModel : ObservableObject
         workspace.LoadedParamsChanged += (s, e) =>
         {
             SelectedKeyframes.Clear();
-            UpdateChannels();
-            if(workspace.Ifs.Dopesheet is not null)
-                CurrentTimeMaxValue = workspace.Ifs.Dopesheet.Length.TotalSeconds;
+            Channels.Clear();
+            Workspace.Ifs.Dopesheet.Channels.ToList()
+                .Select(a => new ChannelViewModel(this, a.Key, a.Value)).ToList().ForEach(Channels.Add);
             OnPropertyChanged(string.Empty);
         };
         workspace.Renderer.TargetIterationReached += OnFrameFinishedRendering;
@@ -108,13 +107,6 @@ public partial class AnimationViewModel : ObservableObject
         MaxValue = Workspace.Ifs.Dopesheet.Length.TotalSeconds
     };
 
-    public void UpdateChannels()
-    {
-        Channels.Clear();
-        Workspace.Ifs.Dopesheet.Channels.ToList()
-            .Select(a => new ChannelViewModel(this, a.Key, a.Value)).ToList().ForEach(Channels.Add);
-    }
-
     /// <summary>
     /// null: not animated. false: interpolated. true: keyframe
     /// </summary>
@@ -131,8 +123,8 @@ public partial class AnimationViewModel : ObservableObject
         get => Workspace.Ifs.Dopesheet.Length.TotalSeconds;
         set
         {
-            Workspace.Ifs.Dopesheet.SetLength(TimeSpan.FromSeconds(value));
-            CurrentTimeMaxValue = value;
+            Workspace.Ifs.Dopesheet.Length = TimeSpan.FromSeconds(value);
+            OnPropertyChanged(nameof(ClipLength));
             OnPropertyChanged(nameof(SheetWidth));
         }
     }
@@ -240,7 +232,7 @@ public partial class AnimationViewModel : ObservableObject
             {
                 if (vm.Keyframes.Count == 1)
                 {
-                    Workspace.Ifs.Dopesheet.RemoveChannel(vm.Path, position);
+                    Workspace.Ifs.Dopesheet.Channels.Remove(vm.Path);
                     Channels.Remove(vm);
                 }
                 else
@@ -260,7 +252,7 @@ public partial class AnimationViewModel : ObservableObject
 
         if (kfv._cvm.Keyframes.Count == 1)
         {//remove channel when last keyframe is removed
-            Workspace.Ifs.Dopesheet.RemoveChannel(kfv._cvm.Path, CurrentTime);
+            Workspace.Ifs.Dopesheet.Channels.Remove(kfv._cvm.Path);
             Channels.Remove(kfv._cvm);
         }
         else
@@ -276,7 +268,7 @@ public partial class AnimationViewModel : ObservableObject
     public void RemoveChannel(ChannelViewModel cvm)
     {
         Workspace.TakeSnapshot();
-        Workspace.Ifs.Dopesheet.RemoveChannel(cvm.Path, CurrentTime);
+        Workspace.Ifs.Dopesheet.Channels.Remove(cvm.Path);
         Channels.Remove(cvm);
         Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.RaiseAnimationFrameChanged();

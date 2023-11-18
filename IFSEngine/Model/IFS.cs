@@ -52,8 +52,8 @@ public class IFS
     /// </summary>
     public double TargetIterationLevel { get; set; } = 15;
 
-    protected HashSet<Iterator> iterators = new();
-    protected List<Author> authors = new();
+    protected HashSet<Iterator> iterators = [];
+    protected List<Author> authors = [];
 
     public Iterator this[int iteratorId] => Iterators.First(i=> i.Id == iteratorId);
 
@@ -125,12 +125,18 @@ public class IFS
     public void RemoveIterator(Iterator it1)
     {
         if (!iterators.Contains(it1))
-            return;
+            throw new InvalidOperationException($"Unable to remove Iterator (Id: {it1.Id}) from IFS.");
+        //remove animation channels related to the iterator
+        var iteratorChannels = Dopesheet.Channels.Where(c => c.Key.Contains(it1.Id.ToString())).ToList();
+        foreach (var channel in iteratorChannels)
+            Dopesheet.Channels.Remove(channel.Key);
+        //removing connecting weights
         foreach (var it in iterators)
         {
             it1.WeightTo.Remove(it);
             it.WeightTo.Remove(it1);
         }
+        //remove iterator
         iterators.Remove(it1);
     }
 

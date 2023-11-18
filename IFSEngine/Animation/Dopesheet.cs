@@ -13,8 +13,8 @@ namespace IFSEngine.Animation;
 
 public class Dopesheet
 {
-    public Dictionary<string, Channel> Channels { get; init; } = new();
-    public TimeSpan Length { get; set; } = TimeSpan.FromSeconds(10);//should be private set!
+    public Dictionary<string, Channel> Channels { get; init; } = [];
+    public TimeSpan Length { get; set; } = TimeSpan.FromSeconds(10);
     public int Fps { get; set; } = 30;
 
     private double keyframeEpsilon => 1.0 / Fps;
@@ -57,26 +57,6 @@ public class Dopesheet
             NestedReflectionHelper.SetMemberValueByPath(targetIfs, path, val);
 
         }
-    }
-
-    public void RemoveChannel(string channelKey, TimeOnly applyAt)
-    {
-        if (!Channels.TryGetValue(channelKey, out var channel))
-            throw new Exception($"Channel with key { channelKey } not found.");
-        channel.EvaluateAt(applyAt.ToTimeSpan().TotalSeconds);
-        Channels.Remove(channelKey);
-    }
-
-    //public void RemoveChannel(Channel channel, TimeOnly applyAt)
-    //{
-    //    channel.EvaluateAt(applyAt.ToTimeSpan().TotalSeconds);
-    //    Channels.Remove(channel)
-    //}
-
-    public void SetLength(TimeSpan length)
-    {
-        Length = length;
-        //
     }
 
 }
