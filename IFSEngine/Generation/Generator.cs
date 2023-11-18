@@ -37,13 +37,13 @@ public class Generator
             {
                 gen.AddIterator(CreateIterator(options, preferredTranforms), true);
             }
-            if (options.MutationChance > RandHelper.NextDouble())
+            if (options.MutationChance > Random.Shared.NextDouble())
             {
                 gen.AddIterator(CreateRandomOrPreferredIterator(options), true);
             }
-            if (gen.Iterators.Count > 4 && options.MutationChance > RandHelper.NextDouble())
+            if (gen.Iterators.Count > 4 && options.MutationChance > Random.Shared.NextDouble())
             {
-                var iter = gen.Iterators.ElementAt(RandHelper.Next(gen.Iterators.Count));
+                var iter = gen.Iterators.ElementAt(Random.Shared.Next(gen.Iterators.Count));
                 gen.RemoveIterator(iter);
             }
         }
@@ -60,7 +60,7 @@ public class Generator
                 {
                     if (!it.WeightTo.TryGetValue(itTo, out _))
                         it.WeightTo[itTo] = 0.0;//hack
-                    if (options.MutationChance*0.5 > RandHelper.NextDouble()) //TODO: separate chance?
+                    if (options.MutationChance*0.5 > Random.Shared.NextDouble()) //TODO: separate chance?
                     {
                         it.WeightTo[itTo] = 1.0 - (it.WeightTo[itTo] > 0.0 ? 1.0 : 0.0);
                     }
@@ -98,7 +98,7 @@ public class Generator
     {
         Iterator newIterator;
         //50% chance the new iterator is preferred
-        if (RandHelper.NextDouble() < 0.5)
+        if (Random.Shared.NextDouble() < 0.5)
             newIterator = CreateIterator(options, SelectedTransforms);
         else
         {
@@ -110,16 +110,16 @@ public class Generator
 
     private static Iterator CreateIterator(GeneratorOptions options, List<Transform> transforms)
     {
-        var selectedTransform = transforms[RandHelper.Next(transforms.Count)]; 
+        var selectedTransform = transforms[Random.Shared.Next(transforms.Count)]; 
 
         var iterator = new Iterator(selectedTransform)
         {
-            BaseWeight = 0.5 + RandHelper.NextDouble(),
+            BaseWeight = 0.5 + Random.Shared.NextDouble(),
             StartWeight = 1.0,
-            ColorIndex = RandHelper.NextDouble(),
-            ColorSpeed = 0.25 + 0.5*RandHelper.NextDouble(),
-            Opacity = (RandHelper.Next(3) == 0) ? 0 : RandHelper.NextDouble(),
-            ShadingMode = (RandHelper.Next(10) == 0) ? ShadingMode.DeltaPSpeed : ShadingMode.Default
+            ColorIndex = Random.Shared.NextDouble(),
+            ColorSpeed = 0.25 + 0.5* Random.Shared.NextDouble(),
+            Opacity = (Random.Shared.Next(3) == 0) ? 0 : Random.Shared.NextDouble(),
+            ShadingMode = (Random.Shared.Next(10) == 0) ? ShadingMode.DeltaPSpeed : ShadingMode.Default
         };
 
         //consider tags to use plugins the right way
@@ -136,19 +136,19 @@ public class Generator
 
     private static double MutateValue(double val, double chance, double strength)
     {
-        if (chance > RandHelper.NextDouble())
-            return val + -strength + 2.0 * strength * RandHelper.NextDouble();
+        if (chance > Random.Shared.NextDouble())
+            return val + -strength + 2.0 * strength * Random.Shared.NextDouble();
         else
             return val;
     }
     private static Vector3 MutateVec3(Vector3 val, double chance, double strength)
     {
-        if (chance > RandHelper.NextDouble())
+        if (chance > Random.Shared.NextDouble())
         {
             Vector3 v = val;
-            v.X = (float)(v.X + -strength + 2.0 * strength * RandHelper.NextDouble());
-            v.Y = (float)(v.Y + -strength + 2.0 * strength * RandHelper.NextDouble());
-            v.Z = (float)(v.Z + -strength + 2.0 * strength * RandHelper.NextDouble());
+            v.X = (float)(v.X + -strength + 2.0 * strength * Random.Shared.NextDouble());
+            v.Y = (float)(v.Y + -strength + 2.0 * strength * Random.Shared.NextDouble());
+            v.Z = (float)(v.Z + -strength + 2.0 * strength * Random.Shared.NextDouble());
             return v;
         }
         else
@@ -224,9 +224,9 @@ public class Generator
     {
         float range = max - min;
         return new Vector4(
-            min + range * (float)RandHelper.NextDouble(),
-            min + range * (float)RandHelper.NextDouble(),
-            min + range * (float)RandHelper.NextDouble(),
+            min + range * (float)Random.Shared.NextDouble(),
+            min + range * (float)Random.Shared.NextDouble(),
+            min + range * (float)Random.Shared.NextDouble(),
             1.0f);
     }
 

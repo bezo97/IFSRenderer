@@ -1,5 +1,4 @@
 ﻿using IFSEngine.Model;
-using IFSEngine.Utility;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -251,7 +250,7 @@ public partial class IteratorViewModel : ObservableObject
 
     public BindablePoint Position
     {
-        get => iterator.GetPosition() ?? new BindablePoint(RandHelper.Next(500), RandHelper.Next(500));
+        get => iterator.GetPosition() ?? new BindablePoint(Random.Shared.Next(500), Random.Shared.Next(500));
         set
         {
             iterator.SetPosition(value);

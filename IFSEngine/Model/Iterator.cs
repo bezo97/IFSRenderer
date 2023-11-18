@@ -1,5 +1,5 @@
-﻿using IFSEngine.Utility;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -8,7 +8,7 @@ namespace IFSEngine.Model;
 
 public class Iterator
 {
-    public int Id { get; init; } = RandHelper.Next();
+    public int Id { get; init; } = Random.Shared.Next();
     public string Name { get; set; } = null;
     public Transform Transform { get; private set; }
     public Dictionary<string, double> RealParams { get; private set; } = new();
@@ -25,7 +25,7 @@ public class Iterator
 
     /// <remarks>Custom serialization logic implemented in <see cref="Serialization.IfsConverter"/></remarks>
     [JsonIgnore]
-    public Dictionary<Iterator, double> WeightTo { get; set; } = new Dictionary<Iterator, double>();
+    public Dictionary<Iterator, double> WeightTo { get; set; } = [];
 
     //public double this[int iteratorId] 
     //{
