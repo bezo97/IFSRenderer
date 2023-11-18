@@ -19,7 +19,7 @@
 
 [![release](https://img.shields.io/github/v/release/bezo97/IFSRenderer?include_prereleases&sort=semver)](https://github.com/bezo97/IFSRenderer/releases/latest)
 [![library](https://img.shields.io/nuget/vpre/IFSEngine?label=library)](https://www.nuget.org/packages/IFSEngine/)
-[![dotnet](https://img.shields.io/badge/.NET%207-WPF-blueviolet)]()  
+[![dotnet](https://img.shields.io/badge/.NET%208-WPF-blueviolet)]()  
 
 [![help](https://img.shields.io/github/issues/bezo97/IFSRenderer/help-wanted)](https://github.com/bezo97/IFSRenderer/issues)
 [![license](https://img.shields.io/github/license/bezo97/IFSRenderer)](/LICENSE)
@@ -48,7 +48,7 @@ Planned:
 
 ### Minimum Requirements
 - Windows 10
-- .NET Desktop Runtime 7 (installed on demand)
+- .NET Desktop Runtime 8 (included)
 - OpenGL 4.5 capable graphics card
 
 ### Downloads
