@@ -37,6 +37,7 @@ public partial class ValueSlider : UserControl
     private void UpdateAnimatedSymbol()
     {
         char symbol = ' ';
+        Brush symbolColor = Brushes.Gray;
         if (!string.IsNullOrEmpty(AnimationPath))
         {
             var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
@@ -47,9 +48,17 @@ public partial class ValueSlider : UserControl
                 false => '◆',
                 true => '◈',
             };
+
+            if(animatedState is not null)
+            {
+                var isValueModified = main.AnimationViewModel.IsChannelBeingModified(AnimationPath, Value);
+                symbolColor = isValueModified ? Brushes.Orange : Brushes.White;
+            }
         }
         symbolButton1.Content = symbol;
+        symbolButton1.Foreground = symbolColor;
         symbolButton2.Content = symbol;
+        symbolButton2.Foreground = symbolColor;
     }
 
 
@@ -160,14 +169,6 @@ public partial class ValueSlider : UserControl
     }
     public static readonly DependencyProperty EditingProperty =
         DependencyProperty.Register("Editing", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
-
-    public bool IsAnimated
-    {
-        get { return (bool)GetValue(IsAnimatedProperty); }
-        set { SetValue(IsAnimatedProperty, value); }
-    }
-    public static readonly DependencyProperty IsAnimatedProperty =
-        DependencyProperty.Register("IsAnimated", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
 
     public string AnimationPath
     {

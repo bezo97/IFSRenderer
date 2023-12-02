@@ -118,6 +118,13 @@ public partial class AnimationViewModel : ObservableObject
         return channel.Keyframes.Any(kf => kf.t == currentTimeSeconds);
     }
 
+    public bool IsChannelBeingModified(string path, double value)
+    {
+        if (!Workspace.Ifs.Dopesheet.Channels.TryGetValue(path, out var channel))
+            return false;
+        return Math.Abs(channel.EvaluateAt(CurrentTimeSeconds) - value) > 0.001;
+    }
+
     public double ClipLength
     {
         get => Workspace.Ifs.Dopesheet.Length.TotalSeconds;
