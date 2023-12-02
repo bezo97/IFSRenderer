@@ -122,7 +122,7 @@ public partial class Node : UserControl
         }
     }
 
-    private void UserControl_GotFocus(object sender, RoutedEventArgs e)
+    private void UserControl_GotFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         var vm = (IteratorViewModel)DataContext;
         SelectCommand.Execute(vm);

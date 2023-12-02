@@ -10,7 +10,8 @@
              x:Name="root"
              d:DataContext="{d:DesignInstance Type=vm:IteratorViewModel}"
              Width="{Binding NodeSize}" Height="{Binding NodeSize}"
-             Focusable="True" IsTabStop="True" GotFocus="UserControl_GotFocus">
+             Focusable="False"
+             >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="visibilityConverter"/>
     </UserControl.Resources>
@@ -21,7 +22,7 @@
         <Ellipse x:Name="ellipseBody"
                  Stretch="UniformToFill" Cursor="Hand"
                  Stroke="{DynamicResource borderBrush}"
-                 MouseDown="ellipseBody_MouseDown">
+                 MouseDown="ellipseBody_MouseDown" Focusable="True" GotKeyboardFocus="UserControl_GotFocus">
             <Ellipse.Resources>
                 <SolidColorBrush x:Key="borderBrush" Color="{Binding ColorRGB}"/>
                 <Style TargetType="Ellipse">
@@ -91,6 +92,7 @@
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"
                 FontWeight="Bold" ToolTip="Show/Hide (Ctrl+O)"
+                IsTabStop="False"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 👁️
             </Button>
@@ -99,6 +101,7 @@
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5"
                 ToolTip="Enable/Disable (Ctrl+W)"
+                IsTabStop="False"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 ⚖
             </Button>
@@ -107,6 +110,7 @@
                 Width="30" Height="30" FontSize="18"
                 VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"
                 FontWeight="Bold" ToolTip="Duplicate (Ctrl+D)"
+                IsTabStop="False"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗎🗎
             </Button>
@@ -115,6 +119,7 @@
                 Width="30" Height="30" FontSize="14"
                 VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5"
                 FontWeight="Bold" ToolTip="Split (Ctrl+Shift+D)"
+                IsTabStop="False"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 🗎|🗎
             </Button>
@@ -131,6 +136,7 @@
                 Width="35" Height="35" FontSize="22"
                 VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="-15"
                 ToolTip="Connect self"
+                IsTabStop="False"
                 Style="{DynamicResource MaterialDesignFloatingActionButton}">
                 Ꝍ
             </Button>
