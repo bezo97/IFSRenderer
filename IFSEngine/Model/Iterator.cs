@@ -27,11 +27,11 @@ public class Iterator
     [JsonIgnore]
     public Dictionary<Iterator, double> WeightTo { get; set; } = [];
 
-    //public double this[int iteratorId] 
-    //{
-    //    get => WeightTo.First(i => i.Key.Id == iteratorId).Value;
-    //    set => WeightTo[WeightTo.Keys.First(i => i.Id == iteratorId)] = value;
-    //}
+    public double this[int iteratorId]
+    {
+        get => WeightTo.First(i => i.Key.Id == iteratorId).Value;
+        set => WeightTo[WeightTo.Keys.First(i => i.Id == iteratorId)] = value;
+    }
 
     public Iterator() { }
     public Iterator(Transform tf)

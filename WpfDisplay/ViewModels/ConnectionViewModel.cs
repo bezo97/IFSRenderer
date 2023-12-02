@@ -52,6 +52,7 @@ public partial class ConnectionViewModel : ObservableObject
         DefaultValue = 1.0,
         MinValue = 0,
         Increment = 0.01,
+        AnimationPath = $"[{from.Iterator.Id}].[{to.Iterator.Id}]",
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer()
     };
