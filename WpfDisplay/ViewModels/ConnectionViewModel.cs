@@ -37,7 +37,11 @@ public partial class ConnectionViewModel : ObservableObject
     public double Weight
     {
         get => from.Iterator.WeightTo[to.Iterator];
-        set => from.Iterator.WeightTo[to.Iterator] = value;
+        set
+        {
+            from.Iterator.WeightTo[to.Iterator] = value;
+            OnPropertyChanged(nameof(Weight));
+        }
     }
     
     private ValueSliderSettings _weightSlider;
