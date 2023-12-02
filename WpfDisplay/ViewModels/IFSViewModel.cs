@@ -24,7 +24,7 @@ public partial class IFSViewModel : ObservableObject
     private readonly Workspace _workspace;
 
     public CompositeCollection NodeMapElements { get; private set; }
-    public IReadOnlyCollection<Transform> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
+    public IEnumerable<Transform> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
     public IReadOnlyCollection<ConnectionViewModel> ConnectionViewModels => _connectionViewModels;
 
     [ObservableProperty] private IteratorViewModel? _connectingIterator;
@@ -117,8 +117,18 @@ public partial class IFSViewModel : ObservableObject
         _iteratorViewModels.CollectionChanged += (s, e) => workspace.Renderer.InvalidateParamsBuffer();
         workspace.LoadedParamsChanged += (s, e) =>
         {
+            int? selectedIteratorId = SelectedIterator?.Iterator.Id;
+            int? selectedConnectionFromId = SelectedConnection?.from.Iterator.Id;
+            int? selectedConnectionToId = SelectedConnection?.to.Iterator.Id;
+
             SelectedIterator = null;
+            SelectedConnection = null;
             HandleIteratorsChanged();
+
+            //try to keep the selection with new viewmodel after undo/redo, if it still exists:
+            SelectedIterator = _iteratorViewModels.FirstOrDefault(i => i.Iterator.Id == selectedIteratorId);
+            SelectedConnection = _connectionViewModels.FirstOrDefault(i => i.from.Iterator.Id == selectedConnectionFromId && i.to.Iterator.Id == selectedConnectionToId);
+
             OnPropertyChanged(string.Empty);
         };
 
@@ -225,15 +235,15 @@ public partial class IFSViewModel : ObservableObject
         }
     }
 
-    private IReadOnlyCollection<Transform> FilterTransforms(IEnumerable<Transform> transforms)
+    private IEnumerable<Transform> FilterTransforms(IReadOnlyCollection<Transform> transforms)
     {
         if (string.IsNullOrEmpty(TransformSearchFilter))
-            return transforms.ToList();
+            return transforms;
         var startsWithResults = transforms.Where(tr => tr.Name.StartsWith(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
         var containsResults = transforms.Where(tr => tr.Name.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
         var tagResults = transforms.Where(tr => tr.Tags.Any(tag=>tag.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase)));
         var searchResults = startsWithResults.Concat(containsResults.Concat(tagResults)).Distinct();
-        return searchResults.ToList();
+        return searchResults;
     }
 
     [RelayCommand]
