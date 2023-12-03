@@ -460,7 +460,7 @@ public partial class AnimationViewModel : ObservableObject
             {//was last frame
                 if(Workspace.IsExportVideoFileEnabled)
                 {
-                    Application.Current.Dispatcher.InvokeAsync(RunFfmpegProcess).Wait();
+                    RunFfmpegProcess().Wait();
                 }
             }
             else

@@ -112,6 +112,11 @@ public sealed class RendererGL : IAsyncDisposable
     /// Seed value used to generate random numbers. Recommended to change this for each animation frame.
     /// </summary>
     public uint Seed { get; set; } = 0;
+    /// <summary>
+    /// True when the level of <see cref="TotalIterations"/> is beyond <see cref="IFS.TargetIterationLevel"/>.
+    /// Reset by <see cref="InvalidateHistogramBuffer"/>.
+    /// </summary>
+    public bool IsTargetIterationReached { get; private set; } = false;
 
     private bool _updateDisplayNow = false;
     private readonly IGraphicsContext _ctx;
@@ -248,6 +253,7 @@ public sealed class RendererGL : IAsyncDisposable
     public void InvalidateHistogramBuffer()
     {
         InvalidatePointsStateBuffer();
+        IsTargetIterationReached = false;
         _invalidHistogramBuffer = true;
     }
 
@@ -530,7 +536,6 @@ public sealed class RendererGL : IAsyncDisposable
             new Thread(() =>
             {
                 _ctx.MakeCurrent();
-                bool isTargetIterationReached = false;
                 while (IsRendering)
                 {
                     GL.BeginQuery(QueryTarget.TimeElapsed, _timerQueryHandle);
@@ -540,8 +545,8 @@ public sealed class RendererGL : IAsyncDisposable
                     AdjustWorkloadSize();
 
                     bool target = BitOperations.Log2(1 + TotalIterations / (ulong)(HistogramWidth * HistogramHeight)) >= LoadedParams.TargetIterationLevel;
-                    bool isTargetIterationReachedByCurrentDispatch = !isTargetIterationReached && target;
-                    isTargetIterationReached = target;
+                    bool isTargetIterationReachedByCurrentDispatch = !IsTargetIterationReached && target;
+                    IsTargetIterationReached = target;
 
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(_dispatchCnt);
                     
