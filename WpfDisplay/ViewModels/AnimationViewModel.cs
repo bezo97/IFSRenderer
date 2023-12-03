@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfDisplay.Helper;
@@ -459,7 +460,7 @@ public partial class AnimationViewModel : ObservableObject
             {//was last frame
                 if(Workspace.IsExportVideoFileEnabled)
                 {
-                    RunFfmpegProcess().Wait();
+                    Application.Current.Dispatcher.InvokeAsync(RunFfmpegProcess).Wait();
                 }
             }
             else
@@ -494,7 +495,9 @@ public partial class AnimationViewModel : ObservableObject
             $"-y",//overwrite
             $"-nostdin",//disable inout
             $"-r {Workspace.Ifs.Dopesheet.Fps}",//fps
-            $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{frameFileExtension}\"",//input files
+            $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{frameFileExtension}\"",//input frames
+            _audioPlayer?.Source is not null ? $"-i {_audioPlayer.Source.AbsolutePath}" : string.Empty,//input audio
+            $"-t {Workspace.Ifs.Dopesheet.Length.TotalSeconds}",//restrict video length so audio is cut off if it's longer than the animation
             $"-vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\"",//divisible by 2, as required by some codecs
             userArgs,
             $"{Workspace.Ifs.Title}.{videoFileExtension}");
