@@ -90,51 +90,27 @@
             <common:ValueSlider Value="{Binding ClipLength}" SliderSettings="{Binding LengthSlider}" HorizontalAlignment="Right" MinWidth="100"/>
         </Grid>
         <ScrollViewer x:Name="channelHeaderScroller" Grid.Column="0" Grid.Row="2" 
-                      VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
-                      ScrollChanged="ChannelHeaderScroller_ScrollChanged">
+                        VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
+                        ScrollChanged="ChannelHeaderScroller_ScrollChanged">
             <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="alternatingBackgroundGrid1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0">
-                                        <Hyperlink Command="{Binding EditChannelCommand}" TextDecorations="None" Foreground="White">
-                                            <Run Text="{Binding Name, Mode=OneWay}" />
-                                        </Hyperlink>
-                                </TextBlock>
-                                <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
-                                        Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
-                                        CommandParameter="{Binding}">
-                                    ❌
-                                </Button>
-                            </Grid>
-                            <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="15,0">
-                                <StackPanel>
-                                    <StackPanel.LayoutTransform>
-                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                                    </StackPanel.LayoutTransform>
-                                    <CheckBox IsChecked="{Binding HasDetails}">
-                                        <TextBlock Visibility="{Binding HasDetails, Converter={StaticResource invVisible}}">Animate to audio</TextBlock>
-                                    </CheckBox>
-                                    <ComboBox Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            ItemsSource="{Binding AnimationVM.LoadedAudioChannels}" 
-                                            SelectedItem="{Binding SelectedAudioChannelOption}"/>
-                                    <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <common:ValueSlider Value="{Binding EffectStrength}" SliderSettings="{Binding EffectSlider}"/>
-                                        <common:ValueSlider Value="{Binding MinFreq}" SliderSettings="{Binding MinFreqSlider}"/>
-                                        <common:ValueSlider Value="{Binding MaxFreq}" SliderSettings="{Binding MaxFreqSlider}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0">
+                                <Hyperlink Command="{Binding DataContext.EditChannelCommand, ElementName=animationPanel}" CommandParameter="{Binding}" 
+                                            TextDecorations="None" Foreground="White">
+                                    <Run Text="{Binding Name, Mode=OneWay}" />
+                                </Hyperlink>
+                            </TextBlock>
+                            <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
+                                            Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
+                                            CommandParameter="{Binding}">
+                                ❌
+                            </Button>
                         </Grid>
                         <DataTemplate.Triggers>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="0">
@@ -179,10 +155,6 @@
                                 <Grid x:Name="alternatingBackgroundGrid2" 
                                       Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}"
                                       MouseUp="Channel_MouseUp" MouseDown="Dopesheet_MouseDown">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
                                     <Grid.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Icon="+" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
@@ -190,7 +162,7 @@
                                         </ContextMenu>
                                     </Grid.ContextMenu>
                                     <Border BorderThickness="0,0,0,0.5" BorderBrush="Black">
-                                        <ItemsControl ItemsSource="{Binding Keyframes}" Grid.Row="0">
+                                        <ItemsControl ItemsSource="{Binding Keyframes}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <Canvas Height="15" ClipToBounds="True"/>
@@ -210,9 +182,6 @@
                                             </ItemsControl.ItemContainerStyle>
                                         </ItemsControl>
                                     </Border>
-                                    <Grid Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}" Width="{Binding DataContext.SheetWidth, ElementName=animationPanel}" ClipToBounds="False">
-                                        <local1:Spectrogram HorizontalAlignment="Left" DataContext="{Binding AnimationVM}"/>
-                                    </Grid>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
@@ -226,6 +195,11 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                <Grid Grid.Row="1"
+                      Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
+                      Background="#333333">
+                    <local1:CurveEditor DataContext="{Binding EditedChannel}"/>
+                </Grid>
                 <Line IsHitTestVisible="False" Grid.RowSpan="2"
                     X1="{Binding CurrentTimeScrollPosition}" Y1="0"
                     X2="{Binding CurrentTimeScrollPosition}" Y2="500"
@@ -255,13 +229,18 @@
             <StackPanel Visibility="{Binding IsRenderingFrames, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
                 <TextBlock TextAlignment="Center" Foreground="#aaaaaa" FontSize="16" Margin="0,0,0,16">
-                    Rendering animation frames...     
+                    Rendering animation frames...
                 </TextBlock>
                 <Button Command="{Binding StopRenderingFramesCommand}"
                     HorizontalAlignment="Center" Style="{StaticResource MaterialDesignFlatButton}">
                     Cancel
                 </Button>
             </StackPanel>
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="2" 
+              Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
+              Background="#333333">
+            <local1:ChannelEditor DataContext="{Binding EditedChannel}" Padding="4"/>
         </Grid>
     </Grid>
 </UserControl>

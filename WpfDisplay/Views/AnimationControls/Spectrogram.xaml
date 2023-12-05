@@ -6,10 +6,6 @@
              xmlns:local="clr-namespace:WpfDisplay.Views.AnimationControls"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance Type=vm:AnimationViewModel, IsDesignTimeCreatable=False}">
-    <Grid x:Name="grid" Width="{Binding SpectrogramBitmap.Width}" Height="256">
-        <Image Source="{Binding SpectrogramBitmap}"
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" />
-    </Grid>
+             d:DesignHeight="256" d:DesignWidth="800">
+    <Image x:Name="spectrogramImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill"/>
 </UserControl>

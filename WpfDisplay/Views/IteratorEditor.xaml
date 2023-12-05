@@ -26,14 +26,13 @@
                     Text="{Binding IteratorName, UpdateSourceTrigger=PropertyChanged}"
                     md:HintAssist.Hint="Name"
                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Style="{StaticResource MaterialDesignFlatDarkButton}"
-                        Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
-                        ToolTip="Remove (Delete)"
-                        Margin="4" Padding="6">
-                    🗑️
-                </Button>
-            </StackPanel>
+            <Button Grid.Column="1"
+                    Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
+                    ToolTip="Remove (Delete)"
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Margin="4" Padding="6" >
+                🗑️
+            </Button>
         </Grid>
         <StackPanel>
             <Grid>

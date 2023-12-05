@@ -31,17 +31,22 @@ public partial class AnimationViewModel : ObservableObject
     public HashSet<KeyframeViewModel> SelectedKeyframes { get; } = [];
 
     private MediaPlayer? _audioPlayer;
-    public Clip? LoadedAudioClip { get; private set; } = null;
-    public FFTCache? AudioClipCache { get; private set; } = null;
+    public CavernAudio? Audio { get; private set; } = null;
     [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = [];
-    [ObservableProperty] public string? _audioClipTitle = null;
+    [ObservableProperty] private string? _audioClipTitle = null;
     [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
-    [ObservableProperty] public bool _isRenderingFrames = false;
+    [ObservableProperty] private bool _isRenderingFrames = false;
     private string? _saveFramesPath = null;
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
     public ObservableCollection<ChannelViewModel> Channels { get; } = [];
+    [ObservableProperty] private ChannelViewModel? _editedChannel = null;
+
+    /// <summary>
+    /// pixels per second
+    /// </summary>
+    [ObservableProperty] private float _viewScale = 50.0f;
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
 
@@ -54,6 +59,7 @@ public partial class AnimationViewModel : ObservableObject
         this.Workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) =>
         {
+            EditedChannel = null;
             SelectedKeyframes.Clear();
             Channels.Clear();
             Workspace.Ifs.Dopesheet.Channels.ToList()
@@ -225,6 +231,7 @@ public partial class AnimationViewModel : ObservableObject
 
     public void AddOrUpdateChannel(string name, string path, double value, TimeOnly position)
     {
+        EditedChannel = null;
         var vm = Channels.FirstOrDefault(c => c.Path == path);
         if (vm is null)
         {//add new channel with single keyframe
@@ -271,6 +278,14 @@ public partial class AnimationViewModel : ObservableObject
         Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.RaiseAnimationFrameChanged();
     }
+
+    [RelayCommand]
+    public void EditChannel(ChannelViewModel cvm)
+    {
+        EditedChannel = cvm;
+    }
+
+    public void CloseChannelEditor() => EditedChannel = null;
 
     [RelayCommand]
     public void RemoveChannel(ChannelViewModel cvm)
@@ -344,16 +359,13 @@ public partial class AnimationViewModel : ObservableObject
             await Task.Run(() =>
             {
                 //TODO: show loading dialog with cancel
-                LoadedAudioClip = AudioReader.ReadClip(path);
-                AudioClipCache = new FFTCache(CavernHelper.defaultSamplingResolution);
-                LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(LoadedAudioClip.Channels);
-                AudioClipTitle = LoadedAudioClip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
+                Audio = new(path);
+                LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(Audio.Clip.Channels);
+                AudioClipTitle = Audio.Clip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
 
-                AudioBarsDrawing = CreateAudioBarsDrawing(LoadedAudioClip, 50.0/*viewScale*/);
-                var sampler = (double t) => CavernHelper.CavernSpectrum(LoadedAudioClip, AudioClipCache, 0/*TODO*/, t);
-                SpectrogramBitmap = DrawSpectrogram(LoadedAudioClip, sampler, 50.0/*viewScale*/);
+                AudioBarsDrawing = CreateAudioBarsDrawing(Audio.Clip, 50.0/*viewScale*/);
 
-                OnPropertyChanged(nameof(LoadedAudioClip));
+                OnPropertyChanged(nameof(Audio));
                 Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");
             });
         }
@@ -382,34 +394,6 @@ public partial class AnimationViewModel : ObservableObject
         var audioBarsDrawing = new DrawingImage(g);
         audioBarsDrawing.Freeze();
         return audioBarsDrawing;
-    }
-
-    [ObservableProperty] private BitmapSource _spectrogramBitmap = default!;
-    private static BitmapSource DrawSpectrogram(Clip audioClip, Func<double, float[]> sampler, double viewScale)
-    {
-        const int displayStartFreq = 4;
-        const int displayEndFreqMax = 20000;
-
-        var displayEndFreq = Math.Min(displayEndFreqMax, audioClip.SampleRate * 0.95) / 2.0;
-
-        int wres = (int)(viewScale * audioClip.Length);
-        int hres = CavernHelper.defaultSamplingResolution / 2;
-        byte[] pxs = new byte[wres * hres];
-        for (int t = 0; t < wres; t++)
-        {
-            var samples = sampler(t / (double)wres * audioClip.Length);
-            //convert to log scale
-            samples = GraphUtils.ConvertToGraph(samples, displayStartFreq, displayEndFreq, audioClip.SampleRate, samples.Length);
-            for (int f = 0; f < samples.Length; f++)
-            {
-                var s = Math.Pow(samples[f], 0.1);
-                var c = (byte)(255 * Math.Clamp(s, 0, 1));
-                pxs[t + (samples.Length - 1 - f) * wres] = c;
-            }
-        }
-        var bmp = BitmapSource.Create(wres, hres, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
-        bmp.Freeze();
-        return bmp;
     }
 
     private bool _canExecuteStart => !IsRenderingFrames;

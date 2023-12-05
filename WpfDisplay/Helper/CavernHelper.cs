@@ -1,7 +1,7 @@
-﻿using Cavern;
-using Cavern.Utilities;
+﻿using Cavern.Utilities;
 using System;
 using System.Linq;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.Helper;
 
@@ -13,28 +13,26 @@ internal static class CavernHelper
     /// <summary>
     /// <a href="https://github.com/VoidXH/Cavern">Cavern repo</a>
     /// </summary>
-    /// <param name="clip"></param>
-    /// <param name="cache"></param>
     /// <param name="minFreq"></param>
     /// <param name="maxFreq"></param>
     /// <param name="t"></param>
     /// <returns>Audio sample, a value between 0-1</returns>
-    public static float CavernSampler(Clip clip, FFTCache cache, int channelId, double minFreq, double maxFreq, double t)
+    public static float CavernSampler(CavernAudio audio, int channelId, double minFreq, double maxFreq, double t)
     {
-        var spectrum = CavernSpectrum(clip, cache, channelId, t);
-        int startBin = (int)(2 * minFreq / clip.SampleRate * spectrum.Length);
-        int endBin = (int)(2 * maxFreq / clip.SampleRate * spectrum.Length);
+        var spectrum = CavernSpectrum(audio, channelId, t);
+        int startBin = (int)Math.Clamp(2 * minFreq / audio.SampleRate * spectrum.Length, 0, spectrum.Length-1);
+        int endBin = (int)Math.Clamp(2 * maxFreq / audio.SampleRate * spectrum.Length, 0, spectrum.Length);
         endBin = Math.Clamp(endBin, startBin+1, spectrum.Length);
         return spectrum[startBin..endBin].Max();
     }
 
-    public static float[] CavernSpectrum(Clip clip, FFTCache cache, int channelId, double t)
+    public static float[] CavernSpectrum(CavernAudio audio, int channelId, double t)
     {
-        t = Math.Clamp(t, 0, clip.Length);
-        int samplePosition = (int)(t * clip.SampleRate);
+        t = Math.Clamp(t, 0, audio.Length);
+        int samplePosition = (int)(t * audio.SampleRate);
         float[] samples = new float[defaultSamplingResolution];
-        clip.GetData(samples, channelId, samplePosition);
-        var spectrum = Measurements.GetSpectrum(Measurements.FFT(samples.Select(r => new Complex(r, 0)).ToArray(), cache));
+        audio.Clip.GetData(samples, channelId, samplePosition);
+        var spectrum = Measurements.GetSpectrum(Measurements.FFT(samples.Select(r => new Complex(r, 0)).ToArray(), audio.Cache));
         WaveformUtils.Gain(spectrum, 1.0f / spectrum.Length);
         return spectrum;
     }

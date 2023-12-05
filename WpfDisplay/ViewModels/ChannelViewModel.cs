@@ -13,7 +13,15 @@ namespace WpfDisplay.ViewModels;
 
 public partial class ChannelViewModel : ObservableObject
 {
-    public string Name => channel.Name;
+    public string Name
+    {
+        get => channel.Name;
+        set
+        {
+            channel.Name = value;
+            OnPropertyChanged(nameof(Name));
+        }
+    }
     public string Path { get; }
 
     public AnimationViewModel AnimationVM => _vm;
@@ -21,34 +29,27 @@ public partial class ChannelViewModel : ObservableObject
     private readonly AnimationViewModel _vm;
     public readonly Channel channel;
     [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
-    [ObservableProperty] private bool _isEditing = false;
-    private bool _hasDetails = false;
-    public bool HasDetails
-    { 
-        get => _hasDetails;
-        set
-        {
-            if (!value)//Remove audio channel
-            {
-                channel.AudioChannelDriver = null;
-            }
-            else
-            {
-                channel.AudioChannelDriver ??= new AudioChannelDriver();
-                channel.AudioChannelDriver.AudioChannelId = (int)SelectedAudioChannelOption;
-                channel.AudioChannelDriver.SetSamplerFunction(Sampler);
-                OnPropertyChanged(string.Empty);
-            }
-            SetProperty(ref _hasDetails, value);
-        }
-    }
+    [ObservableProperty] private bool _hasAudioDriver = false;
+
     [ObservableProperty] private ReferenceChannel _selectedAudioChannelOption = default!;
 
     private float Sampler(AudioChannelDriver d, double t)
     {
-        if (_vm.LoadedAudioClip is null)
+        if (_vm.Audio is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.LoadedAudioClip, _vm.AudioClipCache!, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
+        return CavernHelper.CavernSampler(_vm.Audio, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
+    }
+
+    public bool IsDriverEnabled
+    {
+        get => EffectStrength != 0.0;
+        set
+        {
+            _vm.Workspace.TakeSnapshot();
+            EffectStrength = value ? 1.0f : 0.0f;
+            _vm.Workspace.Renderer.InvalidateParamsBuffer();
+            _vm.Workspace.RaiseAnimationFrameChanged();
+        }
     }
 
     public double EffectStrength
@@ -58,6 +59,7 @@ public partial class ChannelViewModel : ObservableObject
         {
             if (channel.AudioChannelDriver is not null)
                 channel.AudioChannelDriver.EffectMultiplier = value;
+            OnPropertyChanged(nameof(EffectStrength));
         }
     }
 
@@ -123,7 +125,8 @@ public partial class ChannelViewModel : ObservableObject
         channel = c;
 
         SelectedAudioChannelOption = (ReferenceChannel)(c.AudioChannelDriver?.AudioChannelId ?? 0);
-        HasDetails = c.AudioChannelDriver is not null;
+        channel.AudioChannelDriver?.SetSamplerFunction(Sampler);
+        HasAudioDriver = c.AudioChannelDriver != null;
 
         UpdateKeyframes();
     }
@@ -145,19 +148,44 @@ public partial class ChannelViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void EditChannel()
-    {
-        IsEditing = !IsEditing;
-    }
-
-    [RelayCommand]
     public void InsertKeyframe()
     {
-        if(!_vm.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
+        if (!_vm.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
+        _vm.Workspace.TakeSnapshot();
         var keyframePosition = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(_vm.KeyframeInsertPosition.Value));
         var eval = channel.EvaluateAt(_vm.KeyframeInsertPosition.Value);
         AnimationVM.AddOrUpdateChannel(Name, Path, eval, keyframePosition);
         _vm.KeyframeInsertPosition = null;
     }
+
+    //TODO: add ChannelDriverEnum Command Parameter
+    [RelayCommand]
+    public void AddChannelDriver()
+    {
+        _vm.Workspace.TakeSnapshot();
+        channel.AudioChannelDriver ??= new AudioChannelDriver();
+        SelectedAudioChannelOption = (ReferenceChannel)channel.AudioChannelDriver.AudioChannelId;
+        channel.AudioChannelDriver.SetSamplerFunction(Sampler);
+        _vm.Workspace.Renderer.InvalidateParamsBuffer();
+        HasAudioDriver = true;
+        OnPropertyChanged(string.Empty);
+        _vm.Workspace.RaiseAnimationFrameChanged();
+    }
+
+    //TODO: add ChannelDriver Command Parameter
+    [RelayCommand]
+    public void RemoveChannelDriver()
+    {
+        _vm.Workspace.TakeSnapshot();
+        channel.AudioChannelDriver = null;
+        _vm.Workspace.Renderer.InvalidateParamsBuffer();
+        HasAudioDriver = false;
+        OnPropertyChanged(string.Empty);
+        _vm.Workspace.RaiseAnimationFrameChanged();
+    }
+
+
+    [RelayCommand]
+    public void CloseChannelEditor() => AnimationVM.CloseChannelEditor();
 
 }
