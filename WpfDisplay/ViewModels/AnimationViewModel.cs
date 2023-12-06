@@ -35,7 +35,7 @@ public partial class AnimationViewModel : ObservableObject
     [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = [];
     [ObservableProperty] private string? _audioClipTitle = null;
     [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
-    [ObservableProperty] private bool _isRenderingFrames = false;
+    [ObservableProperty] private bool _isExportingFrames = false;
     private string? _saveFramesPath = null;
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
@@ -203,7 +203,6 @@ public partial class AnimationViewModel : ObservableObject
     public void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
-        Workspace.Renderer.Seed = (uint)(Workspace.Ifs.Dopesheet.Fps * t);//set frame number as seed
         Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
@@ -396,11 +395,11 @@ public partial class AnimationViewModel : ObservableObject
         return audioBarsDrawing;
     }
 
-    private bool _canExecuteStart => !IsRenderingFrames;
+    private bool _canExecuteStart => !IsExportingFrames;
     [RelayCommand(/*CanExecute = nameof(_canExecuteStart)*/)]
-    public void StartRenderingFrames()
+    public void StartExportingFrames()
     {
-        if(IsRenderingFrames) throw new InvalidOperationException();
+        if(IsExportingFrames) throw new InvalidOperationException();
 
         _realtimePlayer.Stop();
         _audioPlayer?.Stop();
@@ -412,14 +411,14 @@ public partial class AnimationViewModel : ObservableObject
         if (!Workspace.Renderer.IsRendering)
             Workspace.Renderer.StartRenderLoop();
 
-        IsRenderingFrames = true;
+        IsExportingFrames = true;
         Workspace.Renderer.InvalidateParamsBuffer();
-        Workspace.UpdateStatusText($"Rendering animation frames...");
+        Workspace.UpdateStatusText($"Exporting animation frames...");
     }
 
     private void OnFrameFinishedRendering(object? sender, EventArgs e)
     {
-        if(IsRenderingFrames && _saveFramesPath is not null)
+        if(IsExportingFrames && _saveFramesPath is not null)
         {
             var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
             var frameNr = (int)(CurrentTime.ToTimeSpan().TotalSeconds * Workspace.Ifs.Dopesheet.Fps);
@@ -440,6 +439,8 @@ public partial class AnimationViewModel : ObservableObject
                 OpenEXR.WriteStream(fstream, histogramData);
             }
 
+            Workspace.Renderer.Seed = (uint)(Workspace.Ifs.Dopesheet.Fps * (frameNr+1));//set frame number as seed, only when exporting
+
             if (JumpToNextFrame())
             {//was last frame
                 if(Workspace.IsExportVideoFileEnabled)
@@ -450,17 +451,17 @@ public partial class AnimationViewModel : ObservableObject
             else
             {
                 var totalFrames = Workspace.Ifs.Dopesheet.Length.TotalSeconds * Workspace.Ifs.Dopesheet.Fps;
-                Workspace.UpdateStatusText($"Saved frame '{framePath}' ({frameNr+1}/{totalFrames})");
+                Workspace.UpdateStatusText($"Exported frame '{framePath}' ({frameNr+1}/{totalFrames})");
             }
         }
     }
 
-    [RelayCommand(/*CanExecute = nameof(IsRenderingFrames)*/)]
-    public void StopRenderingFrames()
+    [RelayCommand(/*CanExecute = nameof(IsExportingFrames)*/)]
+    public void StopExportingFrames()
     {
-        IsRenderingFrames = false;
+        IsExportingFrames = false;
         _saveFramesPath = null;
-        Workspace.UpdateStatusText($"Rendering animation frames stopped.");
+        Workspace.UpdateStatusText($"Exporting animation frames stopped.");
     }
 
     private async Task RunFfmpegProcess()
@@ -500,7 +501,7 @@ public partial class AnimationViewModel : ObservableObject
         await ffmpegProc.WaitForExitAsync();
 
         Workspace.UpdateStatusText($"Video file created successfully at '{_saveFramesPath}'.");
-        IsRenderingFrames = false;
+        IsExportingFrames = false;
         _saveFramesPath = null;
     }
 

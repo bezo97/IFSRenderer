@@ -59,12 +59,12 @@
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" Margin="4">
             <Button Command="{Binding JumpToStartCommand}" ToolTip="Stop animation"
-                    IsEnabled="{Binding IsRenderingFrames, Converter={StaticResource InvertBooleanConverter}}"
+                    IsEnabled="{Binding IsExportingFrames, Converter={StaticResource InvertBooleanConverter}}"
                     HorizontalAlignment="Left">
                 ⬜
             </Button>
             <ToggleButton Command="{Binding PlayPauseCommand}" ToolTip="Play/Pause animation preview"
-                          IsEnabled="{Binding IsRenderingFrames, Converter={StaticResource InvertBooleanConverter}}"
+                          IsEnabled="{Binding IsExportingFrames, Converter={StaticResource InvertBooleanConverter}}"
                           Style="{StaticResource MaterialDesignActionToggleButton}"
                           HorizontalAlignment="Center">
                 <Label FontFamily="Monospace" Padding="2,2,0,0" Foreground="Black">▷</Label>
@@ -226,12 +226,12 @@
                    Foreground="#aaaaaa" FontSize="16">
                 🛈 Insert a keyframe by clicking ◇ next to the value!
             </Label>
-            <StackPanel Visibility="{Binding IsRenderingFrames, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Visibility="{Binding IsExportingFrames, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
                 <TextBlock TextAlignment="Center" Foreground="#aaaaaa" FontSize="16" Margin="0,0,0,16">
-                    Rendering animation frames...
+                    Exporting animation frames...
                 </TextBlock>
-                <Button Command="{Binding StopRenderingFramesCommand}"
+                <Button Command="{Binding StopExportingFramesCommand}"
                     HorizontalAlignment="Center" Style="{StaticResource MaterialDesignFlatButton}">
                     Cancel
                 </Button>

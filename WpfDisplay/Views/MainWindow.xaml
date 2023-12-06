@@ -34,7 +34,7 @@
         <KeyBinding Gesture="CTRL+SHIFT+C" Command="{Binding ExportToClipboardCommand}"/>
         <KeyBinding Gesture="CTRL+SHIFT+E" Command="{Binding SaveExrCommand}"/>
         <KeyBinding Gesture="CTRL+E" Command="{Binding SaveImageCommand}"/>
-        <KeyBinding Gesture="CTRL+A" Command="{Binding AnimationViewModel.StartRenderingFramesCommand}"/>
+        <KeyBinding Gesture="CTRL+A" Command="{Binding AnimationViewModel.StartExportingFramesCommand}"/>
         <KeyBinding Gesture="CTRL+R" Command="{Binding LoadRandomCommand}"/>
         <KeyBinding Gesture="PAUSE" Command="{Binding StartStopRenderingCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding VisitWikiCommand}"/>
@@ -110,7 +110,7 @@
                         <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                         <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
                         <Separator/>
-                        <MenuItem Icon="🎥" Header="Export _animation frames..." Command="{Binding AnimationViewModel.StartRenderingFramesCommand}" InputGestureText="Ctrl+A"/>
+                        <MenuItem Icon="🎥" Header="Export _animation frames..." Command="{Binding AnimationViewModel.StartExportingFramesCommand}" InputGestureText="Ctrl+A"/>
                     </MenuItem>
                 </Menu>
             </ToolBar>
