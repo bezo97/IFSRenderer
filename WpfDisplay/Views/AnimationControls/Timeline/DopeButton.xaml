@@ -48,18 +48,33 @@
         </ObjectDataProvider>
     </Button.Resources>
     <Button.ContextMenu>
-        <ContextMenu>
-            <MenuItem Icon="〰️" Header="Interpolation mode" >
-                <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
-                          SelectedValue="{Binding SelectedInterpolationMode}"/>
+        <ContextMenu StaysOpen="True">
+            <MenuItem Icon="〰️" Height="55" StaysOpenOnClick="True">
+                <MenuItem.Header>
+                    <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
+                              SelectedValue="{Binding SelectedInterpolationMode}"
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                              md:HintAssist.Hint="Interpolation mode"/>
+                </MenuItem.Header>
             </MenuItem>
-            <MenuItem Icon="↔️" Header="Easing direction" >
-                <ComboBox ItemsSource="{Binding Source={StaticResource easingDirectionEnumItemsProvider}}"
-                          SelectedValue="{Binding SelectedEasingDirection}"/>
+            <MenuItem Icon="↔️" Height="55" StaysOpenOnClick="True">
+                <MenuItem.Header>
+                    <ComboBox ItemsSource="{Binding Source={StaticResource easingDirectionEnumItemsProvider}}"
+                              SelectedValue="{Binding SelectedEasingDirection}"
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                              md:HintAssist.Hint="Easing direction"/>
+                </MenuItem.Header>
             </MenuItem>
-            <MenuItem Icon="⛎" Header="Easing power">
-                <local:ValueSlider Value="{Binding EasingPower}" SliderSettings="{Binding EasingPowerSlider}"/>
+            <MenuItem Icon="⛎" Height="55" StaysOpenOnClick="True">
+                <MenuItem.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource MaterialDesignOverlineTextBlock}" Foreground="DarkGray">Easing Power</TextBlock>
+                        <local:ValueSlider Value="{Binding EasingPower}" 
+                                       SliderSettings="{Binding EasingPowerSlider}"/>
+                    </StackPanel>
+                </MenuItem.Header>
             </MenuItem>
+            <Separator/>
             <MenuItem Icon="🗑️" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
         </ContextMenu>
     </Button.ContextMenu>
