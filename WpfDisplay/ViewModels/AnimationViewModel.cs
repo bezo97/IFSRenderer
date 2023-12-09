@@ -48,7 +48,7 @@ public partial class AnimationViewModel : ObservableObject
     /// </summary>
     [ObservableProperty] private float _viewScale = 50.0f;
 
-    public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * 50.0f/*view scale*/;
+    public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * ViewScale;
 
     public double KeyframeRepositionOffset { get; internal set; }
 
@@ -73,7 +73,7 @@ public partial class AnimationViewModel : ObservableObject
 
     }
 
-    public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * 50.0f /* * ViewScale */;
+    public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * ViewScale;
 
     public double ClipFps
     {
@@ -325,11 +325,11 @@ public partial class AnimationViewModel : ObservableObject
 
     public void PreviewRepositionSelectedKeyframes(double offset)
     {
-        var timeOffset = offset / 50.0/* / ViewScale */;
+        var timeOffset = offset / ViewScale;
         //clamp offset so first and last keyframes dont offset beyond bounds of the animation
         timeOffset = Math.Max(timeOffset, -SelectedKeyframes.Min(k => k.KeyframeTime));
         timeOffset = Math.Min(timeOffset, (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds - SelectedKeyframes.Max(k => k.KeyframeTime));
-        KeyframeRepositionOffset = timeOffset * 50/* / ViewScale */;
+        KeyframeRepositionOffset = timeOffset * ViewScale;
         foreach (var kf in SelectedKeyframes)
             kf.NotifyPositionChanged();
     }
@@ -338,7 +338,7 @@ public partial class AnimationViewModel : ObservableObject
     {
         Workspace.TakeSnapshot();
         foreach (var kf in SelectedKeyframes)
-            kf._k.t += KeyframeRepositionOffset / 50.0/* / ViewScale */;
+            kf._k.t += KeyframeRepositionOffset / ViewScale;
         KeyframeRepositionOffset = 0.0;
         Workspace.Renderer.InvalidateParamsBuffer();
     }
@@ -362,7 +362,7 @@ public partial class AnimationViewModel : ObservableObject
                 LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(Audio.Clip.Channels);
                 AudioClipTitle = Audio.Clip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
 
-                AudioBarsDrawing = CreateAudioBarsDrawing(Audio.Clip, 50.0/*viewScale*/);
+                AudioBarsDrawing = CreateAudioBarsDrawing(Audio.Clip, ViewScale);
 
                 OnPropertyChanged(nameof(Audio));
                 Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");

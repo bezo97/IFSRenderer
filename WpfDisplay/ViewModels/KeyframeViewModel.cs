@@ -18,7 +18,7 @@ public partial class KeyframeViewModel : ObservableObject
     }
 
     public double KeyframeTime => _k.t;
-    public float TimelinePositon => (float)(_k.t * 50/* * ViewScale */ + _avm.KeyframeRepositionOffset);
+    public float TimelinePositon => (float)(_k.t * _avm.ViewScale + _avm.KeyframeRepositionOffset);
     [ObservableProperty] private bool _isSelected;
 
     public EasingDirection SelectedEasingDirection

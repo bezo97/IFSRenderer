@@ -71,7 +71,7 @@ public partial class AnimationPanel : UserControl
     {
         if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
         {//remember the location of the context menu where the keyframe will be inserted
-            _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+            _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / _vm.ViewScale;
         }
     }
 
@@ -79,7 +79,7 @@ public partial class AnimationPanel : UserControl
     {
         if(e.LeftButton == MouseButtonState.Pressed && e.OriginalSource == sender)
         {
-            var t = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+            var t = e.GetPosition((IInputElement)sender).X / _vm.ViewScale;
             _vm.JumpToTime(t);
         }
     }
@@ -94,7 +94,7 @@ public partial class AnimationPanel : UserControl
             }
             else if (e.ClickCount == 2 && ((FrameworkElement)sender).DataContext is ChannelViewModel channel)
             {//Insert keyframe to channel on double click
-                _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / 50.0f/*view scale*/;
+                _vm.KeyframeInsertPosition = e.GetPosition((IInputElement)sender).X / _vm.ViewScale;
                 channel.InsertKeyframe();
             }
         }
