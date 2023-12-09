@@ -49,6 +49,11 @@ public partial class KeyframeViewModel : ObservableObject
         _cvm = cvm;
         _k = k;
         _isSelected = isSelected;
+        avm.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName is nameof(avm.ViewScale))
+                NotifyPositionChanged();
+        };
     }
 
 

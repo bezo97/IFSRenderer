@@ -1,4 +1,10 @@
-﻿using System.Windows;
+﻿#nullable enable
+using Cavern;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -11,13 +17,69 @@ namespace WpfDisplay.Views.Animation;
 /// </summary>
 public partial class AnimationPanel : UserControl
 {
-    private AnimationViewModel _vm => DataContext as AnimationViewModel;
+    private AnimationViewModel _vm => (AnimationViewModel)DataContext;
+    private TileBrush scrubberTicksBrush => (TileBrush)scrubberTicksGrid.Background;
+    private CancellationTokenSource _drawingCts = new();
+
     public AnimationPanel()
     {
         InitializeComponent();
+
+        DataContextChanged += (s, e) =>
+        {
+            _vm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName is nameof(_vm.ViewScale) or nameof(_vm.Audio))
+                    Dispatcher.InvokeAsync(RedrawScrubberVisuals);
+            };
+            Dispatcher.InvokeAsync(RedrawScrubberVisuals);
+        };
     }
 
     private Point _dragp;
+
+    private async Task RedrawScrubberVisuals()
+    {
+        var tilingSize = new Rect(0, 0, _vm.ViewScale, 1);
+        scrubberTicksBrush.Viewbox = tilingSize;
+        scrubberTicksBrush.Viewport = tilingSize;
+
+        if(_vm.Audio is not null)
+        {
+            var clip = _vm.Audio.Clip;
+            var viewScale = _vm.ViewScale;
+            await _drawingCts.CancelAsync();
+            _drawingCts = new CancellationTokenSource();
+            scrubberAudioBarsImageBrush.ImageSource = await Task.Run(()=>CreateAudioBarsDrawing(clip, viewScale, _drawingCts.Token)) ?? scrubberAudioBarsImageBrush.ImageSource;
+        }
+    }
+
+    private static DrawingImage? CreateAudioBarsDrawing(Clip audioClip, double viewScale, CancellationToken cancellationToken = default)
+    {
+        var g = new DrawingGroup();
+        double bars_resolution = 5.0 / viewScale;//0.1;
+        //const double bars_offset = bars_resolution * viewScale;
+        for (double t = 0.0; t < audioClip.Length; t += bars_resolution)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+
+            int position = (int)(t * audioClip.SampleRate);
+            float[] samples = new float[512];//must be pow of 2
+            audioClip.GetData(samples, 0/*left channel*/, position);
+            float barHeight = samples.Max();
+
+            var d = new GeometryDrawing
+            {
+                Brush = new LinearGradientBrush(Color.FromRgb(55, 55, 55), Color.FromRgb(100, 100, 100), 90.0),
+                Geometry = new RectangleGeometry(new System.Windows.Rect(t * viewScale - 2.5, 30 - 30 * barHeight, 4.0, 30.0))
+            };
+            g.Children.Add(d);
+        }
+        var audioBarsDrawing = new DrawingImage(g);
+        audioBarsDrawing.Freeze();
+        return audioBarsDrawing;
+    }
 
     private void DopeButton_MouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -98,5 +160,10 @@ public partial class AnimationPanel : UserControl
                 channel.InsertKeyframe();
             }
         }
+    }
+
+    private void TimeScrubber_MouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        _vm.ViewScale = Math.Clamp(_vm.ViewScale * (e.Delta > 0 ? 1.2f : 1/1.2f), 1.0f, 300.0f);
     }
 }

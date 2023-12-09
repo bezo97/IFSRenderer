@@ -131,16 +131,18 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Background="#333333" Cursor="SizeWE"
-                      MouseMove="TimeScrubber_MouseMove" MouseDown="TimeScrubber_MouseMove">
+                      MouseMove="TimeScrubber_MouseMove" 
+                      MouseDown="TimeScrubber_MouseMove"
+                      MouseWheel="TimeScrubber_MouseWheel">
                     <!--Time scrubber-->
                     <Grid IsHitTestVisible="False">
                         <Grid Background="#111111"/>
                         <Grid>
                             <Grid.Background>
-                                <ImageBrush Stretch="None" AlignmentX="Left" AlignmentY="Top" ImageSource="{Binding AudioBarsDrawing}"/>
+                                <ImageBrush x:Name="scrubberAudioBarsImageBrush" Stretch="None" AlignmentX="Left" AlignmentY="Top"/>
                             </Grid.Background>
                         </Grid>
-                        <Grid Background="{StaticResource linesBrush}"/>
+                        <Grid x:Name="scrubberTicksGrid" Background="{StaticResource linesBrush}"/>
                     </Grid>
                 </Grid>
                 <ScrollViewer x:Name="sheetScroller" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">

@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,6 +16,8 @@ namespace WpfDisplay.Views.AnimationControls;
 /// </summary>
 public partial class Spectrogram : UserControl
 {
+    private CancellationTokenSource _drawingCts = new();
+
     public IAudio Audio
     {
         get { return (IAudio)GetValue(AudioProperty); }
@@ -35,35 +40,52 @@ public partial class Spectrogram : UserControl
         set { SetValue(ViewScaleProperty, value); }
     }
     public static readonly DependencyProperty ViewScaleProperty =
-        DependencyProperty.Register("ViewScale", typeof(float), typeof(Spectrogram), new FrameworkPropertyMetadata(50.0f, OnSpectrogramDependencyChanged));
+        DependencyProperty.Register("ViewScale", typeof(float), typeof(Spectrogram), new FrameworkPropertyMetadata(120.0f, OnSpectrogramDependencyChanged));
 
-    private static void OnSpectrogramDependencyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => ((Spectrogram)d).DrawSpectrogram();
+    private static void OnSpectrogramDependencyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => d.Dispatcher.InvokeAsync(((Spectrogram)d).RedrawSpectrogramVisuals);
 
     public Spectrogram()
     {
         InitializeComponent();
     }
 
-    private void DrawSpectrogram()
+    private async Task RedrawSpectrogramVisuals()
     {
-        if (Audio is null)
-            return;
+        if (Audio is not null)
+        {
+            await _drawingCts.CancelAsync();
+            _drawingCts = new CancellationTokenSource();
+            var audio = Audio;
+            var viewScale = ViewScale;
+            var channelId = SelectedAudioChannelId;
+            Width = (int)(viewScale * audio.Length);
+            spectrogramImage.Source = await Task.Run(() => DrawSpectrogramImage(audio, viewScale, channelId, _drawingCts.Token)) ?? spectrogramImage.Source;
+        }
+    }
 
+    private static BitmapSource? DrawSpectrogramImage(IAudio audio, float viewScale, int channelId, CancellationToken cancellationToken = default)
+    {
         //TODO: propdp?
         const int displayStartFreq = 4;
         const int displayEndFreqMax = 20000;
 
-        var displayEndFreq = Math.Min(displayEndFreqMax, Audio.SampleRate * 0.95) / 2.0;
+        var displayEndFreq = Math.Min(displayEndFreqMax, audio.SampleRate * 0.95) / 2.0;
 
-        int wres = (int)(ViewScale * Audio.Length);
+        int wres = (int)(viewScale * audio.Length);
         int hres = CavernHelper.defaultSamplingResolution / 2;
         byte[] pxs = new byte[wres * hres];
         for (int t = 0; t < wres; t++)
         {
-            double t01 = t / (double)wres * Audio.Length;
-            var spectrum = Audio.GetLogSpectrum(SelectedAudioChannelId, t01, displayStartFreq, displayEndFreq);
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+
+            double t01 = t / (double)wres * audio.Length;
+            var spectrum = audio.GetLogSpectrum(channelId, t01, displayStartFreq, displayEndFreq);
             for (int f = 0; f < spectrum.Length; f++)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+
                 var s = Math.Pow(spectrum[f], 0.1);
                 var c = (byte)(255 * Math.Clamp(s, 0, 1));
                 pxs[t + (spectrum.Length - 1 - f) * wres] = c;
@@ -71,8 +93,7 @@ public partial class Spectrogram : UserControl
         }
         var bmp = BitmapSource.Create(wres, hres, 0, 0, PixelFormats.Indexed8, SpectrogramPalettes.Viridis, pxs, wres);
         bmp.Freeze();
-        spectrogramImage.Source = bmp;
-        Width = bmp.Width;
+        return bmp;
     }
 
     //TODO: on click: log scale -> linear scale, SweepGenerator.ExponentialFreqs(4, endFreq, samples.Length / 2);

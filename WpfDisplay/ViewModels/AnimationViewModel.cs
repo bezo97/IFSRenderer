@@ -46,7 +46,10 @@ public partial class AnimationViewModel : ObservableObject
     /// <summary>
     /// pixels per second
     /// </summary>
-    [ObservableProperty] private float _viewScale = 50.0f;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SheetWidth))]
+    [NotifyPropertyChangedFor(nameof(CurrentTimeScrollPosition))]
+    private float _viewScale = 120.0f;
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * ViewScale;
 
@@ -362,37 +365,10 @@ public partial class AnimationViewModel : ObservableObject
                 LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(Audio.Clip.Channels);
                 AudioClipTitle = Audio.Clip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
 
-                AudioBarsDrawing = CreateAudioBarsDrawing(Audio.Clip, ViewScale);
-
                 OnPropertyChanged(nameof(Audio));
                 Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");
             });
         }
-    }
-
-    [ObservableProperty] private DrawingImage _audioBarsDrawing = default!;
-    private static DrawingImage CreateAudioBarsDrawing(Clip audioClip, double viewScale)
-    {
-        var g = new DrawingGroup();
-        const double bars_resolution = 0.1;
-        //const double bars_offset = bars_resolution * viewScale;
-        for (double t = 0.0; t < audioClip.Length; t += bars_resolution)
-        {
-            int position = (int)(t * audioClip.SampleRate);
-            float[] samples = new float[512];//must be pow of 2
-            audioClip.GetData(samples, 0/*left channel*/, position);
-            float barHeight = samples.Max();
-
-            var d = new GeometryDrawing
-            {
-                Brush = new LinearGradientBrush(Color.FromRgb(55, 55, 55), Color.FromRgb(100, 100, 100), 90.0),
-                Geometry = new RectangleGeometry(new System.Windows.Rect(t * viewScale - 2.5, 30 - 30 * barHeight, 4.0, 30.0))
-            };
-            g.Children.Add(d);
-        }
-        var audioBarsDrawing = new DrawingImage(g);
-        audioBarsDrawing.Freeze();
-        return audioBarsDrawing;
     }
 
     private bool _canExecuteStart => !IsExportingFrames;
