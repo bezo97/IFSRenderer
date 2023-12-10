@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WpfDisplay.Helper;
@@ -226,6 +227,8 @@ internal partial class SettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(IsRawFrameExportEnabled));
         }
     }
+
+    public IReadOnlyDictionary<string, string> FfmpegPresets => _mainvm.workspace.FfmpegPresets;
 
     [RelayCommand]
     private void ApplyFfmpegPreset(string args)

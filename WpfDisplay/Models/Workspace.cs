@@ -30,6 +30,7 @@ public partial class Workspace : ObservableObject
     public event EventHandler? LoadedParamsChanged;
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
     public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
+    public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisY;
     public double Sensitivity;
@@ -94,6 +95,8 @@ public partial class Workspace : ObservableObject
         await LoadTransformLibrary();
         ResolutionPresets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int[]>>(
             await File.ReadAllTextAsync(Path.Combine(App.LibraryDirectoryPath, "ResolutionPresets.json"))) ?? [];
+        FfmpegPresets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(
+            await File.ReadAllTextAsync(Path.Combine(App.LibraryDirectoryPath, "FfmpegPresets.json"))) ?? [];
     }
 
     private async Task LoadTransformLibrary()
