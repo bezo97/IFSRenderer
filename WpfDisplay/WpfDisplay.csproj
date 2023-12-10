@@ -65,11 +65,10 @@
 	<ItemGroup Condition="'$(Configuration)'=='ReleasePortable' OR '$(Configuration)'=='Debug'">
 		<!--Mark files as Content to be included next to the executable-->
 		<Content Include="..\IFSTransforms\Transforms\**\*.ifstf">
-			<Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
+			<Link>Library\Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-    <Content Include="Assets\Templates\*.ifsjson">
-      <Link>Templates%(RecursiveDir)\%(FileName)%(Extension)</Link>
+    <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 	</ItemGroup>
@@ -77,11 +76,10 @@
 	<ItemGroup Condition="'$(Configuration)'=='ReleaseInstaller'">
 		<!--Mark files as Content to be included in the Installer-->
 		<Content Include="..\IFSTransforms\Transforms\**\*.ifstf">
-			<Link>Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
+			<Link>Library\Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>false</CopyToOutputDirectory>
 		</Content>
-    <Content Include="Assets\Templates\*.ifsjson">
-      <Link>Tempaltes%(RecursiveDir)\%(FileName)%(Extension)</Link>
+    <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
 	</ItemGroup>
@@ -91,6 +89,9 @@
     <Resource Include="..\Assets\featured_artwork.jpg" Link="Resources\featured_artwork.jpg" />
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Library\ResolutionPresets.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Resources\deltap-tooltip.jpg" />
 	</ItemGroup>

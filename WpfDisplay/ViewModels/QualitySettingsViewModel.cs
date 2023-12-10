@@ -1,10 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Windows;
 using WpfDisplay.Models;
+using static OpenTK.Graphics.OpenGL.GL;
 
 namespace WpfDisplay.ViewModels;
 
@@ -13,6 +17,7 @@ public partial class QualitySettingsViewModel : ObservableObject
     private readonly Workspace _workspace;
     public RendererGL Renderer => _workspace.Renderer;
     public IFS Ifs => _workspace.Ifs;
+    public IReadOnlyDictionary<string, int[]> ResolutionPresets => _workspace.ResolutionPresets;
 
     [ObservableProperty] private bool _isResolutionLinked;
     private bool _isFinalRenderingMode = false;
@@ -198,6 +203,15 @@ public partial class QualitySettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(ImageWidth));
             OnPropertyChanged(nameof(ImageHeight));
         }
+    }
+
+    [RelayCommand]
+    private void ApplyResolutionPreset(int[] dims)
+    {
+        _workspace.Ifs.ImageResolution = new System.Drawing.Size(dims[0], dims[1]);
+        _workspace.Renderer.SetHistogramScale(1.0);
+        OnPropertyChanged(nameof(ImageWidth));
+        OnPropertyChanged(nameof(ImageHeight));
     }
 
     public void UpdatePreviewRenderSettings()

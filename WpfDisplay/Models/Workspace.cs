@@ -29,6 +29,7 @@ public partial class Workspace : ObservableObject
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
+    public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool InvertAxisY;
     public double Sensitivity;
@@ -80,20 +81,19 @@ public partial class Workspace : ObservableObject
     public async Task Initialize()
     {
         await ApplyUserSettings();
-        await LoadTransformLibrary();
+        await LoadLibrary();
         await Renderer.Initialize(_loadedTransforms);
 
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
     }
 
-    public async Task ReloadTransforms()
+
+    private async Task LoadLibrary()
     {
         await LoadTransformLibrary();
-        Ifs.ReloadTransforms(LoadedTransforms);
-        await Renderer.LoadTransforms(LoadedTransforms);
-        Renderer.StartRenderLoop();
-        OnPropertyChanged(nameof(LoadedTransforms));
+        ResolutionPresets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int[]>>(
+            await File.ReadAllTextAsync(Path.Combine(App.LibraryDirectoryPath, "ResolutionPresets.json"))) ?? [];
     }
 
     private async Task LoadTransformLibrary()
@@ -102,6 +102,15 @@ public partial class Workspace : ObservableObject
             .GetFiles(App.TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
             .Select(file => Transform.FromFile(file));
         _loadedTransforms = (await Task.WhenAll(loadTasks)).ToList();
+        OnPropertyChanged(nameof(LoadedTransforms));
+    }
+
+   public async Task ReloadTransforms()
+    {
+        await LoadTransformLibrary();
+        Ifs.ReloadTransforms(LoadedTransforms);
+        await Renderer.LoadTransforms(LoadedTransforms);
+        Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 

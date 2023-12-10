@@ -31,18 +31,18 @@
         </StackPanel>
         <!--"Final" settings-->
         <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8">
-            <Grid>
+            <Grid HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <toolkit:IntegerUpDown 
                         Value="{Binding ImageWidth, UpdateSourceTrigger=PropertyChanged }"
                         Minimum="1" Increment="100"
                         ToolTip="Image width"
-                        Grid.Column="0" Margin="4" UpdateValueOnEnterKey="True"/>
+                        Grid.Column="0" MinWidth="70" Margin="4" UpdateValueOnEnterKey="True"/>
                 <ToggleButton
                         IsChecked="{Binding IsResolutionLinked}" 
                         Width="20" Height="20" FontSize="12" Foreground="Gray"
@@ -53,12 +53,20 @@
                         Value="{Binding ImageHeight, UpdateSourceTrigger=PropertyChanged}"
                         Minimum="1" Increment="100"
                         ToolTip="Image height"
-                        Grid.Column="2" Margin="4" UpdateValueOnEnterKey="True"/>
-                <ToggleButton IsEnabled="False"
-                        Width="20" Height="20" FontSize="16" Foreground="Gray"
-                        Style="{StaticResource MaterialDesignFlatToggleButton}"
-                        ToolTip="Resolution presets"
-                        Grid.Column="3" Margin="4">⋮</ToggleButton>
+                        Grid.Column="2" MinWidth="70" Margin="4" UpdateValueOnEnterKey="True"/>
+                <Menu Grid.Column="3" Height="22">
+                    <MenuItem  ItemsSource="{Binding ResolutionPresets}" 
+                               Header="⋮" ToolTip="Resolution presets"
+                               HorizontalAlignment="Right" Padding="8 4" FontSize="12" Height="22">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                <Setter Property="Header" Value="{Binding Key}"/>
+                                <Setter Property="Command" Value="{Binding DataContext.ApplyResolutionPresetCommand, ElementName=qualitySettingsView}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                </Menu>
             </Grid>
             <local:ValueSlider Value="{Binding Renderer.MaxFilterRadius}" SliderSettings="{Binding MaxFilterRadiusSlider}" Label="{Binding MaxFilterRadiusLabel}" Margin="4"/>
         </StackPanel>
