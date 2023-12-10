@@ -22,13 +22,6 @@ public partial class AboutDialogWindow : Window
         InitializeComponent();
     }
 
-#if INSTALLER
-        public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (installed)";
-#endif
-#if PORTABLE
-    public static string AppVersion => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (portable)";
-#endif
-
     private ICommand _okCommand;
     public ICommand OkCommand =>
         _okCommand ??= new RelayCommand(OnOkCommand);

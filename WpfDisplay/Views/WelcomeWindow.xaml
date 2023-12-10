@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
+        xmlns:app="clr-namespace:WpfDisplay" 
         xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         Style="{StaticResource MaterialDesignWindow}"
         TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
@@ -20,7 +21,9 @@
         ShowInTaskbar="False"
         WindowStyle="ToolWindow"
         mc:Ignorable="d"
-        Title="Welcome" Height="650" Width="600"
+        Title="Welcome" 
+        Height="650" Width="600"
+        MinHeight="650" MinWidth="600"
         x:Name="welcomeWindow"
         d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
@@ -70,7 +73,7 @@
                     <DropShadowEffect/>
                 </TextBlock.Effect>
                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases">
-                    v1.3.0 <md:PackIcon Kind="ExternalLink"/>
+                    <Run Text="{x:Static app:App.VersionString}"/> <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
         </Grid>

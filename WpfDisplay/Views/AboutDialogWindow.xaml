@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:app="clr-namespace:WpfDisplay"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
         TextElement.FontWeight="Regular"
@@ -32,7 +33,7 @@
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Visible">
                 <StackPanel Margin="10">
                     <Label Style="{DynamicResource MaterialDesignLabel}" HorizontalContentAlignment="Center" FontSize="24">IFSRenderer</Label>
-                    <Label Content="{Binding AppVersion}" HorizontalContentAlignment="Center"/>
+                    <Label Content="{x:Static app:App.VersionString}" HorizontalContentAlignment="Center"/>
                     <TextBlock>
                         3D IFS fractal renderer and editor.
                         <LineBreak/>

@@ -26,9 +26,11 @@ public partial class App : Application
 
 #if INSTALLER
     public static string AppDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "IFSRenderer");
+    public static string VersionString => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (installed)";
 #endif
 #if PORTABLE
     public static string AppDataPath { get; } = AppDomain.CurrentDomain.BaseDirectory;
+    public static string VersionString => "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (portable)";
 #endif
 
     public static string TransformsDirectoryPath { get; } = Path.Combine(AppDataPath, "Transforms");
