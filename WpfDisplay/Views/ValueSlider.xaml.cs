@@ -264,7 +264,9 @@ public partial class ValueSlider : UserControl
         if (e.Key == Key.Enter)
         {
             e.Handled = true;
+            ValueWillChangeAction?.Invoke();
             StartEditing();
+            ValueChangedAction?.Invoke(Value);
         }
         else if (e.Key == Key.Up)
         {
@@ -289,22 +291,18 @@ public partial class ValueSlider : UserControl
     private Point _dragp;
     private double _lastv;//value before editing, used to restore previous value when pressing Esc
 
-    private void DisplayLabel_MouseDown(object sender, MouseButtonEventArgs e)
+    private void DisplayLabel_MouseMove(object sender, MouseEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            ValueWillChangeAction?.Invoke();
-            _dragp = e.GetPosition(Window.GetWindow(this));
-            _lastv = Value;
-            displayLabel.CaptureMouse();
-            Mouse.OverrideCursor = Cursors.None;
-        }
-    }
+            if(!displayLabel.IsMouseCaptured) {
+                ValueWillChangeAction?.Invoke();
+                _dragp = e.GetPosition(Window.GetWindow(this));
+                _lastv = Value;
+                displayLabel.CaptureMouse();
+                Mouse.OverrideCursor = Cursors.None;
+            }
 
-    private void DisplayLabel_MouseMove(object sender, MouseEventArgs e)
-    {
-        if (e.LeftButton == MouseButtonState.Pressed && displayLabel.IsMouseCaptured)
-        {
             double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
             Value = ConstrainValue(_lastv + delta * Increment * IncrementMultiplier);
             ValueChangedAction?.Invoke(Value);
@@ -324,8 +322,7 @@ public partial class ValueSlider : UserControl
     {
         if (e.ChangedButton == MouseButton.Left)
         {
-            var delta = (e.GetPosition(Window.GetWindow(this)) - _dragp);
-            if (Math.Abs(delta.Length) < 1)
+            if (!displayLabel.IsMouseCaptured)
             {//click
                 StartEditing();
             }

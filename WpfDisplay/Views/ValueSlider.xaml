@@ -51,7 +51,7 @@
                    Background="#303030" Cursor="SizeWE"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                   PreviewMouseDown="DisplayLabel_MouseDown" PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
+                   PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
                      Text="{Binding Value, ElementName=valueSlider, StringFormat={}{0:0.####}}" d:Text="0.5000"
                      Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
