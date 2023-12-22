@@ -39,8 +39,8 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
-            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
-            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+            <MenuItem Header="↩️" Command="ApplicationCommands.Undo" CommandTarget="{Binding ElementName=editorWindow}" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+            <MenuItem Header="↪️" Command="ApplicationCommands.Redo" CommandTarget="{Binding ElementName=editorWindow}" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <Separator/>
             <local:PaletteButton
                 Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 

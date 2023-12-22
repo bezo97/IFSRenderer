@@ -75,9 +75,13 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         get => workspace.Ifs.Title;
         set
         {
-            workspace.Ifs.Title = value;
-            OnPropertyChanged(nameof(IFSTitle));
-            OnPropertyChanged(nameof(WindowTitle));
+            if (workspace.Ifs.Title != value)
+            {
+                workspace.TakeSnapshot();
+                workspace.Ifs.Title = value;
+                OnPropertyChanged(nameof(IFSTitle));
+                OnPropertyChanged(nameof(WindowTitle));
+            }
         }
     }
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;

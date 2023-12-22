@@ -85,16 +85,16 @@
                         <MenuItem Header="💾 _Save" Command="{Binding SaveParamsCommand}" InputGestureText="Ctrl+S"/>
                         <MenuItem Header="💾 _Save as..." Command="{Binding SaveParamsAsCommand}" InputGestureText="Ctrl+Shift+S"/>
                         <Separator/>
-                        <MenuItem Header="📝 Copy params" Command="ApplicationCommands.Copy" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
-                        <MenuItem Header="📋 Paste params" Command="ApplicationCommands.Paste" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
+                        <MenuItem Header="📝 Copy params" Command="ApplicationCommands.Copy" CommandTarget="{Binding ElementName=mainWindow}" ToolTip="Copy params to Clipboard (Ctrl+C)" InputGestureText="Ctrl+C"/>
+                        <MenuItem Header="📋 Paste params" Command="ApplicationCommands.Paste" CommandTarget="{Binding  ElementName=mainWindow}" ToolTip="Paste params from Clipboard (Ctrl+V)" InputGestureText="Ctrl+V"/>
                         <Separator/>
                         <MenuItem Header="⚙️ Settings..." Click="SettingsButton_Click"/>
                         <Separator/>
                         <MenuItem Header="🏃‍ Exit" Command="{Binding ExitApplicationCommand}" InputGestureText="Alt+F4"/>
                     </MenuItem>
                     <MenuItem Header="💾" Command="{Binding SaveParamsCommand}" ToolTip="Save (Ctrl+S)" InputGestureText="Ctrl+S"/>
-                    <MenuItem Header="↩️" Command="ApplicationCommands.Undo" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
-                    <MenuItem Header="↪️" Command="ApplicationCommands.Redo" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
+                    <MenuItem Header="↩️" Command="ApplicationCommands.Undo" CommandTarget="{Binding ElementName=mainWindow}" ToolTip="Undo (Ctrl+Z)" InputGestureText="Ctrl+Z"/>
+                    <MenuItem Header="↪️" Command="ApplicationCommands.Redo" CommandTarget="{Binding ElementName=mainWindow}" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
                 </Menu>
                 <Separator/>
                 <Menu>

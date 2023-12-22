@@ -16,25 +16,32 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <TextBox Text="{Binding IFSTitle}" x:Name="titleTextBox" ToolTip="Title"
-                                     TextAlignment="Center" FontWeight="Black" Grid.Column="0"
-                                     GotKeyboardFocus="titleTextBox_GotKeyboardFocus" KeyDown="titleTextBox_KeyDown"/>
-        <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors" Foreground="White"/>
-        <Popup Grid.Column="2" IsOpen="{Binding IsChecked, ElementName=authorsToggle}" Width="300"
-                    Placement="Bottom" PopupAnimation="Fade" StaysOpen="False" AllowsTransparency="True">
-            <StackPanel Margin="8" Background="Gray">
-                <Label>Authors:</Label>
-                <ItemsControl ItemsSource="{Binding AuthorList}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Margin="8">
-                                    <Hyperlink NavigateUri="{Binding Link}" ToolTip="{Binding Link}">
-                                        <Run Text="{Binding Name}"/>
-                                    </Hyperlink>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+                 md:HintAssist.Hint="Enter a title"
+                 TextAlignment="Center" FontWeight="Black" Grid.Column="0"
+                 GotKeyboardFocus="titleTextBox_GotKeyboardFocus" KeyDown="titleTextBox_KeyDown"/>
+        <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors" Foreground="White" Cursor="Hand"/>
+        <Popup Grid.Column="2" IsOpen="{Binding IsChecked, ElementName=authorsToggle}"
+               Width="200" Placement="Bottom" PopupAnimation="Fade" StaysOpen="False" AllowsTransparency="True">
+            <md:Card Padding="4">
+                <StackPanel>
+                    <Grid>
+                        <Label>Authors:</Label>
+                        <ToggleButton IsChecked="{Binding IsChecked, ElementName=authorsToggle}" 
+                                      HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFlatButton}" FontSize="8" Height="26">❌</ToggleButton>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding AuthorList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="8">
+                                        <Hyperlink NavigateUri="{Binding Link}" ToolTip="{Binding Link}">
+                                            <Run Text="{Binding Name}"/>
+                                        </Hyperlink>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </md:Card>
         </Popup>
     </Grid>
 </UserControl>
