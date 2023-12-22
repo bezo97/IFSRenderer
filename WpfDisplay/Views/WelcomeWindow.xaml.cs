@@ -37,4 +37,15 @@ public partial class WelcomeWindow : Window
             await vm.Initialize();
         };
     }
+
+    private void Paste_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        vm.PasteFromClipboardCommand.Execute(null);
+    }
+
+    private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = vm?.PasteFromClipboardCommand.CanExecute(null) ?? false;
+    }
+
 }

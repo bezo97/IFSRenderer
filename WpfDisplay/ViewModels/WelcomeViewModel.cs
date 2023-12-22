@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -141,6 +142,18 @@ public sealed partial class WelcomeViewModel : ObservableObject
         if (ifs is not null)
             ExploreParams = ifs;
         ContinueCommand?.Execute(null);
+    }
+
+    [RelayCommand]
+    private void PasteFromClipboard()
+    {
+        try
+        {
+            string jsonData = System.Windows.Clipboard.GetText();
+            IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, _loadedTransforms, true);
+            SelectExploreWorkflow(ifs);
+        }
+        catch (SerializationException) { /* Ignore when Clipboard contains no params */ }
     }
 
     [RelayCommand]

@@ -26,6 +26,9 @@
         MinHeight="650" MinWidth="600"
         x:Name="welcomeWindow"
         d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Paste" Executed="Paste_Executed" CanExecute="Paste_CanExecute"/>
+    </Window.CommandBindings>
     <Window.Resources>
         <conv:ParameterEqualityToBoolConverter x:Key="expanderConv"/>
         <DataTemplate x:Key="thumbnailTemplate">
