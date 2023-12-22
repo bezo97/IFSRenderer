@@ -1,11 +1,13 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.Input;
+
 using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
@@ -23,11 +25,12 @@ public partial class ConnectionArrow : UserControl
 
         DataContextChanged += (s, e) =>
         {//update geometry when nodes change position
-            ((INotifyPropertyChanged)e.NewValue).PropertyChanged += (s2, e2) => {
+            ((INotifyPropertyChanged)e.NewValue).PropertyChanged += (s2, e2) =>
+            {
                 if (e2.PropertyName == "ConnectionProps")
                     UpdateGeometry();
             };
-            if(ParentNodeMap is not null)
+            if (ParentNodeMap is not null)
                 UpdateGeometry();
         };
 
@@ -37,7 +40,7 @@ public partial class ConnectionArrow : UserControl
 
     public BindablePoint StartPoint
     {
-        get { return (BindablePoint)GetValue(StartPointProperty); }
+        get => (BindablePoint)GetValue(StartPointProperty);
         set { SetValue(StartPointProperty, value); UpdateGeometry(); }
     }
     public static readonly DependencyProperty StartPointProperty =
@@ -45,7 +48,7 @@ public partial class ConnectionArrow : UserControl
 
     public BindablePoint EndPoint
     {
-        get { return (BindablePoint)GetValue(EndPointProperty); }
+        get => (BindablePoint)GetValue(EndPointProperty);
         set { SetValue(EndPointProperty, value); UpdateGeometry(); }
     }
     public static readonly DependencyProperty EndPointProperty =
@@ -53,34 +56,34 @@ public partial class ConnectionArrow : UserControl
 
     public double ArrowHeadSize
     {
-        get { return (double)GetValue(ArrowHeadSizeProperty); }
-        set { SetValue(ArrowHeadSizeProperty, value); }
+        get => (double)GetValue(ArrowHeadSizeProperty);
+        set => SetValue(ArrowHeadSizeProperty, value);
     }
     public static readonly DependencyProperty ArrowHeadSizeProperty =
         DependencyProperty.Register("ArrowHeadSize", typeof(double), typeof(ConnectionArrow), new PropertyMetadata(20.0));
 
     public double ArrowCurve
     {
-        get { return (double)GetValue(ArrowCurveProperty); }
-        set { SetValue(ArrowCurveProperty, value); }
+        get => (double)GetValue(ArrowCurveProperty);
+        set => SetValue(ArrowCurveProperty, value);
     }
     public static readonly DependencyProperty ArrowCurveProperty =
-        DependencyProperty.Register("ArrowCurve", typeof(double), typeof(ConnectionArrow), new PropertyMetadata(Math.PI/4.0));
+        DependencyProperty.Register("ArrowCurve", typeof(double), typeof(ConnectionArrow), new PropertyMetadata(Math.PI / 4.0));
 
     public RelayCommand<ConnectionViewModel> SelectCommand
     {
-        get { return (RelayCommand<ConnectionViewModel>)GetValue(SelectCommandProperty); }
-        set { SetValue(SelectCommandProperty, value); }
+        get => (RelayCommand<ConnectionViewModel>)GetValue(SelectCommandProperty);
+        set => SetValue(SelectCommandProperty, value);
     }
     public static readonly DependencyProperty SelectCommandProperty =
         DependencyProperty.Register("SelectCommand", typeof(RelayCommand<ConnectionViewModel>), typeof(ConnectionArrow), new PropertyMetadata(null));
 
-    public bool IsLoopback => (StartPoint == EndPoint);
+    public bool IsLoopback => StartPoint == EndPoint;
 
     public NodeMap ParentNodeMap
     {
-        get { return (NodeMap)GetValue(ParentNodeMapProperty); }
-        set { SetValue(ParentNodeMapProperty, value); }
+        get => (NodeMap)GetValue(ParentNodeMapProperty);
+        set => SetValue(ParentNodeMapProperty, value);
     }
     public static readonly DependencyProperty ParentNodeMapProperty =
         DependencyProperty.Register("ParentNodeMap", typeof(NodeMap), typeof(ConnectionArrow), new PropertyMetadata(null));
@@ -110,12 +113,12 @@ public partial class ConnectionArrow : UserControl
         double cosa = Math.Cos(angle);
         double sina = Math.Sin(angle);
 
-        var pg = new PathGeometry(new List<PathFigure> { new PathFigure(StartPoint.ToPoint(), new List<PathSegment>{new PolyBezierSegment(new List<Point>
+        var pg = new PathGeometry(new List<PathFigure> { new(StartPoint.ToPoint(), new List<PathSegment>{new PolyBezierSegment(new List<Point>
         {
-                new Point(
+                new(
                     (p1.X * 2 + p2.X) / 3 + 30 * cosa,
                     (p1.Y * 2 + p2.Y) / 3 + 30 * sina),
-                new Point(
+                new(
                     (p1.X + p2.X * 2) / 3 + 30 * cosa,
                     (p1.Y + p2.Y * 2) / 3 + 30 * sina),
                 p2

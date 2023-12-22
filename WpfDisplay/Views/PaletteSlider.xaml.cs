@@ -1,19 +1,9 @@
-﻿using IFSEngine.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
+using IFSEngine.Model;
 
 namespace WpfDisplay.Views;
 /// <summary>
@@ -28,16 +18,16 @@ public partial class PaletteSlider : UserControl
 
     public double ColorIndex
     {
-        get { return (double)GetValue(ColorIndexProperty); }
-        set { SetValue(ColorIndexProperty, value); }
+        get => (double)GetValue(ColorIndexProperty);
+        set => SetValue(ColorIndexProperty, value);
     }
     public static readonly DependencyProperty ColorIndexProperty =
         DependencyProperty.Register("ColorIndex", typeof(double), typeof(PaletteSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     public FlamePalette Palette
     {
-        get { return (FlamePalette)GetValue(PaletteProperty); }
-        set { SetValue(PaletteProperty, value); }
+        get => (FlamePalette)GetValue(PaletteProperty);
+        set => SetValue(PaletteProperty, value);
     }
     public static readonly DependencyProperty PaletteProperty =
         DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteSlider),

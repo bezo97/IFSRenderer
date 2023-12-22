@@ -1,18 +1,9 @@
-﻿using IFSEngine.Model;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Model;
 
 namespace WpfDisplay.Views;
 
@@ -40,7 +31,7 @@ public partial class PaletteDialogWindow : Window
         SelectedPalette = selected;
         DialogResult = true;//closes the dialog
                             //Close();
-        });
+    });
 
     private RelayCommand _cancelDialogCommand;
     public RelayCommand CancelDialogCommand =>
@@ -49,6 +40,6 @@ public partial class PaletteDialogWindow : Window
         SelectedPalette = null;
         DialogResult = false;//closes the dialog
                              //Close();
-        });
+    });
 
 }

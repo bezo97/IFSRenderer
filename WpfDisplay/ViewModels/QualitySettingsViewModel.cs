@@ -1,14 +1,13 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.Generic;
+using System.Windows;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using IFSEngine.Model;
 using IFSEngine.Rendering;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Windows;
+
 using WpfDisplay.Models;
-using static OpenTK.Graphics.OpenGL.GL;
 
 namespace WpfDisplay.ViewModels;
 
@@ -159,10 +158,7 @@ public partial class QualitySettingsViewModel : ObservableObject
 
     public int ImageWidth
     {
-        get
-        {
-            return _workspace.Ifs.ImageResolution.Width;
-        }
+        get => _workspace.Ifs.ImageResolution.Width;
         set
         {
             _workspace.TakeSnapshot();
@@ -183,10 +179,7 @@ public partial class QualitySettingsViewModel : ObservableObject
 
     public int ImageHeight
     {
-        get
-        {
-            return _workspace.Ifs.ImageResolution.Height;
-        }
+        get => _workspace.Ifs.ImageResolution.Height;
         set
         {
             _workspace.TakeSnapshot();

@@ -1,9 +1,10 @@
-﻿using IFSEngine.Model;
-using IFSEngine.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+
+using IFSEngine.Model;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Generation;
 
@@ -11,8 +12,8 @@ public class Generator
 {
     public List<Transform> SelectedTransforms { get; set; }
 
-    private static readonly HashSet<string> _preferredTransformNames = new() { "Affine", "Möbius", "Rotate Euler", "Spherical", "Translate" };
-    private static readonly HashSet<string> _angleParams = new() { "angle", "rot", "rotate", "rotation", "orientation", "inclination", "azimuth" };
+    private static readonly HashSet<string> _preferredTransformNames = ["Affine", "Möbius", "Rotate Euler", "Spherical", "Translate"];
+    private static readonly HashSet<string> _angleParams = ["angle", "rot", "rotate", "rotation", "orientation", "inclination", "azimuth"];
 
     public Generator(IEnumerable<Transform> transforms)
     {
@@ -60,7 +61,7 @@ public class Generator
                 {
                     if (!it.WeightTo.TryGetValue(itTo, out _))
                         it.WeightTo[itTo] = 0.0;//hack
-                    if (options.MutationChance*0.5 > Random.Shared.NextDouble()) //TODO: separate chance?
+                    if (options.MutationChance * 0.5 > Random.Shared.NextDouble()) //TODO: separate chance?
                     {
                         it.WeightTo[itTo] = 1.0 - (it.WeightTo[itTo] > 0.0 ? 1.0 : 0.0);
                     }
@@ -110,14 +111,14 @@ public class Generator
 
     private static Iterator CreateIterator(GeneratorOptions options, List<Transform> transforms)
     {
-        var selectedTransform = transforms[Random.Shared.Next(transforms.Count)]; 
+        var selectedTransform = transforms[Random.Shared.Next(transforms.Count)];
 
         var iterator = new Iterator(selectedTransform)
         {
             BaseWeight = 0.5 + Random.Shared.NextDouble(),
             StartWeight = 1.0,
             ColorIndex = Random.Shared.NextDouble(),
-            ColorSpeed = 0.25 + 0.5* Random.Shared.NextDouble(),
+            ColorSpeed = 0.25 + 0.5 * Random.Shared.NextDouble(),
             Opacity = (Random.Shared.Next(3) == 0) ? 0 : Random.Shared.NextDouble(),
             ShadingMode = (Random.Shared.Next(10) == 0) ? ShadingMode.DeltaPSpeed : ShadingMode.Default
         };
@@ -184,7 +185,7 @@ public class Generator
     /// <returns></returns>
     private static FlamePalette PaletteFromIqParams(Vector4 bias, Vector4 mult, Vector4 freq, Vector4 phase)
     {
-        List<Vector4> colors = new List<Vector4>();
+        List<Vector4> colors = [];
 
         for (float t = 0; t < 1.0; t += 0.1f)
         {//could be based on freq
@@ -233,7 +234,7 @@ public class Generator
     private static bool IsAngleParameter(string paramName)
     {
         var lc = paramName.ToLowerInvariant();
-        return lc == "r" || _angleParams.Any(p => lc.Contains(p));
+        return lc == "r" || _angleParams.Any(lc.Contains);
     }
 
 }

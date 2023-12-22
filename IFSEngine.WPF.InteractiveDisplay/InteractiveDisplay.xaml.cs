@@ -1,17 +1,18 @@
 ﻿#nullable enable
-using IFSEngine.Rendering;
-using OpenTK.Windowing.Common;
 using System;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Timers;
 using System.Windows;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Threading;
+
+using IFSEngine.Rendering;
+
+using OpenTK.Windowing.Common;
+
 using Vortice.XInput;
+
 using Timer = System.Timers.Timer;
 
 namespace IFSEngine.WPF.InteractiveDisplay;
@@ -26,16 +27,16 @@ public partial class InteractiveDisplay : WindowsFormsHost
 
     public ICommand InteractionStartedCommand
     {
-        get { return (ICommand)GetValue(InteractionStartedCommandProperty); }
-        set { SetValue(InteractionStartedCommandProperty, value); }
+        get => (ICommand)GetValue(InteractionStartedCommandProperty);
+        set => SetValue(InteractionStartedCommandProperty, value);
     }
     public static readonly DependencyProperty InteractionStartedCommandProperty =
         DependencyProperty.Register("InteractionStartedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
 
     public ICommand InteractionFinishedCommand
     {
-        get { return (ICommand)GetValue(InteractionFinishedCommandProperty); }
-        set { SetValue(InteractionFinishedCommandProperty, value); }
+        get => (ICommand)GetValue(InteractionFinishedCommandProperty);
+        set => SetValue(InteractionFinishedCommandProperty, value);
     }
     public static readonly DependencyProperty InteractionFinishedCommandProperty =
         DependencyProperty.Register("InteractionFinishedCommand", typeof(ICommand), typeof(InteractiveDisplay), new PropertyMetadata(null));
@@ -43,8 +44,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
     private bool _invertY;
     public bool InvertRotationAxisY
     {
-        get { return (bool)GetValue(InvertRotationAxisYProperty); }
-        set { SetValue(InvertRotationAxisYProperty, value); }
+        get => (bool)GetValue(InvertRotationAxisYProperty);
+        set => SetValue(InvertRotationAxisYProperty, value);
     }
     public static readonly DependencyProperty InvertRotationAxisYProperty =
         DependencyProperty.Register("InvertRotationAxisY", typeof(bool), typeof(InteractiveDisplay),
@@ -53,14 +54,13 @@ public partial class InteractiveDisplay : WindowsFormsHost
     private float _sensitivity = 1.0f;
     public float Sensitivity
     {
-        get { return (float)GetValue(SensitivityProperty); }
-        set { SetValue(SensitivityProperty, value); }
+        get => (float)GetValue(SensitivityProperty);
+        set => SetValue(SensitivityProperty, value);
     }
     public static readonly DependencyProperty SensitivityProperty =
         DependencyProperty.Register("Sensitivity", typeof(float), typeof(InteractiveDisplay),
             new PropertyMetadata(1.0f, (a, b) => { ((InteractiveDisplay)a)._sensitivity = (float)b.NewValue; }));
-
-    bool _isGamepadConnected = false;
+    private bool _isGamepadConnected = false;
     public event EventHandler<bool>? GamepadConnectionStateChanged;
     public event EventHandler? DisplayResolutionChanged;
 
@@ -134,7 +134,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     yawDelta = s.Gamepad.RightThumbX / ThumbstickValMax;
                 float pitchDelta = 0.0f;
                 if (Math.Abs(s.Gamepad.RightThumbY + 1) > Gamepad.RightThumbDeadZone * DeadZoneMultiplier)
-                    pitchDelta = - s.Gamepad.RightThumbY / ThumbstickValMax;
+                    pitchDelta = -s.Gamepad.RightThumbY / ThumbstickValMax;
                 float rollDelta = 0.0f;
                 if (s.Gamepad.Buttons.HasFlag(GamepadButtons.LeftShoulder))
                     rollDelta -= 1.0f;
@@ -145,7 +145,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                 fdDelta += s.Gamepad.RightTrigger / 255.0f - s.Gamepad.LeftTrigger / 255.0f;
             }
 
-            if(_isGamepadConnected != connected)
+            if (_isGamepadConnected != connected)
             {
                 _isGamepadConnected = connected;
                 GamepadConnectionStateChanged?.Invoke(this, _isGamepadConnected);
@@ -186,7 +186,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
         if (IsInteractionEnabled && Renderer is not null)
         {
             InteractionStartedCommand?.Execute(null);
-            Renderer.LoadedParams.Camera.FocusDistance += e.Delta/Mouse.MouseWheelDeltaForOneLine * Renderer.LoadedParams.Camera.FocusDistance * 0.1;
+            Renderer.LoadedParams.Camera.FocusDistance += e.Delta / Mouse.MouseWheelDeltaForOneLine * Renderer.LoadedParams.Camera.FocusDistance * 0.1;
             Renderer.InvalidateHistogramBuffer();
             InteractionFinishedCommand?.Execute(null);
         }
@@ -243,10 +243,10 @@ public partial class InteractiveDisplay : WindowsFormsHost
             return;
 
         RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
-            {
-                RoutedEvent = Mouse.MouseDownEvent,
-                Source = this,
-            });
+        {
+            RoutedEvent = Mouse.MouseDownEvent,
+            Source = this,
+        });
     }
 
     private CancellationTokenSource _cts = new();

@@ -3,11 +3,11 @@
 namespace WpfDisplay.Views.Animation;
 
 /// <summary>
-/// Interaction logic for AnimationControlPanel.xaml
+/// Interaction logic for CurveEditor.xaml
 /// </summary>
-public partial class AnimationControlPanel : UserControl
+public partial class CurveEditor : UserControl
 {
-    public AnimationControlPanel()
+    public CurveEditor()
     {
         InitializeComponent();
     }

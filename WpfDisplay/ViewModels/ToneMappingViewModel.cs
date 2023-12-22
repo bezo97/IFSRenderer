@@ -1,6 +1,7 @@
-﻿using IFSEngine.Model;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;

@@ -1,11 +1,12 @@
-﻿using IFSEngine.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using IFSEngine.Utility;
 
 namespace IFSEngine.Model;
 
@@ -16,17 +17,17 @@ public partial class FlamePalette
 {
     public string Name { get; set; } = "Empty Palette";
     public int Rotation { get; set; } = 0;
-    public List<Vector4> Colors { get; set; } = new List<Vector4>();
+    public List<Vector4> Colors { get; set; } = [];
 
     public static FlamePalette Default { get; } = new FlamePalette
     {
         Name = "Default Palette",
         Rotation = 0,
-        Colors = new List<Vector4>
-        {
-            new Vector4(1,1,1,1),
-            new Vector4(1,1,1,1)
-        }
+        Colors =
+        [
+            new Vector4(1, 1, 1, 1),
+            new Vector4(1, 1, 1, 1)
+        ]
     };
 
     [GeneratedRegex("{[^{]+}")]
@@ -47,10 +48,10 @@ public partial class FlamePalette
     public static async Task<List<FlamePalette>> FromFileAsync(string filePath)
     {
         int maxIndices = 400;
-        List<FlamePalette> palettes = new();
+        List<FlamePalette> palettes = [];
         string content = await File.ReadAllTextAsync(filePath);
         //find palettes in file
-        var paletteTexts = paletteMatcher().Matches(content).Select(m=>m.Value).ToList();
+        var paletteTexts = paletteMatcher().Matches(content).Select(m => m.Value).ToList();
         foreach (var paletteText in paletteTexts)
         {
             //parse palette data
@@ -80,7 +81,7 @@ public partial class FlamePalette
             foreach (var (index, color) in indexedColors)
                 colors[index] = color;
             //lame linear interpolation in rgb space
-            for(int i = 0; i < indexedColors.Count-1; i++)
+            for (int i = 0; i < indexedColors.Count - 1; i++)
             {
                 int jStart = indexedColors[i].index + 1;
                 int jEnd = indexedColors[i + 1].index;
@@ -90,10 +91,10 @@ public partial class FlamePalette
                     colors[j] = Vector4.Lerp(indexedColors[i].color, indexedColors[i + 1].color, t);
                 }
             }
-            float edgeIndicesDistance = (float)((maxIndices - indexedColors[^1].index) + indexedColors[0].index);
+            float edgeIndicesDistance = maxIndices - indexedColors[^1].index + indexedColors[0].index;
             for (int i = 0; i < indexedColors[0].index; i++)
             {
-                float t = ((maxIndices - indexedColors[^1].index) + i) / edgeIndicesDistance;
+                float t = (maxIndices - indexedColors[^1].index + i) / edgeIndicesDistance;
                 colors[i] = Vector4.Lerp(indexedColors[^1].color, indexedColors[0].color, t);
             }
             for (int i = indexedColors[^1].index; i < maxIndices; i++)

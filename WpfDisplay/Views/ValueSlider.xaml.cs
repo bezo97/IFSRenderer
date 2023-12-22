@@ -1,13 +1,14 @@
 ﻿#nullable enable
-using CommunityToolkit.Mvvm.Input;
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.Input;
+
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -29,10 +30,7 @@ public partial class ValueSlider : UserControl
     /// <summary>
     /// Hide decimal places for integers, show fix 4 decimal places for double
     /// </summary>
-    private void UpdateLabelFormat()
-    {
-        displayLabel.ContentStringFormat = (Increment % 1 == 0) ? "N0" : "N4";
-    }
+    private void UpdateLabelFormat() => displayLabel.ContentStringFormat = (Increment % 1 == 0) ? "N0" : "N4";
 
     private void UpdateAnimatedSymbol()
     {
@@ -49,7 +47,7 @@ public partial class ValueSlider : UserControl
                 true => '◈',
             };
 
-            if(animatedState is not null)
+            if (animatedState is not null)
             {
                 var isValueModified = main.AnimationViewModel.IsChannelBeingModified(AnimationPath, Value);
                 symbolColor = isValueModified ? Brushes.Orange : Brushes.White;
@@ -64,8 +62,8 @@ public partial class ValueSlider : UserControl
 
     public ValueSliderSettings? SliderSettings
     {
-        get { return (ValueSliderSettings?)GetValue(SliderSettingsProperty); }
-        set { SetValue(SliderSettingsProperty, value); }
+        get => (ValueSliderSettings?)GetValue(SliderSettingsProperty);
+        set => SetValue(SliderSettingsProperty, value);
     }
     public static readonly DependencyProperty SliderSettingsProperty =
         DependencyProperty.Register("SliderSettings", typeof(ValueSliderSettings), typeof(ValueSlider), new FrameworkPropertyMetadata((s, e) =>
@@ -74,7 +72,7 @@ public partial class ValueSlider : UserControl
             ValueSliderSettings sliderSettings = (ValueSliderSettings)e.NewValue;
             if (sliderSettings is not null)
             {
-                if(!BindingOperations.IsDataBound(s, LabelProperty))
+                if (!BindingOperations.IsDataBound(s, LabelProperty))
                     slider.Label = sliderSettings.Label ?? slider.Label;
                 if (!BindingOperations.IsDataBound(s, IsLabelShownProperty))
                     slider.IsLabelShown = sliderSettings.IsLabelShown ?? slider.IsLabelShown;
@@ -102,24 +100,24 @@ public partial class ValueSlider : UserControl
 
     public string Label
     {
-        get { return (string)GetValue(LabelProperty); }
-        set { SetValue(LabelProperty, value); }
+        get => (string)GetValue(LabelProperty);
+        set => SetValue(LabelProperty, value);
     }
     public static readonly DependencyProperty LabelProperty =
         DependencyProperty.Register("Label", typeof(string), typeof(ValueSlider), new PropertyMetadata(null));
 
     public bool IsLabelShown
     {
-        get { return (bool)GetValue(IsLabelShownProperty); }
-        set { SetValue(IsLabelShownProperty, value); }
+        get => (bool)GetValue(IsLabelShownProperty);
+        set => SetValue(IsLabelShownProperty, value);
     }
     public static readonly DependencyProperty IsLabelShownProperty =
         DependencyProperty.Register("IsLabelShown", typeof(bool), typeof(ValueSlider), new PropertyMetadata(true));
 
     public double Value
     {
-        get { return (double)GetValue(ValueProperty); }
-        set { SetValue(ValueProperty, value); }
+        get => (double)GetValue(ValueProperty);
+        set => SetValue(ValueProperty, value);
     }
     public static readonly DependencyProperty ValueProperty =
         DependencyProperty.Register("Value", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (s, e) =>
@@ -129,16 +127,16 @@ public partial class ValueSlider : UserControl
 
     public double DefaultValue
     {
-        get { return (double)GetValue(DefaultValueProperty); }
-        set { SetValue(DefaultValueProperty, value); }
+        get => (double)GetValue(DefaultValueProperty);
+        set => SetValue(DefaultValueProperty, value);
     }
     public static readonly DependencyProperty DefaultValueProperty =
         DependencyProperty.Register("DefaultValue", typeof(double), typeof(ValueSlider), new PropertyMetadata(0.0));
 
     public double Increment
     {
-        get { return (double)GetValue(IncrementProperty); }
-        set { SetValue(IncrementProperty, value); }
+        get => (double)GetValue(IncrementProperty);
+        set => SetValue(IncrementProperty, value);
     }
     public static readonly DependencyProperty IncrementProperty =
         DependencyProperty.Register("Increment", typeof(double), typeof(ValueSlider), new FrameworkPropertyMetadata(0.1, (s, e) =>
@@ -148,32 +146,32 @@ public partial class ValueSlider : UserControl
 
     public double? MinValue
     {
-        get { return (double?)GetValue(MinValueProperty); }
-        set { SetValue(MinValueProperty, value); }
+        get => (double?)GetValue(MinValueProperty);
+        set => SetValue(MinValueProperty, value);
     }
     public static readonly DependencyProperty MinValueProperty =
         DependencyProperty.Register("MinValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
 
     public double? MaxValue
     {
-        get { return (double?)GetValue(MaxValueProperty); }
-        set { SetValue(MaxValueProperty, value); }
+        get => (double?)GetValue(MaxValueProperty);
+        set => SetValue(MaxValueProperty, value);
     }
     public static readonly DependencyProperty MaxValueProperty =
         DependencyProperty.Register("MaxValue", typeof(double?), typeof(ValueSlider), new PropertyMetadata(null));
 
     public bool Editing
     {
-        get { return (bool)GetValue(EditingProperty); }
-        set { SetValue(EditingProperty, value); }
+        get => (bool)GetValue(EditingProperty);
+        set => SetValue(EditingProperty, value);
     }
     public static readonly DependencyProperty EditingProperty =
         DependencyProperty.Register("Editing", typeof(bool), typeof(ValueSlider), new PropertyMetadata(false));
 
     public string AnimationPath
     {
-        get { return (string)GetValue(AnimationPathProperty); }
-        set { SetValue(AnimationPathProperty, value); }
+        get => (string)GetValue(AnimationPathProperty);
+        set => SetValue(AnimationPathProperty, value);
     }
     public static readonly DependencyProperty AnimationPathProperty =
         DependencyProperty.Register("AnimationPath", typeof(string), typeof(ValueSlider), new FrameworkPropertyMetadata(null, (s, e) =>
@@ -183,16 +181,16 @@ public partial class ValueSlider : UserControl
 
     public Action ValueWillChangeAction
     {
-        get { return (Action)GetValue(ValueWillChangeActionProperty); }
-        set { SetValue(ValueWillChangeActionProperty, value); }
+        get => (Action)GetValue(ValueWillChangeActionProperty);
+        set => SetValue(ValueWillChangeActionProperty, value);
     }
     public static readonly DependencyProperty ValueWillChangeActionProperty =
         DependencyProperty.Register("ValueWillChangeAction", typeof(Action), typeof(ValueSlider), new PropertyMetadata(null));
 
     public Action<double> ValueChangedAction
     {
-        get { return (Action<double>)GetValue(ValueChangedActionProperty); }
-        set { SetValue(ValueChangedActionProperty, value); }
+        get => (Action<double>)GetValue(ValueChangedActionProperty);
+        set => SetValue(ValueChangedActionProperty, value);
     }
     public static readonly DependencyProperty ValueChangedActionProperty =
         DependencyProperty.Register("ValueChangedAction", typeof(Action<double>), typeof(ValueSlider), new PropertyMetadata(null));
@@ -211,15 +209,16 @@ public partial class ValueSlider : UserControl
 
     public ICommand AnimateCommand
     {
-        get { return (ICommand)GetValue(AnimateCommandProperty); }
-        set { SetValue(AnimateCommandProperty, value); }
+        get => (ICommand)GetValue(AnimateCommandProperty);
+        set => SetValue(AnimateCommandProperty, value);
     }
     public static readonly DependencyProperty AnimateCommandProperty =
         DependencyProperty.Register("AnimateCommand", typeof(ICommand), typeof(ValueSlider), new PropertyMetadata(null));
 
     //little hack for now
     private RelayCommand? _internalAnimateCommand;
-    public RelayCommand InternalAnimateCommand => _internalAnimateCommand ??= new RelayCommand(()=>{
+    public RelayCommand InternalAnimateCommand => _internalAnimateCommand ??= new RelayCommand(() =>
+    {
         AnimateCommand.Execute(new AnimationViewModel.AnimateValueCommandParameters(Label, AnimationPath, Value));
         UpdateAnimatedSymbol();
     }, () => AnimateCommand?.CanExecute(null) ?? true);
@@ -295,7 +294,8 @@ public partial class ValueSlider : UserControl
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            if(!displayLabel.IsMouseCaptured) {
+            if (!displayLabel.IsMouseCaptured)
+            {
                 ValueWillChangeAction?.Invoke();
                 _dragp = e.GetPosition(Window.GetWindow(this));
                 _lastv = Value;
@@ -303,7 +303,7 @@ public partial class ValueSlider : UserControl
                 Mouse.OverrideCursor = Cursors.None;
             }
 
-            double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
+            double delta = e.GetPosition(Window.GetWindow(this)).X - _dragp.X;
             Value = ConstrainValue(_lastv + delta * Increment * IncrementMultiplier);
             ValueChangedAction?.Invoke(Value);
 
@@ -359,14 +359,8 @@ public partial class ValueSlider : UserControl
         StartEditing();
     }
 
-    private void ValueEditor_LostFocus(object sender, RoutedEventArgs e)
-    {
-        Editing = false;
-    }
+    private void ValueEditor_LostFocus(object sender, RoutedEventArgs e) => Editing = false;
 
-    private void valueEditor_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-    {
-        Editing = false;
-    }
+    private void valueEditor_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) => Editing = false;
 
 }

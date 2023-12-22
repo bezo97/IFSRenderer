@@ -1,12 +1,4 @@
 ﻿#nullable enable
-using Cavern.Channels;
-using Cavern.Format;
-using Cavern.QuickEQ.Utilities;
-using Cavern.Utilities;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using IFSEngine.Model;
-using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,12 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
+using Cavern.Channels;
+using Cavern.QuickEQ.Utilities;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Model;
+using IFSEngine.Utility;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
-using Clip = Cavern.Clip;
 
 namespace WpfDisplay.ViewModels;
 
@@ -59,7 +59,7 @@ public partial class AnimationViewModel : ObservableObject
 
     public AnimationViewModel(Workspace workspace)
     {
-        this.Workspace = workspace;
+        Workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) =>
         {
             EditedChannel = null;
@@ -171,7 +171,7 @@ public partial class AnimationViewModel : ObservableObject
         public string Path { get; }
         public double Val { get; }
     }
-    
+
     [RelayCommand]
     public void AnimateValue(AnimateValueCommandParameters param)
     {
@@ -198,10 +198,7 @@ public partial class AnimationViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void JumpToKeyframe(KeyframeViewModel kfv)
-    {
-        JumpToTime(kfv._k.t);
-    }
+    public void JumpToKeyframe(KeyframeViewModel kfv) => JumpToTime(kfv._k.t);
 
     public void JumpToTime(double t)
     {
@@ -282,10 +279,7 @@ public partial class AnimationViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void EditChannel(ChannelViewModel cvm)
-    {
-        EditedChannel = cvm;
-    }
+    public void EditChannel(ChannelViewModel cvm) => EditedChannel = cvm;
 
     public void CloseChannelEditor() => EditedChannel = null;
 
@@ -346,10 +340,7 @@ public partial class AnimationViewModel : ObservableObject
         Workspace.Renderer.InvalidateParamsBuffer();
     }
 
-    private void OnPlayerTick(object? sender, ElapsedEventArgs e)
-    {
-        JumpToNextFrame();
-    }
+    private void OnPlayerTick(object? sender, ElapsedEventArgs e) => JumpToNextFrame();
 
     [RelayCommand]
     public async Task LoadAudio()
@@ -375,7 +366,7 @@ public partial class AnimationViewModel : ObservableObject
     [RelayCommand(/*CanExecute = nameof(_canExecuteStart)*/)]
     public void StartExportingFrames()
     {
-        if(IsExportingFrames) throw new InvalidOperationException();
+        if (IsExportingFrames) throw new InvalidOperationException();
 
         _realtimePlayer.Stop();
         _audioPlayer?.Stop();
@@ -394,7 +385,7 @@ public partial class AnimationViewModel : ObservableObject
 
     private void OnFrameFinishedRendering(object? sender, EventArgs e)
     {
-        if(IsExportingFrames && _saveFramesPath is not null)
+        if (IsExportingFrames && _saveFramesPath is not null)
         {
             var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
             var frameNr = (int)(CurrentTime.ToTimeSpan().TotalSeconds * Workspace.Ifs.Dopesheet.Fps);
@@ -415,11 +406,11 @@ public partial class AnimationViewModel : ObservableObject
                 OpenEXR.WriteStream(fstream, histogramData);
             }
 
-            Workspace.Renderer.Seed = (uint)(Workspace.Ifs.Dopesheet.Fps * (frameNr+1));//set frame number as seed, only when exporting
+            Workspace.Renderer.Seed = (uint)(Workspace.Ifs.Dopesheet.Fps * (frameNr + 1));//set frame number as seed, only when exporting
 
             if (JumpToNextFrame())
             {//was last frame
-                if(Workspace.IsExportVideoFileEnabled)
+                if (Workspace.IsExportVideoFileEnabled)
                 {
                     RunFfmpegProcess().Wait();
                 }
@@ -427,7 +418,7 @@ public partial class AnimationViewModel : ObservableObject
             else
             {
                 var totalFrames = Workspace.Ifs.Dopesheet.Length.TotalSeconds * Workspace.Ifs.Dopesheet.Fps;
-                Workspace.UpdateStatusText($"Exported frame '{framePath}' ({frameNr+1}/{totalFrames})");
+                Workspace.UpdateStatusText($"Exported frame '{framePath}' ({frameNr + 1}/{totalFrames})");
             }
         }
     }
@@ -449,7 +440,7 @@ public partial class AnimationViewModel : ObservableObject
         var frameFileExtension = Workspace.IsRawFrameExportEnabled ? "exr" : "png";
         var videoFileExtension =
             userArgs.Contains("prores") ? "mov" :
-            userArgs.Contains("libvpx-vp9") ? "webm" : 
+            userArgs.Contains("libvpx-vp9") ? "webm" :
             "mp4";//figure out extension based on codec
         StringBuilder argsBuilder = new();
         argsBuilder.AppendJoin(' ',
@@ -468,7 +459,7 @@ public partial class AnimationViewModel : ObservableObject
         {
             WorkingDirectory = _saveFramesPath
         });
-        if(ffmpegProc is null)
+        if (ffmpegProc is null)
         {
             Workspace.UpdateStatusText("Video file creation failed - unable to run ffmpeg.");
             return;

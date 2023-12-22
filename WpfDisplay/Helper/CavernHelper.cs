@@ -1,6 +1,8 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
 using System.Linq;
+
+using Cavern.Utilities;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.Helper;
@@ -20,9 +22,9 @@ internal static class CavernHelper
     public static float CavernSampler(CavernAudio audio, int channelId, double minFreq, double maxFreq, double t)
     {
         var spectrum = CavernSpectrum(audio, channelId, t);
-        int startBin = (int)Math.Clamp(2 * minFreq / audio.SampleRate * spectrum.Length, 0, spectrum.Length-1);
+        int startBin = (int)Math.Clamp(2 * minFreq / audio.SampleRate * spectrum.Length, 0, spectrum.Length - 1);
         int endBin = (int)Math.Clamp(2 * maxFreq / audio.SampleRate * spectrum.Length, 0, spectrum.Length);
-        endBin = Math.Clamp(endBin, startBin+1, spectrum.Length);
+        endBin = Math.Clamp(endBin, startBin + 1, spectrum.Length);
         return spectrum[startBin..endBin].Max();
     }
 

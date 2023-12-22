@@ -1,9 +1,12 @@
-﻿using IFSEngine.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using IFSEngine.Model;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using WpfDisplay.Helper;
 
 namespace WpfDisplay.Serialization;

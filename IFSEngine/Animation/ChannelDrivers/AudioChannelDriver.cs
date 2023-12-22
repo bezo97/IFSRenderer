@@ -1,9 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IFSEngine.Animation.ChannelDrivers;
 
@@ -18,16 +14,8 @@ public class AudioChannelDriver
 
     private Func<AudioChannelDriver, double, float>? _sampler = null;
 
-    public void SetSamplerFunction(Func<AudioChannelDriver, double, float> sampler)
-    {
-        _sampler = sampler;
-    }
+    public void SetSamplerFunction(Func<AudioChannelDriver, double, float> sampler) => _sampler = sampler;
 
-    public double Apply(double inputValue, double t)
-    {
-        if (_sampler is null)
-            return inputValue;
-        return inputValue + EffectMultiplier * _sampler(this, t);
-    }
+    public double Apply(double inputValue, double t) => _sampler is null ? inputValue : inputValue + EffectMultiplier * _sampler(this, t);
 
 }

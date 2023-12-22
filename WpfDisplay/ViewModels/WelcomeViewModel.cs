@@ -1,24 +1,26 @@
 ﻿#nullable enable
-using Cavern.Format.Renderers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using IFSEngine.Generation;
 using IFSEngine.Model;
 using IFSEngine.Rendering;
 using IFSEngine.Utility;
+
 using OpenTK.Windowing.Desktop;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+
 using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
+
 using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
@@ -43,8 +45,8 @@ public sealed partial class WelcomeViewModel : ObservableObject
         }
     }
     [ObservableProperty] private ImageSource? _exploreThumbnail;
-    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = new();
-    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = new();
+    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = [];
+    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = [];
 
     public WelcomeViewModel(IReadOnlyCollection<Transform> loadedTransforms)
     {
@@ -71,8 +73,8 @@ public sealed partial class WelcomeViewModel : ObservableObject
         ExploreThumbnail = RenderThumbnail(renderer, ExploreParams);
 
         //load template files and recent files.
-        List<Task<IFS>> templateFilesTasks = new();
-        List<Task<IFS>> recentFilesTasks = new();
+        List<Task<IFS>> templateFilesTasks = [];
+        List<Task<IFS>> recentFilesTasks = [];
         try
         {
             templateFilesTasks = Directory
@@ -86,11 +88,11 @@ public sealed partial class WelcomeViewModel : ObservableObject
                 .ToList();
             await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
         }
-        catch (System.Runtime.Serialization.SerializationException){ /*Ignore broken files*/ }
+        catch (System.Runtime.Serialization.SerializationException) { /*Ignore broken files*/ }
 
         //render thumbnails
         Templates = templateFilesTasks
-            .Where(t=>t.IsCompletedSuccessfully).Select(t=>t.Result)
+            .Where(t => t.IsCompletedSuccessfully).Select(t => t.Result)
             .ToDictionary(p => p, p => RenderThumbnail(renderer, p))
             .ToList();
 
@@ -132,10 +134,10 @@ public sealed partial class WelcomeViewModel : ObservableObject
     [RelayCommand]
     private void SelectExploreWorkflow(IFS? ifs)
     {
-        if(RecentFiles.Any(f => f.Key == ifs))
+        if (RecentFiles.Any(f => f.Key == ifs))
         {
             SelectedWorkflow = WelcomeWorkflow.LoadRecent;
-            SelectedFilePath = Settings.Default.RecentFiles[RecentFiles.Count-1-RecentFiles.IndexOf(RecentFiles.First(f=>f.Key == ifs))];//TODO: ugh
+            SelectedFilePath = Settings.Default.RecentFiles[RecentFiles.Count - 1 - RecentFiles.IndexOf(RecentFiles.First(f => f.Key == ifs))];//TODO: ugh
         }
         else
             SelectedWorkflow = WelcomeWorkflow.Explore;

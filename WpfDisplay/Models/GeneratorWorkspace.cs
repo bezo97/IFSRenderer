@@ -1,15 +1,18 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using IFSEngine.Generation;
-using IFSEngine.Model;
-using IFSEngine.Rendering;
-using IFSEngine.Utility;
-using OpenTK.Windowing.Desktop;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+
+using IFSEngine.Generation;
+using IFSEngine.Model;
+using IFSEngine.Rendering;
+using IFSEngine.Utility;
+
+using OpenTK.Windowing.Desktop;
 
 namespace WpfDisplay.Models;
 
@@ -28,8 +31,8 @@ public partial class GeneratorWorkspace : ObservableObject
     private readonly Generator _generator;
     private readonly ConcurrentQueue<IFS> _renderQueue = new();
     private readonly ConcurrentDictionary<IFS, ImageSource> _thumbnails = new();
-    private readonly List<IFS> _pinnedIFS = new();
-    private readonly List<IFS> _generatedIFS = new();
+    private readonly List<IFS> _pinnedIFS = [];
+    private readonly List<IFS> _generatedIFS = [];
 
     /// <summary>
     /// Call <see cref="Initialize"/> before using
@@ -82,10 +85,7 @@ public partial class GeneratorWorkspace : ObservableObject
             _renderQueue.Enqueue(ifs);
     }
 
-    public void UnpinIFS(IFS ifs)
-    {
-        _pinnedIFS.Remove(ifs);
-    }
+    public void UnpinIFS(IFS ifs) => _pinnedIFS.Remove(ifs);
 
     private readonly object _queueLocker = new();
     public void ProcessQueue()

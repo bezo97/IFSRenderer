@@ -1,5 +1,7 @@
-﻿using IFSEngine.Model;
-using System.Numerics;
+﻿using System.Numerics;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;

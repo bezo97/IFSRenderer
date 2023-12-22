@@ -1,13 +1,9 @@
 ﻿#nullable enable
-using IFSEngine.Model;
-using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+using IFSEngine.Model;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Animation;
 

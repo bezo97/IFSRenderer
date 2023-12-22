@@ -1,15 +1,18 @@
 ﻿#nullable enable
-using CommunityToolkit.Mvvm.ComponentModel;
-using IFSEngine.Generation;
-using IFSEngine.Model;
-using IFSEngine.Rendering;
-using IFSEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+
+using IFSEngine.Generation;
+using IFSEngine.Model;
+using IFSEngine.Rendering;
+using IFSEngine.Serialization;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
@@ -23,8 +26,7 @@ namespace WpfDisplay.Models;
 public partial class Workspace : ObservableObject
 {
     private readonly IFSHistoryTracker _tracker = new();
-    private List<Transform> _loadedTransforms = new();
-    private string? _editedFilePath;
+    private List<Transform> _loadedTransforms = [];
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
@@ -39,7 +41,7 @@ public partial class Workspace : ObservableObject
     public bool IsExportVideoFileEnabled { get; private set; }
     public string? FfmpegPath { get; private set; }
     public string? FfmpegArgs { get; private set; }
-    public string? EditedFilePath => _editedFilePath;
+    public string? EditedFilePath { get; private set; }
     public static IReadOnlyList<string> RecentFilePaths
     {
         get
@@ -108,7 +110,7 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
-   public async Task ReloadTransforms()
+    public async Task ReloadTransforms()
     {
         await LoadTransformLibrary();
         Ifs.ReloadTransforms(LoadedTransforms);
@@ -144,7 +146,7 @@ public partial class Workspace : ObservableObject
             when (ex.InnerException is AggregateException exs)
         {
             var unknownTransformNames = exs.InnerExceptions.Select(e => ((UnknownTransformException)e).TransformName);
-            if(unknownTransformNames.All(transformName => LoadedTransforms.Any(t => t.Name == transformName)))
+            if (unknownTransformNames.All(transformName => LoadedTransforms.Any(t => t.Name == transformName)))
             {
                 ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
                 System.Windows.MessageBox.Show($"The loaded file was created using different versions of the following transforms:\r\n{string.Join(", ", unknownTransformNames)}.", "Warning");
@@ -190,14 +192,14 @@ public partial class Workspace : ObservableObject
 
     private void SetEditedFilePath(string? path)
     {
-        _editedFilePath = path;
-        if(path != null)
+        EditedFilePath = path;
+        if (path != null)
         {//update recent files list
             var paths = Settings.Default.RecentFiles;
-            if(paths.Contains(path))
+            if (paths.Contains(path))
                 paths.Remove(path);
             paths.Add(path);
-            if(paths.Count > 5)
+            if (paths.Count > 5)
                 paths.RemoveAt(0);
             Settings.Default.Save();
             OnPropertyChanged(nameof(RecentFilePaths));
@@ -236,10 +238,7 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(Ifs));
     }
 
-    public void ClearHistory()
-    {
-        _tracker.Clear();
-    }
+    public void ClearHistory() => _tracker.Clear();
 
     public void TakeSnapshot()
     {
@@ -273,9 +272,6 @@ public partial class Workspace : ObservableObject
         };
     }
 
-    public void UpdateStatusText(string statusText)
-    {
-        StatusTextChanged?.Invoke(this, statusText);
-    }
+    public void UpdateStatusText(string statusText) => StatusTextChanged?.Invoke(this, statusText);
 
 }

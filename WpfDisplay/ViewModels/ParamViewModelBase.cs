@@ -1,5 +1,7 @@
-﻿using IFSEngine.Model;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -17,6 +19,6 @@ public abstract partial class ParamViewModelBase<T> : ObservableObject
         Name = name;
         this.iterator = iterator;
         this.workspace = workspace;
-        this.workspace.PropertyChanged += (s,e) => OnPropertyChanged(string.Empty);
+        this.workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
 }

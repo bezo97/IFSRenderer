@@ -1,7 +1,4 @@
 ﻿#pragma warning disable CS0649
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IFSEngine.Rendering.GpuStructs;
 

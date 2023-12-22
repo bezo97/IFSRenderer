@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 using System.Windows.Threading;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Serialization;
-using WpfDisplay.ViewModels;
-using WpfDisplay.Views;
 
 namespace WpfDisplay;
 
@@ -63,7 +58,7 @@ public partial class App : Application
                     });
                 }
                 catch (System.ComponentModel.Win32Exception) { } //broken url format
-                }));
+            }));
 
     }
 

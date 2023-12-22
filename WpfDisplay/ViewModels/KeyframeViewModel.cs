@@ -1,7 +1,8 @@
 ﻿#nullable enable
-using IFSEngine.Animation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Animation;
 
 namespace WpfDisplay.ViewModels;
 

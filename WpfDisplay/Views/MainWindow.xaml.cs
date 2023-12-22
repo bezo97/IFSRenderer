@@ -1,11 +1,13 @@
-﻿using IFSEngine.Model;
-using IFSEngine.Rendering;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+
+using IFSEngine.Model;
+using IFSEngine.Rendering;
+
 using WpfDisplay.Models;
 using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
@@ -67,7 +69,7 @@ public partial class MainWindow : Window
             };
             welcomeWindow.ShowDialog();
             workflow = welcomeViewModel.SelectedWorkflow;
-            if(workflow == WelcomeWorkflow.Explore)
+            if (workflow == WelcomeWorkflow.Explore)
                 workspace.LoadParams(welcomeViewModel.ExploreParams, null);
             else if (workflow == WelcomeWorkflow.LoadRecent)
                 workspace.LoadParams(welcomeViewModel.ExploreParams, welcomeViewModel.SelectedFilePath);
@@ -185,45 +187,21 @@ public partial class MainWindow : Window
         base.OnClosing(e);
     }
 
-    private void Undo_Executed(object sender, ExecutedRoutedEventArgs e)
-    {
-        vm.IFSViewModel.UndoCommand.Execute(null);
-    }
+    private void Undo_Executed(object sender, ExecutedRoutedEventArgs e) => vm.IFSViewModel.UndoCommand.Execute(null);
 
-    private void Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = vm?.IFSViewModel.UndoCommand.CanExecute(null) ?? false;
-    }
+    private void Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.IFSViewModel.UndoCommand.CanExecute(null) ?? false;
 
-    private void Redo_Executed(object sender, ExecutedRoutedEventArgs e)
-    {
-        vm.IFSViewModel.RedoCommand.Execute(null);
-    }
+    private void Redo_Executed(object sender, ExecutedRoutedEventArgs e) => vm.IFSViewModel.RedoCommand.Execute(null);
 
-    private void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
-    }
+    private void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.IFSViewModel.RedoCommand.CanExecute(null) ?? false;
 
-    private void Copy_Executed(object sender, ExecutedRoutedEventArgs e)
-    {
-        vm.CopyClipboardParamsCommand.Execute(null);
-    }
+    private void Copy_Executed(object sender, ExecutedRoutedEventArgs e) => vm.CopyClipboardParamsCommand.Execute(null);
 
-    private void Copy_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = vm?.CopyClipboardParamsCommand.CanExecute(null) ?? false;
-    }
+    private void Copy_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.CopyClipboardParamsCommand.CanExecute(null) ?? false;
 
-    private void Paste_Executed(object sender, ExecutedRoutedEventArgs e)
-    {
-        vm.PasteClipboardParamsCommand.Execute(null);
-    }
+    private void Paste_Executed(object sender, ExecutedRoutedEventArgs e) => vm.PasteClipboardParamsCommand.Execute(null);
 
-    private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = vm?.PasteClipboardParamsCommand.CanExecute(null) ?? false;
-    }
+    private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.PasteClipboardParamsCommand.CanExecute(null) ?? false;
 
     private void mainWindow_DragOver(object sender, DragEventArgs e)
     {
@@ -236,7 +214,7 @@ public partial class MainWindow : Window
     {
         e.Handled = true;
         var fileName = IsSingleFile(e);
-        if (fileName is null) 
+        if (fileName is null)
             return;
         var ext = Path.GetExtension(fileName);
         if (ext is ".ifsjson")
@@ -261,24 +239,15 @@ public partial class MainWindow : Window
         return null;
     }
 
-    private void dockManager_DocumentClosing(object sender, AvalonDock.DocumentClosingEventArgs e)
-    {
-        vm.workspace.LoadParams(IFS.Default, null);
-    }
+    private void dockManager_DocumentClosing(object sender, AvalonDock.DocumentClosingEventArgs e) => vm.workspace.LoadParams(IFS.Default, null);
 
-    private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e)
-    {
-        await Dispatcher.InvokeAsync(() => vm.IsGamepadConnected = e);
-    }
+    private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e) => await Dispatcher.InvokeAsync(() => vm.IsGamepadConnected = e);
 
     private void ShowAnimationsPanel()
     {
-        if(animationsPanel.IsAutoHidden)
+        if (animationsPanel.IsAutoHidden)
             animationsPanel.ToggleAutoHide();
     }
 
-    private void mainDisplay_DisplayResolutionChanged(object sender, System.EventArgs e)
-    {
-        vm?.QualitySettingsViewModel?.UpdatePreviewRenderSettings();
-    }
+    private void mainDisplay_DisplayResolutionChanged(object sender, System.EventArgs e) => vm?.QualitySettingsViewModel?.UpdatePreviewRenderSettings();
 }

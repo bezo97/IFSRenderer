@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace WpfDisplay.Helper;
 
-public class BindablePoint
+public class BindablePoint(double x, double y)
 {
-    public double X { get; set; }
-    public double Y { get; set; }
-
-    public BindablePoint(double x, double y)
-    {
-        X = x;
-        Y = y;
-    }
+    public double X { get; set; } = x;
+    public double Y { get; set; } = y;
 
     public static BindablePoint FromPoint(Point p) => new(p.X, p.Y);
 }

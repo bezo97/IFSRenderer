@@ -1,10 +1,12 @@
-﻿using IFSEngine.Model;
+﻿using System;
+using System.Numerics;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Numerics;
-using System.Windows.Input;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Models;
-using System;
 
 namespace WpfDisplay.ViewModels;
 
@@ -200,7 +202,7 @@ public partial class CameraSettingsViewModel : ObservableObject
         set
         {
             _workspace.TakeSnapshot();
-            _workspace.Ifs.Camera.Projection = value; 
+            _workspace.Ifs.Camera.Projection = value;
             _workspace.Renderer.InvalidateHistogramBuffer();
             OnPropertyChanged(nameof(ProjectionType));
         }

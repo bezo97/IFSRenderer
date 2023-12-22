@@ -6,8 +6,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
              xmlns:common="clr-namespace:WpfDisplay.Views"
-             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels" 
-             xmlns:local1="clr-namespace:WpfDisplay.Views.AnimationControls" 
+             xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" x:Name="animationPanel"
@@ -200,7 +199,7 @@
                 <Grid Grid.Row="1"
                       Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
                       Background="#333333">
-                    <local1:CurveEditor DataContext="{Binding EditedChannel}"/>
+                    <local:CurveEditor DataContext="{Binding EditedChannel}"/>
                 </Grid>
                 <Line IsHitTestVisible="False" Grid.RowSpan="2"
                     X1="{Binding CurrentTimeScrollPosition}" Y1="0"
@@ -242,7 +241,7 @@
         <Grid Grid.Column="0" Grid.Row="2" 
               Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
               Background="#333333">
-            <local1:ChannelEditor DataContext="{Binding EditedChannel}" Padding="4"/>
+            <local:ChannelEditor DataContext="{Binding EditedChannel}" Padding="4"/>
         </Grid>
     </Grid>
 </UserControl>

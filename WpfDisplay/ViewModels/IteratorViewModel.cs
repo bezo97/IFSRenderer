@@ -1,11 +1,14 @@
-﻿using IFSEngine.Model;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 
@@ -13,14 +16,13 @@ namespace WpfDisplay.ViewModels;
 
 public partial class IteratorViewModel : ObservableObject
 {
-    private readonly Iterator iterator;
     private readonly Workspace _workspace;
-    public Iterator Iterator => iterator;
+    public Iterator Iterator { get; }
 
     public event EventHandler ConnectingStarted;
     public event EventHandler ConnectingEnded;
 
-    public List<INotifyPropertyChanged> Parameters { get; } = new();
+    public List<INotifyPropertyChanged> Parameters { get; } = [];
 
     public required IRelayCommand<IteratorViewModel> RemoveCommand { get; init; }
     public required IRelayCommand<IteratorViewModel> DuplicateCommand { get; init; }
@@ -28,7 +30,7 @@ public partial class IteratorViewModel : ObservableObject
 
     public IteratorViewModel(Iterator iterator, Workspace workspace)
     {
-        this.iterator = iterator;
+        this.Iterator = iterator;
         _workspace = workspace;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();
@@ -37,8 +39,8 @@ public partial class IteratorViewModel : ObservableObject
     public void ReloadParameters()
     {
         Parameters.Clear();
-        Parameters.AddRange(iterator.RealParams.Select(v => new RealParamViewModel(v.Key, iterator, _workspace)));
-        Parameters.AddRange(iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, iterator, _workspace)));
+        Parameters.AddRange(Iterator.RealParams.Select(v => new RealParamViewModel(v.Key, Iterator, _workspace)));
+        Parameters.AddRange(Iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, Iterator, _workspace)));
         foreach (var v in Parameters)
         {
             v.PropertyChanged += (s, e) =>
@@ -56,10 +58,7 @@ public partial class IteratorViewModel : ObservableObject
         RaiseConnectionPropertyChanged();
     }
 
-    public void RaiseConnectionPropertyChanged()
-    {
-        OnPropertyChanged("ConnectionProps");
-    }
+    public void RaiseConnectionPropertyChanged() => OnPropertyChanged("ConnectionProps");
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ForegroundZIndex))]
@@ -74,7 +73,7 @@ public partial class IteratorViewModel : ObservableObject
         DefaultValue = 1.0,
         MinValue = 0,
         Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.StartWeight)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.StartWeight)}",
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -88,7 +87,7 @@ public partial class IteratorViewModel : ObservableObject
         MinValue = -1,
         MaxValue = 1,
         Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Opacity)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.Opacity)}",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -101,7 +100,7 @@ public partial class IteratorViewModel : ObservableObject
         MinValue = 0,
         MaxValue = 1,
         Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorIndex)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.ColorIndex)}",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
@@ -112,7 +111,7 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "The Color Speed controls how fast the color state of the IFS progresses towards this iterator's Color Index. 0 -> no effect on colors. 1 -> Draw with the selected color index immediately.",
         DefaultValue = 0.0,
         Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.ColorSpeed)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.ColorSpeed)}",
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => { _workspace.Renderer.InvalidateParamsBuffer(); OnPropertyChanged(nameof(ColorRGB)); }
     };
@@ -124,7 +123,7 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Linearly interpolate between the states before/after the transform. 0 -> The transform has no effect on the position. 1 -> Default.",
         DefaultValue = 1.0,
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Mix)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.Mix)}",
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -136,17 +135,17 @@ public partial class IteratorViewModel : ObservableObject
         ToolTip = "Add up the positions before/after the transform.",
         DefaultValue = 0.0,
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.Add)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.Add)}",
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => _workspace.Renderer.InvalidateParamsBuffer()
     };
 
     public double ColorIndex
     {
-        get => iterator.ColorIndex;
+        get => Iterator.ColorIndex;
         set
         {
-            iterator.ColorIndex = value;
+            Iterator.ColorIndex = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(ColorIndex));
             OnPropertyChanged(nameof(ColorRGB));
@@ -164,10 +163,10 @@ public partial class IteratorViewModel : ObservableObject
 
     public bool DeltaColoring
     {
-        get => iterator.ShadingMode == ShadingMode.DeltaPSpeed;
+        get => Iterator.ShadingMode == ShadingMode.DeltaPSpeed;
         set
         {
-            iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
+            Iterator.ShadingMode = value ? ShadingMode.DeltaPSpeed : ShadingMode.Default;
             OnPropertyChanged(nameof(DeltaColoring));
             _workspace.Renderer.InvalidateParamsBuffer();
         }
@@ -175,10 +174,10 @@ public partial class IteratorViewModel : ObservableObject
 
     public double Opacity
     {
-        get => iterator.Opacity;
+        get => Iterator.Opacity;
         set
         {
-            iterator.Opacity = value;
+            Iterator.Opacity = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(Opacity));
             OnPropertyChanged(nameof(OpacityColor));
@@ -187,10 +186,10 @@ public partial class IteratorViewModel : ObservableObject
 
     public double BaseWeight
     {
-        get => iterator.BaseWeight;
+        get => Iterator.BaseWeight;
         set
         {
-            iterator.BaseWeight = value;
+            Iterator.BaseWeight = value;
             _workspace.Renderer.InvalidateParamsBuffer();
             OnPropertyChanged(nameof(BaseWeight));
             OnPropertyChanged(nameof(NodeSize));
@@ -203,7 +202,7 @@ public partial class IteratorViewModel : ObservableObject
     {
         get
         {
-            byte o = (byte)(100 + Math.Clamp(iterator.Opacity, 0, 1) * 255 * 0.6);
+            byte o = (byte)(100 + Math.Clamp(Iterator.Opacity, 0, 1) * 255 * 0.6);
             return Color.FromRgb(o, o, o);//grayscale
         }
     }
@@ -216,44 +215,39 @@ public partial class IteratorViewModel : ObservableObject
         DefaultValue = 1.0,
         MinValue = 0,
         Increment = 0.01,
-        AnimationPath = $"[{iterator.Id}].{nameof(iterator.BaseWeight)}",
+        AnimationPath = $"[{Iterator.Id}].{nameof(Iterator.BaseWeight)}",
         ValueWillChange = _workspace.TakeSnapshot,
     };
 
-    public double NodeSize
-    {
-        get
-        {
+    public double NodeSize =>
             //if (!EnableWeightedSize)
             //    return BaseSize;
-            return 100 + Math.Clamp(10 * iterator.BaseWeight, 0.0, 50.0) * 2;
-        }
-    }
+            100 + Math.Clamp(10 * Iterator.BaseWeight, 0.0, 50.0) * 2;
 
     public double RenderTranslateValue => -0.5 * NodeSize;
 
     public string IteratorName
     {
-        get => iterator.Name;
+        get => Iterator.Name;
         set
         {
             if (string.IsNullOrEmpty(value))
-                iterator.Name = null;
+                Iterator.Name = null;
             else
-                iterator.Name = value;
+                Iterator.Name = value;
             OnPropertyChanged(nameof(IteratorName));
             OnPropertyChanged(nameof(NodeLabel));
         }
     }
-    public string TransformName => iterator.Transform.Name;
-    public string NodeLabel => iterator.Name ?? iterator.Transform.Name;
+    public string TransformName => Iterator.Transform.Name;
+    public string NodeLabel => Iterator.Name ?? Iterator.Transform.Name;
 
     public BindablePoint Position
     {
-        get => iterator.GetPosition() ?? new BindablePoint(Random.Shared.Next(500), Random.Shared.Next(500));
+        get => Iterator.GetPosition() ?? new BindablePoint(Random.Shared.Next(500), Random.Shared.Next(500));
         set
         {
-            iterator.SetPosition(value);
+            Iterator.SetPosition(value);
             OnPropertyChanged(nameof(Position));
             Redraw();
         }

@@ -1,12 +1,15 @@
-﻿using IFSEngine.Generation;
-using IFSEngine.Model;
-using IFSEngine.Utility;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Generation;
+using IFSEngine.Model;
+using IFSEngine.Utility;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -15,8 +18,8 @@ public partial class GeneratorViewModel : ObservableObject
 {
     private readonly MainViewModel _mainvm;
     private readonly GeneratorWorkspace _workspace;
-    private readonly GeneratorOptions _options = new();
-    public GeneratorOptions Options => _options;
+
+    public GeneratorOptions Options { get; } = new();
 
     private ValueSliderSettings _mutationChanceSlider;
     public ValueSliderSettings MutationChanceSlider => _mutationChanceSlider ??= new()
@@ -49,11 +52,11 @@ public partial class GeneratorViewModel : ObservableObject
     };
 
     public IEnumerable<KeyValuePair<IFS, ImageSource>> PinnedIFSThumbnails =>
-        _workspace.PinnedIFS.Select(s => 
+        _workspace.PinnedIFS.Select(s =>
         new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null)).Reverse();
 
     public IEnumerable<KeyValuePair<IFS, ImageSource>> GeneratedIFSThumbnails =>
-        _workspace.GeneratedIFS.Select(s => 
+        _workspace.GeneratedIFS.Select(s =>
         new KeyValuePair<IFS, ImageSource>(s, _workspace.Thumbnails.TryGetValue(s, out var thumb) ? thumb : null));
 
     /// <summary>
@@ -84,7 +87,7 @@ public partial class GeneratorViewModel : ObservableObject
     [RelayCommand]
     private async Task GenerateRandomBatch()
     {
-        _workspace.GenerateNewRandomBatch(_options);
+        _workspace.GenerateNewRandomBatch(Options);
         await Task.Run(_workspace.ProcessQueue);
         OnPropertyChanged(nameof(GeneratedIFSThumbnails));
     }

@@ -1,9 +1,4 @@
 ﻿#nullable enable
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using IFSEngine.Model;
-using IFSEngine.Serialization;
-using IFSEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +11,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Model;
+using IFSEngine.Serialization;
+using IFSEngine.Utility;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 
@@ -109,7 +112,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
 
-        if(workflow == WelcomeWorkflow.ShowFileDialog)
+        if (workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
 
         workspace.Renderer.DisplayFramebufferUpdated += (s, e) => OnPropertyChanged(nameof(IterationLevel));
@@ -217,16 +220,10 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     /// TODO: support dropping gradients, transforms
     /// </summary>
     [RelayCommand]
-    private async Task DropParams(string path)
-    {
-        await LoadParamsFromFile(path, false);
-    }
+    private async Task DropParams(string path) => await LoadParamsFromFile(path, false);
 
     [RelayCommand]
-    private async Task LoadTemplate(string path)
-    {
-        await LoadParamsFromFile(path, true);
-    }
+    private async Task LoadTemplate(string path) => await LoadParamsFromFile(path, true);
 
     private async Task LoadParamsFromFile(string path, bool isTemplate)
     {
@@ -239,9 +236,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
             when (ex.InnerException is AggregateException exs)
         {//missing transforms
             var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownTransformException)e);
-            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{
-                string.Join("\r\n", unknownTransforms.Select(t => $"{t.TransformName} ({t.TransformVersion})"))
-                }", "Error");
+            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{string.Join("\r\n", unknownTransforms.Select(t => $"{t.TransformName} ({t.TransformVersion})"))}", "Error");
             workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.TransformName))}");
         }
         catch (SerializationException ex)

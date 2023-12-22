@@ -1,10 +1,9 @@
-﻿using IFSEngine.Animation;
-using IFSEngine.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
+
+using IFSEngine.Animation;
 
 namespace IFSEngine.Model;
 
@@ -55,7 +54,7 @@ public class IFS
     protected HashSet<Iterator> iterators = [];
     protected List<Author> authors = [];
 
-    public Iterator this[int iteratorId] => Iterators.First(i=> i.Id == iteratorId);
+    public Iterator this[int iteratorId] => Iterators.First(i => i.Id == iteratorId);
 
     /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
     public void AddIterator(Iterator newIterator, bool connect)
@@ -106,7 +105,7 @@ public class IFS
             else
                 dupe.WeightTo[w.Key] = w.Value;
         }
-        
+
         if (splitWeights)
         {//split base weights, no connection between the two
             original.BaseWeight /= 2;

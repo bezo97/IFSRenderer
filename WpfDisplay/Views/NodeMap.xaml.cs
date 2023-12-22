@@ -5,8 +5,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using WpfDisplay.ViewModels;
+
 using WpfDisplay.Helper;
+using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
 
@@ -15,7 +16,7 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class NodeMap : UserControl
 {
-    IFSViewModel? vm => DataContext as IFSViewModel;
+    private IFSViewModel? vm => DataContext as IFSViewModel;
 
     public NodeMap()
     {
@@ -45,7 +46,7 @@ public partial class NodeMap : UserControl
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
-        if(vm is not null)
+        if (vm is not null)
             vm.ConnectingIterator = null;
     }
 
@@ -58,7 +59,7 @@ public partial class NodeMap : UserControl
             Vector of = new Vector(
                 c.StartPoint.X + c.EndPoint.X,
                 c.StartPoint.Y + c.EndPoint.Y
-                )/2;
+                ) / 2;
             dir += of - (Vector)p;
         }
         return Math.Atan2(-dir.Y, -dir.X);

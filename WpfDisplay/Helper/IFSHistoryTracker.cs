@@ -1,6 +1,8 @@
-﻿using IFSEngine.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Serialization;
 
 namespace WpfDisplay.Helper;

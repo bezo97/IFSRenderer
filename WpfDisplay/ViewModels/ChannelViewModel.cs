@@ -1,12 +1,16 @@
 ﻿#nullable enable
-using Cavern.Channels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using IFSEngine.Animation;
-using IFSEngine.Animation.ChannelDrivers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+
+using Cavern.Channels;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Animation;
+using IFSEngine.Animation.ChannelDrivers;
+
 using WpfDisplay.Helper;
 
 namespace WpfDisplay.ViewModels;
@@ -24,20 +28,19 @@ public partial class ChannelViewModel : ObservableObject
     }
     public string Path { get; }
 
-    public AnimationViewModel AnimationVM => _vm;
+    public AnimationViewModel AnimationVM { get; }
 
-    private readonly AnimationViewModel _vm;
     public readonly Channel channel;
-    [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = new();
+    [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = [];
     [ObservableProperty] private bool _hasAudioDriver = false;
 
     [ObservableProperty] private ReferenceChannel _selectedAudioChannelOption = default!;
 
     private float Sampler(AudioChannelDriver d, double t)
     {
-        if (_vm.Audio is null)
+        if (AnimationVM.Audio is null)
             return 0.0f;
-        return CavernHelper.CavernSampler(_vm.Audio, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
+        return CavernHelper.CavernSampler(AnimationVM.Audio, d.AudioChannelId, d.MinFrequency, d.MaxFrequency, t);
     }
 
     public bool IsDriverEnabled
@@ -45,10 +48,10 @@ public partial class ChannelViewModel : ObservableObject
         get => EffectStrength != 0.0;
         set
         {
-            _vm.Workspace.TakeSnapshot();
+            AnimationVM.Workspace.TakeSnapshot();
             EffectStrength = value ? 1.0f : 0.0f;
-            _vm.Workspace.Renderer.InvalidateParamsBuffer();
-            _vm.Workspace.RaiseAnimationFrameChanged();
+            AnimationVM.Workspace.Renderer.InvalidateParamsBuffer();
+            AnimationVM.Workspace.RaiseAnimationFrameChanged();
         }
     }
 
@@ -70,8 +73,8 @@ public partial class ChannelViewModel : ObservableObject
         ToolTip = "Effect strength",
         DefaultValue = 1,
         Increment = 0.01,
-        ValueWillChange = _vm.Workspace.TakeSnapshot,
-        ValueChanged = (v) => _vm.Workspace.Renderer.InvalidateParamsBuffer()
+        ValueWillChange = AnimationVM.Workspace.TakeSnapshot,
+        ValueChanged = (v) => AnimationVM.Workspace.Renderer.InvalidateParamsBuffer()
     };
 
     public double MinFreq
@@ -92,8 +95,8 @@ public partial class ChannelViewModel : ObservableObject
         DefaultValue = 0,
         Increment = 1,
         MinValue = 0,
-        ValueWillChange = _vm.Workspace.TakeSnapshot,
-        ValueChanged = (v) => _vm.Workspace.Renderer.InvalidateParamsBuffer()
+        ValueWillChange = AnimationVM.Workspace.TakeSnapshot,
+        ValueChanged = (v) => AnimationVM.Workspace.Renderer.InvalidateParamsBuffer()
     };
 
     public double MaxFreq
@@ -114,13 +117,13 @@ public partial class ChannelViewModel : ObservableObject
         DefaultValue = 20000,
         Increment = 1,
         MaxValue = 20000,
-        ValueWillChange = _vm.Workspace.TakeSnapshot,
-        ValueChanged = (v) => _vm.Workspace.Renderer.InvalidateParamsBuffer()
+        ValueWillChange = AnimationVM.Workspace.TakeSnapshot,
+        ValueChanged = (v) => AnimationVM.Workspace.Renderer.InvalidateParamsBuffer()
     };
 
     public ChannelViewModel(AnimationViewModel vm, string path, Channel c)
     {
-        _vm = vm;
+        AnimationVM = vm;
         Path = path;
         channel = c;
 
@@ -144,44 +147,44 @@ public partial class ChannelViewModel : ObservableObject
             Keyframes.Remove(kvm);
         var newKeyframes = channel.Keyframes.Where(k => !Keyframes.Any(kvm => kvm._k == k));
         foreach (var k in newKeyframes)
-            Keyframes.Add(new KeyframeViewModel(_vm, this, k, false));
+            Keyframes.Add(new KeyframeViewModel(AnimationVM, this, k, false));
     }
 
     [RelayCommand]
     public void InsertKeyframe()
     {
-        if (!_vm.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
-        _vm.Workspace.TakeSnapshot();
-        var keyframePosition = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(_vm.KeyframeInsertPosition.Value));
-        var eval = channel.EvaluateAt(_vm.KeyframeInsertPosition.Value);
+        if (!AnimationVM.KeyframeInsertPosition.HasValue) throw new InvalidOperationException();
+        AnimationVM.Workspace.TakeSnapshot();
+        var keyframePosition = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(AnimationVM.KeyframeInsertPosition.Value));
+        var eval = channel.EvaluateAt(AnimationVM.KeyframeInsertPosition.Value);
         AnimationVM.AddOrUpdateChannel(Name, Path, eval, keyframePosition);
-        _vm.KeyframeInsertPosition = null;
+        AnimationVM.KeyframeInsertPosition = null;
     }
 
     //TODO: add ChannelDriverEnum Command Parameter
     [RelayCommand]
     public void AddChannelDriver()
     {
-        _vm.Workspace.TakeSnapshot();
+        AnimationVM.Workspace.TakeSnapshot();
         channel.AudioChannelDriver ??= new AudioChannelDriver();
         SelectedAudioChannelOption = (ReferenceChannel)channel.AudioChannelDriver.AudioChannelId;
         channel.AudioChannelDriver.SetSamplerFunction(Sampler);
-        _vm.Workspace.Renderer.InvalidateParamsBuffer();
+        AnimationVM.Workspace.Renderer.InvalidateParamsBuffer();
         HasAudioDriver = true;
         OnPropertyChanged(string.Empty);
-        _vm.Workspace.RaiseAnimationFrameChanged();
+        AnimationVM.Workspace.RaiseAnimationFrameChanged();
     }
 
     //TODO: add ChannelDriver Command Parameter
     [RelayCommand]
     public void RemoveChannelDriver()
     {
-        _vm.Workspace.TakeSnapshot();
+        AnimationVM.Workspace.TakeSnapshot();
         channel.AudioChannelDriver = null;
-        _vm.Workspace.Renderer.InvalidateParamsBuffer();
+        AnimationVM.Workspace.Renderer.InvalidateParamsBuffer();
         HasAudioDriver = false;
         OnPropertyChanged(string.Empty);
-        _vm.Workspace.RaiseAnimationFrameChanged();
+        AnimationVM.Workspace.RaiseAnimationFrameChanged();
     }
 
 

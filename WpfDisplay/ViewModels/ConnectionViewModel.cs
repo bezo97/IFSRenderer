@@ -1,12 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using WpfDisplay.Models;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+
 using WpfDisplay.Helper;
+using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
 
@@ -30,7 +30,7 @@ public partial class ConnectionViewModel : ObservableObject
     public Point ArrowHeadRight { get; set; }
     public PointCollection BodyPoints { get; set; } = new PointCollection(3);
 
-    public bool IsLoopback => (from == to);
+    public bool IsLoopback => from == to;
     public double EllipseRadius { get; set; }
     public Point EllipseMid { get; set; }
 
@@ -43,7 +43,7 @@ public partial class ConnectionViewModel : ObservableObject
             OnPropertyChanged(nameof(Weight));
         }
     }
-    
+
     private ValueSliderSettings _weightSlider;
     public ValueSliderSettings WeightSlider => _weightSlider ??= new()
     {
@@ -59,10 +59,10 @@ public partial class ConnectionViewModel : ObservableObject
 
     public ConnectionViewModel(IEnumerable<ConnectionViewModel> nodemapConnections, IteratorViewModel from, IteratorViewModel to, Workspace workspace)
     {
-        this._nodemapConnections = nodemapConnections;
+        _nodemapConnections = nodemapConnections;
         this.from = from;
         this.to = to;
-        this._workspace = workspace;
+        _workspace = workspace;
         from.PropertyChanged += HandleIteratorsChanged;
         to.PropertyChanged += HandleIteratorsChanged;
         _workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);

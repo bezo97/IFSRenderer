@@ -6,10 +6,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
 
-namespace WpfDisplay.Views.AnimationControls;
+namespace WpfDisplay.Views.Animation;
 
 /// <summary>
 /// Interaction logic for Spectrogram.xaml
@@ -20,24 +21,24 @@ public partial class Spectrogram : UserControl
 
     public IAudio Audio
     {
-        get { return (IAudio)GetValue(AudioProperty); }
-        set { SetValue(AudioProperty, value); }
+        get => (IAudio)GetValue(AudioProperty);
+        set => SetValue(AudioProperty, value);
     }
     public static readonly DependencyProperty AudioProperty =
         DependencyProperty.Register("Audio", typeof(IAudio), typeof(Spectrogram), new FrameworkPropertyMetadata(null, OnSpectrogramDependencyChanged));
 
     public int SelectedAudioChannelId
     {
-        get { return (int)GetValue(SelectedAudioChannelIdProperty); }
-        set { SetValue(SelectedAudioChannelIdProperty, value); }
+        get => (int)GetValue(SelectedAudioChannelIdProperty);
+        set => SetValue(SelectedAudioChannelIdProperty, value);
     }
     public static readonly DependencyProperty SelectedAudioChannelIdProperty =
         DependencyProperty.Register("SelectedAudioChannelId", typeof(int), typeof(Spectrogram), new PropertyMetadata(0));
 
     public float ViewScale
     {
-        get { return (float)GetValue(ViewScaleProperty); }
-        set { SetValue(ViewScaleProperty, value); }
+        get => (float)GetValue(ViewScaleProperty);
+        set => SetValue(ViewScaleProperty, value);
     }
     public static readonly DependencyProperty ViewScaleProperty =
         DependencyProperty.Register("ViewScale", typeof(float), typeof(Spectrogram), new FrameworkPropertyMetadata(120.0f, OnSpectrogramDependencyChanged));

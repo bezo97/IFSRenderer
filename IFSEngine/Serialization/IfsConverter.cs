@@ -1,9 +1,11 @@
-﻿using IFSEngine.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using IFSEngine.Model;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IFSEngine.Serialization;
 
@@ -15,8 +17,8 @@ public class IfsConverter : JsonConverter<IFS>
         double[][] xaos = jo["xaos"].ToObject<double[][]>(serializer);
         jo.Remove("xaos");
         //iterators
-        List<Iterator> iterators = new();
-        List<Exception> exceptions = new();
+        List<Iterator> iterators = [];
+        List<Exception> exceptions = [];
         foreach (var iteratorToken in jo["Iterators"].Children())
         {
             try

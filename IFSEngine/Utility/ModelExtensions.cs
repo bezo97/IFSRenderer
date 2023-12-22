@@ -1,10 +1,10 @@
-﻿using IFSEngine.Model;
-using IFSEngine.Serialization;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
+
+using IFSEngine.Model;
+using IFSEngine.Serialization;
+
+using Newtonsoft.Json;
 
 namespace IFSEngine.Utility;
 
@@ -28,9 +28,6 @@ public static class ModelExtensions
         return JsonConvert.DeserializeObject<IFS>(serializedContent, settings);
     }
 
-    public static void EvaluateIfs(this IFS ifs, TimeOnly t)
-    {
-        ifs.Dopesheet.EvaluateAt(ifs, t);
-    }
+    public static void EvaluateIfs(this IFS ifs, TimeOnly t) => ifs.Dopesheet.EvaluateAt(ifs, t);
 
 }

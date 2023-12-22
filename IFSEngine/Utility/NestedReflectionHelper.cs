@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace IFSEngine.Utility;
 
@@ -33,7 +32,7 @@ internal static class NestedReflectionHelper
                 {
                     var propValue = propInfo.GetValue(obj, index)!;
                     propValue = SetRecursive(propValue, pathSegments, newValue);
-                    if(propValue.GetType().IsValueType)
+                    if (propValue.GetType().IsValueType)
                         propInfo.SetValue(obj, propValue, index);
                 }
                 else

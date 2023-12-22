@@ -1,11 +1,8 @@
-﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace IFSEngine.Animation;
 
-interface ICurveImplementation
+internal interface ICurveImplementation
 {
     double Evaluate(double t, List<Keyframe> keyframes);
 }

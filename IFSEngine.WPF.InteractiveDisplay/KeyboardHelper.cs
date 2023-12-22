@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Timers;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,7 +16,7 @@ public class KeyboardHelper
         c.LostFocus += LostFocus;
         c.KeyDown += WinKeyDown;
         c.KeyUp += WinKeyUp;
-        _pressedKeys = new HashSet<Key>();
+        _pressedKeys = [];
     }
 
     private void LostFocus(object sender, RoutedEventArgs e)

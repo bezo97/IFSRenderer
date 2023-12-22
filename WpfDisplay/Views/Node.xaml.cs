@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
 using WpfDisplay.Helper;
 using WpfDisplay.ViewModels;
 
@@ -21,19 +23,20 @@ public partial class Node : UserControl
 
     public RelayCommand<IteratorViewModel> SelectCommand
     {
-        get { return (RelayCommand<IteratorViewModel>)GetValue(SelectCommandProperty); }
-        set { SetValue(SelectCommandProperty, value); }
+        get => (RelayCommand<IteratorViewModel>)GetValue(SelectCommandProperty);
+        set => SetValue(SelectCommandProperty, value);
     }
     public static readonly DependencyProperty SelectCommandProperty =
         DependencyProperty.Register("SelectCommand", typeof(RelayCommand<IteratorViewModel>), typeof(Node), new PropertyMetadata(null));
 
     public BindablePoint Position
     {
-        get { return (BindablePoint)GetValue(PositionProperty); }
-        set { SetValue(PositionProperty, value); }
+        get => (BindablePoint)GetValue(PositionProperty);
+        set => SetValue(PositionProperty, value);
     }
     public static readonly DependencyProperty PositionProperty =
-        DependencyProperty.Register("Position", typeof(BindablePoint), typeof(Node), new PropertyMetadata(new BindablePoint(0, 0), (s,e) => {
+        DependencyProperty.Register("Position", typeof(BindablePoint), typeof(Node), new PropertyMetadata(new BindablePoint(0, 0), (s, e) =>
+        {
             var container = ((Node)s)._parentContainer;
             if (container is not null)
             {
@@ -45,8 +48,8 @@ public partial class Node : UserControl
     //Positioning is relative to this element
     public FrameworkElement ParentCanvas
     {
-        get { return (FrameworkElement)GetValue(ParentCanvasProperty); }
-        set { SetValue(ParentCanvasProperty, value); }
+        get => (FrameworkElement)GetValue(ParentCanvasProperty);
+        set => SetValue(ParentCanvasProperty, value);
     }
     public static readonly DependencyProperty ParentCanvasProperty =
         DependencyProperty.Register("ParentCanvas", typeof(FrameworkElement), typeof(Node), new PropertyMetadata(null));
@@ -61,8 +64,9 @@ public partial class Node : UserControl
             Position = vm.Position;
             Canvas.SetLeft(_parentContainer, vm.Position.X);
             Canvas.SetTop(_parentContainer, vm.Position.Y);
-            vm.PropertyChanged += (s, e) => { 
-                if(e.PropertyName is nameof(vm.Position))
+            vm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName is nameof(vm.Position))
                 {
                     Canvas.SetLeft(_parentContainer, vm.Position.X);
                     Canvas.SetTop(_parentContainer, vm.Position.Y);
@@ -75,7 +79,7 @@ public partial class Node : UserControl
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
-        e.Handled = true; 
+        e.Handled = true;
         SetValue(IsMouseDownProperty, true);
     }
 
@@ -94,10 +98,7 @@ public partial class Node : UserControl
         }
     }
 
-    private Point GetCanvasPosition()
-    {
-        return new Point(Canvas.GetLeft(_parentContainer), Canvas.GetTop(_parentContainer));
-    }
+    private Point GetCanvasPosition() => new(Canvas.GetLeft(_parentContainer), Canvas.GetTop(_parentContainer));
 
     private void dragHandle_MouseMove(object sender, MouseEventArgs e)
     {
@@ -137,8 +138,5 @@ public partial class Node : UserControl
         }
     }
 
-    private void ellipseBody_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        this.Focus();
-    }
+    private void ellipseBody_MouseDown(object sender, MouseButtonEventArgs e) => Focus();
 }

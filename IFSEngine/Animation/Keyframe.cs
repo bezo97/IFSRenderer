@@ -1,12 +1,4 @@
-﻿using IFSEngine.Utility;
-using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace IFSEngine.Animation;
+﻿namespace IFSEngine.Animation;
 
 public class Keyframe
 {

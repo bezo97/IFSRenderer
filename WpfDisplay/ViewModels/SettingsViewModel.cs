@@ -1,9 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Properties;
 
@@ -231,9 +232,6 @@ internal partial class SettingsViewModel : ObservableObject
     public IReadOnlyDictionary<string, string> FfmpegPresets => _mainvm.workspace.FfmpegPresets;
 
     [RelayCommand]
-    private void ApplyFfmpegPreset(string args)
-    {
-        FfmpegArgs = args;
-    }
+    private void ApplyFfmpegPreset(string args) => FfmpegArgs = args;
 
 }

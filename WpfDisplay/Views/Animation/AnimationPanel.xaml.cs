@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using Cavern;
 using System;
 using System.Linq;
 using System.Threading;
@@ -8,6 +7,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using Cavern;
+
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views.Animation;
@@ -44,13 +46,13 @@ public partial class AnimationPanel : UserControl
         scrubberTicksBrush.Viewbox = tilingSize;
         scrubberTicksBrush.Viewport = tilingSize;
 
-        if(_vm.Audio is not null)
+        if (_vm.Audio is not null)
         {
             var clip = _vm.Audio.Clip;
             var viewScale = _vm.ViewScale;
             await _drawingCts.CancelAsync();
             _drawingCts = new CancellationTokenSource();
-            scrubberAudioBarsImageBrush.ImageSource = await Task.Run(()=>CreateAudioBarsDrawing(clip, viewScale, _drawingCts.Token)) ?? scrubberAudioBarsImageBrush.ImageSource;
+            scrubberAudioBarsImageBrush.ImageSource = await Task.Run(() => CreateAudioBarsDrawing(clip, viewScale, _drawingCts.Token)) ?? scrubberAudioBarsImageBrush.ImageSource;
         }
     }
 
@@ -98,7 +100,7 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.LeftButton == MouseButtonState.Pressed && dopeButton.IsMouseCaptured)
         {
-            double delta = (e.GetPosition(Window.GetWindow(this)).X - _dragp.X);
+            double delta = e.GetPosition(Window.GetWindow(this)).X - _dragp.X;
             if (delta != 0.0)
             {
                 _vm.AddToSelection((KeyframeViewModel)dopeButton.DataContext);
@@ -112,7 +114,7 @@ public partial class AnimationPanel : UserControl
         var dopeButton = (Button)sender;
         if (e.ChangedButton == MouseButton.Left && e.LeftButton == MouseButtonState.Released)
         {
-            if(_vm.KeyframeRepositionOffset != 0.0)
+            if (_vm.KeyframeRepositionOffset != 0.0)
                 _vm.ApplyRepositionOfSelectedKeyframes();
             else
                 _vm.FlipSelection((KeyframeViewModel)dopeButton.DataContext);
@@ -124,10 +126,7 @@ public partial class AnimationPanel : UserControl
         }
     }
 
-    private void ChannelHeaderScroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
-    {
-        sheetScroller.ScrollToVerticalOffset(channelHeaderScroller.VerticalOffset);
-    }
+    private void ChannelHeaderScroller_ScrollChanged(object sender, ScrollChangedEventArgs e) => sheetScroller.ScrollToVerticalOffset(channelHeaderScroller.VerticalOffset);
 
     private void Channel_MouseUp(object sender, MouseButtonEventArgs e)
     {
@@ -139,7 +138,7 @@ public partial class AnimationPanel : UserControl
 
     private void TimeScrubber_MouseMove(object sender, MouseEventArgs e)
     {
-        if(e.LeftButton == MouseButtonState.Pressed && e.OriginalSource == sender)
+        if (e.LeftButton == MouseButtonState.Pressed && e.OriginalSource == sender)
         {
             var t = e.GetPosition((IInputElement)sender).X / _vm.ViewScale;
             _vm.JumpToTime(t);
@@ -162,8 +161,5 @@ public partial class AnimationPanel : UserControl
         }
     }
 
-    private void TimeScrubber_MouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        _vm.ViewScale = Math.Clamp(_vm.ViewScale * (e.Delta > 0 ? 1.2f : 1/1.2f), 1.0f, 300.0f);
-    }
+    private void TimeScrubber_MouseWheel(object sender, MouseWheelEventArgs e) => _vm.ViewScale = Math.Clamp(_vm.ViewScale * (e.Delta > 0 ? 1.2f : 1 / 1.2f), 1.0f, 300.0f);
 }

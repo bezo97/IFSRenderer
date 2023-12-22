@@ -1,11 +1,12 @@
-﻿using IFSEngine.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
+
+using IFSEngine.Model;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IFSEngine.Serialization;
 
@@ -27,8 +28,5 @@ public class IteratorConverter : JsonConverter<Iterator>
     }
 
     public override bool CanWrite => false;//use default
-    public override void WriteJson(JsonWriter writer, /*[AllowNullAttribute]*/ Iterator value, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
+    public override void WriteJson(JsonWriter writer, /*[AllowNullAttribute]*/ Iterator value, JsonSerializer serializer) => throw new NotImplementedException();
 }

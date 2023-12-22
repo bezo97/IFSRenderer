@@ -1,9 +1,10 @@
-﻿using IFSEngine.Model;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
+
+using IFSEngine.Model;
+
+using Newtonsoft.Json;
 
 namespace IFSEngine.Serialization;
 
@@ -32,8 +33,5 @@ public class TransformConverter : JsonConverter<Transform>
         return tf;
     }
 
-    public override void WriteJson(JsonWriter writer, /*[AllowNullAttribute]*/ Transform value, JsonSerializer serializer)
-    {
-        serializer.Serialize(writer, (value.Name, value.Version));
-    }
+    public override void WriteJson(JsonWriter writer, /*[AllowNullAttribute]*/ Transform value, JsonSerializer serializer) => serializer.Serialize(writer, (value.Name, value.Version));
 }

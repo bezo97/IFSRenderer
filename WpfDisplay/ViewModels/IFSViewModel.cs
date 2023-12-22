@@ -1,7 +1,4 @@
 ﻿#nullable enable
-using IFSEngine.Model;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,9 +9,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using IFSEngine.Model;
+
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
+
 using static WpfDisplay.Helper.ForceDirectedGraphLayout;
+
 using Transform = IFSEngine.Model.Transform;
 
 namespace WpfDisplay.ViewModels;
@@ -32,8 +37,8 @@ public partial class IFSViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(FilteredTransforms))]
     [ObservableProperty] private string _transformSearchFilter = "";
 
-    private readonly ObservableCollection<IteratorViewModel> _iteratorViewModels = new();
-    private readonly ObservableCollection<ConnectionViewModel> _connectionViewModels = new();
+    private readonly ObservableCollection<IteratorViewModel> _iteratorViewModels = [];
+    private readonly ObservableCollection<ConnectionViewModel> _connectionViewModels = [];
     private IteratorViewModel? _selectedIterator;
     public IteratorViewModel? SelectedIterator
     {
@@ -98,7 +103,7 @@ public partial class IFSViewModel : ObservableObject
     }
 
     public FlamePalette Palette => _workspace.Ifs.Palette;
-    
+
     private ValueSliderSettings? _fogEffect;
     public ValueSliderSettings FogEffectSlider => _fogEffect ??= new()
     {
@@ -204,7 +209,7 @@ public partial class IFSViewModel : ObservableObject
         var newIterators = _workspace.Ifs.Iterators.Where(i => !_iteratorViewModels.Any(vm => vm.Iterator == i));
         newIterators.ToList().ForEach(i => AddNewIteratorVM(i));
         //add connections:
-        _iteratorViewModels.ToList().ForEach(vm => HandleConnectionsChanged(vm));
+        _iteratorViewModels.ToList().ForEach(HandleConnectionsChanged);
         Redraw();
         OnPropertyChanged(nameof(NodeMapElements));
     }
@@ -241,7 +246,7 @@ public partial class IFSViewModel : ObservableObject
             return transforms;
         var startsWithResults = transforms.Where(tr => tr.Name.StartsWith(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
         var containsResults = transforms.Where(tr => tr.Name.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase));
-        var tagResults = transforms.Where(tr => tr.Tags.Any(tag=>tag.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase)));
+        var tagResults = transforms.Where(tr => tr.Tags.Any(tag => tag.Contains(TransformSearchFilter, StringComparison.InvariantCultureIgnoreCase)));
         var searchResults = startsWithResults.Concat(containsResults.Concat(tagResults)).Distinct();
         return searchResults;
     }
@@ -260,7 +265,7 @@ public partial class IFSViewModel : ObservableObject
         _workspace.Renderer.InvalidateParamsBuffer();
         HandleIteratorsChanged();
         SelectedIterator = _iteratorViewModels.First(vm => vm.Iterator == newIterator);
-        if(!_workspace.Renderer.IsRendering)//Start rendering when user started from blank params and added the first iterator.
+        if (!_workspace.Renderer.IsRendering)//Start rendering when user started from blank params and added the first iterator.
             _workspace.Renderer.StartRenderLoop();
     }
 
@@ -285,17 +290,17 @@ public partial class IFSViewModel : ObservableObject
         _workspace.TakeSnapshot();
         //remove channels vm-s that control this iterator's animation
         var avm = ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//TODO: uff
-        var channelsvms = avm.Channels.Where(c=>c.Path.Contains(vm.Iterator.Id.ToString())).ToList();
+        var channelsvms = avm.Channels.Where(c => c.Path.Contains(vm.Iterator.Id.ToString())).ToList();
         channelsvms.ForEach(cvm => avm.Channels.Remove(cvm));
         //remove iterator
         _workspace.Ifs.RemoveIterator(vm.Iterator);
         _workspace.Renderer.InvalidateParamsBuffer();
-        if(SelectedIterator == vm)
+        if (SelectedIterator == vm)
             SelectedIterator = null;
         HandleIteratorsChanged();
     }
 
-    [RelayCommand(CanExecute=nameof(_hasIteratorSelection))]
+    [RelayCommand(CanExecute = nameof(_hasIteratorSelection))]
     private void DuplicateSelected() => Duplicate(SelectedIterator!);
 
     [RelayCommand]
@@ -332,10 +337,7 @@ public partial class IFSViewModel : ObservableObject
     /// From a drag & drop operation.
     /// </summary>
     [RelayCommand]
-    private async Task DropPalette(string path)
-    {
-        await LoadPaletteFromFile(path);
-    }
+    private async Task DropPalette(string path) => await LoadPaletteFromFile(path);
 
     private async Task LoadPaletteFromFile(string path)
     {
@@ -417,7 +419,7 @@ public partial class IFSViewModel : ObservableObject
     private void AutoLayoutNodes()
     {
         var vertices = _iteratorViewModels.Select(v => new Vector2((float)v.Position.X, (float)v.Position.Y)).ToList();
-        var edges = _connectionViewModels.Where(e=>!e.IsLoopback).Select(e => (_iteratorViewModels.IndexOf(e.from), _iteratorViewModels.IndexOf(e.to))).ToList();
+        var edges = _connectionViewModels.Where(e => !e.IsLoopback).Select(e => (_iteratorViewModels.IndexOf(e.from), _iteratorViewModels.IndexOf(e.to))).ToList();
         Graph graph = new(vertices, edges);
         var nodePositions = GenerateLayout(graph, 1.0, 1.0, 0.000001);
         var avg = new Vector2(

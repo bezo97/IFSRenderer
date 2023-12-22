@@ -1,15 +1,16 @@
 ﻿#nullable enable
-using IFSEngine.Animation.ChannelDrivers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using IFSEngine.Animation.ChannelDrivers;
 
 namespace IFSEngine.Animation;
 
 public class Channel
 {
     public string Name { get; set; } = "Unnamed channel";
-    public List<Keyframe> Keyframes { get; init; } = new();
+    public List<Keyframe> Keyframes { get; init; } = [];
     public AudioChannelDriver? AudioChannelDriver { get; set; } = null;
     //TODO: add other channel drivers: clamp, wrap, repeat
 

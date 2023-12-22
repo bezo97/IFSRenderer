@@ -1,13 +1,14 @@
-﻿using IFSEngine.Rendering;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime;
 using System.Threading.Tasks;
 
+using IFSEngine.Rendering;
+
 namespace WpfDisplay.Helper;
 
-class GDIHelper
+internal class GDIHelper
 {
     /// <summary>
     /// Sample code showing how to save the render output with gdi. 
@@ -25,9 +26,9 @@ class GDIHelper
             b.UnlockBits(bits);
 
             b.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                //TODO: option to remove alpha channel
+            //TODO: option to remove alpha channel
 
-            });
+        });
 
         if (DialogHelper.ShowExportImageDialog(renderer.LoadedParams.Title, out string path))
         {

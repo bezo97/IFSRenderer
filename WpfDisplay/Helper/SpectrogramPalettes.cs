@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace WpfDisplay.Helper;
@@ -11,10 +6,7 @@ namespace WpfDisplay.Helper;
 public static class SpectrogramPalettes
 {
 
-    private static Color ColorFromRgbFloats(double r, double g, double b)
-    {
-        return Color.FromRgb((byte)(255 * r), (byte)(255 * g), (byte)(255 * b));
-    }
+    private static Color ColorFromRgbFloats(double r, double g, double b) => Color.FromRgb((byte)(255 * r), (byte)(255 * g), (byte)(255 * b));
 
     /// <summary>
     /// A nice palette from matplotlib, <a href="https://www.youtube.com/watch?v=xAoljeRJ3lU">Viridis</a>.

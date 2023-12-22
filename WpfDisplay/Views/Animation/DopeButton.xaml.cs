@@ -1,7 +1,4 @@
-﻿using IFSEngine.Animation;
-using System;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Controls;
 
 namespace WpfDisplay.Views.Animation;
 

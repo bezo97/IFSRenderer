@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -24,7 +23,7 @@ public partial class Transform
 
 
     //These cannot be parameter names:
-    private static readonly List<string> _reservedFields = new() { "Name", "Version", "Description", "Tags", "Reference" };
+    private static readonly List<string> _reservedFields = ["Name", "Version", "Description", "Tags", "Reference"];
     private const string DefaultDescription = "Description not provided by the plugin developer";
 
     [GeneratedRegex("^(\\s*)@.+:.+$")] //@Param1: 0.0, 0 0 0, min 1
@@ -55,8 +54,8 @@ public partial class Transform
         Dictionary<string, string> paramFields = fields
             .Where(p => !_reservedFields.Contains(p.Key))
             .ToDictionary(p => p.Key, p => p.Value);
-        Dictionary<string, double> realParams = new();
-        Dictionary<string, Vector3> vec3Params = new();
+        Dictionary<string, double> realParams = [];
+        Dictionary<string, Vector3> vec3Params = [];
         foreach ((string paramName, string paramDef) in paramFields)
         {
             var paramProps = paramDef.Split(',');
@@ -101,7 +100,7 @@ public partial class Transform
                 .Select(t => t
                     .Trim()
                     .ToLower(System.Globalization.CultureInfo.InvariantCulture))
-                .ToList() : new List<string>(),
+                .ToList() : [],
             ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString) : null,
             SourceCode = sourceCode,
             RealParams = realParams,
@@ -118,13 +117,7 @@ public partial class Transform
         return Name == tf2.Name && Version == tf2.Version;
     }
 
-    public override int GetHashCode()
-    {
-        return (Name + Version).GetHashCode();
-    }
+    public override int GetHashCode() => (Name + Version).GetHashCode();
 
-    public override string ToString()
-    {
-        return $"{Name} ({Version})";
-    }
+    public override string ToString() => $"{Name} ({Version})";
 }
