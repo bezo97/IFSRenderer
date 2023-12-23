@@ -174,7 +174,7 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
                     <StackPanel Margin="0,0,5,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
-                            <local:IteratorEditor Width="260" DataContext="{Binding SelectedIterator}"/>
+                            <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
                         </Grid>
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>

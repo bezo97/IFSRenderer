@@ -1,6 +1,7 @@
 ﻿using IFSEngine.Rendering.GpuStructs;
 using IFSEngine.Utility;
 using System.Numerics;
+using System.Runtime.Serialization;
 
 namespace IFSEngine.Model;
 
@@ -9,8 +10,12 @@ public class Camera
 {
     public Quaternion Orientation { get; set; } = Quaternion.Identity;//no rotation
     public Vector3 Position { get; set; } = new Vector3(0.0f, 0.0f, -10.0f);
+
+    [IgnoreDataMember]
     public Vector3 RightDirection { get; private set; } = new Vector3(1.0f, 0.0f, 0.0f);
+    [IgnoreDataMember]
     public Vector3 UpDirection { get; private set; } = new Vector3(0.0f, 1.0f, 0.0f);
+    [IgnoreDataMember]
     public Vector3 ForwardDirection { get; private set; } = new Vector3(0.0f, 0.0f, 1.0f);
 
     /// <summary>

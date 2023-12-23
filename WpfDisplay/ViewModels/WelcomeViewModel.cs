@@ -89,6 +89,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
             await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
         }
         catch (System.Runtime.Serialization.SerializationException) { /*Ignore broken files*/ }
+        catch (FileNotFoundException) { /*Ignore deleted recent files*/ }
 
         //render thumbnails
         Templates = templateFilesTasks
