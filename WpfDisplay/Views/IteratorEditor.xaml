@@ -14,7 +14,7 @@
         <BooleanToVisibilityConverter x:Key="conv1"/>
     </UserControl.Resources>
     <StackPanel>
-        <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
+        <TextBlock Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">
                 Selected Iterator
         </TextBlock>
         <Grid>
@@ -103,7 +103,7 @@
                 <local:ValueSlider Grid.Column="0" Value="{Binding Iterator.Mix}" SliderSettings="{Binding MixSlider}"/>
                 <local:ValueSlider Grid.Column="1" Value="{Binding Iterator.Add}" SliderSettings="{Binding AddSlider}"/>
             </Grid>
-            <TextBlock Text="{Binding TransformName}" Margin="4 0 0 0"  Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
+            <TextBlock Text="{Binding TransformName}" Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}" />
             <ItemsControl ItemsSource="{Binding Parameters}" IsTabStop="False">
                 <ItemsControl.Resources>
                     <!--real-->

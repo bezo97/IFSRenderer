@@ -172,13 +172,13 @@
             </Grid>
             <md:Card Grid.Column="1" Padding="6" Margin="4" VerticalAlignment="Stretch" Width="300">
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-                    <StackPanel Margin="0,0,5,0">
+                    <StackPanel Margin="0,0,8,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
                             <local:IteratorEditor DataContext="{Binding SelectedIterator}"/>
                         </Grid>
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>
-                                <TextBlock Margin="4" Foreground="Gray" FontWeight="Bold" Style="{DynamicResource MaterialDesignTitleTextBlock}">
+                                <TextBlock Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">
                                     Selected Connection
                                 </TextBlock>
                                 <local:ValueSlider Value="{Binding SelectedConnection.Weight}" SliderSettings="{Binding SelectedConnection.WeightSlider}"/>
