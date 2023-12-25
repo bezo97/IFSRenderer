@@ -110,20 +110,20 @@ public partial class QualitySettingsViewModel : ObservableObject
         ValueChanged = (v) => _workspace.Renderer.InvalidateDisplay()
     };
 
-    public int EntropyInv
+    public int Syntropy
     {
         get => (int)(1.0 / _workspace.Ifs.Entropy);
         set => _workspace.Ifs.Entropy = 1.0 / value;
     }
 
-    private ValueSliderSettings _entropyInv;
-    public ValueSliderSettings EntropyInvSlider => _entropyInv ??= new()
+    private ValueSliderSettings _syntropy;
+    public ValueSliderSettings SyntropySlider => _syntropy ??= new()
     {
-        Label = "☁︎ 1 / Entropy",
-        ToolTip = $"Entropy is the chance to reset the point state in each iteration. This replaces the constant 10 000 iteration depth in Flame. Default value is {(int)(1.0 / IFS.Default.Entropy)}.",
+        Label = "🧵 Syntropy",
+        ToolTip = $"Syntropy represents the tendency of the system to move towards more structure. High syntropy lets the system iterate deeper before the state resets. Syntropy is the inverse of entropy, which is the chance to reset state in each iteration. This replaces the constant 10 000 iteration depth in Flame. Default value is {(int)(1.0 / IFS.Default.Entropy)}.",
         DefaultValue = (int)(1.0 / IFS.Default.Entropy),
         MinValue = 10,
-        MaxValue = 100000,
+        MaxValue = 1000000,
         Increment = 10,
         ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer()

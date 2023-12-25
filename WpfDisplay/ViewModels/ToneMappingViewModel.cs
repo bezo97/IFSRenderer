@@ -33,7 +33,7 @@ public partial class ToneMappingViewModel : ObservableObject
     private ValueSliderSettings _gamma;
     public ValueSliderSettings GammaSettings => _gamma ??= new()
     {
-        Label = "◑ Gamma",
+        Label = "◑ 1/Gamma",
         DefaultValue = IFS.Default.Gamma,
         MinValue = 0,
         Increment = 0.005,

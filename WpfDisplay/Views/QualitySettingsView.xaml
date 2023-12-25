@@ -80,7 +80,7 @@
                 <local:ValueSlider Value="{Binding Renderer.DEPower}" SliderSettings="{Binding DEPowerSlider}"/>
                 <local:ValueSlider Value="{Binding Renderer.DEThreshold}" SliderSettings="{Binding DEThresholdSlider}"/>
             </StackPanel>
-            <local:ValueSlider Value="{Binding EntropyInv}" SliderSettings="{Binding EntropyInvSlider}"/>
+            <local:ValueSlider Value="{Binding Syntropy}" SliderSettings="{Binding SyntropySlider}"/>
             <local:ValueSlider Value="{Binding Ifs.Warmup}" SliderSettings="{Binding WarmupSlider}"/>
         </StackPanel>
     </StackPanel>
