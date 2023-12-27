@@ -177,6 +177,7 @@ public partial class ValueSlider : UserControl
         DependencyProperty.Register("AnimationPath", typeof(string), typeof(ValueSlider), new FrameworkPropertyMetadata(null, (s, e) =>
         {
             ((ValueSlider)s).UpdateAnimatedSymbol();
+            ((ValueSlider)s).InternalAnimateCommand.NotifyCanExecuteChanged();
         }));
 
     public Action ValueWillChangeAction
@@ -221,7 +222,7 @@ public partial class ValueSlider : UserControl
     {
         AnimateCommand.Execute(new AnimationViewModel.AnimateValueCommandParameters(Label, AnimationPath, Value));
         UpdateAnimatedSymbol();
-    }, () => AnimateCommand?.CanExecute(null) ?? true);
+    }, () => AnimationPath is not null);
 
     public ValueSlider()
     {
