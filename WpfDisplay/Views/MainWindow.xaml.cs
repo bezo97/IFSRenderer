@@ -243,11 +243,19 @@ public partial class MainWindow : Window
 
     private async void mainDisplay_GamepadConnectionStateChanged(object sender, bool e) => await Dispatcher.InvokeAsync(() => vm.IsGamepadConnected = e);
 
+    private void mainDisplay_DisplayResolutionChanged(object sender, System.EventArgs e) => vm?.QualitySettingsViewModel?.UpdatePreviewRenderSettings();
+
     private void ShowAnimationsPanel()
     {
         if (animationsPanel.IsAutoHidden)
             animationsPanel.ToggleAutoHide();
     }
 
-    private void mainDisplay_DisplayResolutionChanged(object sender, System.EventArgs e) => vm?.QualitySettingsViewModel?.UpdatePreviewRenderSettings();
+    private void animationsPanel_IsActiveChanged(object sender, System.EventArgs e)
+    {
+        //Avoid leaving the animation panel in a half-open state called "AutoHide" in AvalonDock.
+        //This way the user does not need to click the pin button to dock the panel after opening it.
+        if (animationsPanel.IsActive)
+            ShowAnimationsPanel();
+    }
 }

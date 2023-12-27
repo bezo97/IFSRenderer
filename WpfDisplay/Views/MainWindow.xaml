@@ -226,24 +226,11 @@
                             </LayoutDocumentPaneGroup>
                             <LayoutAnchorablePaneGroup DockHeight="300">
                                 <LayoutAnchorablePane>
-                                    <LayoutAnchorable x:Name="animationsPanel"
+                                    <LayoutAnchorable x:Name="animationsPanel" IsActiveChanged="animationsPanel_IsActiveChanged"
                                         Title="Animations" ToolTip="Animations" ContentId="Animations"
                                         CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" 
                                         >
                                         <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
-                                        <!--<Grid>
-                                            <Grid>
-                                                <Grid.BitmapEffect>
-                                                    <BlurBitmapEffect Radius="5"/>
-                                                </Grid.BitmapEffect>
-                                                <animation:AnimationPanel DataContext="{Binding AnimationViewModel}"/>
-                                                <Grid Background="#aa333333"/>
-                                            </Grid>
-                                            <TextBlock Foreground="Gray"
-                                                HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">
-                                                <Run FontSize="36">🛠️</Run> <LineBreak/> Animations <LineBreak/> Under construction
-                                            </TextBlock>
-                                        </Grid>-->
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
@@ -258,11 +245,6 @@
                                         <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
-                                <!--<LayoutAnchorable
-                                    Title="asd" ToolTip="asd" ContentId="asd"
-                                    CanClose="True" CanFloat="True" CanMove="True" CanHide="True">
-                                    <Button Width="200" Height="300">other settings</Button>
-                                </LayoutAnchorable>-->
                             </LayoutAnchorablePane>
                             <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">
                                 <LayoutAnchorable
