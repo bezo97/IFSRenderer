@@ -411,9 +411,9 @@ public partial class AnimationViewModel : ObservableObject
             if (JumpToNextFrame())
             {//was last frame
                 if (Workspace.IsExportVideoFileEnabled)
-                {
                     RunFfmpegProcess().Wait();
-                }
+                IsExportingFrames = false;
+                _saveFramesPath = null;
             }
             else
             {
@@ -442,23 +442,27 @@ public partial class AnimationViewModel : ObservableObject
             userArgs.Contains("prores") ? "mov" :
             userArgs.Contains("libvpx-vp9") ? "webm" :
             "mp4";//figure out extension based on codec
+        var audioArgs = "";
+        _audioPlayer?.Dispatcher.Invoke(() => audioArgs = $"-i \"{_audioPlayer.Source.OriginalString}\"");
+
         StringBuilder argsBuilder = new();
         argsBuilder.AppendJoin(' ',
             $"-y",//overwrite
             $"-nostdin",//disable inout
             $"-r {Workspace.Ifs.Dopesheet.Fps}",//fps
             $"-i \"{_saveFramesPath}\\{Workspace.Ifs.Title}-%06d.{frameFileExtension}\"",//input frames
-            _audioPlayer?.Source is not null ? $"-i {_audioPlayer.Source.AbsolutePath}" : string.Empty,//input audio
+            audioArgs,
             $"-t {Workspace.Ifs.Dopesheet.Length.TotalSeconds}",//restrict video length so audio is cut off if it's longer than the animation
             $"-vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\"",//divisible by 2, as required by some codecs
             userArgs,
-            $"{Workspace.Ifs.Title}.{videoFileExtension}");
+            $"\"{Workspace.Ifs.Title}.{videoFileExtension}\"");
         var args = argsBuilder.ToString();
 
         var ffmpegProc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Workspace.FfmpegPath, args)
         {
             WorkingDirectory = _saveFramesPath
         });
+
         if (ffmpegProc is null)
         {
             Workspace.UpdateStatusText("Video file creation failed - unable to run ffmpeg.");
@@ -466,10 +470,12 @@ public partial class AnimationViewModel : ObservableObject
         }
         Workspace.UpdateStatusText("Generating video...");
         await ffmpegProc.WaitForExitAsync();
-
+        if (ffmpegProc.ExitCode != 0)
+        {
+            Workspace.UpdateStatusText($"Video file creation failed - ffmpeg exited with code: {ffmpegProc.ExitCode}.");
+            return;
+        }
         Workspace.UpdateStatusText($"Video file created successfully at '{_saveFramesPath}'.");
-        IsExportingFrames = false;
-        _saveFramesPath = null;
     }
 
 }
