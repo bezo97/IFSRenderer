@@ -49,7 +49,7 @@
     </Button.Resources>
     <Button.ContextMenu>
         <ContextMenu StaysOpen="True">
-            <MenuItem Icon="〰️" Height="55" StaysOpenOnClick="True">
+            <MenuItem Icon="{md:PackIcon Kind=Stairs}" Height="55" StaysOpenOnClick="True">
                 <MenuItem.Header>
                     <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
                               SelectedValue="{Binding SelectedInterpolationMode}"
@@ -65,7 +65,7 @@
                               md:HintAssist.Hint="Easing direction"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem Icon="⛎" Height="55" StaysOpenOnClick="True">
+            <MenuItem Icon="{md:PackIcon Kind=Vitals}" Height="55" StaysOpenOnClick="True">
                 <MenuItem.Header>
                     <StackPanel>
                         <TextBlock Style="{StaticResource MaterialDesignOverlineTextBlock}" Foreground="DarkGray">Easing Power</TextBlock>
@@ -75,7 +75,7 @@
                 </MenuItem.Header>
             </MenuItem>
             <Separator/>
-            <MenuItem Icon="🗑️" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
+            <MenuItem Icon="{md:PackIcon Kind=Trash}" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
         </ContextMenu>
     </Button.ContextMenu>
 </Button>

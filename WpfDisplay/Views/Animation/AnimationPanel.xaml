@@ -158,8 +158,8 @@
                                       MouseUp="Channel_MouseUp" MouseDown="Dopesheet_MouseDown">
                                     <Grid.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Icon="+" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
-                                            <MenuItem Icon="🗑️" Header="_Remove channel" Command="{Binding Source={x:Reference Name=animationPanel}, Path=DataContext.RemoveChannelCommand}" CommandParameter="{Binding}" Foreground="OrangeRed"/>
+                                            <MenuItem Icon="{md:PackIcon Kind=Plus}" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
+                                            <MenuItem Icon="{md:PackIcon Kind=Trash}" Header="_Remove channel" Command="{Binding Source={x:Reference Name=animationPanel}, Path=DataContext.RemoveChannelCommand}" CommandParameter="{Binding}" Foreground="OrangeRed"/>
                                         </ContextMenu>
                                     </Grid.ContextMenu>
                                     <Border BorderThickness="0,0,0,0.5" BorderBrush="Black">
