@@ -36,19 +36,18 @@ I'm releasing it as an open-source project in the hope that it will be useful to
 - [x] Node-based editor
 - [x] Mutation-style generator 
 - [x] Extendable with Plug-Ins
+- [x] Animations
 
 Planned:
-- [ ] Animations
+- [ ] Gradient editor
+- [ ] Animation curve editor
 - [ ] More intuitive coloring methods
-- [ ] Crossplatform CLI (Command-line interface)
-- [ ] A better name & logo
 - [ ] [*Add Your Ideas*](https://github.com/bezo97/IFSRenderer/discussions/categories/ideas)
 
 ## 📀 Installation
 
 ### Minimum Requirements
-- Windows 10
-- .NET Desktop Runtime 8 (included)
+- Windows 10 or later
 - OpenGL 4.5 capable graphics card
 
 ### Downloads
@@ -155,5 +154,5 @@ I'd like to also mention people who indirectly helped the project succeed throug
 ---
 
 ## ⚖️ License
-Copyright (C) 2022 Dócs Zoltán & contributors  
+Copyright (C) 2021-2024 Dócs Zoltán & contributors  
 IFSRenderer is licensed under [**GPLv3**](/LICENSE).

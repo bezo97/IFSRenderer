@@ -57,18 +57,13 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.NetCore.DesktopRuntime.7.0.x64"
-                    {
-                    "Name" = "8:.NET Desktop Runtime 7.0.2 (x64)"
-                    "ProductCode" = "8:Microsoft.NetCore.DesktopRuntime.7.0.x64"
-                    }
                 }
             }
         }
@@ -89,18 +84,13 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.NetCore.DesktopRuntime.7.0.x64"
-                    {
-                    "Name" = "8:.NET Desktop Runtime 7.0.2 (x64)"
-                    "ProductCode" = "8:Microsoft.NetCore.DesktopRuntime.7.0.x64"
-                    }
                 }
             }
         }
@@ -120,6 +110,16 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_FCC1C2D055A64249AC55735057FC6F7D"
+                {
+                "Name" = "8:.NET Core"
+                "Message" = "8:[VSDNETCOREMSG]"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:https://dotnet.microsoft.com/download/dotnet-core/[NetCoreVerMajorDotMinor]"
+                "IsNETCore" = "11:TRUE"
+                "Architecture" = "2:0"
+                "Runtime" = "2:0"
+                }
             }
         }
         "File"
@@ -253,17 +253,6 @@
                     "Property" = "8:_242F6502F8A14D2BA8B8511FCDD41174"
                         "Folders"
                         {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_1472A5E0995244AB8F888349E4AAECC6"
-                            {
-                            "Name" = "8:Transforms"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_74AE3418BA9944189047B86B7383E5B9"
-                                "Folders"
-                                {
-                                }
-                            }
                         }
                     }
                 }
@@ -307,15 +296,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IFSRenderer"
-        "ProductCode" = "8:{6DE5960A-85A3-40F1-BFA5-51EC88BB3074}"
-        "PackageCode" = "8:{165B87F0-5409-44F2-A4C2-AD70A89154CA}"
+        "ProductCode" = "8:{E85CEA32-5BBE-456A-83F6-7F2A4B6A01B3}"
+        "PackageCode" = "8:{A6DC20A9-BDF9-4473-8F00-AE6B53798875}"
         "UpgradeCode" = "8:{4E458E2D-D700-48A5-954C-3D6975C54AA6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.2.0"
+        "ProductVersion" = "8:1.3.0"
         "Manufacturer" = "8:bezo97"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/bezo97/IFSRenderer"

@@ -11,7 +11,7 @@
 		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
 		<Win32Resource />
 		<Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
-		<Version>1.2.0</Version>
+		<Version>1.3.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -72,6 +72,12 @@
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\FfmpegPresets.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\ResolutionPresets.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='ReleaseInstaller'">
@@ -83,6 +89,12 @@
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\FfmpegPresets.json">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\ResolutionPresets.json">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -90,12 +102,6 @@
     <Resource Include="..\Assets\featured_artwork.jpg" Link="Resources\featured_artwork.jpg" />
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Library\FfmpegPresets.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Library\ResolutionPresets.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Resources\deltap-tooltip.jpg" />
 	</ItemGroup>

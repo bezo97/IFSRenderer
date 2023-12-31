@@ -1,5 +1,61 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
+
+## [1.3.0] - 2023-12-31
+### Added
+ - Animations
+   - Basic features that let the user animate any value using keyframes and render frames and video
+   - You can also load an audio file and animate the fractal to the beat
+   - See the wiki for more info
+ - 360-sphere camera mode (using equirectangular projection)
+ - Camera Navigation panel (to precisely control position and orientation)
+ - More transforms
+   - They can now be searched by name and tags
+   - An optional ["Attractors" transform pack](https://github.com/bezo97/ifsr-attractors)
+ - A welcome screen
+   - Shows a featured artwork each release
+   - Options to quickstart different workflows
+   - Can be disabled
+ - `Split` operation - similar to `Duplicate` but weights are adjusted to keep the same look of the fractal
+ - Countless small UX/UI improvements
+   - The layout can now be rearranged by the user
+   - Panels can be popped out into small tool windows that stay on top
+   - You can now click and drag on the palette to select a color
+   - A small icon on the bottom bar shows when a gamepad controller is properly connected
+ - Separate `Save` / `Save as...` functions
+ - Ability to load recently edited files
+ - Ability to customize image resolution presets and video encoding presets
+ - Prompt user to save unsaved changes before quitting
+ - Option to start blank params with simple white palette instead of random colors
+ - `Target Iteration Level` render setting, which is used to tell when the animation frame is considered finished
+   - A progress bar shows the rendering progress in the bottom bar
+ - A `discarded_point` const available for plugin developers
+
+### Changed
+ - Editor nodes have a new look
+   - Added a small grabbing area to move the node
+   - A button to connect the node to itself
+ - Generated fractals look nicer thanks to preferring certain transforms and avoiding others
+ - Palettes are now generated in HSV color space
+ - The installer release is now self-contained, just like the the portable release. This means that installing the .NET Runtime is no longer a requirement, which was a confusion to many
+
+### Fixed
+ - File dialogs now remember the last directory
+ - Freezing GUI while the generator window is rendering
+ - Unreachable dialogs stuck under other windows
+ - Nodes jumping around occassionally when dragging a new connection
+ - Nodes jumping around after undo/redo and reloading a file
+ - Losing selection after undo/redo operation
+ - Black thumbnails of mutated fractals
+ - Wrong color taken from palette when index is 1.0
+ - Rendering bug that caused occassional glitches on the edge of the image
+ - Rendering bug that caused a white dot in the center
+ - Vendor-specific rendering related small fixes (eg. undefined behaviors, buffer layouts)
+
+### Removed
+ - Broken TAA pass
+ - Options to invert X and Z axis of the controller
 
 ## [1.2.0] - 2022-03-08
 ### Added
@@ -69,6 +125,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.3.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.0
 [1.2.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.2.0
 [1.1.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.1.0
 [1.0.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.0.0
