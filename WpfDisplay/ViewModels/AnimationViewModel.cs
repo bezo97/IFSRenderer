@@ -257,6 +257,7 @@ public partial class AnimationViewModel : ObservableObject
 
             vm.UpdateKeyframes();
         }
+        Workspace.RaiseAnimationFrameChanged();
     }
 
     [RelayCommand]

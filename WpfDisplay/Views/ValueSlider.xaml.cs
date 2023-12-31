@@ -231,7 +231,9 @@ public partial class ValueSlider : UserControl
         //little hack for now
         DataContextChanged += (s, e) =>
         {
-            AnimateCommand = ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel.AnimateValueCommand;
+            var vm = (MainViewModel)Application.Current.MainWindow.DataContext;
+            vm.workspace.PropertyChanged += (s, e) => UpdateAnimatedSymbol();
+            AnimateCommand = vm.AnimationViewModel.AnimateValueCommand;
             UpdateLabelFormat();
         };
     }

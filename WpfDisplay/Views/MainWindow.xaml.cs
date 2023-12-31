@@ -68,6 +68,7 @@ public partial class MainWindow : Window
                 DataContext = welcomeViewModel
             };
             welcomeWindow.ShowDialog();
+            Focus();
             workflow = welcomeViewModel.SelectedWorkflow;
             if (workflow == WelcomeWorkflow.Explore)
                 workspace.LoadParams(welcomeViewModel.ExploreParams, null);
