@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2024-01-02
+### Fixed
+ - Hotfix crash after first frame of animation export
+
 ## [1.3.0] - 2023-12-31
 ### Added
  - Animations
@@ -125,6 +129,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.3.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.1
 [1.3.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.0
 [1.2.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.2.0
 [1.1.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.1.0
