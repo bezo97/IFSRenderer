@@ -34,29 +34,33 @@ public partial class ValueSlider : UserControl
 
     private void UpdateAnimatedSymbol()
     {
-        char symbol = ' ';
-        Brush symbolColor = Brushes.Gray;
-        if (!string.IsNullOrEmpty(AnimationPath))
+        Dispatcher.Invoke(() =>
         {
-            var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
-            var animatedState = main.AnimationViewModel.GetChannelCurrentState(AnimationPath);
-            symbol = animatedState switch
-            {
-                null => '◇',
-                false => '◆',
-                true => '◈',
-            };
 
-            if (animatedState is not null)
+            char symbol = ' ';
+            Brush symbolColor = Brushes.Gray;
+            if (!string.IsNullOrEmpty(AnimationPath))
             {
-                var isValueModified = main.AnimationViewModel.IsChannelBeingModified(AnimationPath, Value);
-                symbolColor = isValueModified ? Brushes.Orange : Brushes.White;
+                var main = (MainViewModel)System.Windows.Application.Current.MainWindow.DataContext;//ugh
+                var animatedState = main.AnimationViewModel.GetChannelCurrentState(AnimationPath);
+                symbol = animatedState switch
+                {
+                    null => '◇',
+                    false => '◆',
+                    true => '◈',
+                };
+
+                if (animatedState is not null)
+                {
+                    var isValueModified = main.AnimationViewModel.IsChannelBeingModified(AnimationPath, Value);
+                    symbolColor = isValueModified ? Brushes.Orange : Brushes.White;
+                }
             }
-        }
-        symbolButton1.Content = symbol;
-        symbolButton1.Foreground = symbolColor;
-        symbolButton2.Content = symbol;
-        symbolButton2.Foreground = symbolColor;
+            symbolButton1.Content = symbol;
+            symbolButton1.Foreground = symbolColor;
+            symbolButton2.Content = symbol;
+            symbolButton2.Foreground = symbolColor;
+        });
     }
 
 

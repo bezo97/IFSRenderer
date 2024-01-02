@@ -207,9 +207,12 @@ public partial class AnimationViewModel : ObservableObject
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
             _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = CurrentTime.ToTimeSpan());
-        OnPropertyChanged(nameof(CurrentTimeSeconds));
-        OnPropertyChanged(nameof(CurrentTimeScrollPosition));
-        Workspace.RaiseAnimationFrameChanged();
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            OnPropertyChanged(nameof(CurrentTimeSeconds));
+            OnPropertyChanged(nameof(CurrentTimeScrollPosition));
+            Workspace.RaiseAnimationFrameChanged();
+        });
     }
 
     /// <returns>True when there is no next frame.</returns>
