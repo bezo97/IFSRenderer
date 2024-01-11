@@ -41,14 +41,6 @@ public partial class IteratorViewModel : ObservableObject
         Parameters.Clear();
         Parameters.AddRange(Iterator.RealParams.Select(v => new RealParamViewModel(v.Key, Iterator, _workspace)));
         Parameters.AddRange(Iterator.Vec3Params.Select(v => new Vec3ParamViewModel(v.Key, Iterator, _workspace)));
-        foreach (var v in Parameters)
-        {
-            v.PropertyChanged += (s, e) =>
-            {
-                OnPropertyChanged(e.PropertyName);
-                _workspace.Renderer.InvalidateParamsBuffer();
-            };
-        }
     }
 
     public void Redraw()

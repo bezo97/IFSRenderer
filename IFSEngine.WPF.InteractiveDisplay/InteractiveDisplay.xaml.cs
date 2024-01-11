@@ -198,34 +198,37 @@ public partial class InteractiveDisplay : WindowsFormsHost
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left && GLControl1.Capture)
             {
-                if (Mouse.OverrideCursor == null)
-                {
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
-                    InteractionStartedCommand?.Execute(null);//Hack
-                }
-
                 float yawDelta = e.X - _lastX;
                 float pitchDelta = e.Y - _lastY;
 
-                if (_invertY)
-                    pitchDelta = -pitchDelta;
+                if (yawDelta != 0 || pitchDelta != 0)
+                {
+                    if (Mouse.OverrideCursor == null)
+                    {
+                        Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+                        InteractionStartedCommand?.Execute(null);//Hack
+                    }
 
-                //camera rotation speed depends on field of view
-                float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
-                yawDelta *= rotateSpeed;
-                pitchDelta *= rotateSpeed;
+                    if (_invertY)
+                        pitchDelta = -pitchDelta;
 
-                Vector3 rotateVec = new(yawDelta, pitchDelta, 0.0f);
-                Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * _sensitivity);
-                Renderer.InvalidateHistogramBuffer();
+                    //camera rotation speed depends on field of view
+                    float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+                    yawDelta *= rotateSpeed;
+                    pitchDelta *= rotateSpeed;
 
-                //TODO: Mouse position reset
-                //if (VisualTreeHelper.HitTest(this, Mouse.GetPosition(this)) == null)
-                //{
-                //    var pos = this.PointToScreen(new Point(Width / 2, Height / 2));
-                //    SetCursorPos((int)pos.X, (int)pos.Y);
-                //}
-                InteractionFinishedCommand?.Execute(null);
+                    Vector3 rotateVec = new(yawDelta, pitchDelta, 0.0f);
+                    Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * _sensitivity);
+                    Renderer.InvalidateHistogramBuffer();
+
+                    //TODO: Mouse position reset
+                    //if (VisualTreeHelper.HitTest(this, Mouse.GetPosition(this)) == null)
+                    //{
+                    //    var pos = this.PointToScreen(new Point(Width / 2, Height / 2));
+                    //    SetCursorPos((int)pos.X, (int)pos.Y);
+                    //}
+                    InteractionFinishedCommand?.Execute(null);
+                }
             }
             else
                 Mouse.OverrideCursor = null;//no override
