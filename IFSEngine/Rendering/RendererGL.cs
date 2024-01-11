@@ -76,7 +76,7 @@ public sealed class RendererGL : IAsyncDisposable
         await WithContext(() =>
         {
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _pointsBufferHandle);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, InvocationCount * (4 * sizeof(float)) + 2 * sizeof(float) + 2 * sizeof(int), IntPtr.Zero, BufferUsageHint.StaticCopy);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, InvocationCount * (4 * sizeof(float) + 2 * sizeof(float) + 2 * sizeof(int)), IntPtr.Zero, BufferUsageHint.StaticCopy);
 
             InvalidatePointsStateBuffer();
         });
