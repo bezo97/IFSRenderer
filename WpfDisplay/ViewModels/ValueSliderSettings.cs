@@ -8,6 +8,8 @@ public class ValueSliderSettings
 {
     public Action? ValueWillChange { get; init; }
     public Action<double>? ValueChanged { get; init; }
+    public Action? ValueDraggingStarted { get; init; }
+    public Action<double>? ValueDraggingCompleted { get; init; }
     public ICommand? AnimateCommand { get; init; }
     public string? AnimationPath { get; init; }
     public double? DefaultValue { get; init; }

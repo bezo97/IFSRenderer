@@ -179,9 +179,16 @@ public partial class CameraSettingsViewModel : ObservableObject
     {
         Label = "📏 Focus Distance",
         DefaultValue = IFS.Default.Camera.FocusDistance,
+        Increment = 0.01,
         AnimationPath = "Camera.FocusDistance",
-        ValueWillChange = _workspace.TakeSnapshot,
+        ValueWillChange = () => _workspace.TakeSnapshot(),
         ValueChanged = (c) => _workspace.Renderer.InvalidateHistogramBuffer(),
+        ValueDraggingStarted = () => _workspace.Renderer.MarkAreaInFocus = true,
+        ValueDraggingCompleted = (c) =>
+        {
+            _workspace.Renderer.MarkAreaInFocus = false;
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        }
     };
 
     private ValueSliderSettings _depthOfFieldSlider;
@@ -191,9 +198,16 @@ public partial class CameraSettingsViewModel : ObservableObject
         ToolTip = "a.k.a. Range of focus",
         DefaultValue = IFS.Default.Camera.DepthOfField,
         MinValue = 0,
+        Increment = 0.01,
         AnimationPath = "Camera.DepthOfField",
-        ValueWillChange = _workspace.TakeSnapshot,
+        ValueWillChange = () => _workspace.TakeSnapshot(),
         ValueChanged = (c) => _workspace.Renderer.InvalidateHistogramBuffer(),
+        ValueDraggingStarted = () => _workspace.Renderer.MarkAreaInFocus = true,
+        ValueDraggingCompleted = (c) =>
+        {
+            _workspace.Renderer.MarkAreaInFocus = false;
+            _workspace.Renderer.InvalidateHistogramBuffer();
+        }
     };
 
     public ProjectionType ProjectionType

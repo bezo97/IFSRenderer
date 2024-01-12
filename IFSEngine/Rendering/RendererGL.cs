@@ -1,11 +1,4 @@
-﻿using IFSEngine.Animation;
-using IFSEngine.Model;
-using IFSEngine.Rendering.GpuStructs;
-using IFSEngine.Utility;
-using Nito.AsyncEx;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Windowing.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,6 +7,15 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+using IFSEngine.Model;
+using IFSEngine.Rendering.GpuStructs;
+using IFSEngine.Utility;
+
+using Nito.AsyncEx;
+
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.Common;
 
 namespace IFSEngine.Rendering;
 
@@ -117,6 +119,11 @@ public sealed class RendererGL : IAsyncDisposable
     /// Reset by <see cref="InvalidateHistogramBuffer"/>.
     /// </summary>
     public bool IsTargetIterationReached { get; private set; } = false;
+    /// <summary>
+    /// Whether to mark the area in focus with red. This is used as a visual aid when the user is changing the focus.
+    /// Should be false when doing final render.
+    /// </summary>
+    public bool MarkAreaInFocus { get; set; } = false;
 
     private bool _updateDisplayNow = false;
     private readonly IGraphicsContext _ctx;
@@ -141,7 +148,7 @@ public sealed class RendererGL : IAsyncDisposable
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
-    private readonly float[] _bufferClearColor = new float[] { 0.0f, 0.0f, 0.0f };
+    private readonly float[] _bufferClearColor = [0.0f, 0.0f, 0.0f];
     private readonly string _shadersPath = "IFSEngine.Rendering.Shaders.";
     private readonly bool _debugFlag = false;
 
@@ -359,7 +366,8 @@ public sealed class RendererGL : IAsyncDisposable
                 palettecnt = LoadedParams.Palette.Colors.Count,
                 entropy = (float)LoadedParams.Entropy,
                 warmup = LoadedParams.Warmup,
-                max_filter_radius = MaxFilterRadius
+                max_filter_radius = MaxFilterRadius,
+                mark_area_in_focus = MarkAreaInFocus ? 1 : 0
             };
             GL.BindBuffer(BufferTarget.UniformBuffer, _settingsBufferHandle);
             GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf(typeof(SettingsStruct)), ref settings, BufferUsageHint.StreamDraw);
@@ -549,7 +557,7 @@ public sealed class RendererGL : IAsyncDisposable
                     IsTargetIterationReached = target;
 
                     bool isPerceptuallyEqualFrame = BitOperations.IsPow2(_dispatchCnt);
-                    
+
                     if (_updateDisplayNow || isTargetIterationReachedByCurrentDispatch || (UpdateDisplayOnRender && (!EnablePerceptualUpdates || (EnablePerceptualUpdates && isPerceptuallyEqualFrame))))
                     {
                         //render image from histogram

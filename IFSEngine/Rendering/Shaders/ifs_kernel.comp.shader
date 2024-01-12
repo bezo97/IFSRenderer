@@ -79,7 +79,7 @@ layout(std140, binding = 2) uniform settings_ubo
 	float fog_effect;
 	int itnum;//number of iterators
 	int palettecnt;
-	int padding1;
+	int mark_area_in_focus;
 
 	int warmup;
 	float entropy;
@@ -508,9 +508,9 @@ void main() {
 		if (color.w == 0.0)
 			continue;//avoid useless histogram writes
 
-		//mark plane of focus
-		//if (defocus == 0.0)
-			//color.rgb = vec3(2.0, 0.0, 0.0);
+		//mark area in focus with red
+		if (settings.mark_area_in_focus != 0 && defocus < 0.01)
+			color = vec4(1.0, 0.0, 0.0, 2.0);
 
 		color.xyz *= color.w;
 

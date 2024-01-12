@@ -9,7 +9,7 @@ internal struct SettingsStruct
     internal float fog_effect;
     internal int itnum;//number of iterators
     internal int palettecnt;//how many colors in the palette
-    internal int padding1;
+    internal int mark_area_in_focus;
 
     internal int warmup;//initial skipping / fuse
     internal float entropy;

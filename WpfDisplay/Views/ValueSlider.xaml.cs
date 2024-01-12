@@ -94,6 +94,10 @@ public partial class ValueSlider : UserControl
                     slider.ValueWillChangeAction = sliderSettings.ValueWillChange ?? slider.ValueWillChangeAction;
                 if (!BindingOperations.IsDataBound(s, ValueChangedActionProperty))
                     slider.ValueChangedAction = sliderSettings.ValueChanged ?? slider.ValueChangedAction;
+                if (!BindingOperations.IsDataBound(s, ValueDraggingStartedActionProperty))
+                    slider.ValueDraggingStartedAction = sliderSettings.ValueDraggingStarted ?? slider.ValueDraggingStartedAction;
+                if (!BindingOperations.IsDataBound(s, ValueDraggingCompletedActionProperty))
+                    slider.ValueDraggingCompletedAction = sliderSettings.ValueDraggingCompleted ?? slider.ValueDraggingCompletedAction;
                 if (!BindingOperations.IsDataBound(s, AnimateCommandProperty))
                     slider.AnimateCommand = sliderSettings.AnimateCommand ?? slider.AnimateCommand;
                 //
@@ -200,6 +204,28 @@ public partial class ValueSlider : UserControl
     public static readonly DependencyProperty ValueChangedActionProperty =
         DependencyProperty.Register("ValueChangedAction", typeof(Action<double>), typeof(ValueSlider), new PropertyMetadata(null));
 
+    /// <summary>
+    /// Invoked when the user starts changing the value with mouse dragging.
+    /// </summary>
+    public Action ValueDraggingStartedAction
+    {
+        get { return (Action)GetValue(ValueDraggingStartedActionProperty); }
+        set { SetValue(ValueDraggingStartedActionProperty, value); }
+    }
+    public static readonly DependencyProperty ValueDraggingStartedActionProperty =
+        DependencyProperty.Register("ValueDraggingStartedAction", typeof(Action), typeof(ValueSlider), new PropertyMetadata(null));
+
+    /// <summary>
+    /// Invoked after the user has completed changing the value with mouse dragging.
+    /// </summary>
+    public Action<double> ValueDraggingCompletedAction
+    {
+        get { return (Action<double>)GetValue(ValueDraggingCompletedActionProperty); }
+        set { SetValue(ValueDraggingCompletedActionProperty, value); }
+    }
+    public static readonly DependencyProperty ValueDraggingCompletedActionProperty =
+        DependencyProperty.Register("ValueDraggingCompletedAction", typeof(Action<double>), typeof(ValueSlider), new PropertyMetadata(null));
+
     private ICommand? _resetValueCommand;
     public ICommand ResetValueCommand => _resetValueCommand ??= new RelayCommand(() =>
     {
@@ -304,6 +330,7 @@ public partial class ValueSlider : UserControl
             if (!displayLabel.IsMouseCaptured)
             {
                 ValueWillChangeAction?.Invoke();
+                ValueDraggingStartedAction?.Invoke();
                 _dragp = e.GetPosition(Window.GetWindow(this));
                 _lastv = Value;
                 displayLabel.CaptureMouse();
@@ -337,6 +364,7 @@ public partial class ValueSlider : UserControl
             {
                 var pos = Window.GetWindow(this).PointToScreen(_dragp);
                 SetCursorPos((int)Math.Round(pos.X), (int)Math.Round(pos.Y));
+                ValueDraggingCompletedAction?.Invoke(Value);
             }
         }
         Mouse.OverrideCursor = null;//no override
