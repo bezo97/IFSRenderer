@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:conv="clr-namespace:WpfDisplay.Converters" 
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -100,20 +102,10 @@
                                                 HorizontalContentAlignment="Stretch" Padding="0 4">
                                             <Button.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem
-                                                        Header="✏️ Edit source"
-                                                        Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
-                                                        CommandParameter="{Binding FilePath}"/>
-                                                    <MenuItem>
-                                                        <MenuItem.Header>
-                                                            <Hyperlink NavigateUri="{Binding ReferenceUrl}" ToolTip="{Binding ReferenceUrl}">ℹ️ Information...</Hyperlink>
-                                                        </MenuItem.Header>
-                                                    </MenuItem>
-                                                    <Separator/>
-                                                    <MenuItem Height="auto">
+                                                    <MenuItem Height="auto" IsHitTestVisible="False">
                                                         <MenuItem.Header>
                                                             <StackPanel Orientation="Vertical">
-                                                                <Label Content="{Binding Name}"/>
+                                                                <Label FontSize="18" FontWeight="Bold" Content="{Binding Name}"/>
                                                                 <ItemsControl ItemsSource="{Binding Tags}">
                                                                     <ItemsControl.ItemsPanel>
                                                                         <ItemsPanelTemplate>
@@ -122,15 +114,38 @@
                                                                     </ItemsControl.ItemsPanel>
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate>
-                                                                            <Button Content="{Binding}" Style="{DynamicResource MaterialDesignFloatingActionMiniButton}" IsEnabled="False"/>
+                                                                            <md:Chip Content="{Binding}" />
                                                                         </DataTemplate>
                                                                     </ItemsControl.ItemTemplate>
                                                                 </ItemsControl>
                                                                 <Label FontWeight="Bold">Description</Label>
-                                                                <TextBlock Text="{Binding Description}" MaxWidth="200" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Description}" MaxWidth="200" TextWrapping="Wrap" Margin="8 0"/>
+                                                                <Label FontWeight="Bold">Include uses</Label>
+                                                                <ItemsControl ItemsSource="{Binding IncludeUses}" Margin="8 0"/>
+                                                                <TextBlock Margin="8 0">
+                                                                    <TextBlock.Visibility>
+                                                                        <Binding Path="IncludeUses.Count"
+                                                                             Converter="{StaticResource EqualityToVisibilityConverter}">
+                                                                            <Binding.ConverterParameter>
+                                                                                <sys:Int32>0</sys:Int32>
+                                                                            </Binding.ConverterParameter>
+                                                                        </Binding>
+                                                                    </TextBlock.Visibility>
+                                                                    None
+                                                                </TextBlock>
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>
+                                                    <Separator/>
+                                                    <MenuItem>
+                                                        <MenuItem.Header>
+                                                            <Hyperlink NavigateUri="{Binding ReferenceUrl}" ToolTip="{Binding ReferenceUrl}">ℹ️ Information...</Hyperlink>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <MenuItem
+                                                        Header="✏️ Edit source"
+                                                        Command="{Binding DataContext.EditTransformSourceCommand, Source={x:Reference editorWindow}}"
+                                                        CommandParameter="{Binding FilePath}"/>
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                             <Grid HorizontalAlignment="Stretch">

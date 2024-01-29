@@ -61,7 +61,7 @@ public partial class MainWindow : Window
         }
         else if (App.OpenVerbPath is null && Settings.Default.IsWelcomeShownOnStartup)
         {
-            var welcomeViewModel = new WelcomeViewModel(workspace.LoadedTransforms);
+            var welcomeViewModel = new WelcomeViewModel(workspace.IncludeSources, workspace.LoadedTransforms);
             var welcomeWindow = new WelcomeWindow
             {
                 Owner = this,

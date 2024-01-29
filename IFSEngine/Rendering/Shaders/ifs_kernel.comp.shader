@@ -235,6 +235,56 @@ float random(inout uint nextSample)
 	return f_hash4(seed, gl_GlobalInvocationID.x, uint(dispatch_cnt), nextSample++);
 }
 
+
+//consts available in transforms
+//using ARB_shader_precision extension, this should reliably produce NaN for all vendors
+const vec3 discarded_point = vec3(intBitsToFloat(0x7fc00000));
+
+//additional include snippets inserted on initialization
+@includes
+
+vec3 apply_transform(Iterator iter, p_state _p_input, inout uint next)
+{
+	//variables available in transforms:
+    vec3 p = _p_input.pos.xyz;
+	int iter_depth = _p_input.iteration_depth;
+
+	//transform snippets inserted on initialization
+	@transforms
+
+	return p;
+}
+
+void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index)
+{
+	float in_color = color_index;
+	float speed = it.color_speed;
+	if (it.shading_mode == 1)
+	{
+		float p_delta = length(p - p0);
+		speed *= (1.0 - 1.0 / (1.0 + p_delta));
+	}
+
+    float new_index = mix(in_color, it.color_index, speed);
+    if(new_index != 0.0 && fract(new_index) == 0.0)
+        color_index = new_index;
+    else
+	    color_index = fract(new_index);
+}
+
+vec3 getPaletteColor(float pos)
+{
+	float palettepos = pos * (settings.palettecnt - 1);
+	int index = int(floor(palettepos));
+	vec3 c1 = palette[index].xyz;
+    if (index + 1 == settings.palettecnt)
+        return c1;
+	vec3 c2 = palette[index+1].xyz;
+	float a = fract(palettepos);
+	//TODO: interpolate in a different color space?
+	return mix(c1, c2, a);//lerp
+}
+
 vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
@@ -288,52 +338,6 @@ vec2 Project(camera_params c, vec3 p, inout uint next)
         return ProjectPerspective(c, p, next);
     else //if(c.projection_type == 1)
         return ProjectEquirectangular(c, p, next);
-}
-
-//consts available in transforms
-//using ARB_shader_precision extension, this should reliably produce NaN for all vendors
-const vec3 discarded_point = vec3(intBitsToFloat(0x7fc00000));
-
-vec3 apply_transform(Iterator iter, p_state _p_input, inout uint next)
-{
-	//variables available in transforms:
-    vec3 p = _p_input.pos.xyz;
-	int iter_depth = _p_input.iteration_depth;
-
-	//snippets inserted on initialization
-	@transforms
-
-	return p;
-}
-
-void apply_coloring(Iterator it, vec4 p0, vec4 p, inout float color_index)
-{
-	float in_color = color_index;
-	float speed = it.color_speed;
-	if (it.shading_mode == 1)
-	{
-		float p_delta = length(p - p0);
-		speed *= (1.0 - 1.0 / (1.0 + p_delta));
-	}
-
-    float new_index = mix(in_color, it.color_index, speed);
-    if(new_index != 0.0 && fract(new_index) == 0.0)
-        color_index = new_index;
-    else
-	    color_index = fract(new_index);
-}
-
-vec3 getPaletteColor(float pos)
-{
-	float palettepos = pos * (settings.palettecnt - 1);
-	int index = int(floor(palettepos));
-	vec3 c1 = palette[index].xyz;
-    if (index + 1 == settings.palettecnt)
-        return c1;
-	vec3 c2 = palette[index+1].xyz;
-	float a = fract(palettepos);
-	//TODO: interpolate in a different color space?
-	return mix(c1, c2, a);//lerp
 }
 
 //alias method sampling in O(1)

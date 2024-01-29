@@ -27,6 +27,7 @@ namespace WpfDisplay.ViewModels;
 
 public sealed partial class WelcomeViewModel : ObservableObject
 {
+    private readonly IReadOnlyCollection<string> _includeSources;
     private readonly IReadOnlyCollection<Transform> _loadedTransforms;
 
     public RelayCommand? ContinueCommand { get; set; }
@@ -48,8 +49,9 @@ public sealed partial class WelcomeViewModel : ObservableObject
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = [];
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = [];
 
-    public WelcomeViewModel(IReadOnlyCollection<Transform> loadedTransforms)
+    public WelcomeViewModel(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<Transform> loadedTransforms)
     {
+        _includeSources = includeSources;
         _loadedTransforms = loadedTransforms;
     }
 
@@ -66,7 +68,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
         });
         var renderer = new RendererGL(hw.Context);
         renderer.SetDisplayResolution(100, 100);
-        await renderer.Initialize(_loadedTransforms);
+        await renderer.Initialize(_includeSources, _loadedTransforms);
         await renderer.SetWorkgroupCount(100);
 
         ExploreParams = new Generator(_loadedTransforms).GenerateOne(new());

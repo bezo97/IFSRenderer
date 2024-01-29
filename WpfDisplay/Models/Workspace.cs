@@ -26,11 +26,13 @@ namespace WpfDisplay.Models;
 public partial class Workspace : ObservableObject
 {
     private readonly IFSHistoryTracker _tracker = new();
+    private List<string> _includeSources = [];
     private List<Transform> _loadedTransforms = [];
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
+    public IReadOnlyCollection<string> IncludeSources => _includeSources;
     public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
     public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
     public Author CurrentUser { get; set; } = Author.Unknown;
@@ -85,7 +87,7 @@ public partial class Workspace : ObservableObject
     {
         await ApplyUserSettings();
         await LoadLibrary();
-        await Renderer.Initialize(_loadedTransforms);
+        await Renderer.Initialize(_includeSources, _loadedTransforms);
 
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
@@ -94,27 +96,37 @@ public partial class Workspace : ObservableObject
 
     private async Task LoadLibrary()
     {
-        await LoadTransformLibrary();
+        await LoadSourceLibrary();
         ResolutionPresets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int[]>>(
             await File.ReadAllTextAsync(Path.Combine(App.LibraryDirectoryPath, "ResolutionPresets.json"))) ?? [];
         FfmpegPresets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(
             await File.ReadAllTextAsync(Path.Combine(App.LibraryDirectoryPath, "FfmpegPresets.json"))) ?? [];
     }
 
-    private async Task LoadTransformLibrary()
+    private async Task LoadSourceLibrary()
     {
-        var loadTasks = Directory
+        //load includes
+        var includeFiles = Directory.GetFiles(App.IncludesDirectoryPath);
+        var loadIncludeTasks = includeFiles.Select(file => File.ReadAllTextAsync(file));
+        _includeSources = (await Task.WhenAll(loadIncludeTasks)).ToList();
+        //load transforms
+        var loadTransformTasks = Directory
             .GetFiles(App.TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
             .Select(file => Transform.FromFile(file));
-        _loadedTransforms = (await Task.WhenAll(loadTasks)).ToList();
+        var allTransforms = (await Task.WhenAll(loadTransformTasks)).ToList();
+        //skip transforms with missing includes
+        var includeNames = includeFiles.Select(i => Path.GetFileName(i)).ToList();
+        var skippedTransforms = allTransforms.Where(t => t.IncludeUses.Any(u => !includeNames.Contains(u)));
+        //TODO: notify user of skipped transforms and missing includes
+        _loadedTransforms = allTransforms.Except(skippedTransforms).ToList();
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
     public async Task ReloadTransforms()
     {
-        await LoadTransformLibrary();
+        await LoadSourceLibrary();
         Ifs.ReloadTransforms(LoadedTransforms);
-        await Renderer.LoadTransforms(LoadedTransforms);
+        await Renderer.LoadTransforms(_includeSources, LoadedTransforms);
         Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
     }

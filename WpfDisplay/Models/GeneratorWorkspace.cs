@@ -38,8 +38,10 @@ public partial class GeneratorWorkspace : ObservableObject
     /// Call <see cref="Initialize"/> before using
     /// </summary>
     /// <param name="loadedTransforms"></param>
-    public GeneratorWorkspace(IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
+    public GeneratorWorkspace(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
     {
+        _includeSources = includeSources;
+
         //init thumbnail renderer
         GameWindow hw = new(new GameWindowSettings(), new NativeWindowSettings
         {
@@ -54,13 +56,12 @@ public partial class GeneratorWorkspace : ObservableObject
 
         _renderer = new RendererGL(_context);
         _renderer.SetDisplayResolution(200, 200);
-        var transforms = loadedTransforms.ToList();
-        _generator = new Generator(transforms);
+        _generator = new Generator(loadedTransforms);
     }
 
     public async Task Initialize()
     {
-        await _renderer.Initialize(_generator.SelectedTransforms);
+        await _renderer.Initialize(_includeSources, _generator.SelectedTransforms);
         //performance settings
         await _renderer.SetWorkgroupCount(100);
         _context.MakeNoneCurrent();
@@ -88,6 +89,8 @@ public partial class GeneratorWorkspace : ObservableObject
     public void UnpinIFS(IFS ifs) => _pinnedIFS.Remove(ifs);
 
     private readonly object _queueLocker = new();
+    private readonly IReadOnlyCollection<string> _includeSources;
+
     public void ProcessQueue()
     {
         lock (_queueLocker)

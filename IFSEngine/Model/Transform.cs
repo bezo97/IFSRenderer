@@ -14,7 +14,8 @@ public partial class Transform
     public string Name { get; private set; }
     public string Version { get; private set; }
     public string Description { get; private set; }
-    public IEnumerable<string> Tags { get; private set; }
+    public IReadOnlyList<string> Tags { get; private set; }
+    public IReadOnlyList<string> IncludeUses { get; private set; }
     public Uri ReferenceUrl { get; private set; }
     public string SourceCode { get; private set; }
     public IReadOnlyDictionary<string, double> RealParams { get; private set; }//name, default value
@@ -23,7 +24,7 @@ public partial class Transform
 
 
     //These cannot be parameter names:
-    private static readonly List<string> _reservedFields = ["Name", "Version", "Description", "Tags", "Reference"];
+    private static readonly List<string> _reservedFields = ["Name", "Version", "Description", "Tags", "Reference", "Use"];
     private const string DefaultDescription = "Description not provided by the plugin developer";
 
     [GeneratedRegex("^(\\s*)@.+:.+$")] //@Param1: 0.0, 0 0 0, min 1
@@ -43,9 +44,9 @@ public partial class Transform
                      .Select(l => l.Trim());
 
         var fieldDefinitionLines = lines.Where(l => fieldMatcher().IsMatch(l));
-        Dictionary<string, string> fields = fieldDefinitionLines.ToDictionary(
-            l => l.Split(":")[0].TrimStart('@').Trim(),
-            l => l.Split(":", 2)[1].Trim());
+        var fieldKVPs = fieldDefinitionLines.Select(l => (l.Split(":")[0].TrimStart('@').Trim(), l.Split(":", 2)[1].Trim()));
+        var includeUses = fieldKVPs.Where(f => f.Item1 == "Use").Select(f => f.Item2).ToList();
+        Dictionary<string, string> fields = fieldKVPs.DistinctBy(kvp => kvp.Item1).ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
 
         //check required fields
         if (!fields.ContainsKey("Name") || !fields.ContainsKey("Version"))
@@ -101,6 +102,7 @@ public partial class Transform
                     .Trim()
                     .ToLower(System.Globalization.CultureInfo.InvariantCulture))
                 .ToList() : [],
+            IncludeUses = includeUses,
             ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString) : null,
             SourceCode = sourceCode,
             RealParams = realParams,

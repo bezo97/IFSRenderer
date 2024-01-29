@@ -60,6 +60,7 @@ public sealed class RendererGL : IAsyncDisposable
     public int DisplayWidth { get; private set; } = 1280;
     public int DisplayHeight { get; private set; } = 720;
 
+    private string _includesSource;
     private List<Transform> _registeredTransforms;
 
     public IFS LoadedParams { get; private set; } = new IFS();
@@ -184,7 +185,7 @@ public sealed class RendererGL : IAsyncDisposable
         this._ctx = ctx;
     }
 
-    public async Task Initialize(IEnumerable<Transform> transforms)
+    public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
     {
         if (IsInitialized)
             throw new InvalidOperationException("Renderer is already initialized.");
@@ -197,6 +198,7 @@ public sealed class RendererGL : IAsyncDisposable
             GL.Enable(EnableCap.DebugOutputSynchronous);
         }
 
+        _includesSource = string.Join(Environment.NewLine, includeSources);
         _registeredTransforms = transforms.ToList();
 
         //attributeless rendering
@@ -220,13 +222,14 @@ public sealed class RendererGL : IAsyncDisposable
         InvalidateParamsBuffer();
     }
 
-    public async Task LoadTransforms(IEnumerable<Transform> transforms)
+    public async Task LoadTransforms(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
     {
         if (!IsInitialized)
             throw NewNotInitializedException();
 
         await WithContext(() =>
         {
+            _includesSource = string.Join(Environment.NewLine, includeSources);
             _registeredTransforms = transforms.ToList();
             InitComputeProgram();
             InvalidateParamsBuffer();
@@ -811,6 +814,8 @@ if (iter.tfId == {tfIndex})
         var resource = typeof(RendererGL).GetTypeInfo().Assembly.GetManifestResourceStream(_shadersPath + "ifs_kernel.comp.shader");
         string computeShaderSource = new StreamReader(resource).ReadToEnd();
 
+        //insert includes
+        computeShaderSource = computeShaderSource.Replace("@includes", _includesSource);
         //insert transforms
         computeShaderSource = computeShaderSource.Replace("@transforms", transformsSource);
 

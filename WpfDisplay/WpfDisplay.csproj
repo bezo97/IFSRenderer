@@ -69,6 +69,9 @@
 			<Link>Library\Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+    <Content Include="Library\Includes\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -86,6 +89,9 @@
 			<Link>Library\Transforms%(RecursiveDir)\%(FileName)%(Extension)</Link>
 			<CopyToOutputDirectory>false</CopyToOutputDirectory>
 		</Content>
+    <Content Include="Library\Includes\*.*">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
@@ -109,7 +115,7 @@
 	<ItemGroup>
 		<SplashScreen Include="Resources\SplashScreen.png" />
 	</ItemGroup>
-  
+
     <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
       <!-- Work around https://github.com/dotnet/wpf/issues/6792 -->
       <ItemGroup>

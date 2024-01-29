@@ -66,7 +66,7 @@ public partial class GeneratorViewModel : ObservableObject
     public GeneratorViewModel(MainViewModel mainvm)
     {
         _mainvm = mainvm;
-        _workspace = new GeneratorWorkspace(mainvm.workspace.LoadedTransforms);
+        _workspace = new GeneratorWorkspace(mainvm.workspace.IncludeSources, mainvm.workspace.LoadedTransforms);
         _workspace.PropertyChanged += (s, e) => OnPropertyChanged(nameof(GeneratedIFSThumbnails));//tmp hack
     }
 
