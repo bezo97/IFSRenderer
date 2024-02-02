@@ -40,7 +40,7 @@ public partial class Transform
 
     public static Transform FromString(string s)
     {
-        var lines = s.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+        var lines = s.Split(["\r\n", "\r", "\n" ], StringSplitOptions.RemoveEmptyEntries)
                      .Select(l => l.Trim());
 
         var fieldDefinitionLines = lines.Where(l => fieldMatcher().IsMatch(l));
