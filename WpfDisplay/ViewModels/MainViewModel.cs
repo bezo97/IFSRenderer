@@ -21,6 +21,7 @@ using IFSEngine.Utility;
 
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
+using WpfDisplay.Serialization;
 
 namespace WpfDisplay.ViewModels;
 
@@ -269,8 +270,31 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         {
             BitmapSource bs = await makeBitmapTask;
 
+            //create metadata //TODO: optional user setting
+            workspace.Ifs.AddAuthor(workspace.CurrentUser);//make sure to include current user even when params haven't been saved yet.
+            var authorNames = workspace.Ifs.Authors.Select(author => author.Name).ToHashSet();
+            string[] keywords = [
+                "IFSRenderer",
+                "IFS",
+                "fractal",
+                workspace.Ifs.Title,
+                .. authorNames,
+                .. workspace.Ifs.Iterators.Select(i => i.Transform.Name).Distinct(),
+                workspace.Ifs.Palette.Name];
+            var xmpMetadata = XMPMetadataSerializer.Serialize(
+                title: workspace.Ifs.Title,
+                authors: authorNames,
+                description: IfsNodesSerializer.SerializeJsonString(workspace.Ifs), //TODO: optional user setting
+                subject: keywords);
+
+            //embed XMP metadata in PNG
+            var metadata = new BitmapMetadata("png");
+            metadata.SetQuery("/iTXt/Keyword", "XML:com.adobe.xmp".ToCharArray());
+            metadata.SetQuery("/iTXt/TextEntry", xmpMetadata);
+
             PngBitmapEncoder enc = new PngBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(bs));
+            var frame = BitmapFrame.Create(bs, null, metadata, null);
+            enc.Frames.Add(frame);
             using (FileStream stream = new FileStream(path, FileMode.Create))
                 enc.Save(stream);
 
