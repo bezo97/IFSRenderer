@@ -43,6 +43,8 @@ public partial class Workspace : ObservableObject
     public bool IsExportVideoFileEnabled { get; private set; }
     public string? FfmpegPath { get; private set; }
     public string? FfmpegArgs { get; private set; }
+    public bool SaveMetadata { get; private set; }
+    public bool IncludeParamsInMetadata { get; private set; }
     public string? EditedFilePath { get; private set; }
     public static IReadOnlyList<string> RecentFilePaths
     {
@@ -277,6 +279,8 @@ public partial class Workspace : ObservableObject
         IsExportVideoFileEnabled = Settings.Default.IsExportVideoFileEnabled;
         FfmpegPath = Settings.Default.FfmpegPath;
         FfmpegArgs = Settings.Default.FfmpegArgs;
+        SaveMetadata = Settings.Default.SaveMetadata;
+        IncludeParamsInMetadata = Settings.Default.IncludeParamsInMetadata;
         CurrentUser = new Author
         {
             Name = Settings.Default.AuthorName,

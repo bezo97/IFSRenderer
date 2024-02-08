@@ -241,5 +241,29 @@ namespace WpfDisplay.Properties {
                 this["WelcomeExpanderState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SaveMetadata {
+            get {
+                return ((bool)(this["SaveMetadata"]));
+            }
+            set {
+                this["SaveMetadata"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IncludeParamsInMetadata {
+            get {
+                return ((bool)(this["IncludeParamsInMetadata"]));
+            }
+            set {
+                this["IncludeParamsInMetadata"] = value;
+            }
+        }
     }
 }

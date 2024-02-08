@@ -252,6 +252,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     private async Task ExportToClipboard()
     {
         BitmapSource bs = await workspace.Renderer.GetExportBitmapSource(TransparentBackground);
+        //remark: sadly, Windows Clipboard does not keep metadata, so there's no point in creating a png frame here
         Clipboard.SetImage(bs);
         //TODO: somehow alpha channel is not copied
 
@@ -268,35 +269,19 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
 
         if (DialogHelper.ShowExportImageDialog(workspace.Ifs.Title, out string path))
         {
-            BitmapSource bs = await makeBitmapTask;
-
-            //create metadata //TODO: optional user setting
+            //create metadata
             workspace.Ifs.AddAuthor(workspace.CurrentUser);//make sure to include current user even when params haven't been saved yet.
-            var authorNames = workspace.Ifs.Authors.Select(author => author.Name).ToHashSet();
-            string[] keywords = [
-                "IFSRenderer",
-                "IFS",
-                "fractal",
-                workspace.Ifs.Title,
-                .. authorNames,
-                .. workspace.Ifs.Iterators.Select(i => i.Transform.Name).Distinct(),
-                workspace.Ifs.Palette.Name];
-            var xmpMetadata = XMPMetadataSerializer.Serialize(
-                title: workspace.Ifs.Title,
-                authors: authorNames,
-                description: IfsNodesSerializer.SerializeJsonString(workspace.Ifs), //TODO: optional user setting
-                subject: keywords);
-
-            //embed XMP metadata in PNG
-            var metadata = new BitmapMetadata("png");
-            metadata.SetQuery("/iTXt/Keyword", "XML:com.adobe.xmp".ToCharArray());
-            metadata.SetQuery("/iTXt/TextEntry", xmpMetadata);
-
-            PngBitmapEncoder enc = new PngBitmapEncoder();
+            BitmapMetadata? metadata = null;
+            if (workspace.SaveMetadata)
+                metadata = PngMetadataHelper.CreateMetadataFromParams(workspace.Ifs, includeSerializedParams: workspace.IncludeParamsInMetadata);
+            //create frame
+            BitmapSource bs = await makeBitmapTask;
             var frame = BitmapFrame.Create(bs, null, metadata, null);
-            enc.Frames.Add(frame);
+            //save png
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(frame);
             using (FileStream stream = new FileStream(path, FileMode.Create))
-                enc.Save(stream);
+                encoder.Save(stream);
 
             //open the image for viewing. TODO: optional..
             Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });

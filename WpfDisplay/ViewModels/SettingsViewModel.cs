@@ -59,13 +59,13 @@ internal partial class SettingsViewModel : ObservableObject
         }
     }
 
-    public bool? Watermark
+    public bool? ApplyWatermark
     {
         get => Settings.Default.ApplyWatermark;
         set
         {
             Settings.Default.ApplyWatermark = value ?? false;
-            OnPropertyChanged(nameof(Watermark));
+            OnPropertyChanged(nameof(ApplyWatermark));
         }
     }
 
@@ -209,6 +209,26 @@ internal partial class SettingsViewModel : ObservableObject
         {
             Settings.Default.FfmpegArgs = value;
             OnPropertyChanged(nameof(FfmpegArgs));
+        }
+    }
+
+    public bool? SaveMetadata
+    {
+        get => Settings.Default.SaveMetadata;
+        set
+        {
+            Settings.Default.SaveMetadata = value ?? true;
+            OnPropertyChanged(nameof(SaveMetadata));
+        }
+    }
+
+    public bool? IncludeParamsInMetadata
+    {
+        get => Settings.Default.IncludeParamsInMetadata;
+        set
+        {
+            Settings.Default.IncludeParamsInMetadata = value ?? false;
+            OnPropertyChanged(nameof(IncludeParamsInMetadata));
         }
     }
 

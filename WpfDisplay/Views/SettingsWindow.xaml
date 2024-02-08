@@ -125,24 +125,47 @@
                     <Grid Margin="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" MinHeight="50"/>
+                            <RowDefinition Height="auto" MinHeight="50"/>
+                            <RowDefinition Height="auto" MinHeight="50"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.75*"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <!--Watermark-->
-                        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Gray">
-                        Apply watermark
+                        <!--Metadata-->
+                        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            Save metadata
                         </TextBlock>
                         <Label Grid.Row="0" Grid.Column="1"
-                        ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                            ToolTip="Whether to write metadata in the exported images. This includes title, authors, copyright, date of creation and keywords." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
                         <CheckBox Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                        IsChecked="{Binding Watermark}" IsEnabled="False"/>
+                            IsChecked="{Binding SaveMetadata}"/>
+                        <!--Params in metadata-->
+                        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            Include params
+                        </TextBlock>
+                        <Label Grid.Row="1" Grid.Column="1"
+                        ToolTip="Whether to include fractal params in the image metadata. This makes it possible to drop or paste the image in the editor instead of loading param files." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsEnabled="{Binding SaveMetadata}"
+                            IsChecked="{Binding IncludeParamsInMetadata}"/>
+                        <!--Watermark-->
+                        <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            Apply watermark
+                        </TextBlock>
+                        <Label Grid.Row="2" Grid.Column="1"
+                            ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        <CheckBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsChecked="{Binding ApplyWatermark}" IsEnabled="False"/>
                     </Grid>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource MaterialDesignSubtitle2TextBlock}">Animation</TextBlock>
-                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="🎥 Animations" MinWidth="150">
+                <StackPanel Margin="8">
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                        Animation export options
+                    </TextBlock>
                     <StackPanel Margin="16 0">
                         <Label>Frame export format:</Label>
                         <ListBox
