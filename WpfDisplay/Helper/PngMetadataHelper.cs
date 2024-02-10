@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#nullable enable
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media.Imaging;
 
 using IFSEngine.Model;
@@ -40,5 +42,20 @@ internal static class PngMetadataHelper
         metadata.SetQuery("/tEXt/Comment", serializedParams);
 
         return metadata;
+    }
+
+    public static bool TryExtractParamsFromImage(BitmapSource png, IEnumerable<Transform> transforms, out IFS embeddedParams)
+    {
+        try
+        {
+            var serializedParams = (string)((BitmapMetadata)png.Metadata).GetQuery("/tEXt/Comment");
+            embeddedParams = IfsNodesSerializer.DeserializeJsonString(serializedParams, transforms, true);
+            return true;
+        }
+        catch
+        {
+            embeddedParams = null!;
+            return false;
+        }
     }
 }

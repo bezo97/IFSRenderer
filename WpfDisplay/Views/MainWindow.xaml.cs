@@ -1,12 +1,16 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 using IFSEngine.Model;
 using IFSEngine.Rendering;
 
+using WpfDisplay.Helper;
 using WpfDisplay.Models;
 using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
@@ -69,6 +73,8 @@ public partial class MainWindow : Window
             };
             welcomeWindow.ShowDialog();
             Focus();
+
+            //TODO: refactor this block below
             workflow = welcomeViewModel.SelectedWorkflow;
             if (workflow == WelcomeWorkflow.Explore)
                 workspace.LoadParams(welcomeViewModel.ExploreParams, null);
@@ -78,13 +84,22 @@ public partial class MainWindow : Window
             {
                 try
                 {
-                    workspace.LoadParamsFileAsync(welcomeViewModel.SelectedFilePath, false).Wait();
+                    var ext = Path.GetExtension(welcomeViewModel.SelectedFilePath);
+                    if (ext == ".ifsjson")
+                        workspace.LoadParamsFileAsync(welcomeViewModel.SelectedFilePath, false).Wait();
+                    else if (ext == ".png")
+                    {
+                        var pngImge = BitmapFrame.Create(new Uri(welcomeViewModel.SelectedFilePath));
+                        if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, out var ifs))
+                            workspace.LoadParams(ifs, null);
+                    }
                 }
                 catch
                 {
                     workspace.UpdateStatusText($"Failed to load params - {welcomeViewModel.SelectedFilePath}");
                 }
             }
+
         }
 
         DataContext = new MainViewModel(workspace, workflow);

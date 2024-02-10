@@ -229,8 +229,17 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
                 case DroppedFile.Params:
                     await LoadParamsFromFile(filePath, false);
                     break;
+                case DroppedFile.Image:
+                    var pngImge = BitmapFrame.Create(new Uri(filePath));
+                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, out var ifs))
+                        workspace.LoadParams(ifs, null);
+                    break;
                 case DroppedFile.Palette:
                     IFSViewModel.DropPaletteCommand.Execute(filePath);
+                    break;
+                case DroppedFile.Transform:
+                    File.Copy(filePath, Path.Combine(App.TransformsDirectoryPath, Path.GetFileName(filePath)), true);
+                    IFSViewModel.ReloadTransformsCommand.Execute(null);
                     break;
             }
         }
