@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -20,6 +21,7 @@ using OpenTK.Windowing.Desktop;
 
 using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
+using WpfDisplay.Services;
 
 using Transform = IFSEngine.Model.Transform;
 
@@ -159,6 +161,17 @@ public sealed partial class WelcomeViewModel : ObservableObject
             SelectExploreWorkflow(ifs);
         }
         catch (SerializationException) { /* Ignore when Clipboard contains no params */ }
+    }
+
+    [RelayCommand]
+    private void DropFile(IDataObject dataObject)
+    {
+        if (FileDropHandler.IsDropSupported(dataObject, out var fileType, out var filePath) && fileType == Models.DroppedFile.Image || fileType == Models.DroppedFile.Params)
+        {//only params and params in an image can be dropped to the welcome window
+            SelectedWorkflow = WelcomeWorkflow.LoadFromFile;
+            SelectedFilePath = filePath;
+            ContinueCommand?.Execute(null);
+        }
     }
 
     [RelayCommand]

@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
 
+using WpfDisplay.Services;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -32,5 +33,17 @@ public partial class WelcomeWindow : Window
     private void Paste_Executed(object sender, ExecutedRoutedEventArgs e) => vm.PasteFromClipboardCommand.Execute(null);
 
     private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.PasteFromClipboardCommand.CanExecute(null) ?? false;
+
+    private void welcomeWindow_DragOver(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        e.Effects = FileDropHandler.GetDragDropEffect(e.Data);
+    }
+
+    private void welcomeWindow_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        vm.DropFileCommand.Execute(e.Data);
+    }
 
 }

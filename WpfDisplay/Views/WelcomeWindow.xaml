@@ -25,7 +25,8 @@
         Height="650" Width="600"
         MinHeight="650" MinWidth="600"
         x:Name="welcomeWindow"
-        d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}">
+        d:DataContext="{d:DesignInstance Type=vm:WelcomeViewModel, IsDesignTimeCreatable=False}"
+        AllowDrop="True" DragOver="welcomeWindow_DragOver" Drop="welcomeWindow_Drop">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Paste" Executed="Paste_Executed" CanExecute="Paste_CanExecute"/>
     </Window.CommandBindings>

@@ -21,7 +21,7 @@ using IFSEngine.Utility;
 
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
-using WpfDisplay.Serialization;
+using WpfDisplay.Services;
 
 namespace WpfDisplay.ViewModels;
 
@@ -217,11 +217,24 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     }
 
     /// <summary>
-    /// From a drag & drop operation.
-    /// TODO: support dropping gradients, transforms
+    /// Handle file from a drag & drop operation.
     /// </summary>
     [RelayCommand]
-    private async Task DropParams(string path) => await LoadParamsFromFile(path, false);
+    private async Task DropFile(IDataObject dataObject)
+    {
+        if (FileDropHandler.IsDropSupported(dataObject, out var fileType, out var filePath))
+        {
+            switch (fileType)
+            {
+                case DroppedFile.Params:
+                    await LoadParamsFromFile(filePath, false);
+                    break;
+                case DroppedFile.Palette:
+                    IFSViewModel.DropPaletteCommand.Execute(filePath);
+                    break;
+            }
+        }
+    }
 
     [RelayCommand]
     private async Task LoadTemplate(string path) => await LoadParamsFromFile(path, true);

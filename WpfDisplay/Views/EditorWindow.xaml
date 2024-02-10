@@ -20,7 +20,8 @@
         Title="Editor" 
         Width="1280" Height="720"
         x:Name="editorWindow"
-        d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}">
+        d:DataContext="{d:DesignInstance Type=vm:IFSViewModel}"
+        AllowDrop="True" DragOver="editorWindow_DragOver" Drop="editorWindow_Drop">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
         <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>

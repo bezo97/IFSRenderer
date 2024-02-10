@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
+using WpfDisplay.Services;
 using WpfDisplay.ViewModels;
 
 namespace WpfDisplay.Views;
@@ -38,5 +39,18 @@ public partial class EditorWindow : Window
     private void Redo_Executed(object sender, ExecutedRoutedEventArgs e) => vm.RedoCommand.Execute(null);
 
     private void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = vm?.RedoCommand.CanExecute(null) ?? false;
+
+    private void editorWindow_DragOver(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        e.Effects = FileDropHandler.GetDragDropEffect(e.Data);
+    }
+
+    private void editorWindow_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var mainvm = (MainViewModel)Application.Current.MainWindow.DataContext;//uff
+        mainvm.DropFileCommand.Execute(e.Data);
+    }
 
 }
