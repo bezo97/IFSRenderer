@@ -397,7 +397,7 @@ public partial class AnimationViewModel : ObservableObject
 
             if (!Workspace.IsRawFrameExportEnabled)
             {//png
-                var bitmap = Workspace.Renderer.GetExportBitmapSource(false).Result;
+                var bitmap = Workspace.Renderer.GetExportBitmapSource(Workspace.TransparentBackground).Result;
                 var enc = new PngBitmapEncoder();
                 enc.Frames.Add(BitmapFrame.Create(bitmap));
                 using var fstream = File.Create(framePath);

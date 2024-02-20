@@ -37,16 +37,16 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public IFSViewModel IFSViewModel { get; }
     public AnimationViewModel AnimationViewModel { get; }
 
-    private bool _transparentBackground;
     public bool TransparentBackground
     {
-        get => _transparentBackground;
+        get => workspace.TransparentBackground;
         set
         {
             workspace.TakeSnapshot();
+            workspace.TransparentBackground = value;
             if (value)
                 IFSViewModel.BackgroundColor = Colors.Black;
-            SetProperty(ref _transparentBackground, value);
+            OnPropertyChanged(nameof(TransparentBackground));
             OnPropertyChanged(nameof(IsColorPickerEnabled));
         }
     }

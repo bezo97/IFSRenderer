@@ -36,6 +36,7 @@ public partial class Workspace : ObservableObject
     public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
     public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
     public Author CurrentUser { get; set; } = Author.Unknown;
+    public bool TransparentBackground { get; set; } = false;
     public bool InvertAxisY;
     public double Sensitivity;
     public bool UseWhiteForBlankParams;
