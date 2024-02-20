@@ -285,7 +285,7 @@ vec3 getPaletteColor(float pos)
 	return mix(c1, c2, a);//lerp
 }
 
-vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
+vec2 project_perspective(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
 
@@ -318,26 +318,48 @@ vec2 ProjectPerspective(camera_params c, vec3 p, inout uint next)
         (p_norm.y * ratio + 1) * 0.5 * height - 0.5);
 }
 
-vec2 ProjectEquirectangular(camera_params c, vec3 p, inout uint next)
+vec2 project_equirectangular(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
-
-    //TODO: dof?
 
     vec3 dir = normalize(p_norm.xyz);
     float a1 = atan(dir.y, dir.x);
     float a2 = asin(dir.z);
     float x_px = (a1 / PI + 1.0) / 2.0 * width;
     float y_px = (a2 / PI + 0.5) * height;
+
     return vec2(x_px, y_px);
 }
 
-vec2 Project(camera_params c, vec3 p, inout uint next)
+//Azimuthal Equidistant projection, aka Postel projection, aka Fisheye projection.
+//With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
+vec2 project_fisheye(camera_params c, vec3 p, inout uint next) {
+    vec4 p0 = c.view_proj_mat * vec4(p, 1.0);
+
+    //discard behind camera
+    vec3 dir = normalize(p0.xyz);
+    if (dot(dir, vec3(0.0,0.0,-1.0)) < 0.0)
+        return vec2(-2.0, -2.0);
+
+    p0 /= p0.w;
+    p0 /= p0.z;
+    
+    float r = atan(sqrt(p0.x*p0.x + p0.y*p0.y), p0.z);//incidence angle
+    float phi = atan(p0.y, p0.x);
+    vec2 uv = vec2(0.5) + r/PI * vec2(cos(phi), sin(phi));
+        
+    float ratio = width / float(height);
+    return vec2(uv.x*width,uv.y*height*ratio);
+}
+
+vec2 project(camera_params c, vec3 p, inout uint next)
 {
     if (c.projection_type == 0)
-        return ProjectPerspective(c, p, next);
-    else //if(c.projection_type == 1)
-        return ProjectEquirectangular(c, p, next);
+        return project_perspective(c, p, next);
+    else if(c.projection_type == 1)
+        return project_equirectangular(c, p, next);
+    else //if(c.projection_type == 2)
+        return project_fisheye(c, p, next);
 }
 
 //alias method sampling in O(1)
@@ -491,9 +513,8 @@ void main() {
 
 		if (p.iteration_depth < settings.warmup || selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
-
-		//perspective project
-		vec2 projf = Project(settings.camera, p.pos.xyz, next);
+        
+		vec2 projf = project(settings.camera, p.pos.xyz, next);
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
