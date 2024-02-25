@@ -60,9 +60,9 @@
             <Image Stretch="UniformToFill" Source="/IFSRenderer;component/Resources/featured_artwork.jpg"/>
             <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="8" FontSize="14">
                 <TextBlock.Effect>
-                    <DropShadowEffect/>
+                    <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir/art/Blue-Nebula-with-Yellow-Star-922994842" Foreground="LightGray">
+                <Hyperlink NavigateUri="https://www.deviantart.com/xenofish/art/ifsrenderer-5-1011706848" Foreground="White">
                     Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
@@ -74,9 +74,9 @@
             </Label>
             <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">
                 <TextBlock.Effect>
-                    <DropShadowEffect/>
+                    <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases">
+                <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases" Foreground="White">
                     <Run Text="{x:Static app:App.VersionString}"/> <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>

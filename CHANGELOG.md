@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2024-02-25
+### Added
+ - Fisheye camera projection that enables exporting to fulldome planetarium projection systems.
+ - Option to include metadata in exported images, such as author names and parameters. Images that include params can be can be drag & dropped the same way as ifsjson files. This must be enabled in the Settings first.
+ - A feature that marks focused areas in red while scrolling the `Focus Distance` and `Depth of Field` camera parameters.
+ - Plugin Includes, a feature that allows plugin developers to share functions between transforms. See the updated wiki for details.
+ - Plugin files can be drag & dropped on the window to save them in your transform library.
+
+### Changed
+ - Small improvement to the equirectangular projection. The camera now keeps its orientation when switching between projection types.
+
+### Fixed
+ - A bug that corrupted part of the rendering state that resulted in wrong fractal calculation (this may break your old saves).
+ - Clicking on the fractal while the window was not focused would reset the accumulation.
+ - Animation frames can now be exported with transparent background.
+ - An encoding bug that prevented users to load the attractors transform pack.
+
 ## [1.3.1] - 2024-01-02
 ### Fixed
  - Hotfix crash after first frame of animation export
@@ -129,6 +146,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.4.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.4.0
 [1.3.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.1
 [1.3.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.0
 [1.2.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.2.0

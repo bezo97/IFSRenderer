@@ -37,6 +37,7 @@ I'm releasing it as an open-source project in the hope that it will be useful to
 - [x] Mutation-style generator 
 - [x] Extendable with Plug-Ins
 - [x] Animations
+- [x] Fisheye projection, ideal for planetarium dome masters
 
 Planned:
 - [ ] Gradient editor
