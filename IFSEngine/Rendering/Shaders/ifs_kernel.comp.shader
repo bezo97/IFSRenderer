@@ -318,15 +318,18 @@ vec2 project_perspective(camera_params c, vec3 p, inout uint next)
         (p_norm.y * ratio + 1) * 0.5 * height - 0.5);
 }
 
+//Supposed to be used with aspect ratio 2:1 only. For 360-sphere views. 
 vec2 project_equirectangular(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
-
     vec3 dir = normalize(p_norm.xyz);
+    //rotate so that the center remains in the center of the equirectangular image where it's the most detailed
+    dir = rotate_euler(vec3(-PI/2.0, PI/2.0, 0.0)) * dir;
+
     float a1 = atan(dir.y, dir.x);
-    float a2 = asin(dir.z);
-    float x_px = (a1 / PI + 1.0) / 2.0 * width;
-    float y_px = (a2 / PI + 0.5) * height;
+    float a2 = -asin(dir.z);
+    float x_px = (a1 / PI + 1.0) * 0.5 * width - 0.5;
+    float y_px = (a2 / PI + 0.5) * height - 0.5;
 
     return vec2(x_px, y_px);
 }
@@ -349,7 +352,7 @@ vec2 project_fisheye(camera_params c, vec3 p, inout uint next) {
     vec2 uv = vec2(0.5) + r/PI * vec2(cos(phi), sin(phi));
         
     float ratio = width / float(height);
-    return vec2(uv.x*width,uv.y*height*ratio);
+    return vec2(uv.x*width - 0.5,uv.y*height*ratio - 0.5);
 }
 
 vec2 project(camera_params c, vec3 p, inout uint next)

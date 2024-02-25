@@ -80,7 +80,6 @@ public partial class GeneratorViewModel : ObservableObject
     private void SendToMain(IFS generated_params)
     {
         IFS param = generated_params.DeepClone();
-        param.ImageResolution = new System.Drawing.Size(1920, 1080);
         _mainvm.workspace.LoadParams(param, null);
     }
 

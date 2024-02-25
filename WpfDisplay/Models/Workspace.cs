@@ -37,6 +37,7 @@ public partial class Workspace : ObservableObject
     public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
     public Author CurrentUser { get; set; } = Author.Unknown;
     public bool TransparentBackground { get; set; } = false;
+    public bool IsFinalRenderingMode = false;
     public bool InvertAxisY;
     public double Sensitivity;
     public bool UseWhiteForBlankParams;
@@ -287,6 +288,16 @@ public partial class Workspace : ObservableObject
             Name = Settings.Default.AuthorName,
             Link = Settings.Default.AuthorLink
         };
+    }
+
+    public void SetFinalResolution(int imageWidth, int imageHeight)
+    {
+        Ifs.ImageResolution = new System.Drawing.Size(imageWidth, imageHeight);
+        if (IsFinalRenderingMode)
+            Renderer.SetHistogramScale(1.0);
+        else
+            Renderer.SetHistogramScaleToDisplay();
+        OnPropertyChanged(nameof(Ifs.ImageResolution));
     }
 
     public void UpdateStatusText(string statusText) => StatusTextChanged?.Invoke(this, statusText);

@@ -217,8 +217,22 @@ public partial class CameraSettingsViewModel : ObservableObject
         {
             _workspace.TakeSnapshot();
             _workspace.Ifs.Camera.Projection = value;
+
+            //some projection types only work properly with specific camera settings
+            if (value is ProjectionType.Equirectangular)
+            {
+                _workspace.Ifs.Camera.FieldOfView = 90;
+                _workspace.SetFinalResolution(_workspace.Ifs.ImageResolution.Width, _workspace.Ifs.ImageResolution.Width / 2);//2:1 aspect ratio
+            }
+            else if (value is ProjectionType.Fisheye)
+            {
+                _workspace.Ifs.Camera.FieldOfView = 90;
+                _workspace.SetFinalResolution(_workspace.Ifs.ImageResolution.Width, _workspace.Ifs.ImageResolution.Width);//1:1 aspect ratio
+            }
+
             _workspace.Renderer.InvalidateHistogramBuffer();
             OnPropertyChanged(nameof(ProjectionType));
+            OnPropertyChanged(nameof(Camera.FieldOfView));
         }
     }
 
