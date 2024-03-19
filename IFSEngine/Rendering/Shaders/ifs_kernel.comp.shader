@@ -560,8 +560,6 @@ void main() {
 					//float aw = max(0.0, 1.0-pd);
 					//float aw = max(0.0, Lanczos(pd, 2));
 					float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
-                    if (settings.camera.projection_type == 1)
-                        nb.x = nb.x % width;
 					if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
 						accumulate_hit(nb, aw * color);
 				}
