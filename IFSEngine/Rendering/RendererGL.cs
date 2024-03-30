@@ -78,8 +78,7 @@ public sealed class RendererGL : IAsyncDisposable
         WorkgroupCount = s;
         await WithContext(() =>
         {
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _pointsBufferHandle);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, InvocationCount * (4 * sizeof(float) + 2 * sizeof(float) + 2 * sizeof(int)), IntPtr.Zero, BufferUsageHint.StaticCopy);
+            GL.NamedBufferData(_pointsBufferHandle, InvocationCount * (4 * sizeof(float) + 2 * sizeof(float) + 2 * sizeof(int)), IntPtr.Zero, BufferUsageHint.StaticCopy);
 
             InvalidatePointsStateBuffer();
         });
@@ -151,7 +150,7 @@ public sealed class RendererGL : IAsyncDisposable
 
     private readonly float[] _bufferClearColor = [0.0f, 0.0f, 0.0f];
     private readonly string _shadersPath = "IFSEngine.Rendering.Shaders.";
-    private readonly bool _debugFlag = false;
+    private readonly bool _debugFlag = true;
 
     //https://gist.github.com/Vassalware/d47ff5e60580caf2cbbf0f31aa20af5d
     private static void DebugCallback(DebugSource source,
@@ -174,6 +173,31 @@ public sealed class RendererGL : IAsyncDisposable
     private static readonly DebugProc _debugProcCallback = DebugCallback;
     private static GCHandle _debugProcCallbackHandle;
     private int _timerQueryHandle;
+
+    /// <summary>
+    /// Number of iterator stucts in the buffer.
+    /// </summary>
+    private int _iteratorsBufferSize = 0;
+
+    /// <summary>
+    /// Number of real values in the buffer.
+    /// </summary>
+    private int _realParametersBufferSize = 0;
+
+    /// <summary>
+    /// Number of vec3 values in the buffer.
+    /// </summary>
+    private int _vec3ParametersBufferSize = 0;
+
+    /// <summary>
+    /// Number of iterators in the xaos matrix.
+    /// </summary>
+    private int _aliasBufferSize = 0;
+
+    /// <summary>
+    /// Number of colors in the buffer.
+    /// </summary>
+    private int _paletteBufferSize = 0;
 
     /// <summary>
     /// Creates a new renderer instance.
@@ -301,11 +325,9 @@ public sealed class RendererGL : IAsyncDisposable
 
     private void UpdateHistogramResolution()
     {
-
-        GL.UseProgram(_computeProgramHandle);
-        GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _histogramBufferHandle);
-        GL.BufferData(BufferTarget.ShaderStorageBuffer, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+        GL.NamedBufferData(_histogramBufferHandle, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
         //resize display texture. TODO: separate & use display resolution
+        GL.UseProgram(_computeProgramHandle);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "width"), HistogramWidth);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "height"), HistogramHeight);
         GL.UseProgram(_tonemapProgramHandle);
@@ -352,7 +374,6 @@ public sealed class RendererGL : IAsyncDisposable
             }
 
             //reset accumulation
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _histogramBufferHandle);
             GL.ClearNamedBufferData(_histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
             _invalidHistogramBuffer = false;
             _dispatchCnt = 0;
@@ -372,8 +393,7 @@ public sealed class RendererGL : IAsyncDisposable
                 max_filter_radius = MaxFilterRadius,
                 mark_area_in_focus = MarkAreaInFocus ? 1 : 0
             };
-            GL.BindBuffer(BufferTarget.UniformBuffer, _settingsBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf(typeof(SettingsStruct)), ref settings, BufferUsageHint.StreamDraw);
+            GL.NamedBufferSubData(_settingsBufferHandle, 0, Marshal.SizeOf(typeof(SettingsStruct)), ref settings);
 
         }
 
@@ -416,14 +436,29 @@ public sealed class RendererGL : IAsyncDisposable
                 allVec3Params.AddRange(it.Vec3Params.Values.Select(p => new Vector4(p, 0.0f)).ToList());
             }
 
-            GL.BindBuffer(BufferTarget.UniformBuffer, _iteratorsBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, its.Count * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray(), BufferUsageHint.DynamicDraw);
+            if (its.Count == _iteratorsBufferSize)
+                GL.NamedBufferSubData(_iteratorsBufferHandle, 0, _iteratorsBufferSize * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray());
+            else
+            {//resize buffer when number of iterators change
+                _iteratorsBufferSize = its.Count;
+                GL.NamedBufferData(_iteratorsBufferHandle, _iteratorsBufferSize * Marshal.SizeOf(typeof(IteratorStruct)), its.ToArray(), BufferUsageHint.DynamicDraw);
+            }
 
-            GL.BindBuffer(BufferTarget.UniformBuffer, _realParametersBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, allRealParams.Count * 4 * sizeof(float), allRealParams.Select(f => new Vector4(f)).ToArray(), BufferUsageHint.DynamicDraw);
+            if (allRealParams.Count == _realParametersBufferSize)
+                GL.NamedBufferSubData(_realParametersBufferHandle, 0, _realParametersBufferSize * 4 * sizeof(float), allRealParams.Select(f => new Vector4(f)).ToArray());
+            else
+            {//resize buffer when number of real parameters change
+                _realParametersBufferSize = allRealParams.Count;
+                GL.NamedBufferData(_realParametersBufferHandle, _realParametersBufferSize * 4 * sizeof(float), allRealParams.Select(f => new Vector4(f)).ToArray(), BufferUsageHint.DynamicDraw);
+            }
 
-            GL.BindBuffer(BufferTarget.UniformBuffer, _vec3ParametersBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, allVec3Params.Count * 4 * sizeof(float), allVec3Params.ToArray(), BufferUsageHint.DynamicDraw);
+            if (allVec3Params.Count == _vec3ParametersBufferSize)
+                GL.NamedBufferSubData(_vec3ParametersBufferHandle, 0, _vec3ParametersBufferSize * 4 * sizeof(float), allVec3Params.ToArray());
+            else
+            {//resize buffer when number of vec3 parameters change
+                _vec3ParametersBufferSize = allVec3Params.Count;
+                GL.NamedBufferData(_vec3ParametersBufferHandle, _vec3ParametersBufferSize * 4 * sizeof(float), allVec3Params.ToArray(), BufferUsageHint.DynamicDraw);
+            }
 
             //normalize base weights
             double SumWeights = currentIterators.Sum(i => i.BaseWeight);
@@ -452,12 +487,22 @@ public sealed class RendererGL : IAsyncDisposable
             }
 
             //update xaos alias tables
-            GL.BindBuffer(BufferTarget.UniformBuffer, _aliasBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, currentIterators.Count * currentIterators.Count * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
+            if (currentIterators.Count == _aliasBufferSize)
+                GL.NamedBufferSubData(_aliasBufferHandle, 0, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray());
+            else
+            {//resize buffer when number of iterators change
+                _aliasBufferSize = currentIterators.Count;
+                GL.NamedBufferData(_aliasBufferHandle, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
+            }
 
             //update palette
-            GL.BindBuffer(BufferTarget.UniformBuffer, _paletteBufferHandle);
-            GL.BufferData(BufferTarget.UniformBuffer, LoadedParams.Palette.Colors.Count * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+            if (LoadedParams.Palette.Colors.Count == _paletteBufferSize)
+                GL.NamedBufferSubData(_paletteBufferHandle, 0, _paletteBufferSize * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray());
+            else
+            {//resize buffer when number of palette colors change
+                _paletteBufferSize = LoadedParams.Palette.Colors.Count;
+                GL.NamedBufferData(_paletteBufferHandle, _paletteBufferSize * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+            }
 
             _invalidParamsBuffer = false;
         }
@@ -482,8 +527,6 @@ public sealed class RendererGL : IAsyncDisposable
         if (!IsInitialized)
             throw NewNotInitializedException();
 
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);//
-
         GL.UseProgram(_tonemapProgramHandle);
         GL.BindVertexArray(_vao);
         GL.Uniform1(GL.GetUniformLocation(_tonemapProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001//draw quad
@@ -506,6 +549,9 @@ public sealed class RendererGL : IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Fast write finished image from offscreen framebuffer to the center of the display framebuffer (0) with a small margin.
+    /// </summary>
     private void BlitToDisplayFramebuffer()
     {
         float rw = DisplayWidth / (float)HistogramWidth;
@@ -518,8 +564,6 @@ public sealed class RendererGL : IAsyncDisposable
             (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
             (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
             ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-        //GL.CopyImageSubData(dispTexH, ImageTarget.Texture2D, 1, 0, 0, 0, 0, ImageTarget.Texture2D, 1, dw / 2 - Width / 2, dh / 2 - Height / 2, dw, dh, Height, Width);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     private void AdjustWorkloadSize()
@@ -568,8 +612,8 @@ public sealed class RendererGL : IAsyncDisposable
                         //display the image
                         BlitToDisplayFramebuffer();
                         _ctx.SwapBuffers();
-                        DisplayFramebufferUpdated?.Invoke(this, null);
                         _updateDisplayNow = false;
+                        DisplayFramebufferUpdated?.Invoke(this, null);
                     }
 
                     if (isTargetIterationReachedByCurrentDispatch)
@@ -633,7 +677,6 @@ public sealed class RendererGL : IAsyncDisposable
         InvalidateDisplay();
         await WithContext(() =>
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
             GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Bgra, PixelType.UnsignedByte, ptr);
         });
     }
@@ -666,7 +709,6 @@ public sealed class RendererGL : IAsyncDisposable
         float[,,] o = new float[HistogramHeight, HistogramWidth, 4];
         await WithContext(() =>
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
             GL.ReadPixels(0, 0, HistogramWidth, HistogramHeight, PixelFormat.Rgba, PixelType.Float, o);
         });
 
@@ -776,7 +818,6 @@ public sealed class RendererGL : IAsyncDisposable
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _renderTextureHandle, 0);
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             throw new Exception("Frame Buffer Error");
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);//screen
 
         _tonemapProgramHandle = GL.CreateProgram();
         GL.AttachShader(_tonemapProgramHandle, _vertexShaderHandle);
@@ -855,16 +896,29 @@ if (iter.tfId == {tfIndex})
     private void InitBuffers()
     {
         //create buffers
+        _settingsBufferHandle = GL.GenBuffer();
         _histogramBufferHandle = GL.GenBuffer();
         _pointsBufferHandle = GL.GenBuffer();
-        _settingsBufferHandle = GL.GenBuffer();
         _iteratorsBufferHandle = GL.GenBuffer();
         _aliasBufferHandle = GL.GenBuffer();
         _paletteBufferHandle = GL.GenBuffer();
         _realParametersBufferHandle = GL.GenBuffer();
         _vec3ParametersBufferHandle = GL.GenBuffer();
 
-        //bind layout:
+        //bind and allocate fixed-size buffers
+        GL.BindBuffer(BufferTarget.UniformBuffer, _settingsBufferHandle);
+        GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf(typeof(SettingsStruct)), IntPtr.Zero, BufferUsageHint.StreamDraw);
+
+        //bind varying-size buffers to targets, without allocation
+        GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _histogramBufferHandle);
+        GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _pointsBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _iteratorsBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _aliasBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _paletteBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _realParametersBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _vec3ParametersBufferHandle);
+
+        //bind buffers to layout:
         GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _histogramBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, _pointsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 2, _settingsBufferHandle);
