@@ -399,13 +399,13 @@ float startingDistribution(float uniformR)
 	return -1.0 / curve * log(1.0 - a);
 }
 
-p_state reset_state(inout uint next)
+p_state reset_state(uint workgroup_hash_next, inout uint invocation_hash_next)
 {
 	p_state p;
 	//init points into a starting distribution
-	float theta = TWOPI * random(next);
-	float phi = acos(2.0 * random(next) - 1.0);
-	float rho = startingDistribution(random(next));//[0,inf] ln
+	float theta = TWOPI * random(invocation_hash_next);
+	float phi = acos(2.0 * random(invocation_hash_next) - 1.0);
+	float rho = startingDistribution(random(invocation_hash_next));//[0,inf] ln
 	//experiment: rho dependent on camera distance from origo
 	rho *= 2.0 * length(settings.camera.position);
 	float sin_phi = sin(phi);
@@ -415,8 +415,7 @@ p_state reset_state(inout uint next)
 		rho * cos(phi),
 		0.0//unused
 	);
-	float workgroup_random = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), next++);
-	//p.iterator_index = int(/*random(next)*/workgroup_random * settings.itnum);
+	float workgroup_random = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), workgroup_hash_next);
 	p.iterator_index = alias_sample(workgroup_random);
 	p.color_index = iterators[p.iterator_index].color_index;
 	p.iteration_depth = 0;
@@ -474,33 +473,37 @@ void accumulate_hit(ivec2 proj, vec4 color)
 void main() {
 	const uint gid = gl_GlobalInvocationID.x;
 
-	uint next = pcg_hash(54321 + seed);
+	uint hash_base = pcg_hash(54321 + seed);
+    uint workgroup_hash_cnt = hash_base;
+    uint invocation_hash_cnt = hash_base;
 
 	p_state p;
 	if (reset_points_state == 1)//after invalidation
-		p = reset_state(next);
+		p = reset_state(workgroup_hash_cnt, invocation_hash_cnt);
 	else
 		p = state[gid];
 	
 	for (int i = 0; i < invocation_iters; i++)
 	{
+        workgroup_hash_cnt = hash_base + i*3;
+
 		//pick a random xaos weighted Transform index
-		int r_index = -1;
-		float r = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), i);//random(next);
-		r_index = alias_sample_xaos(p.iterator_index, r);
-		if (r_index == -1 || //no outgoing weight
+		int next_iterator_index = -1;
+		float r = f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), workgroup_hash_cnt+0);
+		next_iterator_index = alias_sample_xaos(p.iterator_index, r);
+		if (next_iterator_index == -1 || //no outgoing weight
             p.iteration_depth == -1 || //invalid point position
-			f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), next++) < settings.entropy) //chance to reset by entropy
+			f_hash4(seed, gl_WorkGroupID.x, uint(dispatch_cnt), workgroup_hash_cnt+1) < settings.entropy) //chance to reset by entropy
 		{//reset if invalid
-			p = reset_state(next);
+			p = reset_state(workgroup_hash_cnt+2, invocation_hash_cnt);
 		}
 		else
-			p.iterator_index = r_index;
+			p.iterator_index = next_iterator_index;
 
 		Iterator selected_iterator = iterators[p.iterator_index];
 
 		vec4 p0_pos = p.pos;
-		vec3 p_ret = apply_transform(selected_iterator, p, next);//transform here
+		vec3 p_ret = apply_transform(selected_iterator, p, invocation_hash_cnt);//transform here
 		p.pos.xyz = mix(p0_pos.xyz, p_ret + p0_pos.xyz * selected_iterator.tf_add, selected_iterator.tf_mix);
 
         if (any(isinf(p.pos.xyz)) || //at infinity
@@ -517,7 +520,7 @@ void main() {
 		if (p.iteration_depth < settings.warmup || selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
         
-		vec2 projf = project(settings.camera, p.pos.xyz, next);
+		vec2 projf = project(settings.camera, p.pos.xyz, invocation_hash_cnt);
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
@@ -548,10 +551,10 @@ void main() {
 			const int filter_radius = int(settings.max_filter_radius);
 
 			//for (int ax = -filter_radius; ax <= filter_radius; ax++)
-			int ax = -filter_radius + int(random(next) * 2 * filter_radius);
+			int ax = -filter_radius + int(random(invocation_hash_cnt) * 2 * filter_radius);
 			{
 				//for (int ay = -filter_radius; ay <= filter_radius; ay++)
-				int ay = -filter_radius + int(random(next) * 2 * filter_radius);
+				int ay = -filter_radius + int(random(invocation_hash_cnt) * 2 * filter_radius);
 				{
 					ivec2 nb = proj + ivec2(ax, ay);
 					float pd = distance(vec2(nb), projf);
