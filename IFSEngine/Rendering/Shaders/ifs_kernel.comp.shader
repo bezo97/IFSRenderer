@@ -294,12 +294,12 @@ vec2 project_perspective(camera_params c, vec3 p, inout uint next)
     if (dot(dir, vec3(0.0,0.0,-1.0)) < 0.0)
         return vec2(-2.0, -2.0);
 
+    p_norm /= p_norm.w;
+
     if (any(isinf(p_norm)) || p_norm.w == 0.0)
     {//may be projected to infinity, or w is sometimes 0, not sure why
         return vec2(-2.0, -2.0);
     }
-
-    p_norm /= p_norm.w;
 
     //dof
     float blur = c.aperture * max(0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
@@ -321,16 +321,19 @@ vec2 project_perspective(camera_params c, vec3 p, inout uint next)
 //Supposed to be used with aspect ratio 2:1 only. For 360-sphere views. 
 vec2 project_equirectangular(camera_params c, vec3 p, inout uint next)
 {
-    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
+    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);    
     vec3 dir = normalize(p_norm.xyz);
     //rotate so that the center remains in the center of the equirectangular image where it's the most detailed
     dir = rotate_euler(vec3(-PI/2.0, PI/2.0, 0.0)) * dir;
+
+    if(dir.x == 0.0)
+        return vec2(-2.0, -2.0);
 
     float a1 = atan(dir.y, dir.x);
     float a2 = -asin(dir.z);
     float x_px = (a1 / PI + 1.0) * 0.5 * width - 0.5;
     float y_px = (a2 / PI + 0.5) * height - 0.5;
-
+    
     return vec2(x_px, y_px);
 }
 
