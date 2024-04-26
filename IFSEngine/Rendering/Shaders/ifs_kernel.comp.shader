@@ -342,16 +342,18 @@ vec2 project(camera_params c, vec3 p, inout uint next)
         res = project_fisheye(c, p_ndc.xyz, next);
     
     //dof
-    //float blur = c.aperture * max(0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
-    //float ra = random(next);
-    //float rl = random(next);
-    //p_ndc.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+    //float blur = c.aperture * max(0.0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
+    float blur = c.aperture * max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //eq and fisheye: use distance from focus distance
+    float ra = random(next);
+    float rl = random(next);
+    res += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
     float ratio = width / float(height);
     res = vec2(
         (res.x + 1) * 0.5 * width,
         (res.y * ratio + 1) * 0.5 * height);
     
+    //TODO: discard around circle for fisheye
     if (any(lessThan(res, vec2(0.0)) || greaterThanEqual(res, vec2(width, height))))
        return vec2(-2.0, -2.0);//discard at edges
     
