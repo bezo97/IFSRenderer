@@ -27,7 +27,7 @@ struct camera_params
 	float aperture;
 	float focus_distance;
 	float depth_of_field;
-	int projection_type;//0: persp, 1: equirect
+	int projection_type;//0: perspective, 1: equirectangular, 2: fisheye
 };
 
 struct Iterator
@@ -285,31 +285,24 @@ vec3 getPaletteColor(float pos)
 	return mix(c1, c2, a);//lerp
 }
 
-vec2 project_perspective(camera_params c, vec3 p, inout uint next)
+vec2 project_perspective(camera_params c, vec3 p_norm, inout uint next)
 {
-    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);
-
     //discard behind camera
-    vec3 dir = normalize(p_norm.xyz);
-    if (dot(dir, vec3(0.0,0.0,-1.0)) < 0.0)
+    vec3 dir = normalize(p_norm);
+    if (dot(dir, vec3(0.0,0.0,1.0)) < 0.0)
         return vec2(-2.0, -2.0);
-
-    p_norm /= p_norm.w;
-
-    if (any(isinf(p_norm)) || p_norm.w == 0.0)
-    {//may be projected to infinity, or w is sometimes 0, not sure why
-        return vec2(-2.0, -2.0);
-    }
 
     //dof
-    float blur = c.aperture * max(0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
-    float ra = random(next);
-    float rl = random(next);
-    p_norm.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+    //float blur = c.aperture * max(0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
+    //float ra = random(next);
+    //float rl = random(next);
+    //p_norm.xy += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
     //discard at edges
-    vec2 cl = clamp(p_norm.xy, vec2(-1.0), vec2(1.0));
-    if (length(p_norm.xy - cl) != 0.0)
+    //vec2 cl = clamp(p_norm.xy, vec2(-1.0), vec2(1.0));
+    //if (length(p_norm.xy - cl) != 0.0)
+    //    return vec2(-2.0, -2.0);
+    if (any(greaterThan(abs(p_norm.xy), vec2(1.0))))
         return vec2(-2.0, -2.0);
 
     float ratio = width / float(height);
@@ -319,16 +312,15 @@ vec2 project_perspective(camera_params c, vec3 p, inout uint next)
 }
 
 //Supposed to be used with aspect ratio 2:1 only. For 360-sphere views. 
-vec2 project_equirectangular(camera_params c, vec3 p, inout uint next)
+vec2 project_equirectangular(camera_params c, vec3 p_norm, inout uint next)
 {
-    vec4 p_norm = c.view_proj_mat * vec4(p, 1.0f);    
-    vec3 dir = normalize(p_norm.xyz);
+    vec3 dir = normalize(p_norm);
     //rotate so that the center remains in the center of the equirectangular image where it's the most detailed
     dir = rotate_euler(vec3(-PI/2.0, PI/2.0, 0.0)) * dir;
 
     if(dir.x == 0.0)
         return vec2(-2.0, -2.0);
-
+    
     float a1 = atan(dir.y, dir.x);
     float a2 = -asin(dir.z);
     float x_px = (a1 / PI + 1.0) * 0.5 * width - 0.5;
@@ -339,19 +331,16 @@ vec2 project_equirectangular(camera_params c, vec3 p, inout uint next)
 
 //Azimuthal Equidistant projection, aka Postel projection, aka Fisheye projection.
 //With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
-vec2 project_fisheye(camera_params c, vec3 p, inout uint next) {
-    vec4 p0 = c.view_proj_mat * vec4(p, 1.0);
-
+vec2 project_fisheye(camera_params c, vec3 p_norm, inout uint next) {
     //discard behind camera
-    vec3 dir = normalize(p0.xyz);
-    if (dot(dir, vec3(0.0,0.0,-1.0)) < 0.0)
+    vec3 dir = normalize(p_norm);
+    if (dot(dir, vec3(0.0,0.0,1.0)) < 0.0)
         return vec2(-2.0, -2.0);
 
-    p0 /= p0.w;
-    p0 /= p0.z;
+    p_norm /= p_norm.z;
     
-    float r = atan(sqrt(p0.x*p0.x + p0.y*p0.y), p0.z);//incidence angle
-    float phi = atan(p0.y, p0.x);
+    float r = atan(sqrt(p_norm.x*p_norm.x + p_norm.y*p_norm.y), p_norm.z);//incidence angle
+    float phi = atan(p_norm.y, p_norm.x);
     vec2 uv = vec2(0.5) + r/PI * vec2(cos(phi), sin(phi));
         
     float ratio = width / float(height);
@@ -360,12 +349,17 @@ vec2 project_fisheye(camera_params c, vec3 p, inout uint next) {
 
 vec2 project(camera_params c, vec3 p, inout uint next)
 {
+    vec4 p_hom = c.view_proj_mat * vec4(p, 1.0f);
+    vec4 p_norm = p_hom/p_hom.w;//homogeneous -> normalized coordinates
+    if (any(isinf(p_norm) || isnan(p_norm)) || p_norm.w == 0.0)
+        return vec2(-2.0, -2.0);//discard when projected to infinity
+
     if (c.projection_type == 0)
-        return project_perspective(c, p, next);
+        return project_perspective(c, p_norm.xyz, next);
     else if(c.projection_type == 1)
-        return project_equirectangular(c, p, next);
+        return project_equirectangular(c, p_hom.xyz, next);
     else //if(c.projection_type == 2)
-        return project_fisheye(c, p, next);
+        return project_fisheye(c, p_norm.xyz, next);
 }
 
 //alias method sampling in O(1)
