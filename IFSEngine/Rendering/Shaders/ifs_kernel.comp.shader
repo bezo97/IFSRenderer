@@ -333,31 +333,39 @@ vec2 project(camera_params c, vec3 p, inout uint next)
     if (any(isinf(p_ndc) || isnan(p_ndc)) || p_ndc.w == 0.0)
         return vec2(-2.0, -2.0);//discard when projected to infinity
     
-    vec2 res;
+    vec2 proj;
+    float defocus;//distance from area in focus. 0=in focus
     if (c.projection_type == 0)
-        res = project_perspective(c, p_ndc.xyz, next);
+    {
+        proj = project_perspective(c, p_ndc.xyz, next);
+        defocus = max(0.0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //distance from focal plane
+    }
     else if(c.projection_type == 1)
-        res = project_equirectangular(c, p_hom.xyz, next);
+    {
+        proj = project_equirectangular(c, p_hom.xyz, next);
+        defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
+    }
     else //if(c.projection_type == 2)
-        res = project_fisheye(c, p_ndc.xyz, next);
-    
-    //dof
-    //float blur = c.aperture * max(0.0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //use focalplane normal
-    float blur = c.aperture * max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //eq and fisheye: use distance from focus distance
+    {
+        proj = project_fisheye(c, p_ndc.xyz, next);
+        defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
+    }
+
+    //blur effect
     float ra = random(next);
     float rl = random(next);
-    res += pow(rl, 0.5f) * blur * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
+    proj += c.aperture * defocus * pow(rl, 0.5f) * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
     float ratio = width / float(height);
-    res = vec2(
-        (res.x + 1) * 0.5 * width,
-        (res.y * ratio + 1) * 0.5 * height);
+    proj = vec2(
+        (proj.x + 1) * 0.5 * width,
+        (proj.y * ratio + 1) * 0.5 * height);
     
     //TODO: discard around circle for fisheye
-    if (any(lessThan(res, vec2(0.0)) || greaterThanEqual(res, vec2(width, height))))
+    if (any(lessThan(proj, vec2(0.0)) || greaterThanEqual(proj, vec2(width, height))))
        return vec2(-2.0, -2.0);//discard at edges
     
-    return res - vec2(0.5);
+    return proj - vec2(0.5);
 }
 
 //alias method sampling in O(1)
