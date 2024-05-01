@@ -522,7 +522,7 @@ void main() {
 
 		if (settings.fog_effect > 0.0f)
 		{//optional fog effect
-			float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, - defocus + settings.camera.depth_of_field)));
+			float fog_mask = 2.0*(1.0 - 1.0 / (1.0 + pow(1.0 + settings.fog_effect, -defocus)));
 			fog_mask = clamp(fog_mask, 0.0, 1.0);
 			color.w *= fog_mask;
 		}
