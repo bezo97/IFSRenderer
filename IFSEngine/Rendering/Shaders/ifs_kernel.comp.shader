@@ -309,13 +309,13 @@ vec2 project_fisheye(camera_params c, vec3 p_ndc)
     return 2.0*r/PI * vec2(cos(phi), sin(phi));
 }
 
-vec2 project(camera_params c, vec3 p, inout uint next)
+//out defocus: distance from area in focus. 0=in focus
+vec2 project(camera_params c, vec3 p, inout uint next, out float defocus)
 {
     vec4 p_hom = c.view_proj_mat * vec4(p, 1.0f);
     vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
     
     vec2 proj;
-    float defocus;//distance from area in focus. 0=in focus
     if (c.projection_type == 0)
     {
         if (any(isinf(p_ndc) || isnan(p_ndc)) || p_hom.w >= 0.0)
@@ -512,15 +512,13 @@ void main() {
 		if (p.iteration_depth < settings.warmup || selected_iterator.opacity == 0.0)
 			continue;//avoid useless projection and histogram writes
         
-		vec2 projf = project(settings.camera, p.pos.xyz, invocation_hash_cnt);
+        float defocus;
+		vec2 projf = project(settings.camera, p.pos.xyz, invocation_hash_cnt, defocus);
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
 
 		vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
-
-		//TODO: this is the same as dof
-		float defocus = max(0, abs(dot(p.pos.xyz - settings.camera.focus_point.xyz, -settings.camera.forward.xyz)) - settings.camera.depth_of_field);
 
 		if (settings.fog_effect > 0.0f)
 		{//optional fog effect
