@@ -285,18 +285,8 @@ vec3 getPaletteColor(float pos)
 	return mix(c1, c2, a);//lerp
 }
 
-vec2 project_perspective(camera_params c, vec3 p_ndc, inout uint next)
-{
-    //discard behind camera
-    vec3 dir = normalize(p_ndc);
-    if (dot(dir, vec3(0.0,0.0,1.0)) < 0.0)
-        return vec2(-2.0, -2.0);
-
-    return p_ndc.xy;
-}
-
 //Supposed to be used with aspect ratio 2:1 only. For 360-sphere views. 
-vec2 project_equirectangular(camera_params c, vec3 p_ndc, inout uint next)
+vec2 project_equirectangular(camera_params c, vec3 p_ndc)
 {
     vec3 dir = normalize(p_ndc);
     //rotate so that the center remains in the center of the equirectangular image where it's the most detailed
@@ -312,15 +302,8 @@ vec2 project_equirectangular(camera_params c, vec3 p_ndc, inout uint next)
 
 //Azimuthal Equidistant projection, aka Postel projection, aka Fisheye projection.
 //With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
-vec2 project_fisheye(camera_params c, vec3 p_ndc, inout uint next)
-{
-    //discard behind camera
-    vec3 dir = normalize(p_ndc);
-    if (dot(dir, vec3(0.0,0.0,1.0)) < 0.0)
-        return vec2(-2.0, -2.0);
-
-    p_ndc /= p_ndc.z;
-    
+vec2 project_fisheye(camera_params c, vec3 p_ndc)
+{    
     float r = atan(sqrt(p_ndc.x*p_ndc.x + p_ndc.y*p_ndc.y), p_ndc.z);//incidence angle
     float phi = atan(p_ndc.y, p_ndc.x);
     return 2.0*r/PI * vec2(cos(phi), sin(phi));
@@ -330,24 +313,28 @@ vec2 project(camera_params c, vec3 p, inout uint next)
 {
     vec4 p_hom = c.view_proj_mat * vec4(p, 1.0f);
     vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
-    if (any(isinf(p_ndc) || isnan(p_ndc)) || p_ndc.w == 0.0)
-        return vec2(-2.0, -2.0);//discard when projected to infinity
     
     vec2 proj;
     float defocus;//distance from area in focus. 0=in focus
     if (c.projection_type == 0)
     {
-        proj = project_perspective(c, p_ndc.xyz, next);
+        if (any(isinf(p_ndc) || isnan(p_ndc)) || p_hom.w >= 0.0)
+            return vec2(-2.0, -2.0);//discard when projected to infinity or behind camera
+
+        proj = p_ndc.xy;
         defocus = max(0.0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //distance from focal plane
     }
     else if(c.projection_type == 1)
     {
-        proj = project_equirectangular(c, p_hom.xyz, next);
+        proj = project_equirectangular(c, p_hom.xyz);
         defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
     }
     else //if(c.projection_type == 2)
     {
-        proj = project_fisheye(c, p_ndc.xyz, next);
+        if (p_hom.w >= 0.0)
+            return vec2(-2.0, -2.0);//discard behind camera
+
+        proj = project_fisheye(c, p_ndc.xyz);
         defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
     }
 
@@ -356,12 +343,14 @@ vec2 project(camera_params c, vec3 p, inout uint next)
     float rl = random(next);
     proj += c.aperture * defocus * pow(rl, 0.5f) * vec2(cos(ra * TWOPI), sin(ra * TWOPI));
 
+    if(c.projection_type == 2 && length(proj) > 1.0)
+       return vec2(-2.0, -2.0);//discard around fisheye mask
+
     float ratio = width / float(height);
     proj = vec2(
         (proj.x + 1) * 0.5 * width,
         (proj.y * ratio + 1) * 0.5 * height);
     
-    //TODO: discard around circle for fisheye
     if (any(lessThan(proj, vec2(0.0)) || greaterThanEqual(proj, vec2(width, height))))
        return vec2(-2.0, -2.0);//discard at edges
     
