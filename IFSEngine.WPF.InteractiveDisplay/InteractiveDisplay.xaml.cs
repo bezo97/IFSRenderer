@@ -74,9 +74,8 @@ public partial class InteractiveDisplay : WindowsFormsHost
 
     private readonly Timer _controlTimer;
     private readonly KeyboardHelper _keyboard;
-    //last mouse position
-    private float _lastX;
-    private float _lastY;
+    private Vector2 _lastMousePos;
+    private Vector2 _centerPivot;
 
     public InteractiveDisplay()
     {
@@ -196,28 +195,39 @@ public partial class InteractiveDisplay : WindowsFormsHost
     {
         if (IsInteractionEnabled && Renderer is not null)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && GLControl1.Capture)
+            var mousePos = new Vector2(e.X, e.Y);
+            if (GLControl1.Capture)
             {
-                float yawDelta = e.X - _lastX;
-                float pitchDelta = e.Y - _lastY;
+                Vector3 rotateVec = Vector3.Zero;
+                if (e.Button == System.Windows.Forms.MouseButtons.Left)//yaw, pitch
+                    rotateVec = new(e.X - _lastMousePos.X, e.Y - _lastMousePos.Y, 0.0f);
+                else if (e.Button == System.Windows.Forms.MouseButtons.Right)//fov, roll
+                {
+                    var lastCenterOffset = _lastMousePos - _centerPivot;
+                    var lastDir = Vector2.Normalize(lastCenterOffset);
+                    var moveDelta = mousePos - _lastMousePos;
+                    rotateVec = new(0.0f, 0.0f, lastDir.X * moveDelta.Y - lastDir.Y * moveDelta.X);
 
-                if (yawDelta != 0 || pitchDelta != 0)
+                    var centerOffset = mousePos - _centerPivot;
+                    Renderer.LoadedParams.Camera.FieldOfView *= lastCenterOffset.Length()/centerOffset.Length();
+                }
+
+                if (rotateVec.Length() > 0.0f)
                 {
                     if (Mouse.OverrideCursor == null)
                     {
-                        Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+                        Mouse.OverrideCursor = rotateVec.Z != 0.0 ? Cursors.Cross : Cursors.None;
                         InteractionStartedCommand?.Execute(null);//Hack
                     }
 
                     if (_invertY)
-                        pitchDelta = -pitchDelta;
+                        rotateVec.Y = -rotateVec.Y;
 
-                    //camera rotation speed depends on field of view
+                    //camera rotation speed (only yaw and pitch) depends on field of view
                     float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
-                    yawDelta *= rotateSpeed;
-                    pitchDelta *= rotateSpeed;
+                    rotateVec.X *= rotateSpeed;
+                    rotateVec.Y *= rotateSpeed;
 
-                    Vector3 rotateVec = new(yawDelta, pitchDelta, 0.0f);
                     Renderer.LoadedParams.Camera.Rotate(rotateVec * 0.01f * _sensitivity);
                     Renderer.InvalidateHistogramBuffer();
 
@@ -227,13 +237,12 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     //    var pos = this.PointToScreen(new Point(Width / 2, Height / 2));
                     //    SetCursorPos((int)pos.X, (int)pos.Y);
                     //}
-                    InteractionFinishedCommand?.Execute(null);
+                    InteractionFinishedCommand?.Execute(null);                    
                 }
             }
             else
                 Mouse.OverrideCursor = null;//no override
-            _lastX = e.X;
-            _lastY = e.Y;
+            _lastMousePos = mousePos;
         }
     }
 
@@ -265,5 +274,6 @@ public partial class InteractiveDisplay : WindowsFormsHost
             if (c.IsCancellationRequested) return;
             Dispatcher.Invoke(() => DisplayResolutionChanged?.Invoke(this, e));
         }, c);
+        _centerPivot = new Vector2((float)(ActualWidth / 2.0f), (float)(ActualHeight / 2.0f));
     }
 }
