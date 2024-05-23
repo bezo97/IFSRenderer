@@ -286,7 +286,7 @@ vec3 getPaletteColor(float pos)
 }
 
 //Supposed to be used with aspect ratio 2:1 only. For 360-sphere views. 
-vec2 project_equirectangular(camera_params c, vec3 p_ndc)
+vec2 project_equirectangular(camera_params c, vec3 p_ndc, out float weight)
 {
     vec3 dir = normalize(p_ndc);
     //rotate so that the center remains in the center of the equirectangular image where it's the most detailed
@@ -294,10 +294,12 @@ vec2 project_equirectangular(camera_params c, vec3 p_ndc)
 
     if(dir.x == 0.0) //projection is undefined here?
         return vec2(-2.0, -2.0);
-    
+
+    float latitude = -asin(dir.z);
+    weight = 1.0/cos(latitude);
     return vec2(
         atan(dir.y, dir.x) / PI, 
-        -asin(dir.z) / PI);
+        latitude / PI);
 }
 
 //Azimuthal Equidistant projection, aka Postel projection, aka Fisheye projection.
@@ -310,7 +312,8 @@ vec2 project_fisheye(camera_params c, vec3 p_ndc)
 }
 
 //out defocus: distance from area in focus. 0=in focus
-vec2 project(camera_params c, vec3 p, inout uint next, out float defocus)
+//out projection_weight: to compensate for the distortion of samples after mapping
+vec2 project(camera_params c, vec3 p, inout uint next, out float defocus, out float projection_weight)
 {
     vec4 p_hom = c.view_proj_mat * vec4(p, 1.0f);
     vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
@@ -323,10 +326,11 @@ vec2 project(camera_params c, vec3 p, inout uint next, out float defocus)
 
         proj = p_ndc.xy;
         defocus = max(0.0, abs(dot(p - c.focus_point.xyz, -c.forward.xyz)) - c.depth_of_field); //distance from focal plane
+        projection_weight = 1.0;
     }
     else if(c.projection_type == 1)
     {
-        proj = project_equirectangular(c, p_hom.xyz);
+        proj = project_equirectangular(c, p_hom.xyz, projection_weight);
         defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
     }
     else //if(c.projection_type == 2)
@@ -336,6 +340,7 @@ vec2 project(camera_params c, vec3 p, inout uint next, out float defocus)
 
         proj = project_fisheye(c, p_ndc.xyz);
         defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
+        projection_weight = 1.0;
     }
 
     //blur effect
@@ -513,12 +518,15 @@ void main() {
 			continue;//avoid useless projection and histogram writes
         
         float defocus;
-		vec2 projf = project(settings.camera, p.pos.xyz, invocation_hash_cnt, defocus);
+        float projection_weight;
+		vec2 projf = project(settings.camera, p.pos.xyz, invocation_hash_cnt, defocus, projection_weight);
         if (projf.x == -2.0)
             continue;//out of frame
         ivec2 proj = ivec2(int(round(projf.x)), int(round(projf.y)));
 
 		vec4 color = vec4(getPaletteColor(p.color_index), selected_iterator.opacity);
+
+        color.w *= projection_weight;
 
 		if (settings.fog_effect > 0.0f)
 		{//optional fog effect
