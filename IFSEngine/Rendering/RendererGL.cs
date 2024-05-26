@@ -343,9 +343,13 @@ public sealed class RendererGL : IAsyncDisposable
 
         GL.Viewport(0, 0, HistogramWidth, HistogramHeight);
 
+        //must clear the display framebuffer since we're only blitting to it so garbage from previous resolution could remain visible.
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.ClearBuffer(ClearBuffer.Color, 0, _bufferClearColor);
         _ctx.SwapBuffers();//clear back buffer
         GL.ClearBuffer(ClearBuffer.Color, 0, _bufferClearColor);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
+
         DisplayFramebufferUpdated?.Invoke(this, null);
 
         _invalidHistogramResolution = false;
