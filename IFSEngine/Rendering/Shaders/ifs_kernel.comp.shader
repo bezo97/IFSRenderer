@@ -304,9 +304,15 @@ vec2 project_equirectangular(camera_params c, vec3 p_ndc, out float weight)
 
 //Azimuthal Equidistant projection, aka Postel projection, aka Fisheye projection.
 //With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
-vec2 project_fisheye(camera_params c, vec3 p_ndc)
-{    
-	p_ndc = rotate_euler(vec3(-50.0*PI/180,0.0,0.0)) * p_ndc;//rotate p0 vector on X,Y,Z axes in camera space 
+vec2 project_fisheye(camera_params c, vec4 p_hom)
+{
+    //support for tilted dome projectors
+	p_hom = mat4(rotate_euler(vec3(-50.0*PI/180,0.0,0.0))) * p_hom;//rotate vector on X,Y,Z axes in camera space 
+
+    if (p_hom.z >= 0.0)
+        return vec2(-2.0, -2.0);//discard behind camera
+    vec3 p_ndc = p_hom.xyz/p_hom.w;
+    p_ndc /= p_ndc.z;
 
     float r = atan(sqrt(p_ndc.x*p_ndc.x + p_ndc.y*p_ndc.y), p_ndc.z);//incidence angle
     float phi = atan(p_ndc.y, p_ndc.x);
@@ -318,11 +324,11 @@ vec2 project_fisheye(camera_params c, vec3 p_ndc)
 vec2 project(camera_params c, vec3 p, inout uint next, out float defocus, out float projection_weight)
 {
     vec4 p_hom = c.view_proj_mat * vec4(p, 1.0f);
-    vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
     
     vec2 proj;
     if (c.projection_type == 0)
     {
+        vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
         if (any(isinf(p_ndc) || isnan(p_ndc)) || p_hom.w >= 0.0)
             return vec2(-2.0, -2.0);//discard when projected to infinity or behind camera
 
@@ -337,10 +343,7 @@ vec2 project(camera_params c, vec3 p, inout uint next, out float defocus, out fl
     }
     else //if(c.projection_type == 2)
     {
-        if (p_hom.w >= 0.0)
-            return vec2(-2.0, -2.0);//discard behind camera
-
-        proj = project_fisheye(c, p_ndc.xyz);
+        proj = project_fisheye(c, p_hom);
         defocus = max(0.0, abs(distance(p, c.position.xyz) - c.focus_distance) - c.depth_of_field); //distance from focus distance
         projection_weight = 1.0;
     }
