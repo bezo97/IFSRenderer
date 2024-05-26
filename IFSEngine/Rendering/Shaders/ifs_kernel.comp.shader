@@ -306,6 +306,8 @@ vec2 project_equirectangular(camera_params c, vec3 p_ndc, out float weight)
 //With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
 vec2 project_fisheye(camera_params c, vec3 p_ndc)
 {    
+	p_ndc = rotate_euler(vec3(-50.0*PI/180,0.0,0.0)) * p_ndc;//rotate p0 vector on X,Y,Z axes in camera space 
+
     float r = atan(sqrt(p_ndc.x*p_ndc.x + p_ndc.y*p_ndc.y), p_ndc.z);//incidence angle
     float phi = atan(p_ndc.y, p_ndc.x);
     return 2.0*r/PI * vec2(cos(phi), sin(phi));
