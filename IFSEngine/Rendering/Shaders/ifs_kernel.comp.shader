@@ -306,9 +306,6 @@ vec2 project_equirectangular(camera_params c, vec3 p_ndc, out float weight)
 //With a circular frame: supposed to be used only for a square image, the corners are left black. Used for dome masters.
 vec2 project_fisheye(camera_params c, vec4 p_hom)
 {
-    //support for tilted dome projectors
-	p_hom = mat4(rotate_euler(vec3(-50.0*PI/180,0.0,0.0))) * p_hom;//rotate vector on X,Y,Z axes in camera space 
-
     if (p_hom.z >= 0.0)
         return vec2(-2.0, -2.0);//discard behind camera
     vec3 p_ndc = p_hom.xyz/p_hom.w;

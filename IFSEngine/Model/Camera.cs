@@ -28,6 +28,11 @@ public class Camera
     public ProjectionType Projection { get; set; } = ProjectionType.Perspective;
 
     /// <summary>
+    /// Used with fisheye projection, tilting is useful for planetarium setups where the dome projector is offset from the center.
+    /// </summary>
+    public Vector3 ProjectionTilt { get; set; } = Vector3.Zero;
+
+    /// <summary>
     /// Moves camera position by a translate vector given in camera space.
     /// </summary>
     /// <param name="translateVector"></param>
@@ -62,6 +67,16 @@ public class Camera
         //Matrix4x4.CreateLookAt uses different handedness so direction vectors are inverted here to get the correct view matrix.
         var viewMatrix = Matrix4x4.CreateLookAt(Position, Position - ForwardDirection, -UpDirection);
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(NumericExtensions.ToRadians(1 + (float)FieldOfView % 179), 1.0f, 0.001f, float.PositiveInfinity);
+
+        if (Projection == ProjectionType.Fisheye)
+        {//tilted projection
+            projectionMatrix
+                = Matrix4x4.CreateRotationX(NumericExtensions.ToRadians(ProjectionTilt.X))
+                * Matrix4x4.CreateRotationY(NumericExtensions.ToRadians(ProjectionTilt.Y))
+                * Matrix4x4.CreateRotationZ(NumericExtensions.ToRadians(ProjectionTilt.Z))
+                * projectionMatrix;
+        }
+
         return viewMatrix * projectionMatrix;
     }
 
