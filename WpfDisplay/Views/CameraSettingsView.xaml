@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:enum="clr-namespace:IFSEngine.Model;assembly=IFSEngine"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200"
              x:Name="cameraSettingsView"
@@ -57,5 +58,13 @@
         <ComboBox Padding="8"
             ItemsSource="{Binding ProjectionTypes}"
             SelectedValue="{Binding ProjectionType}"/>
+        <StackPanel Visibility="{Binding ProjectionType, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static enum:ProjectionType.Fisheye}}">
+            <Label ToolTip="Tilting is useful if you are using a planetarium setup where the dome projector is offset from the center.">
+                ⊙ Projection tilt
+            </Label>
+            <local:ValueSlider Value="{Binding XTilt}" SliderSettings="{Binding XTiltSlider}"/>
+            <local:ValueSlider Value="{Binding YTilt}" SliderSettings="{Binding YTiltSlider}"/>
+            <local:ValueSlider Value="{Binding ZTilt}" SliderSettings="{Binding ZTiltSlider}"/>
+        </StackPanel>
     </StackPanel>
 </UserControl>

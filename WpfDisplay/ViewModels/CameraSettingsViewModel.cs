@@ -236,6 +236,60 @@ public partial class CameraSettingsViewModel : ObservableObject
         }
     }
 
+    public double XTilt
+    {
+        get => _workspace.Ifs.Camera.ProjectionTilt.X;
+        set => _workspace.Ifs.Camera.ProjectionTilt = new Vector3((float)value, _workspace.Ifs.Camera.ProjectionTilt.Y, _workspace.Ifs.Camera.ProjectionTilt.Z);
+    }
+    private ValueSliderSettings _xTiltSlider;
+    public ValueSliderSettings XTiltSlider => _xTiltSlider ??= new()
+    {
+        Label = "Tilt-X",
+        IsLabelShown = false,
+        ToolTip = "Projection tilt on X axis.",
+        DefaultValue = IFS.Default.Camera.ProjectionTilt.X,
+        Increment = 1,
+        AnimationPath = "Camera.ProjectionTilt.X",
+        ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer(),
+    };
+
+    public double YTilt
+    {
+        get => _workspace.Ifs.Camera.ProjectionTilt.Y;
+        set => _workspace.Ifs.Camera.ProjectionTilt = new Vector3(_workspace.Ifs.Camera.ProjectionTilt.X, (float)value, _workspace.Ifs.Camera.ProjectionTilt.Z);
+    }
+    private ValueSliderSettings _yTiltSlider;
+    public ValueSliderSettings YTiltSlider => _yTiltSlider ??= new()
+    {
+        Label = "Tilt-Y",
+        IsLabelShown = false,
+        ToolTip = "Projection tilt on Y axis.",
+        DefaultValue = IFS.Default.Camera.ProjectionTilt.Y,
+        Increment = 1,
+        AnimationPath = "Camera.ProjectionTilt.Y",
+        ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer(),
+    };
+
+    public double ZTilt
+    {
+        get => _workspace.Ifs.Camera.ProjectionTilt.Z;
+        set => _workspace.Ifs.Camera.ProjectionTilt = new Vector3(_workspace.Ifs.Camera.ProjectionTilt.X, _workspace.Ifs.Camera.ProjectionTilt.Y, (float)value);
+    }
+    private ValueSliderSettings _zTiltSlider;
+    public ValueSliderSettings ZTiltSlider => _zTiltSlider ??= new()
+    {
+        Label = "Tilt-Z",
+        IsLabelShown = false,
+        ToolTip = "Projection tilt on Z axis.",
+        DefaultValue = IFS.Default.Camera.ProjectionTilt.Z,
+        Increment = 1,
+        AnimationPath = "Camera.ProjectionTilt.Z",
+        ValueWillChange = _workspace.TakeSnapshot,
+        ValueChanged = (v) => _workspace.Renderer.InvalidateHistogramBuffer(),
+    };
+
     [RelayCommand]
     private void ResetCamera()
     {
