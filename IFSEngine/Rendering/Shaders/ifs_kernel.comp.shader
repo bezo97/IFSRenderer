@@ -1,8 +1,9 @@
 ﻿#version 430
-//#version 430 compatibility
-//#extension GL_ARB_compute_shader : enable
-//#extension GL_ARB_shader_storage_buffer_object : enable
+
+#ifdef GL_NV_shader_atomic_float
 #extension GL_NV_shader_atomic_float : enable
+#endif
+
 #extension GL_ARB_shader_precision : require
 
 //precision highp float;
@@ -326,7 +327,7 @@ vec2 project(camera_params c, vec3 p, inout uint next, out float defocus, out fl
     if (c.projection_type == 0)
     {
         vec4 p_ndc = p_hom/p_hom.w;//homogeneous -> normalized device coordinates
-        if (any(isinf(p_ndc) || isnan(p_ndc)) || p_hom.w >= 0.0)
+        if (any(isinf(p_ndc)) || any(isnan(p_ndc)) || p_hom.w >= 0.0)
             return vec2(-2.0, -2.0);//discard when projected to infinity or behind camera
 
         proj = p_ndc.xy;
@@ -358,7 +359,7 @@ vec2 project(camera_params c, vec3 p, inout uint next, out float defocus, out fl
         (proj.x + 1) * 0.5 * width,
         (proj.y * ratio + 1) * 0.5 * height);
     
-    if (any(lessThan(proj, vec2(0.0)) || greaterThanEqual(proj, vec2(width, height))))
+    if (any(lessThan(proj, vec2(0.0))) || any(greaterThanEqual(proj, vec2(width, height))))
        return vec2(-2.0, -2.0);//discard at edges
     
     return proj - vec2(0.5);
