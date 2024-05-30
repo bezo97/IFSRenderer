@@ -163,7 +163,7 @@ public sealed class RendererGL : IAsyncDisposable
     {
         string messageString = Marshal.PtrToStringAnsi(message, length);
 
-        Console.WriteLine($"{severity} {type} | {messageString}");
+        System.Diagnostics.Debug.WriteLine($"{severity} {type} | {messageString}");
 
         if (type == DebugType.DebugTypeError)
         {
@@ -592,7 +592,7 @@ public sealed class RendererGL : IAsyncDisposable
             if (_ctx.IsCurrent)
                 _ctx.MakeNoneCurrent();
 
-            new Thread(() =>
+            ThreadPool.QueueUserWorkItem((_) =>
             {
                 _ctx.MakeCurrent();
                 while (IsRendering)
@@ -626,7 +626,7 @@ public sealed class RendererGL : IAsyncDisposable
                 GL.Finish();
                 _ctx.MakeNoneCurrent();
                 _stopRender.Set();
-            }).Start();
+            });
         }
     }
 
