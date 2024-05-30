@@ -1,10 +1,7 @@
 ﻿#nullable enable
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 using WpfDisplay.Models;
@@ -21,7 +18,7 @@ internal class FileDropHandler
         { ".png", DroppedFile.Image },
         { ".ugr", DroppedFile.Palette },
     };
- 
+
     /// <returns>Copy effect when file extension is supported or None.</returns>
     public static DragDropEffects GetDragDropEffect(IDataObject dataObject)
     {

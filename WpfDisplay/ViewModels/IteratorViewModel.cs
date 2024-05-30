@@ -30,7 +30,7 @@ public partial class IteratorViewModel : ObservableObject
 
     public IteratorViewModel(Iterator iterator, Workspace workspace)
     {
-        this.Iterator = iterator;
+        Iterator = iterator;
         _workspace = workspace;
         workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
         ReloadParameters();

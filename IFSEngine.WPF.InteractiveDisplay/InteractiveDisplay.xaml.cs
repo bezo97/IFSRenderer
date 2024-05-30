@@ -209,7 +209,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     rotateVec = new(0.0f, 0.0f, lastDir.X * moveDelta.Y - lastDir.Y * moveDelta.X);
 
                     var centerOffset = mousePos - _centerPivot;
-                    Renderer.LoadedParams.Camera.FieldOfView *= lastCenterOffset.Length()/centerOffset.Length();
+                    Renderer.LoadedParams.Camera.FieldOfView *= lastCenterOffset.Length() / centerOffset.Length();
                 }
 
                 if (rotateVec.Length() > 0.0f)
@@ -237,7 +237,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     //    var pos = this.PointToScreen(new Point(Width / 2, Height / 2));
                     //    SetCursorPos((int)pos.X, (int)pos.Y);
                     //}
-                    InteractionFinishedCommand?.Execute(null);                    
+                    InteractionFinishedCommand?.Execute(null);
                 }
             }
             else

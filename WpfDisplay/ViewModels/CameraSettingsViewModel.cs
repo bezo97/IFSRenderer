@@ -181,7 +181,7 @@ public partial class CameraSettingsViewModel : ObservableObject
         DefaultValue = IFS.Default.Camera.FocusDistance,
         Increment = 0.01,
         AnimationPath = "Camera.FocusDistance",
-        ValueWillChange = () => _workspace.TakeSnapshot(),
+        ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (c) => _workspace.Renderer.InvalidateHistogramBuffer(),
         ValueDraggingStarted = () => _workspace.Renderer.MarkAreaInFocus = true,
         ValueDraggingCompleted = (c) =>
@@ -200,7 +200,7 @@ public partial class CameraSettingsViewModel : ObservableObject
         MinValue = 0,
         Increment = 0.01,
         AnimationPath = "Camera.DepthOfField",
-        ValueWillChange = () => _workspace.TakeSnapshot(),
+        ValueWillChange = _workspace.TakeSnapshot,
         ValueChanged = (c) => _workspace.Renderer.InvalidateHistogramBuffer(),
         ValueDraggingStarted = () => _workspace.Renderer.MarkAreaInFocus = true,
         ValueDraggingCompleted = (c) =>

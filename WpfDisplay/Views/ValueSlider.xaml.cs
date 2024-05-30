@@ -209,8 +209,8 @@ public partial class ValueSlider : UserControl
     /// </summary>
     public Action ValueDraggingStartedAction
     {
-        get { return (Action)GetValue(ValueDraggingStartedActionProperty); }
-        set { SetValue(ValueDraggingStartedActionProperty, value); }
+        get => (Action)GetValue(ValueDraggingStartedActionProperty);
+        set => SetValue(ValueDraggingStartedActionProperty, value);
     }
     public static readonly DependencyProperty ValueDraggingStartedActionProperty =
         DependencyProperty.Register("ValueDraggingStartedAction", typeof(Action), typeof(ValueSlider), new PropertyMetadata(null));
@@ -220,8 +220,8 @@ public partial class ValueSlider : UserControl
     /// </summary>
     public Action<double> ValueDraggingCompletedAction
     {
-        get { return (Action<double>)GetValue(ValueDraggingCompletedActionProperty); }
-        set { SetValue(ValueDraggingCompletedActionProperty, value); }
+        get => (Action<double>)GetValue(ValueDraggingCompletedActionProperty);
+        set => SetValue(ValueDraggingCompletedActionProperty, value);
     }
     public static readonly DependencyProperty ValueDraggingCompletedActionProperty =
         DependencyProperty.Register("ValueDraggingCompletedAction", typeof(Action<double>), typeof(ValueSlider), new PropertyMetadata(null));

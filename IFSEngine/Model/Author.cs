@@ -13,14 +13,8 @@ public class Author : IEquatable<Author>
         Link = "-"
     };
 
-    public bool Equals(Author other)
-    {
-        return Name == other?.Name;
-    }
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as Author);
-    }
+    public bool Equals(Author other) => Name == other?.Name;
+    public override bool Equals(object obj) => Equals(obj as Author);
     public static bool operator ==(Author lhs, Author rhs)
     {
         return lhs is null ? rhs is null : lhs.Equals(rhs);
@@ -30,8 +24,5 @@ public class Author : IEquatable<Author>
         return !(lhs == rhs);
     }
 
-    public override int GetHashCode()
-    {
-        return Name.GetHashCode();
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 }

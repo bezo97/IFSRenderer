@@ -1,7 +1,8 @@
-﻿using IFSEngine.Rendering.GpuStructs;
-using IFSEngine.Utility;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.Serialization;
+
+using IFSEngine.Rendering.GpuStructs;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Model;
 

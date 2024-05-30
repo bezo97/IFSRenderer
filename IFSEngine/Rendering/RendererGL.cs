@@ -206,7 +206,7 @@ public sealed class RendererGL : IAsyncDisposable
     /// <param name="ctx"></param>
     public RendererGL(IGraphicsContext ctx)
     {
-        this._ctx = ctx;
+        _ctx = ctx;
     }
 
     public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
@@ -291,15 +291,9 @@ public sealed class RendererGL : IAsyncDisposable
         _invalidHistogramBuffer = true;
     }
 
-    public void InvalidateDisplay()
-    {
-        _updateDisplayNow = true;
-    }
+    public void InvalidateDisplay() => _updateDisplayNow = true;
 
-    private void InvalidatePointsStateBuffer()
-    {
-        _invalidPointsStateBuffer = true;
-    }
+    private void InvalidatePointsStateBuffer() => _invalidPointsStateBuffer = true;
 
     public void SetHistogramScale(double scale)
     {
@@ -357,8 +351,8 @@ public sealed class RendererGL : IAsyncDisposable
 
     public void SetDisplayResolution(int displayWidth, int displayHeight)
     {
-        this.DisplayWidth = displayWidth;
-        this.DisplayHeight = displayHeight;
+        DisplayWidth = displayWidth;
+        DisplayHeight = displayHeight;
         InvalidateDisplay();
     }
 
@@ -758,7 +752,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(deShaderH)));
+                string.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(deShaderH)));
         }
 
         _deProgramHandle = GL.CreateProgram();
@@ -769,7 +763,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(_deProgramHandle)));
+                string.Format("Error linking de program: {0}", GL.GetProgramInfoLog(_deProgramHandle)));
         }
 
         GL.DetachShader(_deProgramHandle, _vertexShaderHandle);
@@ -792,7 +786,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(_vertexShaderHandle)));
+                string.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(_vertexShaderHandle)));
         }
 
         var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
@@ -802,7 +796,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
+                string.Format("Error compiling {0} shader: {1}", ShaderType.FragmentShader.ToString(), GL.GetShaderInfoLog(fragmentShader)));
         }
 
         //init display image texture
@@ -831,7 +825,7 @@ public sealed class RendererGL : IAsyncDisposable
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error linking program: {0}", GL.GetProgramInfoLog(_tonemapProgramHandle)));
+                string.Format("Error linking program: {0}", GL.GetProgramInfoLog(_tonemapProgramHandle)));
         }
 
         GL.DetachShader(_tonemapProgramHandle, _vertexShaderHandle);
@@ -872,7 +866,7 @@ if (iter.tfId == {tfIndex})
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error compiling {0} shader: {1}", ShaderType.ComputeShader.ToString(), GL.GetShaderInfoLog(computeShaderH)));
+                string.Format("Error compiling {0} shader: {1}", ShaderType.ComputeShader.ToString(), GL.GetShaderInfoLog(computeShaderH)));
         }
 
         //free previous resources
@@ -886,7 +880,7 @@ if (iter.tfId == {tfIndex})
         if (status == 0)
         {
             throw new Exception(
-                String.Format("Error linking de program: {0}", GL.GetProgramInfoLog(_computeProgramHandle)));
+                string.Format("Error linking de program: {0}", GL.GetProgramInfoLog(_computeProgramHandle)));
         }
         GL.DetachShader(_computeProgramHandle, computeShaderH);
         GL.DeleteShader(computeShaderH);
@@ -934,10 +928,7 @@ if (iter.tfId == {tfIndex})
 
     }
 
-    private static InvalidOperationException NewNotInitializedException()
-    {
-        return new InvalidOperationException("Renderer is not initialized.");
-    }
+    private static InvalidOperationException NewNotInitializedException() => new("Renderer is not initialized.");
 
     public async ValueTask DisposeAsync()
     {
