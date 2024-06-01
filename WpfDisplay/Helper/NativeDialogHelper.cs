@@ -12,6 +12,7 @@ public static class DialogHelper
     private static readonly string _paletteFilter = "Flame Palettes|*.gradient;*.ugr";
     private static readonly string _audioFilter = "Audio files|" + Cavern.Format.AudioReader.filter;//allow any file supported by Cavern
     private static readonly string _ffmpegExeFilter = "FFmpeg executable|ffmpeg.exe";
+    private static readonly string _channelsCsvFilter = "Animation channels|*.csv";
     private static readonly Guid _openParamsGuid = Guid.Parse("71fbe830-5632-4672-ac43-31173efa82a2");
     private static readonly Guid _saveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
     private static readonly Guid _exportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
@@ -20,6 +21,7 @@ public static class DialogHelper
     private static readonly Guid _openAudioGuid = Guid.Parse("24E3A7D5-A565-4E98-87C4-06D676A9EBD3");
     private static readonly Guid _animationFolderBrowserGuid = Guid.Parse("8E896C73-B414-447C-909E-7D15B2569357");
     private static readonly Guid _ffmpegSelectorGuid = Guid.Parse("324D0CB0-3B30-4C91-94C3-094BC67C8100");
+    private static readonly Guid _importChannelsGuid = Guid.Parse("591D3287-4EC8-4711-8191-EB1AA553E9E9");
     private static readonly OpenFileDialog _openParamsDialog = new()
     {
         CheckFileExists = true,
@@ -81,6 +83,14 @@ public static class DialogHelper
         RestoreDirectory = true,
         Title = "Select FFmpeg executable (ffmpeg.exe)"
     };
+    private static readonly OpenFileDialog _importChannelsDialog = new()
+    {
+        CheckFileExists = true,
+        Filter = _channelsCsvFilter,
+        ClientGuid = _importChannelsGuid,
+        RestoreDirectory = true,
+        Title = "Select the CSV file to import animation channels from."
+    };
 
     public static bool ShowOpenParamsDialog(out string FilePath)
     {
@@ -131,6 +141,12 @@ public static class DialogHelper
     {
         bool selected = _ffmpegSelectorDialog.ShowDialog() is DialogResult.OK;
         ExePath = _ffmpegSelectorDialog.FileName;
+        return selected;
+    }
+    public static bool ShowImportChannelsDialog(out string CsvPath)
+    {
+        bool selected = _importChannelsDialog.ShowDialog() is DialogResult.OK;
+        CsvPath = _importChannelsDialog.FileName;
         return selected;
     }
 

@@ -300,6 +300,31 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(Ifs.ImageResolution));
     }
 
+    /// <param name="csvFilePath">Path to a CSV file where columns are the channel paths and rows are the frames.</param>
+    /// <returns>The number of successfully imported channels.</returns>
+    public async Task<int> ImportAnimationChannels(string csvFilePath)
+    {
+        var csv = (await File.ReadAllLinesAsync(csvFilePath)).Select(row => row.Split(',').Select(field => field.Trim()).ToArray()).ToArray();
+        var channelPaths = csv[0].ToArray();
+        //remove existing channels with same path
+        foreach (var channelPath in channelPaths)
+            Ifs.Dopesheet.Channels.Remove(channelPath);
+        //fill channels frame-by-frame
+        for (int row = 1; row < csv.Length; row++)
+        {
+            if (csv[row].Length != channelPaths.Length)
+                continue;//eof empty line or malformed
+            var frameTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds((row - 1.0) / Ifs.Dopesheet.Fps));
+            for (int column = 0; column < channelPaths.Length; column++)
+            {
+                var field = csv[row][column];
+                var val = double.Parse(field, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+                Ifs.Dopesheet.AddOrUpdateChannel(channelPaths[column], channelPaths[column], frameTime, val);
+            }
+        }
+        return channelPaths.Length;
+    }
+
     public void UpdateStatusText(string statusText) => StatusTextChanged?.Invoke(this, statusText);
 
 }

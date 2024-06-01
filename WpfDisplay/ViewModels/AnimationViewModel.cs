@@ -60,15 +60,7 @@ public partial class AnimationViewModel : ObservableObject
     public AnimationViewModel(Workspace workspace)
     {
         Workspace = workspace;
-        workspace.LoadedParamsChanged += (s, e) =>
-        {
-            EditedChannel = null;
-            SelectedKeyframes.Clear();
-            Channels.Clear();
-            Workspace.Ifs.Dopesheet.Channels.ToList()
-                .Select(a => new ChannelViewModel(this, a.Key, a.Value)).ToList().ForEach(Channels.Add);
-            OnPropertyChanged(string.Empty);
-        };
+        workspace.LoadedParamsChanged += (s, e) => ReloadDopesheet();
         workspace.Renderer.TargetIterationReached += OnFrameFinishedRendering;
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0 / workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
@@ -117,6 +109,16 @@ public partial class AnimationViewModel : ObservableObject
         MaxValue = Workspace.Ifs.Dopesheet.Length.TotalSeconds
     };
 
+    public void ReloadDopesheet()
+    {
+        EditedChannel = null;
+        SelectedKeyframes.Clear();
+        Channels.Clear();
+        Workspace.Ifs.Dopesheet.Channels.ToList()
+            .Select(a => new ChannelViewModel(this, a.Key, a.Value)).ToList().ForEach(Channels.Add);
+        OnPropertyChanged(string.Empty);
+    }
+
     /// <summary>
     /// null: not animated. false: interpolated. true: keyframe
     /// </summary>
@@ -158,18 +160,11 @@ public partial class AnimationViewModel : ObservableObject
     };
 
 
-    public class AnimateValueCommandParameters
+    public class AnimateValueCommandParameters(string label, string path, double val)
     {
-        public AnimateValueCommandParameters(string label, string path, double val)
-        {
-            Label = label;
-            Path = path;
-            Val = val;
-        }
-
-        public string Label { get; }
-        public string Path { get; }
-        public double Val { get; }
+        public string Label { get; } = label;
+        public string Path { get; } = path;
+        public double Val { get; } = val;
     }
 
     [RelayCommand]
@@ -349,21 +344,21 @@ public partial class AnimationViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAudio()
     {
-        if (DialogHelper.ShowOpenAudioDialog(out string path))
-        {
-            _audioPlayer = new MediaPlayer();
-            _audioPlayer.Open(new Uri(path));
-            await Task.Run(() =>
-            {
-                //TODO: show loading dialog with cancel
-                Audio = new(path);
-                LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(Audio.Clip.Channels);
-                AudioClipTitle = Audio.Clip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
+        if (!DialogHelper.ShowOpenAudioDialog(out string path))
+            return;
 
-                OnPropertyChanged(nameof(Audio));
-                Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");
-            });
-        }
+        _audioPlayer = new MediaPlayer();
+        _audioPlayer.Open(new Uri(path));
+        await Task.Run(() =>
+        {
+            //TODO: show loading dialog with cancel
+            Audio = new(path);
+            LoadedAudioChannels = ChannelPrototype.GetStandardMatrix(Audio.Clip.Channels);
+            AudioClipTitle = Audio.Clip.Name ?? System.IO.Path.GetFileNameWithoutExtension(path);
+
+            OnPropertyChanged(nameof(Audio));
+            Workspace.UpdateStatusText($"Audio track loaded successfully - {path}");
+        });
     }
 
     private bool _canExecuteStart => !IsExportingFrames;
@@ -480,6 +475,23 @@ public partial class AnimationViewModel : ObservableObject
             return;
         }
         Workspace.UpdateStatusText($"Video file created successfully at '{_saveFramesPath}'.");
+    }
+
+    [RelayCommand]
+    public async Task ImportChannels()
+    {
+        if (!DialogHelper.ShowImportChannelsDialog(out string csvFilePath))
+            return;
+        Workspace.TakeSnapshot();
+
+        var successCount = await Workspace.ImportAnimationChannels(csvFilePath);
+
+        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Renderer.InvalidateParamsBuffer();
+        ReloadDopesheet();
+        Workspace.RaiseAnimationFrameChanged();
+
+        Workspace.UpdateStatusText($"{successCount} channels successfully imported from file '{csvFilePath}'.");
     }
 
 }

@@ -91,37 +91,43 @@
         <ScrollViewer x:Name="channelHeaderScroller" Grid.Column="0" Grid.Row="2" 
                         VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
                         ScrollChanged="ChannelHeaderScroller_ScrollChanged">
-            <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid x:Name="alternatingBackgroundGrid1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0">
-                                <Hyperlink Command="{Binding DataContext.EditChannelCommand, ElementName=animationPanel}" CommandParameter="{Binding}" 
-                                            TextDecorations="None" Foreground="White">
-                                    <Run Text="{Binding Name, Mode=OneWay}" />
-                                </Hyperlink>
-                            </TextBlock>
-                            <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
-                                            Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
-                                            CommandParameter="{Binding}">
-                                ❌
-                            </Button>
-                        </Grid>
-                        <DataTemplate.Triggers>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="Transparent"/>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="#333333"/>
-                            </Trigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Channels}" AlternationCount="2" Grid.Column="0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid x:Name="alternatingBackgroundGrid1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0">
+                                    <Hyperlink Command="{Binding DataContext.EditChannelCommand, ElementName=animationPanel}" CommandParameter="{Binding}" 
+                                                TextDecorations="None" Foreground="White">
+                                        <Run Text="{Binding Name, Mode=OneWay}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                                <Button Grid.Column="2" Style="{StaticResource timelineButtonStyle}"
+                                                Command="{Binding DataContext.RemoveChannelCommand, ElementName=animationPanel}" 
+                                                CommandParameter="{Binding}">
+                                    ❌
+                                </Button>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter TargetName="alternatingBackgroundGrid1" Property="Background" Value="#333333"/>
+                                </Trigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button
+                    Command="{Binding ImportChannelsCommand}"
+                    ToolTip="Import channels from a CSV file where columns are the channel IDs and rows are the frames. Make sure to adjust the Framerate slider to match the CSV data."
+                    HorizontalAlignment="Center" Margin="8" Style="{StaticResource MaterialDesignFlatButton}">+ Import...</Button>
+            </StackPanel>
         </ScrollViewer>
         <ScrollViewer Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
             <Grid Width="{Binding SheetWidth}" HorizontalAlignment="Left">
@@ -240,7 +246,7 @@
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" 
               Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
-              Background="#333333">
+              Background="#333333" d:Visibility="Hidden">
             <local:ChannelEditor DataContext="{Binding EditedChannel}" Padding="4"/>
         </Grid>
     </Grid>
