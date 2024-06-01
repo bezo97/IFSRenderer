@@ -23,6 +23,7 @@
                         </Style.Triggers>
                     </Style>
                 </ResourceDictionary>
+                <ResourceDictionary Source="Views/Animation/DopeButtonResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

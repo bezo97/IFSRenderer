@@ -3,79 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:WpfDisplay.Views"
-        xmlns:anim="clr-namespace:IFSEngine.Animation;assembly=IFSEngine"
-        xmlns:conv="clr-namespace:WpfDisplay.Converters"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         mc:Ignorable="d" 
         Cursor="SizeWE"
         d:DesignHeight="15" d:DesignWidth="15" Width="15" Height="15"
-        d:DataContext="{d:DesignInstance Type=vm:KeyframeViewModel, IsDesignTimeCreatable=False}">
-    <Button.Style>
-        <Style BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}" TargetType="{x:Type Button}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="Background" Value="DarkOrange"/>
-                </DataTrigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Orange"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Button.Style>
-    <Button.RenderTransform>
-        <TransformGroup>
-            <RotateTransform CenterX="5" CenterY="5" Angle="45"/>
-            <TranslateTransform X="-5"/>
-        </TransformGroup>
-    </Button.RenderTransform>
-    <Button.Resources>
-        <ObjectDataProvider x:Key="easingDirectionEnumItemsProvider"
-                            MethodName="GetValues" 
-                            ObjectType="{x:Type sys:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="anim:EasingDirection"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider x:Key="interpolationModeEnumItemsProvider"
-                            MethodName="GetValues" 
-                            ObjectType="{x:Type sys:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="anim:InterpolationMode"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </Button.Resources>
-    <Button.ContextMenu>
-        <ContextMenu StaysOpen="True">
-            <MenuItem Icon="{md:PackIcon Kind=Stairs}" Height="55" StaysOpenOnClick="True">
-                <MenuItem.Header>
-                    <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
-                              SelectedValue="{Binding SelectedInterpolationMode}"
-                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                              md:HintAssist.Hint="Interpolation mode"/>
-                </MenuItem.Header>
-            </MenuItem>
-            <MenuItem Icon="↔️" Height="55" StaysOpenOnClick="True">
-                <MenuItem.Header>
-                    <ComboBox ItemsSource="{Binding Source={StaticResource easingDirectionEnumItemsProvider}}"
-                              SelectedValue="{Binding SelectedEasingDirection}"
-                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                              md:HintAssist.Hint="Easing direction"/>
-                </MenuItem.Header>
-            </MenuItem>
-            <MenuItem Icon="{md:PackIcon Kind=Vitals}" Height="55" StaysOpenOnClick="True">
-                <MenuItem.Header>
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource MaterialDesignOverlineTextBlock}" Foreground="DarkGray">Easing Power</TextBlock>
-                        <local:ValueSlider Value="{Binding EasingPower}" 
-                                       SliderSettings="{Binding EasingPowerSlider}"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Icon="{md:PackIcon Kind=Trash}" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
-        </ContextMenu>
-    </Button.ContextMenu>
+        d:DataContext="{d:DesignInstance Type=vm:KeyframeViewModel, IsDesignTimeCreatable=False}"
+        Style="{StaticResource dopeButtonStyle}"
+        RenderTransform="{StaticResource dopeButtonTransform}"
+        ContextMenu="{StaticResource dopeButtonContextMenu}">
 </Button>
