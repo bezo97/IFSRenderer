@@ -23,7 +23,7 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding Name}"  Grid.Column="0"
-                         ToolTip="Name" md:HintAssist.Hint="Channel Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextAlignment="Center" d:Text="Channel1"/>
+                         ToolTip="Name" md:HintAssist.Hint="Channel Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextAlignment="Center" d:Text="Channel Name"/>
                 <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatButton}"
                         Command="{Binding CloseChannelEditorCommand}"
                         ToolTip="Close channel editor" Foreground="LightGreen"
@@ -31,6 +31,8 @@
                     ✓
                 </Button>
             </Grid>
+            <TextBox Text="{Binding Path, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas"
+                ToolTip="The property in the data structure that is controlled by this channel." md:HintAssist.Hint="Controlled value" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:TextFieldAssist.DecorationVisibility="Hidden" d:Text="Channel.Path"/>
             <Grid>
                 <TextBlock VerticalAlignment="Center">Channel Drivers</TextBlock>
                 <Menu HorizontalAlignment="Right">

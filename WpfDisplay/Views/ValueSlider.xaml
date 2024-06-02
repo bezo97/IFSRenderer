@@ -1,25 +1,48 @@
 ﻿<UserControl x:Class="WpfDisplay.Views.ValueSlider"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
-             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="150"
-             x:Name="valueSlider"
-             >
+             x:Name="valueSlider">
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
         <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
     </UserControl.Resources>
     <UserControl.ContextMenu>
-        <ContextMenu>
+        <ContextMenu xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
             <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
             <MenuItem Header="Animate" Icon="🎬" 
                       Command="{Binding Path=PlacementTarget.InternalAnimateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <Separator/>
+            <MenuItem Visibility="{Binding Path=PlacementTarget.ToolTip, RelativeSource={RelativeSource AncestorType=ContextMenu}, Converter={StaticResource nullVisibilityConverter}}"
+                      Height="auto" md:RippleAssist.IsDisabled="True" IsHitTestVisible="False">
+                <MenuItem.Header>
+                    <StackPanel>
+                        <Label Margin="-10 0" Content="{Binding Path=PlacementTarget.Label, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <ContentPresenter MaxWidth="300" Content="{Binding Path=PlacementTarget.ToolTip, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                            <ContentPresenter.Resources>
+                                <DataTemplate DataType="{x:Type sys:String}">
+                                    <TextBlock Text="{Binding}" MaxWidth="300" FontFamily="Times New Roman"
+                                               TextWrapping="Wrap" TextAlignment="Justify" Margin="8"/>
+                                </DataTemplate>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter> 
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem Visibility="{Binding Path=PlacementTarget.AnimationPath, RelativeSource={RelativeSource AncestorType=ContextMenu}, Converter={StaticResource nullVisibilityConverter}}"
+                      Height="auto" md:RippleAssist.IsDisabled="True">
+                <MenuItem.Header>
+                    <TextBox Text="{Binding Path=PlacementTarget.AnimationPath, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                             IsReadOnly="True" FontFamily="Consolas"
+                             md:HintAssist.Hint="Channel path" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:TextFieldAssist.DecorationVisibility="Hidden"/>
+                </MenuItem.Header>
+            </MenuItem>
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
@@ -57,21 +80,7 @@
                      Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      MouseDoubleClick="valueEditor_MouseDoubleClick"
-                     PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus" LostKeyboardFocus="valueEditor_LostKeyboardFocus">
-                <TextBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                        <MenuItem Header="Animate" Icon="🎬" 
-                                  Command="{Binding Path=PlacementTarget.InternalAnimateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                        <Separator/>
-                        <!--Must recreate native items to extend context menu-->
-                        <MenuItem Command="ApplicationCommands.Cut"/>
-                        <MenuItem Command="ApplicationCommands.Copy"/>
-                        <MenuItem Command="ApplicationCommands.Paste"/>
-                        <MenuItem Command="ApplicationCommands.SelectAll"/>
-                    </ContextMenu>
-                </TextBox.ContextMenu>
-            </TextBox>
+                     PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus" LostKeyboardFocus="valueEditor_LostKeyboardFocus"/>
             <Button
                 Grid.Column="2" 
                 Padding="10,0,10,0" IsTabStop="False"
