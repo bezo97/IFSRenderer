@@ -102,7 +102,7 @@ public partial class IFSViewModel : ObservableObject
         }
     }
 
-    public FlamePalette Palette => _workspace.Ifs.Palette;
+    public ColorPalette Palette => _workspace.Ifs.Palette;
 
     private ValueSliderSettings? _fogEffect;
     public ValueSliderSettings FogEffectSlider => _fogEffect ??= new()
@@ -327,35 +327,41 @@ public partial class IFSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task LoadPalette()
+    private async Task OpenPaletteEditor()
     {
-        if (DialogHelper.ShowOpenPaletteDialog(out string path))
-            await LoadPaletteFromFile(path);
+
     }
 
-    /// <summary>
-    /// From a drag & drop operation.
-    /// </summary>
-    [RelayCommand]
-    private async Task DropPalette(string path) => await LoadPaletteFromFile(path);
+    //[RelayCommand]
+    //private async Task LoadPalette()
+    //{
+    //    if (DialogHelper.ShowOpenPaletteDialog(out string path))
+    //        await LoadPaletteFromFile(path);
+    //}
 
-    private async Task LoadPaletteFromFile(string path)
-    {
-        var picker = new Views.PaletteDialogWindow
-        {
-            Owner = Application.Current.MainWindow,
-            Palettes = await FlamePalette.FromFileAsync(path)
-        };
-        if (picker.ShowDialog() == true)
-        {
-            _workspace.TakeSnapshot();
-            _workspace.Ifs.Palette = picker.SelectedPalette;
-            _workspace.Renderer.InvalidateParamsBuffer();
-            OnPropertyChanged(nameof(Palette));
-            Redraw();//update ColorRGB prop for nodes
-            _workspace.UpdateStatusText($"Palette file loaded - {path}");
-        }
-    }
+    ///// <summary>
+    ///// From a drag & drop operation.
+    ///// </summary>
+    //[RelayCommand]
+    //private async Task DropPalette(string path) => await LoadPaletteFromFile(path);
+
+    //private async Task LoadPaletteFromFile(string path)
+    //{
+    //    var picker = new Views.PaletteDialogWindow
+    //    {
+    //        Owner = Application.Current.MainWindow,
+    //        Palettes = await FlamePalette.FromFileAsync(path)
+    //    };
+    //    if (picker.ShowDialog() == true)
+    //    {
+    //        _workspace.TakeSnapshot();
+    //        _workspace.Ifs.Palette = picker.SelectedPalette;
+    //        _workspace.Renderer.InvalidateParamsBuffer();
+    //        OnPropertyChanged(nameof(Palette));
+    //        Redraw();//update ColorRGB prop for nodes
+    //        _workspace.UpdateStatusText($"Palette file loaded - {path}");
+    //    }
+    //}
 
     [RelayCommand]
     private async Task ReloadTransforms()

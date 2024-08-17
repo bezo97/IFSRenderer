@@ -137,7 +137,7 @@ public sealed class RendererGL : IAsyncDisposable
     private int _iteratorsBufferHandle;
     private int _aliasBufferHandle;
     private int _pointsBufferHandle;
-    private int _paletteBufferHandle;
+    private int _colorGradientBufferHandle;
     private int _realParametersBufferHandle;
     private int _vec3ParametersBufferHandle;
     //fragment shader handles
@@ -197,7 +197,7 @@ public sealed class RendererGL : IAsyncDisposable
     /// <summary>
     /// Number of colors in the buffer.
     /// </summary>
-    private int _paletteBufferSize = 0;
+    private int _colorGradientBufferSize = 0;
 
     /// <summary>
     /// Creates a new renderer instance.
@@ -385,7 +385,7 @@ public sealed class RendererGL : IAsyncDisposable
                 camera_params = LoadedParams.Camera.GetCameraParameters(),
                 itnum = LoadedParams.Iterators.Count,
                 fog_effect = (float)LoadedParams.FogEffect,
-                palettecnt = LoadedParams.Palette.Colors.Count,
+                palettecnt = LoadedParams.Palette.Gradient.Count,
                 entropy = (float)LoadedParams.Entropy,
                 warmup = LoadedParams.Warmup,
                 max_filter_radius = MaxFilterRadius,
@@ -493,13 +493,15 @@ public sealed class RendererGL : IAsyncDisposable
                 GL.NamedBufferData(_aliasBufferHandle, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
             }
 
-            //update palette
-            if (LoadedParams.Palette.Colors.Count == _paletteBufferSize)
-                GL.NamedBufferSubData(_paletteBufferHandle, 0, _paletteBufferSize * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray());
+            //update color gradient
+            //TODO: sample here
+            var colorArray = LoadedParams.Palette.Gradient.Select(n => n.Color).ToArray();
+            if (LoadedParams.Palette.Gradient.Count == _colorGradientBufferSize)
+                GL.NamedBufferSubData(_colorGradientBufferHandle, 0, _colorGradientBufferSize * sizeof(float) * 4, colorArray);
             else
-            {//resize buffer when number of palette colors change
-                _paletteBufferSize = LoadedParams.Palette.Colors.Count;
-                GL.NamedBufferData(_paletteBufferHandle, _paletteBufferSize * sizeof(float) * 4, LoadedParams.Palette.Colors.ToArray(), BufferUsageHint.DynamicDraw);
+            {//resize buffer when number of gradient colors change
+                _colorGradientBufferSize = LoadedParams.Palette.Gradient.Count;
+                GL.NamedBufferData(_colorGradientBufferHandle, _colorGradientBufferSize * sizeof(float) * 4, colorArray, BufferUsageHint.DynamicDraw);
             }
 
             _invalidParamsBuffer = false;
@@ -899,7 +901,7 @@ if (iter.tfId == {tfIndex})
         _pointsBufferHandle = GL.GenBuffer();
         _iteratorsBufferHandle = GL.GenBuffer();
         _aliasBufferHandle = GL.GenBuffer();
-        _paletteBufferHandle = GL.GenBuffer();
+        _colorGradientBufferHandle = GL.GenBuffer();
         _realParametersBufferHandle = GL.GenBuffer();
         _vec3ParametersBufferHandle = GL.GenBuffer();
 
@@ -912,7 +914,7 @@ if (iter.tfId == {tfIndex})
         GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _pointsBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _iteratorsBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _aliasBufferHandle);
-        GL.BindBuffer(BufferTarget.UniformBuffer, _paletteBufferHandle);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _colorGradientBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _realParametersBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _vec3ParametersBufferHandle);
 
@@ -922,7 +924,7 @@ if (iter.tfId == {tfIndex})
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 2, _settingsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, _iteratorsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, _aliasBufferHandle);
-        GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, _paletteBufferHandle);
+        GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 5, _colorGradientBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 6, _realParametersBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 7, _vec3ParametersBufferHandle);
 

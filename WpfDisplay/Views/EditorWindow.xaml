@@ -46,7 +46,7 @@
             <MenuItem Header="↪️" Command="ApplicationCommands.Redo" CommandTarget="{Binding ElementName=editorWindow}" ToolTip="Redo (Ctrl+Y)" InputGestureText="Ctrl+Y"/>
             <Separator/>
             <local:PaletteButton
-                Command="{Binding DataContext.LoadPaletteCommand, ElementName=editorWindow}" 
+                Command="{Binding DataContext.OpenPaletteEditor, ElementName=editorWindow}" 
                 Palette="{Binding DataContext.Palette, ElementName=editorWindow}"
                 ToolTip="Load Palette (Ctrl+P)"
                 Padding="30,8,30,8">🎨</local:PaletteButton>

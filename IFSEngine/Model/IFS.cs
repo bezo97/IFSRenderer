@@ -42,7 +42,7 @@ public class IFS
     public Camera Camera { get; set; } = new Camera();
     public Color BackgroundColor { get; set; } = Color.Black;
     public Size ImageResolution { get; set; } = new Size(1920, 1080);
-    public FlamePalette Palette { get; set; } = FlamePalette.Default;
+    public ColorPalette Palette { get; set; } = ColorPalette.Default;
     public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
     /// <summary>
     /// Defines the number of iterations that has to be performed for the image to be considered "done".

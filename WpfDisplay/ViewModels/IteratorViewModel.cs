@@ -148,7 +148,7 @@ public partial class IteratorViewModel : ObservableObject
     {
         get
         {
-            var c = _workspace.Ifs.Palette.GetColorLerp((float)ColorIndex);
+            var c = _workspace.Ifs.Palette.SampleGradient(ColorIndex);
             return Color.FromRgb((byte)(c.X * 255), (byte)(c.Y * 255), (byte)(c.Z * 255));
         }
     }

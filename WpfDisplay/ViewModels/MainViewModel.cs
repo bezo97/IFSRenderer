@@ -235,7 +235,8 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
                         workspace.LoadParams(ifs, null);
                     break;
                 case DroppedFile.Palette:
-                    IFSViewModel.DropPaletteCommand.Execute(filePath);
+                    //IFSViewModel.DropPaletteCommand.Execute(filePath);
+                    //TODO: handle in main, open palette editor
                     break;
                 case DroppedFile.Transform:
                     File.Copy(filePath, Path.Combine(App.TransformsDirectoryPath, Path.GetFileName(filePath)), true);

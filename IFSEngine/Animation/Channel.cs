@@ -23,6 +23,7 @@ public class Channel
 
     public double EvaluateAt(double t)
     {
+        //TODO: avoid sorting every time
         var keyframes = Keyframes.OrderBy(k => k.t).ToList();
 
         double eval = 0;

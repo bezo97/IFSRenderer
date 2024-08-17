@@ -11,7 +11,9 @@ using IFSEngine.Utility;
 namespace IFSEngine.Model;
 
 /// <summary>
-/// Traditional 1D flame fractal color palette. *.ugr / *.gradient
+/// Traditional flame fractal color palette.
+/// Consists of a gradient that is defined as an array of colors (400 or 512).
+/// File formats: *.ugr / *.gradient
 /// </summary>
 public partial class FlamePalette
 {
