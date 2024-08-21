@@ -9,11 +9,7 @@
              Style="{StaticResource MaterialDesignRaisedButton}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Button.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <LinearGradientBrush.GradientStops>
-                <GradientStopCollection x:Name="gradientStops"/>
-            </LinearGradientBrush.GradientStops>
-        </LinearGradientBrush>
+        <LinearGradientBrush x:Name="gradientBrush" StartPoint="0,0" EndPoint="1,1"/>
     </Button.Background>
     <!--HACK: text shadow above colored background-->
     <Button.Template>

@@ -24,7 +24,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:PaletteButton 
-                                Palette="{Binding}"
+                                GradientColors="{Binding}"
                                 Content="{Binding Name}"
                                 Command="{Binding PaletteSelectedCommand, ElementName=paletteWindow}"
                                 CommandParameter="{Binding}"/>

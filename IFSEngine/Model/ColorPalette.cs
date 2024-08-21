@@ -26,31 +26,31 @@ public class ColorPalette
         }
     };
 
-    public static ColorPalette FromFlamePalette(FlamePalette flamePalette)
-    {
-        ColorPalette palette = new ColorPalette
-        {
-            Name = flamePalette.Name,
-            BackgroundColor = Vector3.Zero,
-        };
-        for (int i = 0; i < flamePalette.Colors.Count; i++)
-        {
-            var gradientIndex = (double)i / (flamePalette.Colors.Count - 1);
-            palette.KeyColors.Add(gradientIndex, flamePalette.Colors[i]);
-        }
-        return palette;
-    }
+    //public static ColorPalette FromFlamePalette(FlamePalette flamePalette)
+    //{
+    //    ColorPalette palette = new ColorPalette
+    //    {
+    //        Name = flamePalette.Name,
+    //        BackgroundColor = Vector3.Zero,
+    //    };
+    //    for (int i = 0; i < flamePalette.Colors.Count; i++)
+    //    {
+    //        var gradientIndex = (double)i / (flamePalette.Colors.Count - 1);
+    //        palette.KeyColors.Add(gradientIndex, flamePalette.Colors[i]);
+    //    }
+    //    return palette;
+    //}
 
-    public static FlamePalette ToFlamePalette(ColorPalette colorPalette)
-    {
-        return new FlamePalette
-        {
-            Name = colorPalette.Name,
-            Rotation = 0,
-            //TODO: sample 400 colors from gradient
-            //Colors = colorPalette.Gradient.Select(n => n.Color).ToList()
-        };
-    }
+    //public static FlamePalette ToFlamePalette(ColorPalette colorPalette)
+    //{
+    //    return new FlamePalette
+    //    {
+    //        Name = colorPalette.Name,
+    //        Rotation = 0,
+    //        //TODO: sample 400 colors from gradient
+    //        //Colors = colorPalette.Gradient.Select(n => n.Color).ToList()
+    //    };
+    //}
 
     public void ComputeGradientSamples(int resolution)
     {

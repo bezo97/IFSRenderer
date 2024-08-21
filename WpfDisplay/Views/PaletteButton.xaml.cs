@@ -1,8 +1,9 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
-using IFSEngine.Model;
 
 namespace WpfDisplay.Views;
 
@@ -16,32 +17,40 @@ public partial class PaletteButton : Button
         InitializeComponent();
     }
 
-    public FlamePalette Palette
+    public List<Vector4> GradientColors
     {
-        get => (FlamePalette)GetValue(PaletteProperty);
-        set => SetValue(PaletteProperty, value);
+        get => (List<Vector4>)GetValue(GradientColorsProperty);
+        set => SetValue(GradientColorsProperty, value);
     }
-    public static readonly DependencyProperty PaletteProperty =
-        DependencyProperty.Register("Palette", typeof(FlamePalette), typeof(PaletteButton),
-            new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnPalettePropertyChanged)));
-    private static void OnPalettePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+    public static readonly DependencyProperty GradientColorsProperty =
+        DependencyProperty.Register("GradientColors", typeof(List<Vector4>), typeof(PaletteButton),
+            new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnGradientColorsPropertyChanged)));
+    private static void OnGradientColorsPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue != null)
-            ((PaletteButton)sender).SetGradient((FlamePalette)e.NewValue);
+            ((PaletteButton)sender).SetGradient((List<Vector4>)e.NewValue);
     }
 
-    private void SetGradient(FlamePalette fp)
+    private void SetGradient(List<Vector4> colors)
     {
-        gradientStops.Clear();
-        for (int i = 0; i < fp.Colors.Count; i++)
-        {
-            gradientStops.Add(new GradientStop(
-                Color.FromRgb(
-                    (byte)(fp.Colors[i].X * 255),
-                    (byte)(fp.Colors[i].Y * 255),
-                    (byte)(fp.Colors[i].Z * 255)),
-                i / (double)fp.Colors.Count));
-        }
+        gradientBrush.GradientStops = new(colors.Select((c, i) => new GradientStop(
+            Color.FromRgb(
+                (byte)(c.X * 255),
+                (byte)(c.Y * 255),
+                (byte)(c.Z * 255)),
+            i / (double)colors.Count)));
+
+        //TODO: dispatch?
+        //gradientStops.Clear();
+        //for (int i = 0; i < colors.Count; i++)
+        //{
+        //    gradientStops.Add(new GradientStop(
+        //        Color.FromRgb(
+        //            (byte)(colors[i].X * 255),
+        //            (byte)(colors[i].Y * 255),
+        //            (byte)(colors[i].Z * 255)),
+        //        i / (double)colors.Count));
+        //}
 
     }
 

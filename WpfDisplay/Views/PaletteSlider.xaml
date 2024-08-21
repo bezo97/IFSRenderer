@@ -10,11 +10,7 @@
         <Border BorderThickness="2" BorderBrush="Black" Margin="4">
             <Grid>
                 <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStopCollection x:Name="gradientStops"/>
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
+                    <LinearGradientBrush x:Name="gradientBrush" StartPoint="0,0" EndPoint="1,0"/>
                 </Grid.Background>
             </Grid>
         </Border>
