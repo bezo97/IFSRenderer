@@ -11,19 +11,15 @@ public class ColorPalette
 
     public Vector3 BackgroundColor { get; set; } = Vector3.Zero;
 
-    public SortedList<double, Vector4> Gradient { get; set; } = [];
+    public SortedList<double, Vector4> KeyColors { get; set; } = [];
 
-    //public class GradientNode
-    //{
-    //    public double Position { get; set; }
-    //    public Vector4 Color { get; set; }
-    //}
+    public List<Vector4> GradientSampleBuffer { get; } = [];
 
     public static ColorPalette Default { get; } = new ColorPalette
     {
         Name = "Default palette",
         BackgroundColor = new Vector3(0, 0, 0),
-        Gradient =
+        KeyColors =
         {
             [0] = new Vector4(1, 1, 1, 1) ,
             [1] = new Vector4(1, 1, 1, 1)
@@ -40,7 +36,7 @@ public class ColorPalette
         for (int i = 0; i < flamePalette.Colors.Count; i++)
         {
             var gradientIndex = (double)i / (flamePalette.Colors.Count - 1);
-            palette.Gradient.Add(gradientIndex, flamePalette.Colors[i]);
+            palette.KeyColors.Add(gradientIndex, flamePalette.Colors[i]);
         }
         return palette;
     }
@@ -56,27 +52,37 @@ public class ColorPalette
         };
     }
 
+    public void ComputeGradientSamples(int resolution)
+    {
+        GradientSampleBuffer.Clear();
+        for (int i = 0; i < resolution; i++)
+        {
+            var position = (double)i / (resolution - 1);
+            GradientSampleBuffer.Add(SampleGradient(position));
+        }
+    }
+
     //TODO: import/export pack of palettes. new and flame formats.
 
     public Vector4 SampleGradient(double position)
     {
-        if (Gradient.Count == 0)
+        if (KeyColors.Count == 0)
             return new Vector4(BackgroundColor, 1.0f);
 
         //TODO: rework with warp
 
-        if (position <= Gradient.Keys[0])
-            return Gradient.Values[0];
-        if (position >= Gradient.Keys[^1])
-            return Gradient.Values[^1];
-        var i = Gradient.Keys.ToList().BinarySearch(position);
-        if (i >= 0)
-            return Gradient.Values[i];
+        if (position <= KeyColors.Keys[0])
+            return KeyColors.Values[0];
+        if (position >= KeyColors.Keys[^1])
+            return KeyColors.Values[^1];
+        var i = KeyColors.Keys.ToList().BinarySearch(position);
+        if(i < 0)
+            i = ~i;//no exact match -> get the closest match using bitwise complement
 
-        var pos1 = Gradient.Keys[i - 1];
-        var pos2 = Gradient.Keys[i];
+        var pos1 = KeyColors.Keys[i - 1];
+        var pos2 = KeyColors.Keys[i];
         var t = (position - pos1) / (pos2 - pos1);
-        return Vector4.Lerp(Gradient.Values[i - 1], Gradient.Values[i], (float)t);
+        return Vector4.Lerp(KeyColors.Values[i - 1], KeyColors.Values[i], (float)t);
 
     }
 

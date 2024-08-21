@@ -185,7 +185,7 @@ public class Generator
     /// <returns></returns>
     private static ColorPalette PaletteFromIqParams(Vector4 bias, Vector4 mult, Vector4 freq, Vector4 phase)
     {
-        List<ColorPalette.GradientNode> colors = [];
+        SortedList<double, Vector4> gradientKeys = [];
 
         for (float t = 0; t < 1.0; t += 0.1f)
         {//could be based on freq
@@ -195,13 +195,13 @@ public class Generator
                 (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
                 1.0f);
             c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
-            colors.Add(new ColorPalette.GradientNode { Position = t, Color = HsvToRgb(c) });
+            gradientKeys[t] = HsvToRgb(c);
         }
 
         return new ColorPalette
         {
             Name = "Generated Palette",
-            Gradient = colors,
+            KeyColors = gradientKeys,
             BackgroundColor = Vector3.Zero
         };
     }

@@ -109,21 +109,30 @@ public sealed class RendererGL : IAsyncDisposable
     /// Higher values are slow to render.
     /// </summary>
     public int MaxFilterRadius { get; set; } = 0;
+
     public double HistogramScale { get; private set; } = 1.0;
+
     /// <summary>
     /// Seed value used to generate random numbers. Recommended to change this for each animation frame.
     /// </summary>
     public uint Seed { get; set; } = 0;
+
     /// <summary>
     /// True when the level of <see cref="TotalIterations"/> is beyond <see cref="IFS.TargetIterationLevel"/>.
     /// Reset by <see cref="InvalidateHistogramBuffer"/>.
     /// </summary>
     public bool IsTargetIterationReached { get; private set; } = false;
+
     /// <summary>
     /// Whether to mark the area in focus with red. This is used as a visual aid when the user is changing the focus.
     /// Should be false when doing final render.
     /// </summary>
     public bool MarkAreaInFocus { get; set; } = false;
+
+    /// <summary>
+    /// Size of the color gradient sample buffer.
+    /// </summary>
+    public int GradientResolution { get; init; } = 256;
 
     private bool _updateDisplayNow = false;
     private readonly IGraphicsContext _ctx;
@@ -193,11 +202,6 @@ public sealed class RendererGL : IAsyncDisposable
     /// Number of iterators in the xaos matrix.
     /// </summary>
     private int _aliasBufferSize = 0;
-
-    /// <summary>
-    /// Number of colors in the buffer.
-    /// </summary>
-    private int _colorGradientBufferSize = 0;
 
     /// <summary>
     /// Creates a new renderer instance.
@@ -385,7 +389,7 @@ public sealed class RendererGL : IAsyncDisposable
                 camera_params = LoadedParams.Camera.GetCameraParameters(),
                 itnum = LoadedParams.Iterators.Count,
                 fog_effect = (float)LoadedParams.FogEffect,
-                palettecnt = LoadedParams.Palette.Gradient.Count,
+                gradient_resolution = GradientResolution,
                 entropy = (float)LoadedParams.Entropy,
                 warmup = LoadedParams.Warmup,
                 max_filter_radius = MaxFilterRadius,
@@ -485,24 +489,19 @@ public sealed class RendererGL : IAsyncDisposable
             }
 
             //update xaos alias tables
+            var xaosAliasBufferData = xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray();
             if (currentIterators.Count == _aliasBufferSize)
-                GL.NamedBufferSubData(_aliasBufferHandle, 0, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray());
+                GL.NamedBufferSubData(_aliasBufferHandle, 0, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasBufferData);
             else
             {//resize buffer when number of iterators change
                 _aliasBufferSize = currentIterators.Count;
-                GL.NamedBufferData(_aliasBufferHandle, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasTables.Select(t => new Vector4((float)t.u, t.k, 0f, 0f)).ToArray(), BufferUsageHint.DynamicDraw);
+                GL.NamedBufferData(_aliasBufferHandle, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasBufferData, BufferUsageHint.DynamicDraw);
             }
 
-            //update color gradient
-            //TODO: sample here
-            var colorArray = LoadedParams.Palette.Gradient.Select(n => n.Color).ToArray();
-            if (LoadedParams.Palette.Gradient.Count == _colorGradientBufferSize)
-                GL.NamedBufferSubData(_colorGradientBufferHandle, 0, _colorGradientBufferSize * sizeof(float) * 4, colorArray);
-            else
-            {//resize buffer when number of gradient colors change
-                _colorGradientBufferSize = LoadedParams.Palette.Gradient.Count;
-                GL.NamedBufferData(_colorGradientBufferHandle, _colorGradientBufferSize * sizeof(float) * 4, colorArray, BufferUsageHint.DynamicDraw);
-            }
+            //Load gradient colors
+            LoadedParams.Palette.ComputeGradientSamples(GradientResolution);
+            var colorArray = LoadedParams.Palette.GradientSampleBuffer.ToArray();
+            GL.NamedBufferSubData(_colorGradientBufferHandle, 0, GradientResolution * sizeof(float) * 4, colorArray);
 
             _invalidParamsBuffer = false;
         }
@@ -908,6 +907,8 @@ if (iter.tfId == {tfIndex})
         //bind and allocate fixed-size buffers
         GL.BindBuffer(BufferTarget.UniformBuffer, _settingsBufferHandle);
         GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf(typeof(SettingsStruct)), IntPtr.Zero, BufferUsageHint.StreamDraw);
+        GL.BindBuffer(BufferTarget.UniformBuffer, _colorGradientBufferHandle);
+        GL.BufferData(BufferTarget.UniformBuffer, GradientResolution * sizeof(float) * 4, IntPtr.Zero, BufferUsageHint.StreamDraw);
 
         //bind varying-size buffers to targets, without allocation
         GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _histogramBufferHandle);
