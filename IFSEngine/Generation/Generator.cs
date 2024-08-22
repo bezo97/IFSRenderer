@@ -83,6 +83,7 @@ public class Generator
         if (options.MutatePalette)
         {
             gen.Palette = GenerateRandomIqPalette();
+            gen.Palette.ComputeGradientSamples(256);
         }
         if (options.MutateColoring)
         {

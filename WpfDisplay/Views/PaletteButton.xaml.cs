@@ -33,25 +33,27 @@ public partial class PaletteButton : Button
 
     private void SetGradient(List<Vector4> colors)
     {
-        gradientBrush.GradientStops = new(colors.Select((c, i) => new GradientStop(
+        Dispatcher.Invoke(() =>
+        {
+            gradientBrush.GradientStops = new(colors.ToList().Select((c, i) => new GradientStop(
             Color.FromRgb(
                 (byte)(c.X * 255),
                 (byte)(c.Y * 255),
                 (byte)(c.Z * 255)),
             i / (double)colors.Count)));
 
-        //TODO: dispatch?
-        //gradientStops.Clear();
-        //for (int i = 0; i < colors.Count; i++)
-        //{
-        //    gradientStops.Add(new GradientStop(
-        //        Color.FromRgb(
-        //            (byte)(colors[i].X * 255),
-        //            (byte)(colors[i].Y * 255),
-        //            (byte)(colors[i].Z * 255)),
-        //        i / (double)colors.Count));
-        //}
-
+            //TODO: dispatch?
+            //gradientStops.Clear();
+            //for (int i = 0; i < colors.Count; i++)
+            //{
+            //    gradientStops.Add(new GradientStop(
+            //        Color.FromRgb(
+            //            (byte)(colors[i].X * 255),
+            //            (byte)(colors[i].Y * 255),
+            //            (byte)(colors[i].Z * 255)),
+            //        i / (double)colors.Count));
+            //}
+        });
     }
 
 

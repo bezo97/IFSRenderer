@@ -42,7 +42,9 @@ public partial class PaletteSlider : UserControl
 
     private void SetGradient(ColorPalette palette)
     {
-        gradientBrush.GradientStops = new(palette.GradientSampleBuffer.Select((c, i) => new GradientStop(
+        Dispatcher.Invoke(()=>{
+
+        gradientBrush.GradientStops = new(palette.GradientSampleBuffer.ToList().Select((c, i) => new GradientStop(
             Color.FromRgb(
                 (byte)(c.X * 255),
                 (byte)(c.Y * 255),
@@ -61,6 +63,7 @@ public partial class PaletteSlider : UserControl
         //        i / (double)colors.Count));
         //}
         UpdateThumbColor();
+        });
     }
 
     private void UpdateThumbColor()
