@@ -13,13 +13,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace WpfDisplay.Views;
+
 /// <summary>
-/// Interaction logic for PaletteManagerWindow.xaml
+/// Serves as both a selector dialog and a manager for the user's color palette library.
 /// </summary>
 public partial class PaletteManagerWindow : Window
 {
     public PaletteManagerWindow()
     {
         InitializeComponent();
+        MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
     }
 }

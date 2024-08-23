@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
@@ -27,6 +28,7 @@ public partial class MainWindow : Window
     private EditorWindow _editorWindow;
     private GeneratorWindow _generatorWindow;
     private MainViewModel vm => (MainViewModel)DataContext;
+    private PaletteManagerWindow _paletteManagerWindow;
 
     public MainWindow()
     {
@@ -164,6 +166,43 @@ public partial class MainWindow : Window
         if (!_editorWindow.IsActive)
             _editorWindow.Activate();
     }
+
+    private void PalettesButton_Click(Object sender, RoutedEventArgs e)
+    {
+        OpenPaletteManagerWindow(false);
+    }
+
+    private ColorPalette? OpenPaletteManagerWindow(bool isSelector)
+    {
+        //create window
+        if (_paletteManagerWindow == null || !_paletteManagerWindow.IsLoaded)
+        {
+            _paletteManagerWindow = new PaletteManagerWindow
+            {
+                Owner = this
+            };
+            var generatorViewModel = new PaletteManagerViewModel(vm);
+            _paletteManagerWindow.DataContext = generatorViewModel;
+        }
+
+
+        if (isSelector)
+        {
+            if (_paletteManagerWindow.ShowDialog() == true)
+                return ((PaletteManagerViewModel)_paletteManagerWindow.DataContext).SelectedPalette?.Palette;
+        }
+        else
+        {
+            if (_paletteManagerWindow.ShowActivated)
+                _paletteManagerWindow.Show();
+            //bring to foreground
+            if (!_paletteManagerWindow.IsActive)
+                _paletteManagerWindow.Activate();
+        }
+
+        return null;
+    }
+
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
         var settingsWindow = new SettingsWindow

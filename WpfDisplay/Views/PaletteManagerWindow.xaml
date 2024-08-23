@@ -17,7 +17,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="Palette Manager" Height="720" Width="1280" WindowState="Maximized"
         x:Name="paletteManagerWindow"
-        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
+        d:DataContext="{d:DesignInstance Type=vm:PaletteManagerViewModel, IsDesignTimeCreatable=True}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -54,12 +54,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <RadioButton
-                                            Width="300" Height="75" Margin="4"
-                                            Command="{Binding DataContext.ClickPaletteCommand, ElementName=paletteManagerWindow}"
-                                            CommandParameter="{Binding Key}" BorderThickness="0">
-                                            test
-                                        </RadioButton>
+                                        <Label>test</Label>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -73,11 +68,23 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <RadioButton
+                                        <RadioButton GroupName="SelectionGroup"
                                             Width="300" Height="75" Margin="4"
+                                            Style="{StaticResource MaterialDesignTabRadioButton}"
                                             Command="{Binding DataContext.ClickPaletteCommand, ElementName=paletteManagerWindow}"
-                                            CommandParameter="{Binding Key}" BorderThickness="0">
-                                            test
+                                            CommandParameter="{Binding}" BorderThickness="2">
+                                            <RadioButton.Background>
+                                                <LinearGradientBrush GradientStops="{Binding GradientStops}"/>
+                                            </RadioButton.Background>
+                                            <RadioButton.BitmapEffect>
+                                                <DropShadowBitmapEffect Color="{Binding BackgroundColor}" Direction="0" ShadowDepth="0" Softness="0.75" />
+                                            </RadioButton.BitmapEffect>
+                                            <TextBlock Text="{Binding Palette.Name}"
+                                                Foreground="White" Background="Transparent" TextAlignment="Center">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
                                         </RadioButton>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -109,7 +116,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" MinWidth="300" Text="{Binding SelectedPaletteName, UpdateSourceTrigger=PropertyChanged}" md:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    <TextBox Grid.Column="0" MinWidth="300" Text="{Binding SelectedPalette.Palette.Name, UpdateSourceTrigger=PropertyChanged}" md:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                     <ToggleButton Grid.Column="1" Command="{Binding ToggleFavoriteCommand}" CommandParameter="{Binding SelectedPalette}" IsChecked="{Binding SelectedPalette.IsFavorite}" Content="⭐"/>
                     <Button Grid.Column="2" Content="🗑️" Command="{Binding RemovePaletteCommand}" CommandParameter="{Binding SelectedPalette}"/>
                     <Grid Grid.Column="3"/>

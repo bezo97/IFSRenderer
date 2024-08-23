@@ -100,6 +100,8 @@
                 <Menu>
                     <MenuItem Icon="{md:PackIcon Kind=VectorPolyline}" Header="Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
                     <MenuItem Header="🔮     Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
+                    <MenuItem Header="🎨     Palettes" Click="PalettesButton_Click" ToolTip="Open the palette manager window"/>
+                    <Separator/>
                     <MenuItem Header="🎲     _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
                 </Menu>
                 <Separator/>
