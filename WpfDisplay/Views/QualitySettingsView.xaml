@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views" 
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -14,6 +14,7 @@
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter" True="Collapsed" False="Visible"/>
     </UserControl.Resources>
     <StackPanel>
         <ListBox

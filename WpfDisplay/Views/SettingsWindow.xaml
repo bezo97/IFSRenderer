@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-        xmlns:local="clr-namespace:WpfDisplay.Views"
+        xmlns:local="clr-namespace:WpfDisplay.Views"         
+        xmlns:conv="clr-namespace:WpfDisplay.Converters"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -19,6 +20,9 @@
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
         Title="⚙️ Settings" x:Name="settingsWindow"
         Width="500" Height="500" MinWidth="500" MinHeight="500">
+    <Window.Resources>
+        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter" True="Collapsed" False="Visible"/>
+    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -178,7 +182,7 @@
                             <Button Command="{Binding ShowFfmpegPathSelectorDialogCommand}"
                                     Content="ffmpeg.exe:"
                                     Style="{StaticResource MaterialDesignOutlinedButton}" Padding="8"/>
-                            <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                            <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource InverseBoolToVisConverter}}"
                                 ToolTip="In order to save video files, install ffmpeg and select the executable." Content="{md:PackIcon InformationOutline}"/>
                             <Label Content="{Binding FfmpegPath}"
                                    VerticalAlignment="Center"/>

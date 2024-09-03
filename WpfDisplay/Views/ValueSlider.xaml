@@ -87,7 +87,7 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>
-            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource InverseBoolToVisConverter}}">
+            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}">
                 <Button x:Name="symbolButton2"
                     IsTabStop="False" Padding="8" ToolTip="Animation keyframe" d:Content="*"
                     Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"

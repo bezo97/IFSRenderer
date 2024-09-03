@@ -24,8 +24,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.7" />
-		<PackageReference Include="Vortice.XInput" Version="3.3.4" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.0" />
+		<PackageReference Include="Vortice.XInput" Version="3.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>

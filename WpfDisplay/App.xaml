@@ -9,8 +9,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/AvalonDock.Themes.VS2013;component/DarkTheme.xaml" />
-                <md:BundledTheme BaseTheme="Dark" PrimaryColor="Grey" SecondaryColor="LightBlue" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml"/>
+                <md:BundledTheme BaseTheme="Dark" PrimaryColor="Grey" SecondaryColor="LightBlue" ColorAdjustment="{md:ColorAdjustment}" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
                 <ResourceDictionary>
                     <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">
                         <Setter Property="TextBlock.TextDecorations" Value="None" />
