@@ -23,6 +23,7 @@
             <Setter Property="Margin" Value="4"/>
         </Style>
         <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConv" True="Collapsed" False="Visible"/>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+M" Command="{Binding PinCommand}"/>
@@ -135,7 +136,7 @@
                                         <TextBlock HorizontalAlignment="Center" Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             ⏳
                                         </TextBlock>
-                                        <TextBlock Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                        <TextBlock Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource InverseBoolToVisConv}}">
                                             🎲 New batch
                                         </TextBlock>
                                     </Grid>

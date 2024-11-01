@@ -310,7 +310,7 @@
                     <Grid>
                         <ProgressBar Width="100" Value="{Binding IterationProgressPercent, Mode=OneWay}" VerticalAlignment="Bottom"/>
                         <TextBlock VerticalAlignment="Top" Margin="0 -4" TextAlignment="Center"
-                                   ToolTip="Iteration progress" Style="{StaticResource MaterialDesignCharacterCounterTextBlock}" Foreground="White">
+                                   ToolTip="Iteration progress" Style="{StaticResource MaterialDesignLabelSmallTextBlock}" Foreground="White">
                             Progress: <Run Text="{Binding IterationLevel, Mode=OneWay}"/> / <Run Text="{Binding Ifs.TargetIterationLevel, Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
