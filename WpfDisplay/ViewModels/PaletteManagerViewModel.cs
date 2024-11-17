@@ -10,12 +10,14 @@ using CommunityToolkit.Mvvm.Input;
 
 using IFSEngine.Model;
 
+using WpfDisplay.Models;
+
 namespace WpfDisplay.ViewModels;
 
 public partial class PaletteManagerViewModel : ObservableObject
 {
     public List<ColorPaletteViewModel> FavoritePalettes => LibraryPalettes.Where(p => p.IsFavorite).ToList();
-    public List<ColorPaletteViewModel> LibraryPalettes { get; private set; } = [];
+    public List<PaletteCollection> PaletteCollections { get; private set; } = [];
 
     [ObservableProperty] private ColorPaletteViewModel? _selectedPalette = null;
 
