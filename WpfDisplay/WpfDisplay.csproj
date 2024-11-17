@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<TargetFramework>net9.0-windows7.0</TargetFramework>
 		<RootNamespace>WpfDisplay</RootNamespace>
 		<AssemblyName>IFSRenderer</AssemblyName>
 		<UseWPF>true</UseWPF>
@@ -35,12 +35,13 @@
 		<PackageReference Include="Cavern" Version="2.0.2" />
 		<PackageReference Include="Cavern.Format" Version="2.0.2" />
 		<PackageReference Include="Cavern.QuickEQ" Version="2.0.2" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
 		<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
 		<PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

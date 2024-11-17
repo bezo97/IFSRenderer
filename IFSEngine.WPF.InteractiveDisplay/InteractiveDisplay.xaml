@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:IFSEngine.WPF.InteractiveDisplay"
-             xmlns:tk="clr-namespace:OpenTK.WinForms;assembly=OpenTK.GLControl"
+             xmlns:tk="clr-namespace:OpenTK.GLControl;assembly=OpenTK.GLControl"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              SizeChanged="WindowsFormsHost_SizeChanged">
