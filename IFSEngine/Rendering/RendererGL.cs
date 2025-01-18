@@ -148,7 +148,7 @@ public sealed class RendererGL : IAsyncDisposable
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
-    private readonly float[] _bufferClearColor = [0.0f, 0.0f, 0.0f];
+    private readonly float[] _bufferClearColor = [0.0f, 0.0f, 0.0f, 1.0f]; //RGBA
     private readonly string _shadersPath = "IFSEngine.Rendering.Shaders.";
     private readonly bool _debugFlag = true;
 
