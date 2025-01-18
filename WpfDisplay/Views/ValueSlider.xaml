@@ -46,7 +46,7 @@
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
-        <Grid Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource BooleanToVisibilityConverter}}" d:Visibility="Visible">
+        <Grid Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" d:Visibility="Visible">
             <Label IsTabStop="False" VerticalContentAlignment="Center"
                    Content="{Binding Label, ElementName=valueSlider}" d:Content="Label"/>
             <Button x:Name="symbolButton1" HorizontalAlignment="Right" d:Content="*"

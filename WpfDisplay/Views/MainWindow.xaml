@@ -19,6 +19,7 @@
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
         <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
@@ -214,7 +215,7 @@
                                                 Sensitivity="{Binding Sensitivity}"
                                                 InvertRotationAxisY="{Binding InvertAxisY}"/>
                                             <local:ControlHintsPanel
-                                                Visibility="{Binding IsHintsPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                Visibility="{Binding IsHintsPanelVisible, Converter={ StaticResource booleanToVisibilityConverter }}"
                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="16"/>
                                             <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
                                                 Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
@@ -321,7 +322,7 @@
                 </StatusBarItem>
                 <Separator DockPanel.Dock="Right"/>
                 <StatusBarItem DockPanel.Dock="Right"
-                               Visibility="{Binding IsGamepadConnected, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" d:Visibility="Visible">
+                               Visibility="{Binding IsGamepadConnected, Converter={StaticResource booleanToVisibilityConverter}, FallbackValue=Hidden}" d:Visibility="Visible">
                     <StatusBarItem.Style>
                         <Style TargetType="{x:Type StatusBarItem}">
                             <Style.Triggers>
