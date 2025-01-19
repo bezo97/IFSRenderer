@@ -37,10 +37,12 @@ public partial class MainWindow : Window
         ContentRendered += MainWindow_ContentRendered;
     }
 
-    private async void MainWindow_ContentRendered(object sender, System.EventArgs e)
+    private async void MainWindow_ContentRendered(object sender, EventArgs e)
     {
         FixAutoDockHeight();
-
+        
+        if(mainDisplay.GraphicsContext is null)
+            throw new InvalidOperationException("Failed to initialize graphics context.");
 
         //init workspace
         var renderer = new RendererGL(mainDisplay.GraphicsContext);
