@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 
@@ -9,8 +10,8 @@ namespace IFSEngine.WPF.InteractiveDisplay;
 public class KeyboardHelper
 {
     private readonly HashSet<Key> _pressedKeys;
-    private readonly object _pressedKeysLock = new();
-
+    private readonly Lock _pressedKeysLock = new();
+    
     public KeyboardHelper(UIElement c)
     {
         c.LostFocus += LostFocus;

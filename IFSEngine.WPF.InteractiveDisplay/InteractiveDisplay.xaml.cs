@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Numerics;
 using System.Threading;
 using System.Windows;
@@ -9,6 +8,7 @@ using System.Windows.Threading;
 
 using IFSEngine.Rendering;
 
+using OpenTK.GLControl;
 using OpenTK.Windowing.Common;
 
 using Vortice.XInput;
@@ -22,7 +22,7 @@ namespace IFSEngine.WPF.InteractiveDisplay;
 /// </summary>
 public partial class InteractiveDisplay : WindowsFormsHost
 {
-    public IGraphicsContext GraphicsContext => GLControl1.Context;
+    public IGraphicsContext? GraphicsContext => _glControl1.Context;
     public RendererGL? Renderer { get; private set; }
 
     public ICommand InteractionStartedCommand
@@ -77,9 +77,21 @@ public partial class InteractiveDisplay : WindowsFormsHost
     private Vector2 _lastMousePos;
     private Vector2 _centerPivot;
 
+    private readonly GLControl _glControl1;
+
     public InteractiveDisplay()
     {
         InitializeComponent();
+
+        //Setup GLControl in the WinFormsHost. This could be done in XAML, but we need to configure it with a constructor parameter.
+        var glControlSettings = GLControlSettings.Default.Clone();
+        glControlSettings.AlphaBits = 0; //Disable alpha channel of the display, so the background remains black after .net9 bringing in the w11 system theme
+        _glControl1 = new GLControl(glControlSettings);
+        _glControl1.MouseDown += GLControl1_MouseDown;
+        _glControl1.MouseMove += GLControl1_MouseMove;
+        _glControl1.MouseWheel += GLControl1_MouseWheel;
+        winformsHost.Child = _glControl1;
+
         //init keyboard + gamepad input
         _keyboard = new KeyboardHelper(this);
         _controlTimer = new Timer();
@@ -177,10 +189,10 @@ public partial class InteractiveDisplay : WindowsFormsHost
     public void AttachRenderer(RendererGL renderer)
     {
         Renderer = renderer;
-        Renderer.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
+        Renderer.SetDisplayResolution(_glControl1.Width, _glControl1.Height);
     }
 
-    private void GLControl1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+    private void GLControl1_MouseWheel(object? sender, System.Windows.Forms.MouseEventArgs e)
     {
         if (IsInteractionEnabled && Renderer is not null)
         {
@@ -191,12 +203,12 @@ public partial class InteractiveDisplay : WindowsFormsHost
         }
     }
 
-    private void GLControl1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+    private void GLControl1_MouseMove(object? sender, System.Windows.Forms.MouseEventArgs e)
     {
         if (IsInteractionEnabled && Renderer is not null)
         {
             var mousePos = new Vector2(e.X, e.Y);
-            if (GLControl1.Capture)
+            if (_glControl1.Capture)
             {
                 Vector3 rotateVec = Vector3.Zero;
                 if (e.Button == System.Windows.Forms.MouseButtons.Left)//yaw, pitch
@@ -249,7 +261,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
     /// <summary>
     /// Forward the winforms event to wpf
     /// </summary>
-    private void GLControl1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+    private void GLControl1_MouseDown(object? sender, System.Windows.Forms.MouseEventArgs e)
     {
         if (e.Button != System.Windows.Forms.MouseButtons.Left)
             return;
@@ -267,7 +279,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
         _cts.Cancel();
         _cts = new CancellationTokenSource();
         var c = _cts.Token;
-        Renderer?.SetDisplayResolution(GLControl1.Width, GLControl1.Height);
+        Renderer?.SetDisplayResolution(_glControl1.Width, _glControl1.Height);
         System.Threading.Tasks.Task.Run(async () =>
         {
             await System.Threading.Tasks.Task.Delay(250);
