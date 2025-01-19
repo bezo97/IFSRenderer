@@ -16,7 +16,7 @@ namespace WpfDisplay.ViewModels;
 
 public partial class PaletteManagerViewModel : ObservableObject
 {
-    public List<ColorPaletteViewModel> FavoritePalettes => LibraryPalettes.Where(p => p.IsFavorite).ToList();
+    public List<ColorPaletteViewModel> FavoritePalettes => PaletteCollections.SelectMany(c=>c.Palettes).Where(p => p.IsFavorite).ToList();
     public List<PaletteCollection> PaletteCollections { get; private set; } = [];
 
     [ObservableProperty] private ColorPaletteViewModel? _selectedPalette = null;
