@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<TargetFramework>net9.0-windows7.0</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<Version>1.4.0</Version>
@@ -21,11 +21,12 @@
 		<PackageTags>fractal;3d;graphics;art;ifs;rendering;interactive</PackageTags>
 		<PackageReleaseNotes>https://github.com/bezo97/IFSRenderer/releases</PackageReleaseNotes>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OpenTK.GLControl" Version="4.0.0" />
-		<PackageReference Include="Vortice.XInput" Version="3.5.0" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
+		<PackageReference Include="Vortice.XInput" Version="3.6.2" />
 	</ItemGroup>
 
 	<ItemGroup>

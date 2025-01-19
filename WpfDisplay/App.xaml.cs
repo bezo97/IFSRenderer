@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace WpfDisplay;
 /// </summary>
 public partial class App : Application
 {
-    public static string OpenVerbPath { get; private set; }
+    public static string? OpenVerbPath { get; private set; }
 
 #if INSTALLER
     public static string AppDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "IFSRenderer");
@@ -63,9 +64,9 @@ public partial class App : Application
 
     }
 
-    private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+    private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        HandleUnexpectedException(e.Exception.InnerException);
+        HandleUnexpectedException(e.Exception.InnerException ?? e.Exception);
         e.SetObserved();
     }
 
@@ -80,10 +81,16 @@ public partial class App : Application
         try
         {
             string logFilePath = LogException(ex);
-            var saveParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.Ifs;
-            string recoveryFilePath = Path.Combine(AppDataPath, "recovery.ifsjson");
-            IfsNodesSerializer.SaveJsonFile(saveParams, recoveryFilePath);
-            MessageBox.Show(Application.Current.MainWindow, $"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\nA recovery file has been saved to\r\n{recoveryFilePath}");
+            var recoveryMessage = "";
+            var currentParams = ((ViewModels.MainViewModel)Application.Current.MainWindow.DataContext)?.workspace.Ifs;
+            if (currentParams is not null)
+            {
+                string recoveryFilePath = Path.Combine(AppDataPath, "recovery.ifsjson");
+                IfsNodesSerializer.SaveJsonFile(currentParams, recoveryFilePath);
+                recoveryMessage = $"A recovery file has been saved to\r\n{recoveryFilePath}";
+            }
+            MessageBox.Show(Application.Current.MainWindow, $"IFSRenderer unexpectedly crashed. Details:\r\n{logFilePath}\r\n{recoveryMessage}");
+
         }
         finally
         {
