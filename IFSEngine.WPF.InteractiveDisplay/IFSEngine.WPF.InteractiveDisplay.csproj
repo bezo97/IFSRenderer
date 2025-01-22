@@ -25,7 +25,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
 		<PackageReference Include="Vortice.XInput" Version="3.6.2" />
 	</ItemGroup>
 
