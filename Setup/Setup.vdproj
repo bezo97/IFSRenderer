@@ -296,8 +296,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IFSRenderer"
-        "ProductCode" = "8:{F8351252-DC99-435A-A6C2-C6D236B8EB5A}"
-        "PackageCode" = "8:{A75307E5-3E1D-4C5F-A97B-A12D9E6EF748}"
+        "ProductCode" = "8:{F2E1BA22-4FF4-4958-85E5-390B8C93C3F7}"
+        "PackageCode" = "8:{8F9459B3-37FD-4286-81E6-4EB9F2DAFFD8}"
         "UpgradeCode" = "8:{4E458E2D-D700-48A5-954C-3D6975C54AA6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
