@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2025-04-19
+### Added
+ - Control camera roll and field-of-view by dragging mouse right button.
+ - Option to generate palettes with pigment-based color mixing.
+ - Option to import keyframes from CSV file.
+ - Support for planetarium systems where the projector is off-center, using the Tilt sliders.
+
+### Changed
+ - Updated dependencies.
+ - Strength of the fog effect is changed so it's easier to adjust within reasonable limits.
+ - Optimized hashing gives a significant performance boost.
+
+### Fixed
+ - Fix various startup problems.
+ - Fix laggy animation editor when using many keyframes.
+ - Fix graphics related startup error on AMD hardware.
+ - Various fixes on camera projections:
+   - Fix dark poles in equirectangular projection. Might take more rendertime to clear up the noise.
+   - Fix bright vertical line in equirectangular projection.
+   - Fix white spot in the image center.
+
+### Removed
+ - Temporarily removed the ability to pop-out panels into separate windows until fix.
+
 ## [1.4.0] - 2024-02-25
 ### Added
  - Fisheye camera projection that enables exporting to fulldome planetarium projection systems.
@@ -146,6 +170,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.4.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.4.1
 [1.4.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.4.0
 [1.3.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.1
 [1.3.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.0

@@ -4,7 +4,7 @@
 		<TargetFramework>net9.0-windows7.0</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Version>1.4.0</Version>
+		<Version>1.4.1</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<Authors>bezo97</Authors>
 		<Company>bezo97</Company>
