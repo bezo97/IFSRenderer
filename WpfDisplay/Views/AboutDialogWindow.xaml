@@ -51,6 +51,7 @@
                         <Hyperlink NavigateUri="https://github.com/VoidXH/Cavern">Cavern</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/JamesNK/Newtonsoft.Json">Json.NET</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit">Material Design Themes</Hyperlink>, 
+                        <Hyperlink NavigateUri="https://github.com/scrtwpns/mixbox">Mixbox</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/CommunityToolkit/WindowsCommunityToolkit">Mvvm Toolkit</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/opentk/opentk">OpenToolkit</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/amerkoleci/Vortice.Windows">Vortice.XInput</Hyperlink>,

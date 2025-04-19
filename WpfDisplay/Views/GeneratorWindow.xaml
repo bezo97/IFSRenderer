@@ -116,7 +116,7 @@
                                     <md:ColorZone>Dominant Color</md:ColorZone>
                                     <CheckBox IsChecked="{Binding Options.UseMixboxMixing}" 
                                               ToolTip="Use Mixbox algorithm to mix colors similar to mixing paint.">
-                                        Painterly mixing
+                                        Pigment-based mixing
                                     </CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Margin="8">
