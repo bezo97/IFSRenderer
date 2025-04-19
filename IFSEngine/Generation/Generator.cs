@@ -82,7 +82,7 @@ public class Generator
         }
         if (options.MutatePalette)
         {
-            gen.Palette = GenerateRandomIqPalette();
+            gen.Palette = GenerateRandomIqPalette(options.UseMixboxMixing);
         }
         if (options.MutateColoring)
         {
@@ -167,13 +167,16 @@ public class Generator
         }
     }
 
-    public static FlamePalette GenerateRandomIqPalette()
+    public static FlamePalette GenerateRandomIqPalette(bool useMixboxMixing)
     {
         var bias = RandomVector(0.4f, 0.8f);
         var mult = RandomVector(0.2f, 1.2f);
         var freq = RandomVector(0.1f, 1.0f);
         var phase = RandomVector(0.0f, 1.0f);
-        return PaletteFromIqParams(bias, mult, freq, phase);
+        if(useMixboxMixing)
+            return PaletteWithMixboxMixing(bias, mult, freq, phase);
+        else
+            return PaletteFromIqParams(bias, mult, freq, phase);
     }
 
     /// <summary>
@@ -202,6 +205,47 @@ public class Generator
         {
             Name = "Generated Palette",
             Colors = colors
+        };
+    }
+
+    private static FlamePalette PaletteWithMixboxMixing(Vector4 bias, Vector4 mult, Vector4 freq, Vector4 phase)
+    {
+        Vector4[] colors = new Vector4[512];
+
+        List<Vector4> controlColors = [];
+        List<int> controlIndices = [];
+
+        for (float t = 0; t < 4.0; t += 1.0f)
+        {
+            Vector4 c = bias + mult * new Vector4(
+                (float)Math.Cos(2 * Math.PI * (t * freq.X + phase.X)),
+                (float)Math.Cos(2 * Math.PI * (t * freq.Y + phase.Y)),
+                (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
+                1.0f);
+            c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
+            controlColors.Add(HsvToRgb(c));
+            controlIndices.Add(Random.Shared.Next(512));
+        }
+
+        controlIndices[0] = 0;
+        controlIndices[^1] = 511;
+        controlIndices.Sort();
+
+        for (int i = 0; i < controlColors.Count - 1; i++)
+        {
+            int jStart = controlIndices[i];
+            int jEnd = controlIndices[i + 1];
+            for (int j = jStart; j < jEnd; j++)
+            {
+                float t = (j - jStart) / (float)(jEnd - jStart);
+                colors[j] = MixboxLerp(controlColors[i], controlColors[i + 1], t);
+            }
+        }
+
+        return new FlamePalette
+        {
+            Name = "Generated Palette",
+            Colors = [.. colors]
         };
     }
 
@@ -235,6 +279,11 @@ public class Generator
     {
         var lc = paramName.ToLowerInvariant();
         return lc == "r" || _angleParams.Any(lc.Contains);
+    }
+
+    private static Vector4 MixboxLerp(Vector4 c1, Vector4 c2, float t)
+    {
+        return new Vector4(Scrtwpns.Mixbox.Mixbox.LerpFloat([c1.X, c1.Y, c1.Z, c1.W], [c2.X, c2.Y, c2.Z, c2.W], t));
     }
 
 }

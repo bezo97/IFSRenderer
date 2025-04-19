@@ -114,6 +114,10 @@
                                     <CheckBox IsChecked="{Binding Options.MutatePalette}">Palette</CheckBox>
                                     <CheckBox IsChecked="{Binding Options.MutateColoring}">Coloring</CheckBox>
                                     <md:ColorZone>Dominant Color</md:ColorZone>
+                                    <CheckBox IsChecked="{Binding Options.UseMixboxMixing}" 
+                                              ToolTip="Use Mixbox algorithm to mix colors similar to mixing paint.">
+                                        Painterly mixing
+                                    </CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Margin="8">
                                     <CheckBox IsEnabled="False">Transforms</CheckBox>

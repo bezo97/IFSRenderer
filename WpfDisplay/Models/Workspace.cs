@@ -179,7 +179,7 @@ public partial class Workspace : ObservableObject
     {
         var blankParams = new IFS();
         if (!UseWhiteForBlankParams)
-            blankParams.Palette = Generator.GenerateRandomIqPalette();
+            blankParams.Palette = Generator.GenerateRandomIqPalette(true);
         LoadParams(blankParams, null);
     }
 
