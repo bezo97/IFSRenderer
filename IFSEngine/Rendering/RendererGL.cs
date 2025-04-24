@@ -62,6 +62,7 @@ public sealed class RendererGL : IAsyncDisposable
 
     private string _includesSource;
     private List<Transform> _registeredTransforms;
+    private List<PostFx> _registeredPostfxs;
 
     public IFS LoadedParams { get; private set; } = new IFS();
     private bool _invalidHistogramResolution = false;
@@ -145,6 +146,7 @@ public sealed class RendererGL : IAsyncDisposable
     private int _deProgramHandle;
     private int _offscreenFBOHandle;
     private int _renderTextureHandle;
+    private readonly List<int> _postFxProgramHandles = [];
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
@@ -209,7 +211,7 @@ public sealed class RendererGL : IAsyncDisposable
         _ctx = ctx;
     }
 
-    public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
+    public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<Transform> transforms, IEnumerable<PostFx> postFxs)
     {
         if (IsInitialized)
             throw new InvalidOperationException("Renderer is already initialized.");
@@ -224,6 +226,7 @@ public sealed class RendererGL : IAsyncDisposable
 
         _includesSource = string.Join(Environment.NewLine, includeSources);
         _registeredTransforms = transforms.ToList();
+        _registeredPostfxs = postFxs.ToList();
 
         //attributeless rendering
         _vao = GL.GenVertexArray();
@@ -234,6 +237,9 @@ public sealed class RendererGL : IAsyncDisposable
         InitTonemapPass();
         InitDEPass();
         InitComputeProgram();
+        //TODO:
+        //for each postfx
+        //  _postFxProgramHandles.Add(InitPostFxPass(postFx));
         GL.DeleteShader(_vertexShaderHandle);
 
         _timerQueryHandle = GL.GenQuery();
@@ -246,7 +252,7 @@ public sealed class RendererGL : IAsyncDisposable
         InvalidateParamsBuffer();
     }
 
-    public async Task LoadTransforms(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
+    public async Task LoadPlugins(IEnumerable<string> includeSources, IEnumerable<Transform> transforms, IEnumerable<PostFx> postFxs)
     {
         if (!IsInitialized)
             throw NewNotInitializedException();
@@ -255,6 +261,10 @@ public sealed class RendererGL : IAsyncDisposable
         {
             _includesSource = string.Join(Environment.NewLine, includeSources);
             _registeredTransforms = transforms.ToList();
+            _registeredPostfxs = postFxs.ToList();
+            //TODO: initialize postfx passes. something like this:
+            //for each postfx
+            //  _postFxProgramHandles.Add(InitPostFxPass(postFx));
             InitComputeProgram();
             InvalidateParamsBuffer();
         });
@@ -545,6 +555,10 @@ public sealed class RendererGL : IAsyncDisposable
             GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
         }
+
+        //TODO: apply each enabled postfx, similarly to the tonemap pass
+        //Note: whether a postfx is enabled should be given by the loaded ifs params
+
     }
 
     /// <summary>
@@ -832,6 +846,18 @@ public sealed class RendererGL : IAsyncDisposable
         GL.DetachShader(_tonemapProgramHandle, fragmentShader);
         GL.DeleteShader(fragmentShader);
 
+    }
+
+    /// <summary>
+    /// Creates an opengl program for a single postfx.
+    /// </summary>
+    /// <param name="postfx"></param>
+    /// <returns>The handle of the created program.</returns>
+    private int InitPostFxPass(PostFx postfx)
+    {
+        //TODO: implement similar to InitTonemapPass and InitComputeProgram
+        //replace @PostFxSnippet with content of postfx.SourceCode
+        return 0;
     }
 
     private void InitComputeProgram()

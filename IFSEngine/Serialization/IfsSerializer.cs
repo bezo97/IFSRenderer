@@ -16,10 +16,10 @@ public static class IfsSerializer
     private static readonly IteratorConverter _iteratorConverter = new();
     private static readonly IfsConverter _ifsConverter = new();
 
-    public static IFS LoadJsonFile(string path, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
+    public static IFS LoadJsonFile(string path, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
     {
         string fileContent = File.ReadAllText(path, Encoding.UTF8);
-        return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
+        return DeserializeJsonString(fileContent, transforms, postfxs, ignorePluginVersions);
     }
 
     public static void SaveJsonFile(IFS ifs, string path)
@@ -28,10 +28,10 @@ public static class IfsSerializer
         File.WriteAllText(path, fileContent, Encoding.UTF8);
     }
 
-    public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
+    public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
     {
         string fileContent = await File.ReadAllTextAsync(path, Encoding.UTF8);
-        return DeserializeJsonString(fileContent, transforms, ignoreTransformVersions);
+        return DeserializeJsonString(fileContent, transforms, postfxs, ignorePluginVersions);
     }
 
     public static async Task SaveJsonFileAsync(IFS ifs, string path)
@@ -40,9 +40,9 @@ public static class IfsSerializer
         await File.WriteAllTextAsync(path, fileContent, Encoding.UTF8);
     }
 
-    public static IFS DeserializeJsonString(string ifsState, IEnumerable<Transform> transforms, bool ignoreTransformVersions)
+    public static IFS DeserializeJsonString(string ifsState, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
     {
-        JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, ignoreTransformVersions);
+        JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, postfxs, ignorePluginVersions);
         try
         {
             IFS result = JsonConvert.DeserializeObject<IFS>(ifsState, settings);
@@ -56,20 +56,21 @@ public static class IfsSerializer
 
     public static string SerializeJsonString(IFS ifs)
     {
-        JsonSerializerSettings settings = GetJsonSerializerSettings(null, false);
+        JsonSerializerSettings settings = GetJsonSerializerSettings(null, null, false);
         return JsonConvert.SerializeObject(ifs, settings);
     }
 
-    internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<Transform> transforms, bool ignoreVersion)
+    internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignoreVersion)
     {
         return new JsonSerializerSettings
         {
-            Converters = new List<JsonConverter>
-                {
+            Converters =
+                [
                     new TransformConverter(transforms, ignoreVersion),
+                    new PostFxConverter(postfxs, ignoreVersion),
                     _iteratorConverter,
                     _ifsConverter
-                },
+                ],
             ObjectCreationHandling = ObjectCreationHandling.Replace//replace default palette
                                                                    //TypeNameHandling = TypeNameHandling.Auto
         };

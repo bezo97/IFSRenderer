@@ -61,7 +61,7 @@ public partial class GeneratorWorkspace : ObservableObject
 
     public async Task Initialize()
     {
-        await _renderer.Initialize(_includeSources, _generator.SelectedTransforms);
+        await _renderer.Initialize(_includeSources, _generator.SelectedTransforms, []);
         //performance settings
         await _renderer.SetWorkgroupCount(100);
         _context.MakeNoneCurrent();

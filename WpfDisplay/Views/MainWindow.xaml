@@ -247,6 +247,13 @@
                                         <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                                     </ScrollViewer>
                                 </LayoutAnchorable>
+                                <LayoutAnchorable
+                                    Title="Post Fx" ToolTip="Post effects" ContentId="PostFx"
+                                    CanHide="False" CanClose="False" CanFloat="False" CanMove="True" CanShowOnHover="False" >
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <local:PostFxPanel />
+                                    </ScrollViewer>
+                                </LayoutAnchorable>
                             </LayoutAnchorablePane>
                             <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">
                                 <LayoutAnchorable

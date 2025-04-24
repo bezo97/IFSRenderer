@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="WpfDisplay.Views.PostFxPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+            <!--
+        TODO: implement GUI that allows the user to do the following:
+        - List available postfxs
+        - Each can be enabled or disabled (enabled ones should be stored in the ifs params)
+        - When a postfx is enabled it may have additional parameters.
+        - Possibly rearrange postfx order?
+        - Reload the list with a button similar to the transform reloading function
+        
+        Suggestion is to implement similarly to IteratorEditor.cs
+        with an ItemsControl where each item is an <Expander> with custom header 
+        that shows the name and a checkbox, and the expander content contains the ValueSliders for the parameters.
+        See Blender's Modifiers tab for ux inspiration.
+        -->
+    </Grid>
+</UserControl>

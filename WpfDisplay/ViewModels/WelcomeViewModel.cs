@@ -31,6 +31,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
 {
     private readonly IReadOnlyCollection<string> _includeSources;
     private readonly IReadOnlyCollection<Transform> _loadedTransforms;
+    private readonly IReadOnlyCollection<PostFx> _loadedPostFxs;
 
     public RelayCommand? ContinueCommand { get; set; }
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
@@ -51,10 +52,11 @@ public sealed partial class WelcomeViewModel : ObservableObject
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = [];
     [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = [];
 
-    public WelcomeViewModel(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<Transform> loadedTransforms)
+    public WelcomeViewModel(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<Transform> loadedTransforms, IReadOnlyCollection<PostFx> loadedPostFxs)
     {
         _includeSources = includeSources;
         _loadedTransforms = loadedTransforms;
+        _loadedPostFxs = loadedPostFxs;
     }
 
     public async Task Initialize()
@@ -70,7 +72,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
         });
         var renderer = new RendererGL(hw.Context);
         renderer.SetDisplayResolution(100, 100);
-        await renderer.Initialize(_includeSources, _loadedTransforms);
+        await renderer.Initialize(_includeSources, _loadedTransforms, _loadedPostFxs);
         await renderer.SetWorkgroupCount(100);
 
         ExploreParams = new Generator(_loadedTransforms).GenerateOne(new());
@@ -83,11 +85,11 @@ public sealed partial class WelcomeViewModel : ObservableObject
         {
             templateFilesTasks = Directory
                 .GetFiles(App.TemplatesDirectoryPath, "*.ifsjson")
-                .Select(templatePath => IfsNodesSerializer.LoadJsonFileAsync(templatePath, _loadedTransforms, true))
+                .Select(templatePath => IfsNodesSerializer.LoadJsonFileAsync(templatePath, _loadedTransforms, _loadedPostFxs, true))
                 .ToList();
             var recentFilePaths = Settings.Default.RecentFiles.Cast<string>();
             recentFilesTasks = recentFilePaths
-                .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, true))
+                .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, _loadedPostFxs, true))
                 .Reverse()
                 .ToList();
             await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
@@ -157,7 +159,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
         try
         {
             string jsonData = System.Windows.Clipboard.GetText();
-            IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, _loadedTransforms, true);
+            IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, _loadedTransforms, _loadedPostFxs, true);
             SelectExploreWorkflow(ifs);
         }
         catch (SerializationException) { /* Ignore when Clipboard contains no params */ }

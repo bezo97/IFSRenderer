@@ -32,6 +32,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Library\PostEffects\Placeholder.ifsfx" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Cavern" Version="2.0.2" />
 		<PackageReference Include="Cavern.Format" Version="2.0.2" />
 		<PackageReference Include="Cavern.QuickEQ" Version="2.0.2" />
@@ -109,6 +113,9 @@
     <Resource Include="..\Assets\featured_artwork.jpg" Link="Resources\featured_artwork.jpg" />
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Library\PostEffects\Placeholder.ifsfx">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Resources\deltap-tooltip.jpg" />
 	</ItemGroup>

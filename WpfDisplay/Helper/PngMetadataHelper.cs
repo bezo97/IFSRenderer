@@ -44,12 +44,12 @@ internal static class PngMetadataHelper
         return metadata;
     }
 
-    public static bool TryExtractParamsFromImage(BitmapSource png, IEnumerable<Transform> transforms, out IFS embeddedParams)
+    public static bool TryExtractParamsFromImage(BitmapSource png, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, out IFS embeddedParams)
     {
         try
         {
             var serializedParams = (string)((BitmapMetadata)png.Metadata).GetQuery("/tEXt/Comment");
-            embeddedParams = IfsNodesSerializer.DeserializeJsonString(serializedParams, transforms, true);
+            embeddedParams = IfsNodesSerializer.DeserializeJsonString(serializedParams, transforms, postfxs, true);
             return true;
         }
         catch

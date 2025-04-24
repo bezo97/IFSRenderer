@@ -1,0 +1,7 @@
+﻿@Name: Placeholder PostFx
+@Version: 1.0-dev
+@Description: placeholder for a sample postfx. Should work similarly to transforms
+
+@Strength: 1.0
+
+color = @Strength * texture(tex, uv);

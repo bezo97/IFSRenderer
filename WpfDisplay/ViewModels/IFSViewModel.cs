@@ -362,7 +362,7 @@ public partial class IFSViewModel : ObservableObject
     {
         try
         {
-            await _workspace.ReloadTransforms();
+            await _workspace.ReloadPlugins();
             _workspace.UpdateStatusText("Transforms reloaded.");
         }
         catch (Exception ex)

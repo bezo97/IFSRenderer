@@ -23,7 +23,7 @@ public static class ModelExtensions
     public static IFS DeepClone(this IFS ifs)
     {
         var transforms = ifs.Iterators.Select(i => i.Transform);
-        var settings = IfsSerializer.GetJsonSerializerSettings(transforms, false);
+        var settings = IfsSerializer.GetJsonSerializerSettings(transforms, ifs.PostFxs, false);
         string serializedContent = JsonConvert.SerializeObject(ifs, settings);
         return JsonConvert.DeserializeObject<IFS>(serializedContent, settings);
     }

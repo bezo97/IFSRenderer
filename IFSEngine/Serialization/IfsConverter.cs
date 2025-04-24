@@ -25,7 +25,7 @@ public class IfsConverter : JsonConverter<IFS>
             {
                 iterators.Add(iteratorToken.ToObject<Iterator>(serializer));
             }
-            catch (UnknownTransformException ex) { exceptions.Add(ex); }
+            catch (UnknownPluginException ex) { exceptions.Add(ex); }
         }
         if (exceptions.Count > 0)
             throw new AggregateException("Failed to deserialize iterators", exceptions);

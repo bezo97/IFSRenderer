@@ -29,7 +29,7 @@ public class TransformConverter : JsonConverter<Transform>
         if (tf is null && _ignoreVersion)
             tf = _loadedTransforms.FirstOrDefault(i => i.Name == Name);
         if (tf is null)
-            throw new UnknownTransformException(Name, Version);
+            throw new UnknownPluginException(Name, Version);
         return tf;
     }
 

@@ -21,6 +21,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Rendering\Shaders\postfx.frag.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\de.frag.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\tonemap.frag.shader" />
 		<EmbeddedResource Include="Rendering\Shaders\quad.vert.shader" />

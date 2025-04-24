@@ -56,7 +56,7 @@ public partial class MainWindow : Window
             IFS ifs;
             try
             {
-                ifs = IfsNodesSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, true);
+                ifs = IfsNodesSerializer.LoadJsonFile(App.OpenVerbPath, workspace.LoadedTransforms, workspace.LoadedPostFxs, true);
             }
             catch (SerializationException)
             {
@@ -67,7 +67,7 @@ public partial class MainWindow : Window
         }
         else if (App.OpenVerbPath is null && Settings.Default.IsWelcomeShownOnStartup)
         {
-            var welcomeViewModel = new WelcomeViewModel(workspace.IncludeSources, workspace.LoadedTransforms);
+            var welcomeViewModel = new WelcomeViewModel(workspace.IncludeSources, workspace.LoadedTransforms, workspace.LoadedPostFxs);
             var welcomeWindow = new WelcomeWindow
             {
                 Owner = this,
@@ -92,7 +92,7 @@ public partial class MainWindow : Window
                     else if (ext == ".png")
                     {
                         var pngImge = BitmapFrame.Create(new Uri(welcomeViewModel.SelectedFilePath));
-                        if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, out var ifs))
+                        if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, workspace.LoadedPostFxs, out var ifs))
                             workspace.LoadParams(ifs, null);
                     }
                 }

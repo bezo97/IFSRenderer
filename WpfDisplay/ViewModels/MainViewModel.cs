@@ -231,7 +231,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
                     break;
                 case DroppedFile.Image:
                     var pngImge = BitmapFrame.Create(new Uri(filePath));
-                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, out var ifs))
+                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, workspace.LoadedPostFxs, out var ifs))
                         workspace.LoadParams(ifs, null);
                     break;
                 case DroppedFile.Palette:
@@ -258,9 +258,9 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         catch (SerializationException ex)
             when (ex.InnerException is AggregateException exs)
         {//missing transforms
-            var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownTransformException)e);
-            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{string.Join("\r\n", unknownTransforms.Select(t => $"{t.TransformName} ({t.TransformVersion})"))}", "Error");
-            workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.TransformName))}");
+            var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownPluginException)e);
+            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{string.Join("\r\n", unknownTransforms.Select(t => $"{t.PluginName} ({t.PluginVersion})"))}", "Error");
+            workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.PluginName))}");
         }
         catch (SerializationException ex)
         {

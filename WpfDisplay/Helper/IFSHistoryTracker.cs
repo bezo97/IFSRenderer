@@ -15,25 +15,25 @@ public class IFSHistoryTracker
     public bool IsHistoryUndoable => UndoStack.Count > 0;
     public bool IsHistoryRedoable => RedoStack.Count > 0;
 
-    public IFS Undo(IFS current, IEnumerable<Transform> transforms)
+    public IFS Undo(IFS current, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs)
     {
         if (!IsHistoryUndoable)
             throw new InvalidOperationException();
 
         RedoStack.Push(IfsNodesSerializer.SerializeJsonString(current));
         string lastState = UndoStack.Pop();
-        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(lastState, transforms, true);
+        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(lastState, transforms, postfxs, true);
         return restoredObject;
     }
 
-    public IFS Redo(IFS current, IEnumerable<Transform> transforms)
+    public IFS Redo(IFS current, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs)
     {
         if (!IsHistoryRedoable)
             throw new InvalidOperationException();
 
         UndoStack.Push(IfsNodesSerializer.SerializeJsonString(current));
         string nextState = RedoStack.Pop();
-        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(nextState, transforms, true);
+        IFS restoredObject = IfsNodesSerializer.DeserializeJsonString(nextState, transforms, postfxs, true);
         return restoredObject;
     }
 

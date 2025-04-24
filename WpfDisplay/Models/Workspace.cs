@@ -28,10 +28,12 @@ public partial class Workspace : ObservableObject
     private readonly IFSHistoryTracker _tracker = new();
     private List<string> _includeSources = [];
     private List<Transform> _loadedTransforms = [];
+    private List<PostFx> _loadedPostFxs = [];
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
     public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
+    public IReadOnlyCollection<PostFx> LoadedPostFxs => _loadedPostFxs;
     public IReadOnlyCollection<string> IncludeSources => _includeSources;
     public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
     public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
@@ -91,7 +93,7 @@ public partial class Workspace : ObservableObject
     {
         await ApplyUserSettings();
         await LoadLibrary();
-        await Renderer.Initialize(_includeSources, _loadedTransforms);
+        await Renderer.Initialize(_includeSources, _loadedTransforms, _loadedPostFxs);
 
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
@@ -113,7 +115,8 @@ public partial class Workspace : ObservableObject
         var includeFiles = Directory.GetFiles(App.IncludesDirectoryPath);
         var loadIncludeTasks = includeFiles.Select(file => File.ReadAllTextAsync(file));
         _includeSources = (await Task.WhenAll(loadIncludeTasks)).ToList();
-        //load transforms
+        //load plugins
+        //TODO: modify below so that postfx plugins are also loaded, not only transforms
         var loadTransformTasks = Directory
             .GetFiles(App.TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
             .Select(file => Transform.FromFile(file));
@@ -126,13 +129,14 @@ public partial class Workspace : ObservableObject
         OnPropertyChanged(nameof(LoadedTransforms));
     }
 
-    public async Task ReloadTransforms()
+    public async Task ReloadPlugins()
     {
         await LoadSourceLibrary();
-        Ifs.ReloadTransforms(LoadedTransforms);
-        await Renderer.LoadTransforms(_includeSources, LoadedTransforms);
+        Ifs.ReloadPlugins(LoadedTransforms, LoadedPostFxs);
+        await Renderer.LoadPlugins(_includeSources, LoadedTransforms, LoadedPostFxs);
         Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
+        OnPropertyChanged(nameof(LoadedPostFxs));
     }
 
     public void LoadParams(IFS ifs, string? loadedFilePath)
@@ -156,16 +160,16 @@ public partial class Workspace : ObservableObject
         IFS ifs;
         try
         {
-            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, false);
+            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedPostFxs, false);
         }
         catch (System.Runtime.Serialization.SerializationException ex)
             when (ex.InnerException is AggregateException exs)
         {
-            var unknownTransformNames = exs.InnerExceptions.Select(e => ((UnknownTransformException)e).TransformName);
-            if (unknownTransformNames.All(transformName => LoadedTransforms.Any(t => t.Name == transformName)))
+            var unknownPluginNames = exs.InnerExceptions.Select(e => ((UnknownPluginException)e).PluginName);
+            if (unknownPluginNames.All(pluginName => LoadedTransforms.Any(t => t.Name == pluginName) || LoadedPostFxs.Any(t => t.Name == pluginName)))
             {
-                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, true);
-                System.Windows.MessageBox.Show($"The loaded file was created using different versions of the following transforms:\r\n{string.Join(", ", unknownTransformNames)}.", "Warning");
+                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedPostFxs, true);
+                System.Windows.MessageBox.Show($"The loaded file was created using different versions of the following plugins:\r\n{string.Join(", ", unknownPluginNames)}.", "Warning");
             }
             else
                 throw;
@@ -232,14 +236,14 @@ public partial class Workspace : ObservableObject
     public void PasteFromClipboard()
     {
         string jsonData = System.Windows.Clipboard.GetText();
-        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, true);
+        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, LoadedPostFxs, true);
         LoadParams(ifs, null);
     }
 
     public void UndoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = _tracker.Undo(Ifs, LoadedTransforms);
+        Ifs = _tracker.Undo(Ifs, LoadedTransforms, LoadedPostFxs);
         _renderer?.LoadParams(Ifs);
         LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
@@ -248,7 +252,7 @@ public partial class Workspace : ObservableObject
     public void RedoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = _tracker.Redo(Ifs, LoadedTransforms);
+        Ifs = _tracker.Redo(Ifs, LoadedTransforms, LoadedPostFxs);
         _renderer?.LoadParams(Ifs);
         LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
