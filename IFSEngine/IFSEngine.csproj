@@ -29,7 +29,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Mixbox" Version="2.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
     <PackageReference Include="OpenTK.Graphics" Version="4.9.4" />
     <PackageReference Include="OpenTK.Windowing.Common" Version="4.9.4" />
