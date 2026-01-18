@@ -223,6 +223,33 @@ public partial class InteractiveDisplay : WindowsFormsHost
                     var centerOffset = mousePos - _centerPivot;
                     Renderer.LoadedParams.Camera.FieldOfView *= lastCenterOffset.Length() / centerOffset.Length();
                 }
+                else if (e.Button == System.Windows.Forms.MouseButtons.Middle) //orbit around focus point
+                {
+                    rotateVec = new(e.X - _lastMousePos.X, e.Y - _lastMousePos.Y, 0.0f);
+
+                    if (rotateVec.Length() > 0.0f)
+                    {
+                        if (Mouse.OverrideCursor == null)
+                        {
+                            Mouse.OverrideCursor = Cursors.SizeAll;
+                            InteractionStartedCommand?.Execute(null);
+                        }
+
+                        if (_invertY)
+                            rotateVec.Y = -rotateVec.Y;
+
+                        //camera rotation speed depends on field of view
+                        float rotateSpeed = (float)Renderer.LoadedParams.Camera.FieldOfView / 180.0f;
+                        rotateVec.X *= rotateSpeed;
+                        rotateVec.Y *= rotateSpeed;
+
+                        var pivot = Renderer.LoadedParams.Camera.Position + Renderer.LoadedParams.Camera.ForwardDirection * (float)Renderer.LoadedParams.Camera.FocusDistance;
+
+                        Renderer.LoadedParams.Camera.OrbitAround(pivot, rotateVec * 0.01f * _sensitivity);
+                        Renderer.InvalidateHistogramBuffer();
+                        InteractionFinishedCommand?.Execute(null);
+                    }
+                }
 
                 if (rotateVec.Length() > 0.0f)
                 {
