@@ -43,7 +43,6 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <conv:BetterBooleanToVisibilityConverter x:Key="invVisible" True="Collapsed" False="Visible"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -58,12 +57,12 @@
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" Margin="4">
             <Button Command="{Binding JumpToStartCommand}" ToolTip="Stop animation"
-                    IsEnabled="{Binding IsExportingFrames, Converter={StaticResource InvertBooleanConverter}}"
+                    IsEnabled="{Binding IsExportingFrames, Converter={StaticResource invertBooleanConverter}}"
                     HorizontalAlignment="Left">
                 ⬜
             </Button>
             <ToggleButton Command="{Binding PlayPauseCommand}" ToolTip="Play/Pause animation preview"
-                          IsEnabled="{Binding IsExportingFrames, Converter={StaticResource InvertBooleanConverter}}"
+                          IsEnabled="{Binding IsExportingFrames, Converter={StaticResource invertBooleanConverter}}"
                           Style="{StaticResource MaterialDesignActionToggleButton}"
                           HorizontalAlignment="Center">
                 <Label FontFamily="Monospace" Padding="2,2,0,0" Foreground="Black">▷</Label>
@@ -203,7 +202,7 @@
                     </ItemsControl>
                 </ScrollViewer>
                 <Grid Grid.Row="1"
-                      Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
+                      Visibility="{Binding EditedChannel, Converter={StaticResource nullVisibilityConverter}}"
                       Background="#333333">
                     <local:CurveEditor DataContext="{Binding EditedChannel}"/>
                 </Grid>
@@ -226,14 +225,11 @@
         </ScrollViewer>
         <!--Show guide text when animation sheet is empty-->
         <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid.Resources >
-                <sys:Int32 x:Key="empty">0</sys:Int32>
-            </Grid.Resources>
-            <Label Visibility="{Binding Channels.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={StaticResource empty}}"
+            <Label Visibility="{Binding Channels.Count, Converter={StaticResource equalityToVisibilityConverter}, ConverterParameter={StaticResource zero}}"
                    Foreground="#aaaaaa" FontSize="16">
                 🛈 Insert a keyframe by clicking ◇ next to the value!
             </Label>
-            <StackPanel Visibility="{Binding IsExportingFrames, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Visibility="{Binding IsExportingFrames, Converter={StaticResource betterBooleanToVisibilityConverter}}">
                 <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
                 <TextBlock TextAlignment="Center" Foreground="#aaaaaa" FontSize="16" Margin="0,0,0,16">
                     Exporting animation frames...
@@ -245,7 +241,7 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" 
-              Visibility="{Binding EditedChannel, Converter={StaticResource NullableToVisibilityConverter}}"
+              Visibility="{Binding EditedChannel, Converter={StaticResource nullVisibilityConverter}}"
               Background="#333333" d:Visibility="Hidden">
             <local:ChannelEditor DataContext="{Binding EditedChannel}" Padding="4"/>
         </Grid>

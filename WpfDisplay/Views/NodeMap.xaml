@@ -40,7 +40,7 @@
                 <Canvas>
                     <local:ConnectionArrow x:Name="dragArrow"
                         StartPoint="{Binding ConnectingIterator.Position}"
-                        Visibility="{Binding ConnectingIterator, Converter={StaticResource NullableToVisibilityConverter}}"/>
+                        Visibility="{Binding ConnectingIterator, Converter={StaticResource nullVisibilityConverter}}"/>
                 </Canvas>
                 
                 <!--Map Nodes and Arrows to Iterators and weights-->

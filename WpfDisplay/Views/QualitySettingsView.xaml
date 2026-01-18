@@ -12,10 +12,6 @@
              x:Name="qualitySettingsView"
              d:DesignHeight="600" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
-    <UserControl.Resources>
-        <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
-        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter" True="Collapsed" False="Visible"/>
-    </UserControl.Resources>
     <StackPanel>
         <ListBox
             HorizontalAlignment="Center"
@@ -25,13 +21,13 @@
             <ListBoxItem IsSelected="{Binding IsFinalRenderingMode}">📸 Final</ListBoxItem>
         </ListBox>
         <!--"Preview" settings-->
-        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource InverseBoolToVisConverter}}">
+        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource invertBooleanToVisibilityConverter}}">
             <TextBlock HorizontalAlignment="Center" Margin="4,16">
                 Preview resolution: <Run Text="{Binding PreviewResolutionText, Mode=OneWay}" />
             </TextBlock>
         </StackPanel>
         <!--"Final" settings-->
-        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8">
+        <StackPanel Visibility="{Binding IsFinalRenderingMode, Converter={StaticResource betterBooleanToVisibilityConverter}}" Margin="0,8">
             <Grid HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -76,7 +72,7 @@
         <Separator Style="{StaticResource MaterialDesignSeparator}"/>
         <StackPanel Margin="4">
             <CheckBox IsChecked="{Binding EnableDE}" ToolTip="Using density estimation.">Noise reduction</CheckBox>
-            <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource BoolToVisConv}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
+            <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource betterBooleanToVisibilityConverter}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
                 <local:ValueSlider Value="{Binding Renderer.DEMaxRadius}" SliderSettings="{Binding DEMaxRadiusSlider}"/>
                 <local:ValueSlider Value="{Binding Renderer.DEPower}" SliderSettings="{Binding DEPowerSlider}"/>
                 <local:ValueSlider Value="{Binding Renderer.DEThreshold}" SliderSettings="{Binding DEThresholdSlider}"/>

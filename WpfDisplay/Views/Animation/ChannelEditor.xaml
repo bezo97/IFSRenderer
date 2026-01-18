@@ -47,7 +47,7 @@
             <ScrollViewer.LayoutTransform>
                 <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
             </ScrollViewer.LayoutTransform>
-            <Expander Visibility="{Binding HasAudioDriver, Converter={StaticResource BooleanToVisibilityConverter}}"
+            <Expander Visibility="{Binding HasAudioDriver, Converter={StaticResource booleanToVisibilityConverter}}"
                         IsExpanded="True" 
                         VerticalAlignment="Top" md:ExpanderAssist.HorizontalHeaderPadding="0" Margin="4 0">
                 <Expander.Header>

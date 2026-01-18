@@ -4,15 +4,9 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:conv="clr-namespace:WpfDisplay.Converters"
              mc:Ignorable="d"
              d:DesignWidth="150"
              x:Name="valueSlider">
-    <UserControl.Resources>
-        <conv:BetterBooleanToVisibilityConverter x:Key="visibilityConverter" True="Visible" False="Collapsed"/>
-        <conv:BetterBooleanToVisibilityConverter x:Key="invVisibilityConverter" True="Collapsed" False="Visible"/>
-        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
-    </UserControl.Resources>
     <UserControl.ContextMenu>
         <ContextMenu xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
             <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
@@ -46,7 +40,7 @@
         </ContextMenu>
     </UserControl.ContextMenu>
     <StackPanel>
-        <Grid Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" d:Visibility="Visible">
+        <Grid Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource betterBooleanToVisibilityConverter}}" d:Visibility="Visible">
             <Label IsTabStop="False" VerticalContentAlignment="Center"
                    Content="{Binding Label, ElementName=valueSlider}" d:Content="Label"/>
             <Button x:Name="symbolButton1" HorizontalAlignment="Right" d:Content="*"
@@ -70,14 +64,14 @@
                 Click="Down_Click">-</Button>
             <Label x:Name="displayLabel" Grid.Column="1"
                    Content="{Binding Value, ElementName=valueSlider}"
-                   Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}"
+                   Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource invertBooleanToVisibilityConverter}}"
                    Background="#303030" Cursor="SizeWE"
                    IsTabStop="True" Focusable="True" GotKeyboardFocus="valueSlider_GotKeyboardFocus"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                    PreviewMouseMove="DisplayLabel_MouseMove" PreviewMouseUp="DisplayLabel_MouseUp"/>
             <TextBox x:Name="valueEditor" Grid.Column="1" 
                      Text="{Binding Value, ElementName=valueSlider, StringFormat={}{0:0.####}}" d:Text="0.5000"
-                     Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource visibilityConverter}}" 
+                     Visibility="{Binding Editing, ElementName=valueSlider, Converter={StaticResource betterBooleanToVisibilityConverter}}" 
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
                      MouseDoubleClick="valueEditor_MouseDoubleClick"
                      PreviewKeyDown="ValueEditor_KeyDown" LostFocus="ValueEditor_LostFocus" LostKeyboardFocus="valueEditor_LostKeyboardFocus"/>
@@ -87,7 +81,7 @@
                 Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>
-            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource invVisibilityConverter}}">
+            <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource invertBooleanToVisibilityConverter}}">
                 <Button x:Name="symbolButton2"
                     IsTabStop="False" Padding="8" ToolTip="Animation keyframe" d:Content="*"
                     Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"

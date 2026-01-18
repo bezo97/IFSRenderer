@@ -58,7 +58,7 @@
         <ComboBox Padding="8"
             ItemsSource="{Binding ProjectionTypes}"
             SelectedValue="{Binding ProjectionType}"/>
-        <StackPanel Visibility="{Binding ProjectionType, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static enum:ProjectionType.Fisheye}}">
+        <StackPanel Visibility="{Binding ProjectionType, Converter={StaticResource equalityToVisibilityConverter}, ConverterParameter={x:Static enum:ProjectionType.Fisheye}}">
             <Label ToolTip="Tilting is useful if you are using a planetarium setup where the dome projector is offset from the center.">
                 ⊙ Projection tilt
             </Label>

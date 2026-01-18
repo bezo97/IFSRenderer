@@ -31,7 +31,6 @@
         <CommandBinding Command="ApplicationCommands.Paste" Executed="Paste_Executed" CanExecute="Paste_CanExecute"/>
     </Window.CommandBindings>
     <Window.Resources>
-        <conv:ParameterEqualityToBoolConverter x:Key="expanderConv"/>
         <DataTemplate x:Key="thumbnailTemplate">
             <Button 
                 Width="100" Height="100" Margin="4"
@@ -140,7 +139,7 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Expander Header="Getting Started" Grid.Row="0" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=0}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=0}">
                     <md:Card Padding="2">
                         <StackPanel Margin="8">
                             <TextBlock>
@@ -162,7 +161,7 @@
                     </md:Card>
                 </Expander>
                 <Expander Header="Templates" Grid.Row="1" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=1}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=1}">
                     <md:Card Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Templates}" Padding="0,0,0,4"
@@ -177,7 +176,7 @@
                     </md:Card>
                 </Expander>
                 <Expander Header="Recent Files" Grid.Row="2" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=2}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=2}">
                     <md:Card Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding RecentFiles}" Padding="0,0,0,4"
