@@ -27,13 +27,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9DCB6135E0C44466BF51DFDFFF42D43E"
+        "MsmKey" = "8:_98D31AF81AB2421598BE513F5357FC00"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+        "MsmKey" = "8:_9DCB6135E0C44466BF51DFDFFF42D43E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -118,7 +118,7 @@
                 "InstallUrl" = "8:https://dotnet.microsoft.com/download/dotnet-core/[NetCoreVerMajorDotMinor]"
                 "IsNETCore" = "11:TRUE"
                 "Architecture" = "2:0"
-                "Runtime" = "2:0"
+                "Runtime" = "2:2"
                 }
             }
         }
@@ -193,11 +193,11 @@
             "Description" = "8:IFS fractal params"
             "Extensions" = "8:.ifsjson"
             "MIME" = "8:"
-            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Icon" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "IconIndex" = "3:32512"
                 "Command"
                 {
-                "Command" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+                "Command" = "8:_98D31AF81AB2421598BE513F5357FC00"
                 }
                 "Verbs"
                 {
@@ -314,7 +314,7 @@
         "Keywords" = "8:fractal, 3d, graphics, art, ifs, rendering, editor"
         "ARPCOMMENTS" = "8:3D IFS fractal editor"
         "ARPURLINFOABOUT" = "8:https://github.com/bezo97/IFSRenderer"
-        "ARPPRODUCTICON" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+        "ARPPRODUCTICON" = "8:_98D31AF81AB2421598BE513F5357FC00"
         "ARPIconIndex" = "3:32512"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -425,10 +425,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Target" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Folder" = "8:_24360954C4F84D269FD1D973BD6955F2"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Icon" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5F61FBFC2D3248FEABBAB882EAD5AA30"
@@ -439,10 +439,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Target" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Folder" = "8:_92D12AE8ABF8419F87BEC45290634D7C"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Icon" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_87BC964CE9834EF687B2FBD7A5F5828B"
@@ -453,10 +453,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Target" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Folder" = "8:_3B537814397F4775A3641BF917FBE3DC"
             "WorkingFolder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
-            "Icon" = "8:_F0943708ABF748BAB90D4F615173D8CC"
+            "Icon" = "8:_98D31AF81AB2421598BE513F5357FC00"
             "Feature" = "8:"
             }
         }
@@ -952,37 +952,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A5F96D2A29AC4F3AABD784A84B969851"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_98D31AF81AB2421598BE513F5357FC00"
             {
-            "SourcePath" = "8:"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9B6F64EBE2714937A8A5248B552CCB38"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:FALSE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:TRUE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:ReleaseInstaller|Any CPU"
-            "OutputGroupCanonicalName" = "8:ContentFiles"
-            "OutputProjectGuid" = "8:{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F0943708ABF748BAB90D4F615173D8CC"
-            {
-            "SourcePath" = "8:..\\WpfDisplay\\bin\\Publish\\Installer\\IFSRenderer.exe"
+            "SourcePath" = "8:..\\WpfDisplay\\obj\\ReleaseInstaller\\net10.0-windows7.0\\win-x64\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B73F50E31A98415AAE7FAA3E4F6B92C6"
@@ -1002,7 +974,7 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:ReleaseInstaller|Any CPU"
             "OutputGroupCanonicalName" = "8:PublishItems"
-            "OutputProjectGuid" = "8:{357FC78C-F1A8-40C6-91AF-E06CE2C34FB1}"
+            "OutputProjectGuid" = "8:{B08496D0-EDEA-C9AC-BF24-14563DA34765}"
             "ShowKeyOutput" = "11:TRUE"
             "PublishProfilePath" = "8:Properties\\PublishProfiles\\PublishInstaller.pubxml"
                 "ExcludeFilters"
