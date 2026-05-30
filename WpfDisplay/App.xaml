@@ -10,7 +10,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/AvalonDock.Themes.VS2013;component/DarkTheme.xaml" />
+                <ResourceDictionary Source="/AvalonDock.Themes.Arc;component/DarkTheme.xaml" />
                 <md:BundledTheme BaseTheme="Dark" PrimaryColor="Grey" SecondaryColor="LightBlue" ColorAdjustment="{md:ColorAdjustment}" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
                 <ResourceDictionary>
