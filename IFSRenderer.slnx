@@ -1,0 +1,40 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="ReleaseInstaller" />
+    <BuildType Name="ReleasePortable" />
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Assets/">
+    <File Path="Assets/featured_artwork.jpg" />
+    <File Path="Assets/icon_128.png" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="IFSEngine.WPF.InteractiveDisplay/IFSEngine.WPF.InteractiveDisplay.csproj">
+    <BuildDependency Project="IFSEngine/IFSEngine.csproj" />
+    <BuildType Solution="ReleaseInstaller|*" Project="Release" />
+    <BuildType Solution="ReleasePortable|*" Project="Release" />
+  </Project>
+  <Project Path="IFSEngine/IFSEngine.csproj">
+    <BuildType Solution="ReleaseInstaller|*" Project="Release" />
+    <BuildType Solution="ReleasePortable|*" Project="Release" />
+  </Project>
+  <Project Path="Setup/Setup.vdproj" Type="Installer">
+    <BuildType Solution="ReleaseInstaller|*" Project="Release" />
+    <BuildType Solution="ReleasePortable|*" Project="Release" />
+  </Project>
+  <Project Path="WpfDisplay/WpfDisplay.csproj">
+    <BuildDependency Project="IFSEngine.WPF.InteractiveDisplay/IFSEngine.WPF.InteractiveDisplay.csproj" />
+    <BuildDependency Project="IFSEngine/IFSEngine.csproj" />
+    <BuildType Solution="ReleaseInstaller|ARM" Project="ReleasePortable" />
+    <BuildType Solution="ReleaseInstaller|ARM64" Project="ReleasePortable" />
+    <BuildType Solution="ReleaseInstaller|x64" Project="ReleasePortable" />
+    <BuildType Solution="ReleaseInstaller|x86" Project="ReleasePortable" />
+  </Project>
+</Solution>
