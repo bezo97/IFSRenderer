@@ -26,6 +26,7 @@
     <BuildType Solution="ReleasePortable|*" Project="Release" />
   </Project>
   <Project Path="Setup/Setup.vdproj" Type="Installer">
+    <BuildDependency Project="WpfDisplay/WpfDisplay.csproj" />
     <BuildType Solution="ReleaseInstaller|*" Project="Release" />
     <BuildType Solution="ReleasePortable|*" Project="Release" />
   </Project>
