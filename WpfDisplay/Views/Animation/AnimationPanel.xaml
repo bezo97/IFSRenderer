@@ -8,7 +8,6 @@
              xmlns:common="clr-namespace:WpfDisplay.Views"
              xmlns:viewModels="clr-namespace:WpfDisplay.ViewModels"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" x:Name="animationPanel"
              d:DataContext="{d:DesignInstance Type=viewModels:AnimationViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="300" d:DesignWidth="800">
@@ -29,7 +28,7 @@
                 </GeometryDrawing>
             </DrawingBrush.Drawing>
         </DrawingBrush>
-        <Style x:Key="timelineButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignOutlinedLightButton}">
+        <Style x:Key="timelineButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Visibility" Value="Hidden" />
             <Setter Property="Height" Value="15"/>
             <Setter Property="Padding" Value="0"/>
@@ -63,12 +62,8 @@
             </Button>
             <ToggleButton Command="{Binding PlayPauseCommand}" ToolTip="Play/Pause animation preview"
                           IsEnabled="{Binding IsExportingFrames, Converter={StaticResource invertBooleanConverter}}"
-                          Style="{StaticResource MaterialDesignActionToggleButton}"
                           HorizontalAlignment="Center">
                 <Label FontFamily="Monospace" Padding="2,2,0,0" Foreground="Black">▷</Label>
-                <md:ToggleButtonAssist.OnContent>
-                    <Label FontFamily="Monospace" Padding="0,2,0,0" Foreground="Black">❚❚</Label>
-                </md:ToggleButtonAssist.OnContent>
             </ToggleButton>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="1" Margin="4,0">
@@ -125,7 +120,7 @@
                 <Button
                     Command="{Binding ImportChannelsCommand}"
                     ToolTip="Import channels from a CSV file where columns are the channel IDs and rows are the frames. Make sure to adjust the Framerate slider to match the CSV data."
-                    HorizontalAlignment="Center" Margin="8" Style="{StaticResource MaterialDesignFlatButton}">+ Import...</Button>
+                    HorizontalAlignment="Center" Margin="8">+ Import...</Button>
             </StackPanel>
         </ScrollViewer>
         <ScrollViewer Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
@@ -163,8 +158,8 @@
                                       MouseUp="Channel_MouseUp" MouseDown="Dopesheet_MouseDown">
                                     <Grid.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Icon="{md:PackIcon Kind=Plus}" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
-                                            <MenuItem Icon="{md:PackIcon Kind=Trash}" Header="_Remove channel" Command="{Binding Source={x:Reference Name=animationPanel}, Path=DataContext.RemoveChannelCommand}" CommandParameter="{Binding}" Foreground="OrangeRed"/>
+                                            <MenuItem Icon="✚" Header="_Insert keyframe here" Command="{Binding InsertKeyframeCommand}"/>
+                                            <MenuItem Icon="🗑️" Header="_Remove channel" Command="{Binding Source={x:Reference Name=animationPanel}, Path=DataContext.RemoveChannelCommand}" CommandParameter="{Binding}" Foreground="OrangeRed"/>
                                         </ContextMenu>
                                     </Grid.ContextMenu>
                                     <Border BorderThickness="0,0,0,0.5" BorderBrush="Black">
@@ -230,12 +225,12 @@
                 🛈 Insert a keyframe by clicking ◇ next to the value!
             </Label>
             <StackPanel Visibility="{Binding IsExportingFrames, Converter={StaticResource betterBooleanToVisibilityConverter}}">
-                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Foreground="Red"/>
+                <ProgressBar IsIndeterminate="True" Foreground="Red"/>
                 <TextBlock TextAlignment="Center" Foreground="#aaaaaa" FontSize="16" Margin="0,0,0,16">
                     Exporting animation frames...
                 </TextBlock>
                 <Button Command="{Binding StopExportingFramesCommand}"
-                    HorizontalAlignment="Center" Style="{StaticResource MaterialDesignFlatButton}">
+                    HorizontalAlignment="Center">
                     Cancel
                 </Button>
             </StackPanel>

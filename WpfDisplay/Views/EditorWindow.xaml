@@ -7,15 +7,7 @@
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
         Title="Editor" 
         Width="1280" Height="720"
@@ -78,26 +70,19 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button
                                 Command="{Binding ReloadTransformsCommand}"
-                                ToolTip="Reload plugins (Ctrl+R)"
-                                Style="{StaticResource MaterialDesignToolButton}">🔄</Button>
+                                ToolTip="Reload plugins (Ctrl+R)">🔄</Button>
                             <Button
                                 Command="{Binding OpenTransformsDirectoryCommand}"
-                                ToolTip="Open plugin directory"
-                                Style="{StaticResource MaterialDesignToolButton}">📂</Button>
+                                ToolTip="Open plugin directory">📂</Button>
                         </StackPanel>
                     </Grid>
-                    <TextBox Grid.Row="1" Text="{Binding TransformSearchFilter, UpdateSourceTrigger=PropertyChanged}"
-                             md:HintAssist.Hint="Filter by name, tags"
-                             md:TextFieldAssist.HasClearButton="True" 
-                             md:TextFieldAssist.HasLeadingIcon="True"
-                             md:TextFieldAssist.LeadingIcon="Search"/>
+                    <TextBox Grid.Row="1" Text="{Binding TransformSearchFilter, UpdateSourceTrigger=PropertyChanged}"/>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <ItemsControl ItemsSource="{Binding FilteredTransforms}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button x:Name="transformButton"
-                                                Style="{StaticResource MaterialDesignFlatButton }"
                                                 Command="{Binding DataContext.AddIteratorCommand, ElementName=editorWindow}" 
                                                 CommandParameter="{Binding}" 
                                                 HorizontalContentAlignment="Stretch" Padding="0 4">
@@ -115,7 +100,7 @@
                                                                     </ItemsControl.ItemsPanel>
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate>
-                                                                            <md:Chip Content="{Binding}" />
+                                                                            <Label Content="{Binding}" />
                                                                         </DataTemplate>
                                                                     </ItemsControl.ItemTemplate>
                                                                 </ItemsControl>
@@ -160,7 +145,7 @@
                                                         </b:EventTrigger>
                                                     </b:Interaction.Triggers>
                                                     <Button.Resources>
-                                                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignToolButton}">
+                                                        <Style TargetType="Button">
                                                             <Style.Triggers>
                                                                 <!--Show context button on hover-->
                                                                 <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=transformButton}" Value="True">
@@ -182,11 +167,11 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
-                <md:Card Grid.Column="1" Margin="4" VerticalAlignment="Stretch">
+                <Border Grid.Column="1" Margin="4" VerticalAlignment="Stretch">
                     <local:NodeMap DataContext="{Binding}"/>
-                </md:Card>
+                </Border>
             </Grid>
-            <md:Card Grid.Column="1" Padding="6" Margin="4" VerticalAlignment="Stretch" Width="300">
+            <Border Grid.Column="1" Padding="6" Margin="4" VerticalAlignment="Stretch" Width="300">
                 <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
                     <StackPanel Margin="0,0,8,0">
                         <Grid Visibility="{Binding IsIteratorEditorVisible}">
@@ -194,7 +179,7 @@
                         </Grid>
                         <Grid Visibility="{Binding IsConnectionEditorVisible}">
                             <StackPanel>
-                                <TextBlock Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">
+                                <TextBlock Margin="0 8" FontWeight="Bold">
                                     Selected Connection
                                 </TextBlock>
                                 <local:ValueSlider Value="{Binding SelectedConnection.Weight}" SliderSettings="{Binding SelectedConnection.WeightSlider}"/>
@@ -202,7 +187,7 @@
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
-            </md:Card>
+            </Border>
         </Grid>
     </Grid>
 </Window>

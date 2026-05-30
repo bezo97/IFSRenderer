@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views" 
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -14,8 +13,7 @@
              d:DataContext="{d:DesignInstance Type=vm:QualitySettingsViewModel, IsDesignTimeCreatable=False}">
     <StackPanel>
         <ListBox
-            HorizontalAlignment="Center"
-            Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4"
+            HorizontalAlignment="Center" Margin="4"
             SelectedIndex="0">
             <ListBoxItem>🧭 Exploration</ListBoxItem>
             <ListBoxItem IsSelected="{Binding IsFinalRenderingMode}">📸 Final</ListBoxItem>
@@ -43,7 +41,6 @@
                 <ToggleButton
                         IsChecked="{Binding IsResolutionLinked}" 
                         Width="20" Height="20" FontSize="12" Foreground="Gray"
-                        Style="{StaticResource MaterialDesignFlatToggleButton}"
                         ToolTip="Lock aspect ratio"
                         Grid.Column="1" Margin="4">🔗</ToggleButton>
                 <toolkit:IntegerUpDown 
@@ -56,7 +53,7 @@
                                Header="⋮" ToolTip="Resolution presets"
                                HorizontalAlignment="Right" Padding="8 4" FontSize="12" Height="22">
                         <MenuItem.ItemContainerStyle>
-                            <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                            <Style TargetType="MenuItem">
                                 <Setter Property="Header" Value="{Binding Key}"/>
                                 <Setter Property="Command" Value="{Binding DataContext.ApplyResolutionPresetCommand, ElementName=qualitySettingsView}"/>
                                 <Setter Property="CommandParameter" Value="{Binding Value}"/>
@@ -67,12 +64,12 @@
             </Grid>
             <local:ValueSlider Value="{Binding Renderer.MaxFilterRadius}" SliderSettings="{Binding MaxFilterRadiusSlider}" Label="{Binding MaxFilterRadiusLabel}" Margin="4"/>
         </StackPanel>
-        <Separator Style="{StaticResource MaterialDesignSeparator}"/>
+        <Separator/>
         <local:ValueSlider Value="{Binding Ifs.TargetIterationLevel}" SliderSettings="{Binding TargetIterationLevelSlider}" Margin="4"/>
-        <Separator Style="{StaticResource MaterialDesignSeparator}"/>
+        <Separator/>
         <StackPanel Margin="4">
             <CheckBox IsChecked="{Binding EnableDE}" ToolTip="Using density estimation.">Noise reduction</CheckBox>
-            <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource betterBooleanToVisibilityConverter}}" Background="{DynamicResource MaterialDesignDarkBackground}" Margin="8">
+            <StackPanel Visibility="{Binding EnableDE, Converter={StaticResource betterBooleanToVisibilityConverter}}" Margin="8">
                 <local:ValueSlider Value="{Binding Renderer.DEMaxRadius}" SliderSettings="{Binding DEMaxRadiusSlider}"/>
                 <local:ValueSlider Value="{Binding Renderer.DEPower}" SliderSettings="{Binding DEPowerSlider}"/>
                 <local:ValueSlider Value="{Binding Renderer.DEThreshold}" SliderSettings="{Binding DEThresholdSlider}"/>

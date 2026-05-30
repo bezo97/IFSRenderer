@@ -6,13 +6,12 @@
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
              xmlns:common="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="500"
              d:DataContext="{d:DesignInstance Type=vm:ChannelViewModel, IsDesignTimeCreatable=False}">
     <Grid ClipToBounds="False">
         <local:Spectrogram
-                Visibility="{Binding IsChecked, ElementName=showSpectrogramCheckbox, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Visibility="{Binding IsChecked, ElementName=showSpectrogramCheckbox, Converter={StaticResource booleanToVisibilityConverter}}"
                 Audio="{Binding AnimationVM.Audio}" 
                 SelectedAudioChannelId="{Binding SelectedAudioChannelOption}"
                 ViewScale="{Binding AnimationVM.ViewScale}"/>

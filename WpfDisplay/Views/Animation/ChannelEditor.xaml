@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:WpfDisplay.Views.Animation"
              xmlns:common="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200"
              d:DataContext="{d:DesignInstance Type=vm:ChannelViewModel, IsDesignTimeCreatable=False}"
@@ -23,8 +22,8 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding Name}"  Grid.Column="0"
-                         ToolTip="Name" md:HintAssist.Hint="Channel Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextAlignment="Center" d:Text="Channel Name"/>
-                <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatButton}"
+                         ToolTip="Name" TextAlignment="Center" d:Text="Channel Name"/>
+                <Button Grid.Column="1" 
                         Command="{Binding CloseChannelEditorCommand}"
                         ToolTip="Close channel editor" Foreground="LightGreen"
                         >
@@ -32,7 +31,7 @@
                 </Button>
             </Grid>
             <TextBox Text="{Binding Path, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas"
-                ToolTip="The property in the data structure that is controlled by this channel." md:HintAssist.Hint="Controlled value" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:TextFieldAssist.DecorationVisibility="Hidden" d:Text="Channel.Path"/>
+                ToolTip="The property in the data structure that is controlled by this channel." d:Text="Channel.Path"/>
             <Grid>
                 <TextBlock VerticalAlignment="Center">Channel Drivers</TextBlock>
                 <Menu HorizontalAlignment="Right">
@@ -49,17 +48,16 @@
             </ScrollViewer.LayoutTransform>
             <Expander Visibility="{Binding HasAudioDriver, Converter={StaticResource booleanToVisibilityConverter}}"
                         IsExpanded="True" 
-                        VerticalAlignment="Top" md:ExpanderAssist.HorizontalHeaderPadding="0" Margin="4 0">
+                        VerticalAlignment="Top" Margin="4 0">
                 <Expander.Header>
                     <Grid>
                         <CheckBox IsChecked="{Binding IsDriverEnabled}">Audio Driver</CheckBox>
-                        <Button Command="{Binding RemoveChannelDriverCommand}" Padding="10 0" Style="{StaticResource MaterialDesignFlatButton}" FontSize="9" HorizontalAlignment="Right">🗑️</Button>
+                        <Button Command="{Binding RemoveChannelDriverCommand}" Padding="10 0" FontSize="9" HorizontalAlignment="Right">🗑️</Button>
                     </Grid>
                 </Expander.Header>
                     <StackPanel>
                         <ComboBox ItemsSource="{Binding AnimationVM.LoadedAudioChannels}" 
-                                    SelectedItem="{Binding SelectedAudioChannelOption}"
-                                    md:HintAssist.Hint="Audio channel"/>
+                                    SelectedItem="{Binding SelectedAudioChannelOption}"/>
                         <common:ValueSlider Value="{Binding EffectStrength}" SliderSettings="{Binding EffectSlider}"/>
                         <common:ValueSlider Value="{Binding MinFreq}" SliderSettings="{Binding MinFreqSlider}"/>
                         <common:ValueSlider Value="{Binding MaxFreq}" SliderSettings="{Binding MaxFreqSlider}"/>

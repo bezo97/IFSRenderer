@@ -8,13 +8,13 @@
              d:DesignWidth="150"
              x:Name="valueSlider">
     <UserControl.ContextMenu>
-        <ContextMenu xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+        <ContextMenu>
             <MenuItem Header="Reset" Icon="🔄" Command="{Binding Path=PlacementTarget.ResetValueCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
             <MenuItem Header="Animate" Icon="🎬" 
                       Command="{Binding Path=PlacementTarget.InternalAnimateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
             <Separator/>
             <MenuItem Visibility="{Binding Path=PlacementTarget.ToolTip, RelativeSource={RelativeSource AncestorType=ContextMenu}, Converter={StaticResource nullVisibilityConverter}}"
-                      Height="auto" md:RippleAssist.IsDisabled="True" IsHitTestVisible="False">
+                      Height="auto" IsHitTestVisible="False">
                 <MenuItem.Header>
                     <StackPanel>
                         <Label Margin="-10 0" Content="{Binding Path=PlacementTarget.Label, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
@@ -30,11 +30,10 @@
                 </MenuItem.Header>
             </MenuItem>
             <MenuItem Visibility="{Binding Path=PlacementTarget.AnimationPath, RelativeSource={RelativeSource AncestorType=ContextMenu}, Converter={StaticResource nullVisibilityConverter}}"
-                      Height="auto" md:RippleAssist.IsDisabled="True">
+                      Height="auto">
                 <MenuItem.Header>
                     <TextBox Text="{Binding Path=PlacementTarget.AnimationPath, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                             IsReadOnly="True" FontFamily="Consolas"
-                             md:HintAssist.Hint="Channel path" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:TextFieldAssist.DecorationVisibility="Hidden"/>
+                             IsReadOnly="True" FontFamily="Consolas"/>
                 </MenuItem.Header>
             </MenuItem>
         </ContextMenu>
@@ -46,7 +45,7 @@
             <Button x:Name="symbolButton1" HorizontalAlignment="Right" d:Content="*"
                 IsTabStop="False" Padding="8" ToolTip="Animation keyframe"
                 Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
-                Style="{StaticResource MaterialDesignToolButton }" Foreground="Gray"
+                Foreground="Gray"
                 Command="{Binding InternalAnimateCommand, ElementName=valueSlider}"/>
         </Grid>
         <Grid>
@@ -59,7 +58,6 @@
             <Button 
                 Grid.Column="0" 
                 Padding="10,0,10,0" IsTabStop="False"
-                Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Down_Click">-</Button>
             <Label x:Name="displayLabel" Grid.Column="1"
@@ -78,14 +76,13 @@
             <Button
                 Grid.Column="2" 
                 Padding="10,0,10,0" IsTabStop="False"
-                Style="{StaticResource MaterialDesignFlatButton }"
                 Background="#303030"
                 Click="Up_Click">+</Button>
             <Grid Grid.Column="3" Visibility="{Binding IsLabelShown, ElementName=valueSlider, Converter={StaticResource invertBooleanToVisibilityConverter}}">
                 <Button x:Name="symbolButton2"
                     IsTabStop="False" Padding="8" ToolTip="Animation keyframe" d:Content="*"
                     Visibility="{Binding AnimationPath, ElementName=valueSlider, Converter={StaticResource nullVisibilityConverter}}" d:Visibility="Visible"
-                    Style="{StaticResource MaterialDesignToolButton }" Foreground="Gray"
+                    Foreground="Gray"
                     Command="{Binding InternalAnimateCommand, ElementName=valueSlider}"/>
             </Grid>
         </Grid>

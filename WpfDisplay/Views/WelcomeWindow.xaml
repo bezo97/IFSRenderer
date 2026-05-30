@@ -3,20 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
-        xmlns:app="clr-namespace:WpfDisplay" 
-        xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
-        Style="{StaticResource MaterialDesignWindow}"
-        TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="16"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignDarkBackground}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
+        xmlns:app="clr-namespace:WpfDisplay"
         WindowStartupLocation="CenterOwner" 
         ShowInTaskbar="False"
         WindowStyle="ToolWindow"
@@ -62,10 +52,10 @@
                     <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
                 <Hyperlink NavigateUri="https://www.deviantart.com/xenofish/art/ifsrenderer-5-1011706848" Foreground="White">
-                    Artwork <md:PackIcon Kind="ExternalLink"/>
+                    Artwork 🔗
                 </Hyperlink>
             </TextBlock>
-            <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48" FontFamily="{StaticResource MaterialDesignFont}">
+            <Label VerticalAlignment="Bottom" IsHitTestVisible="False" Margin="8" FontSize="48">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
@@ -76,7 +66,7 @@
                     <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/releases" Foreground="White">
-                    <Run Text="{x:Static app:App.VersionString}"/> <md:PackIcon Kind="ExternalLink"/>
+                    <Run Text="{x:Static app:App.VersionString}"/> 🔗
                 </Hyperlink>
             </TextBlock>
         </Grid>
@@ -85,7 +75,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <md:Card Grid.Column="0" Padding="4" Margin="4">
+            <Border Grid.Column="0" Padding="4" Margin="4">
                 <StackPanel MinWidth="200">
                     <Label>Choose a workflow</Label>
                     <StackPanel Margin="8,0">
@@ -131,25 +121,25 @@
                         </Label>
                     </Grid>
                 </StackPanel>
-            </md:Card>
+            </Border>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Expander Header="Getting Started" Grid.Row="0" md:ExpanderAssist.HorizontalHeaderPadding="4"
+                <Expander Header="Getting Started" Grid.Row="0"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=0}">
-                    <md:Card Padding="2">
+                    <Border Padding="2">
                         <StackPanel Margin="8">
                             <TextBlock>
                                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki/Getting-Started-Guide">
-                                    Getting Started Guide <md:PackIcon Kind="ExternalLink"/>
+                                    Getting Started Guide 🔗
                                 </Hyperlink>
                             </TextBlock>
                             <TextBlock>
                                 <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/wiki">
-                                    Wiki <md:PackIcon Kind="ExternalLink"/>
+                                    Wiki 🔗
                                 </Hyperlink>
                             </TextBlock>
                             <TextBlock>
@@ -158,11 +148,11 @@
                                 </Hyperlink>
                             </TextBlock>
                         </StackPanel>
-                    </md:Card>
+                    </Border>
                 </Expander>
-                <Expander Header="Templates" Grid.Row="1" md:ExpanderAssist.HorizontalHeaderPadding="4"
+                <Expander Header="Templates" Grid.Row="1"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=1}">
-                    <md:Card Padding="2">
+                    <Border Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Templates}" Padding="0,0,0,4"
                                           ItemTemplate="{StaticResource thumbnailTemplate}">
@@ -173,11 +163,11 @@
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </ScrollViewer>
-                    </md:Card>
+                    </Border>
                 </Expander>
-                <Expander Header="Recent Files" Grid.Row="2" md:ExpanderAssist.HorizontalHeaderPadding="4"
+                <Expander Header="Recent Files" Grid.Row="2"
                           IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=2}">
-                    <md:Card Padding="2">
+                    <Border Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding RecentFiles}" Padding="0,0,0,4"
                                           ItemTemplate="{StaticResource thumbnailTemplate}">
@@ -188,7 +178,7 @@
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </ScrollViewer>
-                    </md:Card>
+                    </Border>
                 </Expander>
             </Grid>
         </Grid>

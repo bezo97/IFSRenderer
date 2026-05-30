@@ -16,16 +16,14 @@
                 Command="{Binding AnimateCameraCommand}"
                 ToolTip="Animate camera transform"
                 HorizontalAlignment="Left"
-                Height="30" FontSize="10" Margin="4 0 0 4"
-                Style="{StaticResource MaterialDesignOutlinedButton }">
+                Height="30" FontSize="10" Margin="4 0 0 4">
                 🎬 Animate Camera
             </Button>
             <Button
                 Command="{Binding ResetCameraCommand}"
                 ToolTip="Reset Camera"
                 Height="20" FontSize="10" Padding="4"
-                VerticalAlignment="Top" HorizontalAlignment="Right"
-                Style="{StaticResource MaterialDesignOutlinedButton }">
+                VerticalAlignment="Top" HorizontalAlignment="Right">
                 ↩️ Reset
             </Button>
         </Grid>

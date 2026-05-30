@@ -17,8 +17,7 @@
                 Command="{Binding ResetCameraCommand}"
                 ToolTip="Reset Camera"
                 Height="20" FontSize="10" Padding="4"
-                VerticalAlignment="Top" HorizontalAlignment="Right"
-                Style="{StaticResource MaterialDesignOutlinedButton }">
+                VerticalAlignment="Top" HorizontalAlignment="Right">
                 ↩️ Reset
             </Button>
             <local:ValueSlider Value="{Binding Camera.FieldOfView}" SliderSettings="{Binding FieldOfViewSlider}" Margin="0 16 0 0">
@@ -52,7 +51,7 @@
         <!--TODO: Ability to lock focus on current focus point-->
         <CheckBox IsEnabled="False" ToolTip="🛠️ Under Construction" Foreground="White">🔒 Lock focus point</CheckBox>
         <local:ValueSlider Value="{Binding Camera.DepthOfField}" SliderSettings="{Binding DepthOfFieldSlider}"/>
-        <Label Style="{StaticResource MaterialDesignLabel}" Margin="0 8 0 0">
+        <Label Margin="0 8 0 0">
             🧊 Projection
         </Label>
         <ComboBox Padding="8"

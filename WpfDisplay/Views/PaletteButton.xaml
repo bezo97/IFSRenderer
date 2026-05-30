@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:WpfDisplay.Views"
              mc:Ignorable="d" 
              x:Name="paletteButton"
-             Style="{StaticResource MaterialDesignRaisedButton}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Button.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -22,7 +21,6 @@
                 <Label
                     Background="{Binding Background, ElementName=paletteButton}"></Label>
                 <TextBlock Text="{TemplateBinding Content}"
-                            Style="{StaticResource MaterialDesignButtonTextBlock}"
                             Padding="{Binding Padding, ElementName=paletteButton}"
                             Foreground="White"
                             TextAlignment="Center"

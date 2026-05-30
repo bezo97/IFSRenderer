@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDisplay.Views"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         xmlns:conv="clr-namespace:WpfDisplay.Converters" 
@@ -14,7 +13,6 @@
         Title="{Binding WindowTitle}"
         Width="1920" Height="1080" WindowState="Maximized"
         AllowDrop="True" DragOver="mainWindow_DragOver" Drop="mainWindow_Drop"
-        Style="{StaticResource MaterialDesignWindow}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
     <Window.CommandBindings>
@@ -95,14 +93,14 @@
                 </Menu>
                 <Separator/>
                 <Menu>
-                    <MenuItem Icon="{md:PackIcon Kind=VectorPolyline}" Header="Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
+                    <MenuItem Icon="⚒️" Header="Editor" Click="EditorButton_Click" ToolTip="Open the editor window"/>
                     <MenuItem Header="🔮     Generator" Click="GeneratorButton_Click" ToolTip="Open the generator window"/>
                     <MenuItem Header="🎲     _Random" Command="{Binding LoadRandomCommand}" ToolTip="Generate random params (Ctrl+R)" InputGestureText="Ctrl+R"/>
                 </Menu>
                 <Separator/>
                 <local:TitleBox Width="200" Height="30"/>
                 <Menu>
-                    <MenuItem Icon="{md:PackIcon Kind=ImageMove}" Header="E_xport">
+                    <MenuItem Icon="⛶" Header="E_xport">
                         <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
                         <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                         <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
@@ -114,7 +112,7 @@
         </ToolBarTray>
         <Menu Grid.Row="0" HorizontalAlignment="Right">
             <MenuItem Header="🎓     Tutorials..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
-            <MenuItem Icon="{md:PackIcon Kind=InfoCircleOutline}" Header="Help">
+            <MenuItem Icon="❔" Header="Help">
                 <MenuItem Icon="📚" Header="Wiki..." InputGestureText="F1" Command="{Binding VisitWikiCommand}"/>
                 <MenuItem Icon="🏛️" Header="Forum..." Command="{Binding VisitForumCommand}"/>
                 <MenuItem Icon="🙋" Header="Send Feedback">
@@ -214,7 +212,7 @@
                                             <local:ControlHintsPanel
                                                 Visibility="{Binding IsHintsPanelVisible, Converter={ StaticResource booleanToVisibilityConverter }}"
                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="16"/>
-                                            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                            <ProgressBar
                                                 Visibility="{Binding Path=., Converter={StaticResource nullVisibilityConverter}, ConverterParameter=true}"
                                                 Width="50" Height="50"
                                                 IsIndeterminate="True"/>
@@ -279,7 +277,7 @@
             </LayoutRoot>
         </DockingManager>
 
-        <md:Card Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
+        <Border Grid.Row="3" Padding="3" Margin="8" VerticalAlignment="Stretch">
             <StatusBar Background="Transparent">
                 <StatusBar.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -306,7 +304,7 @@
                     <Grid>
                         <ProgressBar Width="100" Value="{Binding IterationProgressPercent, Mode=OneWay}" VerticalAlignment="Bottom"/>
                         <TextBlock VerticalAlignment="Top" Margin="0 -4" TextAlignment="Center"
-                                   ToolTip="Iteration progress" Style="{StaticResource MaterialDesignLabelSmallTextBlock}" Foreground="White">
+                                   ToolTip="Iteration progress" Foreground="White">
                             Progress: <Run Text="{Binding IterationLevel, Mode=OneWay}"/> / <Run Text="{Binding Ifs.TargetIterationLevel, Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
@@ -315,7 +313,7 @@
                         <ToggleButton 
                             Content="{Binding IsRenderingIcon}" Command="{Binding StartStopRenderingCommand}"
                             Width="20" Height="20" Padding="0" Margin="0"
-                            Style="{StaticResource MaterialDesignFlatButton}" FontFamily="Monospace" ToolTip="Resume/Pause rendering (Pause key)" d:Content="||"/>
+                            FontFamily="Monospace" ToolTip="Resume/Pause rendering (Pause key)" d:Content="||"/>
                 </StatusBarItem>
                 <Separator DockPanel.Dock="Right"/>
                 <StatusBarItem DockPanel.Dock="Right"
@@ -337,9 +335,9 @@
                             </Style.Triggers>
                         </Style>
                     </StatusBarItem.Style>
-                    <md:PackIcon Kind="MicrosoftXboxGamepad" Foreground="White"/>
+                    <Label Content="🎮" FontSize="14" Foreground="White"/>
                 </StatusBarItem>
             </StatusBar>
-        </md:Card>
+        </Border>
     </Grid>
 </Window>

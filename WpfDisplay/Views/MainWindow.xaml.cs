@@ -32,7 +32,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
         animationsPanel.ToggleAutoHide();
         ContentRendered += MainWindow_ContentRendered;
     }

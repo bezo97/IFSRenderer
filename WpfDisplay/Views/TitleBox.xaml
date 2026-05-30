@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views" 
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
@@ -16,18 +15,17 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <TextBox Text="{Binding IFSTitle}" x:Name="titleTextBox" ToolTip="Title"
-                 md:HintAssist.Hint="Enter a title"
                  TextAlignment="Center" FontWeight="Black" Grid.Column="0"
                  GotKeyboardFocus="titleTextBox_GotKeyboardFocus" KeyDown="titleTextBox_KeyDown"/>
-        <ToggleButton Grid.Column="1" x:Name="authorsToggle" Style="{DynamicResource MaterialDesignExpanderToggleButton}" ToolTip="Authors" Foreground="White" Cursor="Hand"/>
+        <ToggleButton Grid.Column="1" x:Name="authorsToggle" ToolTip="Authors" Foreground="White" Cursor="Hand"/>
         <Popup Grid.Column="2" IsOpen="{Binding IsChecked, ElementName=authorsToggle}"
                Width="200" Placement="Bottom" PopupAnimation="Fade" StaysOpen="False" AllowsTransparency="True">
-            <md:Card Padding="4">
+            <Border Padding="4">
                 <StackPanel>
                     <Grid>
                         <Label>Authors:</Label>
                         <ToggleButton IsChecked="{Binding IsChecked, ElementName=authorsToggle}" 
-                                      HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFlatButton}" FontSize="8" Height="26">❌</ToggleButton>
+                                      HorizontalAlignment="Right" FontSize="8" Height="26">❌</ToggleButton>
                     </Grid>
                     <ItemsControl ItemsSource="{Binding AuthorList}">
                         <ItemsControl.ItemTemplate>
@@ -41,7 +39,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </md:Card>
+            </Border>
         </Popup>
     </Grid>
 </UserControl>

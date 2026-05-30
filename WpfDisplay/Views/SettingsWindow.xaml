@@ -3,17 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:local="clr-namespace:WpfDisplay.Views"         
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterOwner" 
         ShowInTaskbar="False"
         WindowStyle="ToolWindow"
@@ -25,7 +17,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" MinHeight="50"/>
         </Grid.RowDefinitions>
-        <TabControl Grid.Row="0" Style="{StaticResource MaterialDesignNavigationRailTabControl}">
+        <TabControl Grid.Row="0">
             <TabItem Header="👤 User settings" MinWidth="150">
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
@@ -41,7 +33,7 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center">
                         User settings
                     </TextBlock>
                     <!--Author name-->
@@ -49,23 +41,23 @@
                         Author name
                     </TextBlock>
                     <Label Grid.Row="1" Grid.Column="1"
-                        ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Optionally provide your name to be embedded in params and image metadata." HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="ⓘ"/>
                     <TextBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Text="{Binding AuthorName}" md:HintAssist.Hint="Provide an author name"/>
+                        Text="{Binding AuthorName}"/>
                     <!--Author link-->
                     <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Author link
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1" 
-                        ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Optionally provide a link to be embedded in params and image metadata." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <TextBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Text="{Binding AuthorLink}" md:HintAssist.Hint="https://example.com"/>
+                        Text="{Binding AuthorLink}"/>
                     <!--UseWhiteForBlankParams-->
                     <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         White blank params
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="Check this to use a simple white palette instead of random colors When starting from scratch in blank params." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Check this to use a simple white palette instead of random colors When starting from scratch in blank params." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding UseWhiteForBlankParams}"/>
                     <!--IsWelcomeShownOnStartup-->
@@ -73,7 +65,7 @@
                         Welcome screen
                     </TextBlock>
                     <Label Grid.Row="4" Grid.Column="1"
-                        ToolTip="Option to hide or show the welcome screen when IFSRenderer starts." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Option to hide or show the welcome screen when IFSRenderer starts." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding IsWelcomeShownOnStartup}"/>
                     <!--Notification-->
@@ -81,7 +73,7 @@
                         Notifications
                     </TextBlock>
                     <Label Grid.Row="5" Grid.Column="1"
-                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Display a Windows notification when a render finishes. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <CheckBox Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding Notifications}" IsEnabled="False"/>
                 </Grid>
@@ -98,7 +90,7 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center">
                         Controls
                     </TextBlock>
                     <!--Invert Axis-->
@@ -114,13 +106,13 @@
                         Movement sensitivity
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                        ToolTip="{Binding SensitivitySlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="{Binding SensitivitySlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <local:ValueSlider Value="{Binding Sensitivity}" SliderSettings="{Binding SensitivitySlider}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
             <TabItem Header="🖼 Export options" MinWidth="150">
                 <StackPanel Margin="8">
-                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                    <TextBlock TextAlignment="Center">
                         Export options
                     </TextBlock>
                     <Grid Margin="8">
@@ -139,7 +131,7 @@
                             Save metadata
                         </TextBlock>
                         <Label Grid.Row="0" Grid.Column="1"
-                            ToolTip="Whether to write metadata in the exported images. This includes title, authors, copyright, date of creation and keywords." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                            ToolTip="Whether to write metadata in the exported images. This includes title, authors, copyright, date of creation and keywords." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                         <CheckBox Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsChecked="{Binding SaveMetadata}"/>
                         <!--Params in metadata-->
@@ -147,7 +139,7 @@
                             Include params
                         </TextBlock>
                         <Label Grid.Row="1" Grid.Column="1"
-                        ToolTip="Whether to include fractal params in the image metadata. This makes it possible to drop or paste the image in the editor instead of loading param files." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="Whether to include fractal params in the image metadata. This makes it possible to drop or paste the image in the editor instead of loading param files." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                         <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsEnabled="{Binding SaveMetadata}"
                             IsChecked="{Binding IncludeParamsInMetadata}"/>
@@ -156,7 +148,7 @@
                             Apply watermark
                         </TextBlock>
                         <Label Grid.Row="2" Grid.Column="1"
-                            ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                            ToolTip="Print the author name on exported images. (coming soon)" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                         <CheckBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsChecked="{Binding ApplyWatermark}" IsEnabled="False"/>
                     </Grid>
@@ -164,23 +156,23 @@
             </TabItem>
             <TabItem Header="🎥 Animations" MinWidth="150">
                 <StackPanel Margin="8">
-                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                    <TextBlock TextAlignment="Center">
                         Animation export options
                     </TextBlock>
                     <StackPanel Margin="16 0">
                         <Label>Frame export format:</Label>
                         <ListBox
                             HorizontalAlignment="Right"
-                            Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4">
+                            Margin="4">
                             <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled, Converter={StaticResource invertBooleanConverter}}">png (8-bit)</ListBoxItem>
                             <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled}">exr (32-bit)</ListBoxItem>
                         </ListBox>
                         <StackPanel Orientation="Horizontal" Margin="0,8">
                             <Button Command="{Binding ShowFfmpegPathSelectorDialogCommand}"
                                     Content="ffmpeg.exe:"
-                                    Style="{StaticResource MaterialDesignOutlinedButton}" Padding="8"/>
+                                    Padding="8"/>
                             <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource invertBooleanToVisibilityConverter}}"
-                                ToolTip="In order to save video files, install ffmpeg and select the executable." Content="{md:PackIcon InformationOutline}"/>
+                                ToolTip="In order to save video files, install ffmpeg and select the executable." Content="ⓘ"/>
                             <Label Content="{Binding FfmpegPath}"
                                    VerticalAlignment="Center"/>
                         </StackPanel>
@@ -193,14 +185,14 @@
                             <Grid>
                                 <TextBlock>
                                     <Run BaselineAlignment="Center">ffmpeg args: </Run>
-                                    <Label ToolTip="Provide additional ffmpeg settings here. IFSRenderer handles the following arguments: input, output, fps, audio." Content="{md:PackIcon InformationOutline}"/>
+                                    <Label ToolTip="Provide additional ffmpeg settings here. IFSRenderer handles the following arguments: input, output, fps, audio." Content="ⓘ"/>
                                 </TextBlock>
                                 <Menu HorizontalAlignment="Right" Height="22">
                                     <MenuItem Header="▼ Presets" 
                                               ItemsSource="{Binding FfmpegPresets}"
                                               HorizontalAlignment="Right" Padding="4" FontSize="12" Height="22">
                                         <MenuItem.ItemContainerStyle>
-                                            <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                            <Style TargetType="MenuItem">
                                                 <Setter Property="Header" Value="{Binding Key}"/>
                                                 <Setter Property="Command" Value="{Binding DataContext.ApplyFfmpegPresetCommand, ElementName=settingsWindow}"/>
                                                 <Setter Property="CommandParameter" Value="{Binding Value}"/>
@@ -211,7 +203,7 @@
                             </Grid>
                             <TextBox Text="{Binding FfmpegArgs}"
                                 TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" MinLines="5" 
-                                Style="{StaticResource MaterialDesignFilledTextBox}" TextAlignment="Left"/>
+                                TextAlignment="Left"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -229,7 +221,7 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MaterialDesignHeadline6TextBlock}" TextAlignment="Center">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center">
                         Performance settings
                     </TextBlock>
                     <!--Perceptually uniform updates-->
@@ -237,7 +229,7 @@
                         Perceptually uniform updates
                     </TextBlock>
                     <Label Grid.Row="1" Grid.Column="1"
-                        ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="This option decreases the display framerate to allow more computing power on the iteration loop. Checked by default." HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsChecked="{Binding PerceptuallyUniformUpdates}"/>
                     <!--Target Framerate-->
@@ -245,14 +237,14 @@
                         Target Framerate
                     </TextBlock>
                     <Label Grid.Row="2" Grid.Column="1"
-                         ToolTip="{Binding TargetFramerateSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                         ToolTip="{Binding TargetFramerateSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <local:ValueSlider Value="{Binding TargetFramerate}" SliderSettings="{Binding TargetFramerateSlider}" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"/>
                     <!--Workgroup-->
                     <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
                         Workgroups
                     </TextBlock>
                     <Label Grid.Row="3" Grid.Column="1"
-                        ToolTip="{Binding WorkgroupCountSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{md:PackIcon InformationOutline}"/>
+                        ToolTip="{Binding WorkgroupCountSlider.ToolTip}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ⓘ"/>
                     <local:ValueSlider Value="{Binding WorkgroupCount}" SliderSettings="{Binding WorkgroupCountSlider}" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
@@ -263,7 +255,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!--Dialog Buttons-->
-            <Button Grid.Column="0" Style="{StaticResource MaterialDesignFlatButton}"
+            <Button Grid.Column="0"
                     Command="{Binding CancelDialogCommand}"
                     IsCancel="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15">
                 Cancel
@@ -272,7 +264,7 @@
                     Command="{Binding OkDialogCommand}"
                     IsDefault="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15">
                 <StackPanel Orientation="Horizontal">
-                    <md:PackIcon Kind="ContentSave" Margin="4,0"/>
+                    <Label Margin="4,0">💾</Label>
                     <TextBlock Text="Save"/>
                 </StackPanel>
             </Button>

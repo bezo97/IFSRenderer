@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DataContext="{d:DesignInstance Type=vm:IteratorViewModel}"
              x:Name="iteratorEditor"
              mc:Ignorable="d"
@@ -14,7 +13,7 @@
         <BooleanToVisibilityConverter x:Key="conv1"/>
     </UserControl.Resources>
     <StackPanel>
-        <TextBlock Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">
+        <TextBlock Margin="0 8" FontWeight="Bold">
                 Selected Iterator
         </TextBlock>
         <Grid>
@@ -23,13 +22,10 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0" VerticalAlignment="Top"
-                    Text="{Binding IteratorName, UpdateSourceTrigger=PropertyChanged}"
-                    md:HintAssist.Hint="Name"
-                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    Text="{Binding IteratorName, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Grid.Column="1"
                     Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
                     ToolTip="Remove (Delete)"
-                    Style="{StaticResource MaterialDesignFlatButton}"
                     Margin="4" Padding="6" >
                 🗑️
             </Button>
@@ -43,7 +39,6 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                         Command="{Binding FlipWeightCommand}"
-                        Style="{StaticResource MaterialDesignFlatButton}"
                         ToolTip="Enable/Disable (Ctrl+W)"
                         Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     ⚖
@@ -58,7 +53,6 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                         Command="{Binding FlipOpacityCommand}"
-                        Style="{StaticResource MaterialDesignFlatButton}"
                         ToolTip="Show/Hide (Ctrl+O)"
                         Margin="4,4,4,0" Padding="6" VerticalAlignment="Bottom">
                     👁️
@@ -74,8 +68,8 @@
                         <CheckBox.ToolTip>
                             <ToolTip Width="500">
                                 <StackPanel Margin="8">
-                                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}">Alternative Coloring (Delta-P coloring mode)</TextBlock>
-                                    <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" TextWrapping="Wrap">
+                                    <TextBlock>Alternative Coloring (Delta-P coloring mode)</TextBlock>
+                                    <TextBlock TextWrapping="Wrap">
                                         An experimental coloring mode which makes hard-to-color structures (such as 1-iterator fractals, gnarl, ..) easier to color.
                                     </TextBlock>
                                     <Image Source="/IFSRenderer;component/Resources/deltap-tooltip.jpg" HorizontalAlignment="Center" />
@@ -103,7 +97,7 @@
                 <local:ValueSlider Grid.Column="0" Value="{Binding Iterator.Mix}" SliderSettings="{Binding MixSlider}"/>
                 <local:ValueSlider Grid.Column="1" Value="{Binding Iterator.Add}" SliderSettings="{Binding AddSlider}"/>
             </Grid>
-            <TextBlock Text="{Binding TransformName}" Margin="0 8" FontWeight="Bold" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}" />
+            <TextBlock Text="{Binding TransformName}" Margin="0 8" FontWeight="Bold"/>
             <ItemsControl ItemsSource="{Binding Parameters}" IsTabStop="False">
                 <ItemsControl.Resources>
                     <!--real-->

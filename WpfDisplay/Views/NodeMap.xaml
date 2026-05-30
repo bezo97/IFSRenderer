@@ -78,8 +78,7 @@
                 </ItemsControl>
             </Grid>
         </xc:Zoombox>
-        <!--<Button Command="{Binding AutoLayoutNodesCommand}"
-            Style="{DynamicResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10">
+        <!--<Button Command="{Binding AutoLayoutNodesCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10">
             Layout
         </Button>-->
     </Grid>

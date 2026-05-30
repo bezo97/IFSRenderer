@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:anim="clr-namespace:IFSEngine.Animation;assembly=IFSEngine"
-                    xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:local="clr-namespace:WpfDisplay.Views">
+                    xmlns:local="clr-namespace:WpfDisplay.Views">
     <!--Enum providers for ComboBoxes-->
     <ObjectDataProvider x:Key="easingDirectionEnumItemsProvider"
                             MethodName="GetValues" 
@@ -19,7 +19,7 @@
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
     <!--Custom dope button style-->
-    <Style x:Key="dopeButtonStyle" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}" TargetType="{x:Type Button}">
+    <Style x:Key="dopeButtonStyle" TargetType="{x:Type Button}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                 <Setter Property="Background" Value="DarkOrange"/>
@@ -36,32 +36,28 @@
     </TransformGroup>
     <!--Context menu-->
     <ContextMenu x:Key="dopeButtonContextMenu" StaysOpen="True">
-        <MenuItem Icon="{md:PackIcon Kind=Stairs}" Height="55" StaysOpenOnClick="True">
+        <MenuItem Icon="𓊍" Height="55" StaysOpenOnClick="True">
             <MenuItem.Header>
                 <ComboBox ItemsSource="{Binding Source={StaticResource interpolationModeEnumItemsProvider}}"
-                              SelectedValue="{Binding SelectedInterpolationMode}"
-                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                              md:HintAssist.Hint="Interpolation mode"/>
+                              SelectedValue="{Binding SelectedInterpolationMode}"/>
             </MenuItem.Header>
         </MenuItem>
         <MenuItem Icon="↔️" Height="55" StaysOpenOnClick="True">
             <MenuItem.Header>
                 <ComboBox ItemsSource="{Binding Source={StaticResource easingDirectionEnumItemsProvider}}"
-                              SelectedValue="{Binding SelectedEasingDirection}"
-                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                              md:HintAssist.Hint="Easing direction"/>
+                              SelectedValue="{Binding SelectedEasingDirection}"/>
             </MenuItem.Header>
         </MenuItem>
-        <MenuItem Icon="{md:PackIcon Kind=Vitals}" Height="55" StaysOpenOnClick="True">
+        <MenuItem Icon="𓂃" Height="55" StaysOpenOnClick="True">
             <MenuItem.Header>
                 <StackPanel>
-                    <TextBlock Style="{StaticResource MaterialDesignOverlineTextBlock}" Foreground="DarkGray">Easing Power</TextBlock>
+                    <TextBlock Foreground="DarkGray">Easing Power</TextBlock>
                     <local:ValueSlider Value="{Binding EasingPower}" 
                                        SliderSettings="{Binding EasingPowerSlider}"/>
                 </StackPanel>
             </MenuItem.Header>
         </MenuItem>
         <Separator/>
-        <MenuItem Icon="{md:PackIcon Kind=Trash}" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
+        <MenuItem Icon="🗑️" Header="Remove keyframe" Command="{Binding RemoveKeyframeCommand}" Foreground="OrangeRed"/>
     </ContextMenu>
 </ResourceDictionary>

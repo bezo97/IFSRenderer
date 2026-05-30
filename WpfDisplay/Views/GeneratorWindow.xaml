@@ -3,23 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
         Title="Generator" Height="720" Width="1280" WindowState="Maximized"
         x:Name="generatorWindow"
         d:DataContext="{d:DesignInstance Type=vm:GeneratorViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
-        <Style TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignCheckBox}">
+        <Style TargetType="CheckBox">
             <Setter Property="Margin" Value="4"/>
         </Style>
     </Window.Resources>
@@ -41,7 +33,7 @@
                 <ColumnDefinition Width="250"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <md:Card Grid.Column="0" Margin="8" Padding="8">
+            <Border Grid.Column="0" Margin="8" Padding="8">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -77,21 +69,20 @@
                                             Command="{Binding DataContext.UnpinCommand, ElementName=generatorWindow}"
                                             CommandParameter="{Binding Key}"
                                             Width="20" Height="20" FontSize="10" Margin="8"
-                                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                            Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">🗑</Button>
+                                            HorizontalAlignment="Left" VerticalAlignment="Bottom">🗑</Button>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
                 </Grid>
-            </md:Card>
+            </Border>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <md:Card Grid.Row="0" Margin="8" Padding="8">
+                <Border Grid.Row="0" Margin="8" Padding="8">
                     <Grid>
                         <StackPanel>
                             <Label>🔮 Mutation options</Label>
@@ -111,7 +102,6 @@
                                 <StackPanel Grid.Column="1" Margin="8">
                                     <CheckBox IsChecked="{Binding Options.MutatePalette}">Palette</CheckBox>
                                     <CheckBox IsChecked="{Binding Options.MutateColoring}">Coloring</CheckBox>
-                                    <md:ColorZone>Dominant Color</md:ColorZone>
                                     <CheckBox IsChecked="{Binding Options.UseMixboxMixing}" 
                                               ToolTip="Use Mixbox algorithm to mix colors similar to mixing paint.">
                                         Pigment-based mixing
@@ -146,8 +136,8 @@
                             </Grid>
                         </StackPanel>
                     </Grid>
-                </md:Card>
-                <md:Card Grid.Row="1" Margin="8" Padding="8">
+                </Border>
+                <Border Grid.Row="1" Margin="8" Padding="8">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -182,7 +172,7 @@
                             </ItemsControl>
                         </ScrollViewer>
                     </Grid>
-                </md:Card>
+                </Border>
             </Grid>
         </Grid>
     </Grid>

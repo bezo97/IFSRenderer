@@ -39,7 +39,7 @@
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
 		<PackageReference Include="Dirkster.AvalonDock.Themes.Arc" Version="4.74.1" />
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
-		<PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
 		<PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
 	</ItemGroup>
 
