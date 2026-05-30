@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WpfDisplay" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:conv="clr-namespace:WpfDisplay.Converters"
              Startup="Application_Startup"
              StartupUri="Views/MainWindow.xaml" ThemeMode="System">
     <Application.Resources>
@@ -24,6 +26,18 @@
                     </Style>
                 </ResourceDictionary>
                 <ResourceDictionary Source="Views/Animation/DopeButtonResources.xaml"/>
+                <ResourceDictionary>
+                    <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
+                    <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+                    <sys:Int32 x:Key="zero">0</sys:Int32>
+                    <sys:Boolean x:Key="false">False</sys:Boolean>
+                    <sys:Boolean x:Key="true">True</sys:Boolean>
+                    <conv:EqualityToVisibilityConverter x:Key="equalityToVisibilityConverter"/>
+                    <conv:BetterBooleanToVisibilityConverter x:Key="betterBooleanToVisibilityConverter"/>
+                    <conv:BetterBooleanToVisibilityConverter x:Key="invertBooleanToVisibilityConverter" True="Collapsed" False="Visible"/>
+                    <conv:ParameterEqualityToBoolConverter x:Key="parameterEqualityToBoolConverter"/>
+                    <conv:BooleanConverter x:Key="invertBooleanConverter" True="False" False="True"/>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -126,7 +126,7 @@
                                                                 <TextBlock Margin="8 0">
                                                                     <TextBlock.Visibility>
                                                                         <Binding Path="IncludeUses.Count"
-                                                                             Converter="{StaticResource EqualityToVisibilityConverter}">
+                                                                             Converter="{StaticResource equalityToVisibilityConverter}">
                                                                             <Binding.ConverterParameter>
                                                                                 <sys:Int32>0</sys:Int32>
                                                                             </Binding.ConverterParameter>

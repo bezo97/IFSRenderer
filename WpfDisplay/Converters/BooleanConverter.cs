@@ -7,6 +7,8 @@ namespace WpfDisplay.Converters;
 
 public class BooleanConverter<T> : IValueConverter
 {
+    public BooleanConverter() { }
+
     public BooleanConverter(T trueValue, T falseValue)
     {
         True = trueValue;
@@ -20,3 +22,5 @@ public class BooleanConverter<T> : IValueConverter
 
     public virtual object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => value is T t && EqualityComparer<T>.Default.Equals(t, True);
 }
+
+public class BooleanConverter : BooleanConverter<bool>;

@@ -17,10 +17,6 @@
         Style="{StaticResource MaterialDesignWindow}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
-    <Window.Resources>
-        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
-        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
-    </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
         <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
@@ -67,7 +63,7 @@
                                 </Style>
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>
-                        <MenuItem Header="📜 Recents" ItemsSource="{Binding RecentFilePaths}" IsEnabled="{Binding RecentFilePaths.Count, Converter={StaticResource NotZeroConverter}}">
+                        <MenuItem Header="📜 Recents" ItemsSource="{Binding RecentFilePaths}" IsEnabled="{Binding HasRecentFiles}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}"/>

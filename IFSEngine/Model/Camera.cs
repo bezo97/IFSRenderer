@@ -56,6 +56,22 @@ public class Camera
         UpdateDirectionVectors();
     }
 
+    /// <summary>
+    /// Orbits the camera around a pivot point while keeping the camera aimed at the pivot.
+    /// </summary>
+    /// <param name="pivot">The world-space point to orbit around.</param>
+    /// <param name="rotVector">Euler angle (Yaw, Pitch, Roll) deltas in radians.</param>
+    public void OrbitAround(Vector3 pivot, Vector3 rotVector)
+    {
+        Quaternion rotq = Quaternion.CreateFromYawPitchRoll(rotVector.X, rotVector.Y, rotVector.Z);
+        Orientation *= rotq;
+        Orientation = Quaternion.Normalize(Orientation);
+        UpdateDirectionVectors();
+
+        float distanceToPivot = Vector3.Distance(Position, pivot);
+        Position = pivot - ForwardDirection * distanceToPivot;
+    }
+
     private void UpdateDirectionVectors()
     {
         RightDirection = Vector3.Transform(new Vector3(1.0f, 0.0f, 0.0f), Orientation);

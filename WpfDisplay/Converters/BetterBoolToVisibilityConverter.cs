@@ -9,3 +9,4 @@ public class BetterBooleanToVisibilityConverter : BooleanConverter<Visibility>
         base(Visibility.Visible, Visibility.Collapsed)
     { }
 }
+

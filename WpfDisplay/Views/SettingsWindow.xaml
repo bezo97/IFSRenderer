@@ -20,9 +20,6 @@
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel, IsDesignTimeCreatable=False}"
         Title="⚙️ Settings" x:Name="settingsWindow"
         Width="500" Height="500" MinWidth="500" MinHeight="500">
-    <Window.Resources>
-        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter" True="Collapsed" False="Visible"/>
-    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -175,14 +172,14 @@
                         <ListBox
                             HorizontalAlignment="Right"
                             Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="4">
-                            <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled, Converter={StaticResource InvertBooleanConverter}}">png (8-bit)</ListBoxItem>
+                            <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled, Converter={StaticResource invertBooleanConverter}}">png (8-bit)</ListBoxItem>
                             <ListBoxItem IsSelected="{Binding IsRawFrameExportEnabled}">exr (32-bit)</ListBoxItem>
                         </ListBox>
                         <StackPanel Orientation="Horizontal" Margin="0,8">
                             <Button Command="{Binding ShowFfmpegPathSelectorDialogCommand}"
                                     Content="ffmpeg.exe:"
                                     Style="{StaticResource MaterialDesignOutlinedButton}" Padding="8"/>
-                            <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource InverseBoolToVisConverter}}"
+                            <Label Visibility="{Binding IsFfmpegPathSet, Converter={StaticResource invertBooleanToVisibilityConverter}}"
                                 ToolTip="In order to save video files, install ffmpeg and select the executable." Content="{md:PackIcon InformationOutline}"/>
                             <Label Content="{Binding FfmpegPath}"
                                    VerticalAlignment="Center"/>

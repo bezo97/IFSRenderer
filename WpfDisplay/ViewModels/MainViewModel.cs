@@ -91,6 +91,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
 
     public static IEnumerable<string> RecentFilePaths => Workspace.RecentFilePaths.Reverse();
+    public static bool HasRecentFiles => RecentFilePaths.Any();
     public static IReadOnlyDictionary<string, string> Templates => Workspace.TemplateFilePaths.ToDictionary(path => path, path => Path.GetFileNameWithoutExtension(path));
 
     public MainViewModel(Workspace workspace, WelcomeWorkflow workflow)
