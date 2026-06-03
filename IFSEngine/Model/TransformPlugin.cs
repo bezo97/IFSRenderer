@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IFSEngine.Model;
 
-public partial class Transform
+public partial class TransformPlugin
 {
     public string Name { get; private set; }
     public string Version { get; private set; }
@@ -30,15 +30,15 @@ public partial class Transform
     [GeneratedRegex("^(\\s*)@.+:.+$")] //@Param1: 0.0, 0 0 0, min 1
     private static partial Regex fieldMatcher();
 
-    public static async Task<Transform> FromFile(string path)
+    public static async Task<TransformPlugin> FromFile(string path)
     {
         string sourceString = await File.ReadAllTextAsync(path);
-        Transform tf = FromString(sourceString);
+        TransformPlugin tf = FromString(sourceString);
         tf.FilePath = path;
         return tf;
     }
 
-    public static Transform FromString(string s)
+    public static TransformPlugin FromString(string s)
     {
         var lines = s.Split(["\r\n", "\r", "\n"], StringSplitOptions.RemoveEmptyEntries)
                      .Select(l => l.Trim());
@@ -90,7 +90,7 @@ public partial class Transform
             sourceCode = sourceCode.Replace("@" + pname, $"(vec3_params[iter.vec3_params_index + {vec3Params.Keys.ToList().IndexOf(pname)}].xyz)");
         }
 
-        return new Transform
+        return new TransformPlugin
         {
             Name = fields["Name"],
             Version = fields["Version"],
@@ -113,9 +113,9 @@ public partial class Transform
 
     public override bool Equals(object obj)
     {
-        if (obj is not Transform)
+        if (obj is not TransformPlugin)
             return false;
-        Transform tf2 = (Transform)obj;
+        TransformPlugin tf2 = (TransformPlugin)obj;
         return Name == tf2.Name && Version == tf2.Version;
     }
 

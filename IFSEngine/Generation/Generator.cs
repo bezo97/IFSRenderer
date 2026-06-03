@@ -10,12 +10,12 @@ namespace IFSEngine.Generation;
 
 public class Generator
 {
-    public List<Transform> SelectedTransforms { get; set; }
+    public List<TransformPlugin> SelectedTransforms { get; set; }
 
     private static readonly HashSet<string> _preferredTransformNames = ["Affine", "Möbius", "Rotate Euler", "Spherical", "Translate"];
     private static readonly HashSet<string> _angleParams = ["angle", "rot", "rotate", "rotation", "orientation", "inclination", "azimuth"];
 
-    public Generator(IEnumerable<Transform> transforms)
+    public Generator(IEnumerable<TransformPlugin> transforms)
     {
         SelectedTransforms = transforms.ToList();
     }
@@ -109,7 +109,7 @@ public class Generator
         return newIterator;
     }
 
-    private static Iterator CreateIterator(GeneratorOptions options, List<Transform> transforms)
+    private static Iterator CreateIterator(GeneratorOptions options, List<TransformPlugin> transforms)
     {
         var selectedTransform = transforms[Random.Shared.Next(transforms.Count)];
 

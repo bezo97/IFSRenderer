@@ -15,7 +15,7 @@ public class IteratorConverter : JsonConverter<Iterator>
     public override Iterator ReadJson(JsonReader reader, Type objectType, /*[AllowNullAttribute]*/ Iterator existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
         JObject jo = JObject.Load(reader);
-        var tf = jo["Transform"].ToObject<Transform>(serializer);
+        var tf = jo["Transform"].ToObject<TransformPlugin>(serializer);
         var realParams = jo[nameof(Iterator.RealParams)].ToObject<Dictionary<string, double>>(serializer);
         var vec3Params = jo[nameof(Iterator.Vec3Params)].ToObject<Dictionary<string, Vector3>>(serializer);
         var iterator = jo.ToObject<Iterator>();

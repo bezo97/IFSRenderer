@@ -1,24 +1,132 @@
-﻿<UserControl x:Class="WpfDisplay.Views.PostFxPanel"
+<UserControl x:Class="WpfDisplay.Views.PostFxPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="300"
+             Padding="8"
+             d:DataContext="{d:DesignInstance Type=vm:PostFxPanelViewModel}">
     <Grid>
-            <!--
-        TODO: implement GUI that allows the user to do the following:
-        - List available postfxs
-        - Each can be enabled or disabled (enabled ones should be stored in the ifs params)
-        - When a postfx is enabled it may have additional parameters.
-        - Possibly rearrange postfx order?
-        - Reload the list with a button similar to the transform reloading function
-        
-        Suggestion is to implement similarly to IteratorEditor.cs
-        with an ItemsControl where each item is an <Expander> with custom header 
-        that shows the name and a checkbox, and the expander content contains the ValueSliders for the parameters.
-        See Blender's Modifiers tab for ux inspiration.
-        -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--Header with controls-->
+        <Grid Grid.Row="0" Margin="0 4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <!--Add-layer dropdown-->
+            <Grid Grid.Column="0">
+                <ComboBox x:Name="addLayerCombo" ItemsSource="{Binding LoadedEffects}"
+                    DisplayMemberPath="Name" Cursor="Hand">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SelectionChanged">
+                            <b:InvokeCommandAction Command="{Binding AddLayerCommand}" 
+                                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+                            <b:ChangePropertyAction TargetObject="{Binding ElementName=addLayerCombo}" PropertyName="SelectedIndex" Value="-1"/>
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </ComboBox>
+                <TextBlock IsHitTestVisible="False" Margin="8">+ Add layer</TextBlock>
+            </Grid>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Command="{Binding ReloadEffectsCommand}"
+                        Style="{StaticResource MaterialDesignToolButton}"
+                        ToolTip="Reload plugins">🔄</Button>
+                <Button Command="{Binding OpenPostFxDirectoryCommand}"
+                        Style="{StaticResource MaterialDesignToolButton}"
+                        ToolTip="Open plugin directory">📂</Button>
+            </StackPanel>
+        </Grid>
+        <Separator Grid.Row="1" Margin="0 0 0 4"/>
+        <!--Effects layers list-->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <ItemsControl ItemsSource="{Binding PostEffectLayers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander md:ExpanderAssist.HorizontalHeaderPadding="2" Margin="0 2" md:ExpanderAssist.ExpanderButtonPosition="Start">
+                                <Expander.Header>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" 
+                                            IsChecked="{Binding Enabled}"
+                                            VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <Button Content="↑" Grid.Column="2" 
+                                            Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignToolButton}"/>
+                                        <Button Content="↓" Grid.Column="3" 
+                                            Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignToolButton}"/>
+                                        <Button Grid.Column="4"
+                                            Content="✕"
+                                            Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignToolButton}"
+                                            Foreground="Red"
+                                            ToolTip="Remove layer"/>
+                                    </Grid>
+                                </Expander.Header>
+                                <!--Parameters-->
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding Parameters}">
+                                        <ItemsControl.Resources>
+                                            <!--real param-->
+                                            <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
+                                                <local:ValueSlider Value="{Binding ParamValue}" SliderSettings="{Binding RealParamSlider}"/>
+                                            </DataTemplate>
+                                            <!--vec3 param-->
+                                            <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">
+                                                <local:Vec3Control XValue="{Binding XValue}" YValue="{Binding YValue}" ZValue="{Binding ZValue}" Vec3Settings="{Binding}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.Resources>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Items.Count, RelativeSource={RelativeSource Self}}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                </ItemsControl>
+                <!--Empty state hint-->
+                <TextBlock Text="No post effects added."
+                   HorizontalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignLabelSmallTextBlock}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PostEffectLayers.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

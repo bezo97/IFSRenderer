@@ -31,6 +31,7 @@ public partial class App : Application
 
     public static string LibraryDirectoryPath { get; } = Path.Combine(AppDataPath, "Library");
     public static string TransformsDirectoryPath { get; } = Path.Combine(LibraryDirectoryPath, "Transforms");
+    public static string PostEffectsDirectoryPath { get; } = Path.Combine(LibraryDirectoryPath, "PostEffects");
     public static string IncludesDirectoryPath { get; } = Path.Combine(LibraryDirectoryPath, "Includes");
     public static string TemplatesDirectoryPath { get; } = Path.Combine(LibraryDirectoryPath, "Templates");
 

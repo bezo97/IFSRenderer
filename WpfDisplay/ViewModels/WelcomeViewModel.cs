@@ -23,15 +23,13 @@ using WpfDisplay.Properties;
 using WpfDisplay.Serialization;
 using WpfDisplay.Services;
 
-using Transform = IFSEngine.Model.Transform;
-
 namespace WpfDisplay.ViewModels;
 
 public sealed partial class WelcomeViewModel : ObservableObject
 {
     private readonly IReadOnlyCollection<string> _includeSources;
-    private readonly IReadOnlyCollection<Transform> _loadedTransforms;
-    private readonly IReadOnlyCollection<PostFx> _loadedPostFxs;
+    private readonly IReadOnlyCollection<TransformPlugin> _loadedTransforms;
+    private readonly IReadOnlyCollection<EffectPlugin> _loadedEffects;
 
     public RelayCommand? ContinueCommand { get; set; }
     public WelcomeWorkflow SelectedWorkflow { get; private set; } = WelcomeWorkflow.FromScratch;
@@ -48,15 +46,16 @@ public sealed partial class WelcomeViewModel : ObservableObject
             OnPropertyChanged(nameof(SelectedExpander));
         }
     }
-    [ObservableProperty] private ImageSource? _exploreThumbnail;
-    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _templates = [];
-    [ObservableProperty] private List<KeyValuePair<IFS, ImageSource>> _recentFiles = [];
 
-    public WelcomeViewModel(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<Transform> loadedTransforms, IReadOnlyCollection<PostFx> loadedPostFxs)
+    [ObservableProperty] public partial ImageSource? ExploreThumbnail { get; set; }
+    [ObservableProperty] public partial List<KeyValuePair<IFS, ImageSource>> Templates { get; set; } = [];
+    [ObservableProperty] public partial List<KeyValuePair<IFS, ImageSource>> RecentFiles { get; set; } = [];
+
+    public WelcomeViewModel(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<TransformPlugin> loadedTransforms, IReadOnlyCollection<EffectPlugin> loadedEffects)
     {
         _includeSources = includeSources;
         _loadedTransforms = loadedTransforms;
-        _loadedPostFxs = loadedPostFxs;
+        _loadedEffects = loadedEffects;
     }
 
     public async Task Initialize()
@@ -72,7 +71,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
         });
         var renderer = new RendererGL(hw.Context);
         renderer.SetDisplayResolution(100, 100);
-        await renderer.Initialize(_includeSources, _loadedTransforms, _loadedPostFxs);
+        await renderer.Initialize(_includeSources, _loadedTransforms, _loadedEffects);
         await renderer.SetWorkgroupCount(100);
 
         ExploreParams = new Generator(_loadedTransforms).GenerateOne(new());
@@ -85,11 +84,11 @@ public sealed partial class WelcomeViewModel : ObservableObject
         {
             templateFilesTasks = Directory
                 .GetFiles(App.TemplatesDirectoryPath, "*.ifsjson")
-                .Select(templatePath => IfsNodesSerializer.LoadJsonFileAsync(templatePath, _loadedTransforms, _loadedPostFxs, true))
+                .Select(templatePath => IfsNodesSerializer.LoadJsonFileAsync(templatePath, _loadedTransforms, _loadedEffects, true))
                 .ToList();
             var recentFilePaths = Settings.Default.RecentFiles.Cast<string>();
             recentFilesTasks = recentFilePaths
-                .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, _loadedPostFxs, true))
+                .Select(recentPath => IfsNodesSerializer.LoadJsonFileAsync(recentPath, _loadedTransforms, _loadedEffects, true))
                 .Reverse()
                 .ToList();
             await Task.WhenAll(templateFilesTasks.Concat(recentFilesTasks));
@@ -159,7 +158,7 @@ public sealed partial class WelcomeViewModel : ObservableObject
         try
         {
             string jsonData = System.Windows.Clipboard.GetText();
-            IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, _loadedTransforms, _loadedPostFxs, true);
+            IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, _loadedTransforms, _loadedEffects, true);
             SelectExploreWorkflow(ifs);
         }
         catch (SerializationException) { /* Ignore when Clipboard contains no params */ }

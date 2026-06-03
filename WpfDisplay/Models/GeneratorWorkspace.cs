@@ -38,7 +38,7 @@ public partial class GeneratorWorkspace : ObservableObject
     /// Call <see cref="Initialize"/> before using
     /// </summary>
     /// <param name="loadedTransforms"></param>
-    public GeneratorWorkspace(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<IFSEngine.Model.Transform> loadedTransforms)
+    public GeneratorWorkspace(IReadOnlyCollection<string> includeSources, IReadOnlyCollection<IFSEngine.Model.TransformPlugin> loadedTransforms)
     {
         _includeSources = includeSources;
 

@@ -44,7 +44,7 @@ internal static class PngMetadataHelper
         return metadata;
     }
 
-    public static bool TryExtractParamsFromImage(BitmapSource png, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, out IFS embeddedParams)
+    public static bool TryExtractParamsFromImage(BitmapSource png, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs, out IFS embeddedParams)
     {
         try
         {

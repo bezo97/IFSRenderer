@@ -9,14 +9,17 @@ namespace IFSEngine.Model;
 
 /// <summary>
 /// Iterated Function System.
-/// The model is similar to flam3, with additional parameters like DepthOfField and FocusDistance.
+/// The model is similar to flam3, with additional IFSRenderer parameters, like effects.
 /// </summary>
 public class IFS
 {
     public string Title { get; set; } = "Untitled";
     public IReadOnlyList<Author> Authors => authors;
     public IReadOnlySet<Iterator> Iterators => iterators;
-    public IReadOnlyList<PostFx> PostFxs => postfxs;
+    /// <summary>
+    /// List of post-processing effects applied to the rendered image in order.
+    /// </summary>
+    public List<EffectLayer> PostEffects { get; set; } = [];
 
     /// <summary>
     /// Entropy is the probability to reset on each iteration.
@@ -53,7 +56,6 @@ public class IFS
     public double TargetIterationLevel { get; set; } = 15;
 
     protected HashSet<Iterator> iterators = [];
-    protected List<PostFx> postfxs = [];
     protected List<Author> authors = [];
 
     public Iterator this[int iteratorId] => Iterators.First(i => i.Id == iteratorId);
@@ -74,8 +76,6 @@ public class IFS
     /// <returns>The created duplicate.</returns>
     public Iterator DuplicateIterator(Iterator original, bool splitWeights)
     {
-        //TODO: also correctly dupe postfx params
-
         //clone first
         Iterator dupe = new(original.Transform)
         {
@@ -143,7 +143,7 @@ public class IFS
         iterators.Remove(it1);
     }
 
-    public void ReloadPlugins(IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs)
+    public void ReloadPlugins(IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> effects)
     {
         foreach (var iterator in iterators.ToList())
         {
@@ -154,18 +154,26 @@ public class IFS
             //leave old plugin if a newer version is not found
         }
 
-        foreach (var postfx in this.postfxs.ToList())
+        foreach (var layer in PostEffects.ToList())
         {
             //ignore plugin version checking here so they are updated.
-            var newfx = postfxs.FirstOrDefault(fx => fx.Name == postfx.Name);
+            var newfx = effects.FirstOrDefault(fx => fx.Name == layer.Effect.Name);
             if (newfx != null)
-            {
-                //TODO: implement
-                //- similar to SetTransform: remove old parameters, keep existing parameters, add new parameters with default value
-                //- replace in list of postfx with reloaded instance
-            }
+                layer.SetEffect(newfx);
             //leave old plugin if a newer version is not found
         }
+    }
+
+    /// <summary>
+    /// Moves a post effect to a new index in the layer list.
+    /// </summary>
+    public void MovePostEffectLayer(EffectLayer layer, int newIndex)
+    {
+        int oldIndex = PostEffects.IndexOf(layer);
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= PostEffects.Count || oldIndex == newIndex)
+            return;
+        PostEffects.RemoveAt(oldIndex);
+        PostEffects.Insert(newIndex, layer);
     }
 
     public void AddAuthor(Author author)

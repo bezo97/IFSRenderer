@@ -6,21 +6,21 @@ namespace WpfDisplay.ViewModels;
 
 public partial class RealParamViewModel : ParamViewModelBase<double>
 {
-    public RealParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
+    public RealParamViewModel(string name, IParamSource source, Workspace workspace) : base(name, source, workspace) { }
 
-    public double RealParamValue
+    public double ParamValue
     {
-        get => iterator.RealParams[Name];
-        set => iterator.RealParams[Name] = value;
+        get => source.RealParams[Name];
+        set => source.RealParams[Name] = value;
     }
 
     private ValueSliderSettings _realParamSlider;
     public ValueSliderSettings RealParamSlider => _realParamSlider ??= new()
     {
         Label = Name,
-        DefaultValue = iterator.Transform.RealParams[Name],
+        DefaultValue = source.RealParamDefaults[Name],
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].RealParams.[{Name}]",
+        AnimationPath = $"[{source.Id}].RealParams.[{Name}]",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (Value) => workspace.Renderer.InvalidateParamsBuffer()
     };

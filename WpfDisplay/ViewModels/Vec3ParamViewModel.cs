@@ -8,24 +8,24 @@ namespace WpfDisplay.ViewModels;
 
 public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
 {
-    public Vec3ParamViewModel(string name, Iterator iterator, Workspace workspace) : base(name, iterator, workspace) { }
+    public Vec3ParamViewModel(string name, IParamSource source, Workspace workspace) : base(name, source, workspace) { }
 
     public double XValue
     {
-        get => iterator.Vec3Params[Name].X;
-        set => iterator.Vec3Params[Name] = new Vector3((float)value, iterator.Vec3Params[Name].Y, iterator.Vec3Params[Name].Z);
+        get => source.Vec3Params[Name].X;
+        set => source.Vec3Params[Name] = new Vector3((float)value, source.Vec3Params[Name].Y, source.Vec3Params[Name].Z);
     }
 
     public double YValue
     {
-        get => iterator.Vec3Params[Name].Y;
-        set => iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, (float)value, iterator.Vec3Params[Name].Z);
+        get => source.Vec3Params[Name].Y;
+        set => source.Vec3Params[Name] = new Vector3(source.Vec3Params[Name].X, (float)value, source.Vec3Params[Name].Z);
     }
 
     public double ZValue
     {
-        get => iterator.Vec3Params[Name].Z;
-        set => iterator.Vec3Params[Name] = new Vector3(iterator.Vec3Params[Name].X, iterator.Vec3Params[Name].Y, (float)value);
+        get => source.Vec3Params[Name].Z;
+        set => source.Vec3Params[Name] = new Vector3(source.Vec3Params[Name].X, source.Vec3Params[Name].Y, (float)value);
     }
 
     private ValueSliderSettings _xSlider;
@@ -33,9 +33,9 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     {
         Label = $"{Name}-X",
         IsLabelShown = false,
-        DefaultValue = iterator.Transform.Vec3Params[Name].X,
+        DefaultValue = source.Vec3ParamDefaults[Name].X,
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].X",
+        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].X",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -45,9 +45,9 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     {
         Label = $"{Name}-Y",
         IsLabelShown = false,
-        DefaultValue = iterator.Transform.Vec3Params[Name].Y,
+        DefaultValue = source.Vec3ParamDefaults[Name].Y,
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].Y",
+        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].Y",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -57,9 +57,9 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
     {
         Label = $"{Name}-Z",
         IsLabelShown = false,
-        DefaultValue = iterator.Transform.Vec3Params[Name].Z,
+        DefaultValue = source.Vec3ParamDefaults[Name].Z,
         Increment = 0.001,
-        AnimationPath = $"[{iterator.Id}].Vec3Params.[{Name}].Z",
+        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].Z",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };

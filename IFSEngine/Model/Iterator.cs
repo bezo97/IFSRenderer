@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace IFSEngine.Model;
 
-public class Iterator
+public class Iterator : IParamSource
 {
     public int Id { get; init; } = Random.Shared.Next();
     public string Name { get; set; } = null;
-    public Transform Transform { get; private set; }
+    public TransformPlugin Transform { get; private set; }
     public Dictionary<string, double> RealParams { get; private set; } = [];
     public Dictionary<string, Vector3> Vec3Params { get; private set; } = [];
 
@@ -34,19 +34,25 @@ public class Iterator
         set => WeightTo[WeightTo.Keys.First(i => i.Id == iteratorId)] = value;
     }
 
+    IReadOnlyDictionary<string, double> IParamSource.RealParamDefaults => Transform.RealParams;
+    IReadOnlyDictionary<string, Vector3> IParamSource.Vec3ParamDefaults => Transform.Vec3Params;
+
     public Iterator() { }
-    public Iterator(Transform tf)
+    public Iterator(TransformPlugin plugin)
     {
-        SetTransform(tf);
+        SetTransform(plugin);
     }
 
-    public void SetTransform(Transform tf)
+    /// <summary>
+    /// Sets the transform plugin for this iterator and updates the parameter dictionaries while keeping existing parameter values.
+    /// </summary>
+    public void SetTransform(TransformPlugin plugin)
     {
-        Transform = tf;
+        Transform = plugin;
         //remove old parameters, keep existing parameters, add new parameters with default value
-        RealParams = tf.RealParams.ToDictionary(kvp => kvp.Key,
+        RealParams = plugin.RealParams.ToDictionary(kvp => kvp.Key,
             kvp => RealParams.TryGetValue(kvp.Key, out double val) ? val : kvp.Value);
-        Vec3Params = tf.Vec3Params.ToDictionary(kvp => kvp.Key,
+        Vec3Params = plugin.Vec3Params.ToDictionary(kvp => kvp.Key,
             kvp => Vec3Params.TryGetValue(kvp.Key, out Vector3 val) ? val : kvp.Value);
     }
 

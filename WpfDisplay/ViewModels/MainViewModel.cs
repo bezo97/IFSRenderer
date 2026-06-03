@@ -36,6 +36,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public QualitySettingsViewModel QualitySettingsViewModel { get; }
     public IFSViewModel IFSViewModel { get; }
     public AnimationViewModel AnimationViewModel { get; }
+    public PostFxPanelViewModel PostFxPanelViewModel { get; }
 
     public bool TransparentBackground
     {
@@ -113,6 +114,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+        PostFxPanelViewModel = new PostFxPanelViewModel(workspace);
 
         if (workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
@@ -232,7 +234,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
                     break;
                 case DroppedFile.Image:
                     var pngImge = BitmapFrame.Create(new Uri(filePath));
-                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, workspace.LoadedPostFxs, out var ifs))
+                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, workspace.LoadedEffects, out var ifs))
                         workspace.LoadParams(ifs, null);
                     break;
                 case DroppedFile.Palette:

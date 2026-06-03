@@ -15,7 +15,7 @@ public class IFSHistoryTracker
     public bool IsHistoryUndoable => UndoStack.Count > 0;
     public bool IsHistoryRedoable => RedoStack.Count > 0;
 
-    public IFS Undo(IFS current, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs)
+    public IFS Undo(IFS current, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs)
     {
         if (!IsHistoryUndoable)
             throw new InvalidOperationException();
@@ -26,7 +26,7 @@ public class IFSHistoryTracker
         return restoredObject;
     }
 
-    public IFS Redo(IFS current, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs)
+    public IFS Redo(IFS current, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs)
     {
         if (!IsHistoryRedoable)
             throw new InvalidOperationException();

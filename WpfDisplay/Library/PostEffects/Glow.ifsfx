@@ -1,0 +1,25 @@
+@Name: Glow
+@Version: 1.0
+@Description: Adds a soft glow by blending a blurred copy
+
+// Custom parameters that appear in the editor
+@Strength: 1.0
+@Size: 4
+
+// Your GLSL fragment shader code snippet here.
+// The sampler "input_tex" provides the input texture holding the output from the previous pass.
+// vec2 "uv" holds normalized coordinates.
+// vec4 "input_color" holds the color from input_tex at uv coordinates.
+// int "width" and "height" uniforms hold the image dimensions in pixels.
+// Modify vec4 'output_color' - its final value is the output pixel.
+
+int size = int(@Size);
+vec4 blur = vec4(0.0);
+for (int i = -size; i <= size; i++) {
+    for (int j = -size; j <= size; j++) {
+        blur += texture(input_tex, uv + vec2(float(i), float(j)) / vec2(width, height));
+    }
+}
+blur /= float((2 * size + 1) * (2 * size + 1));
+
+output_color = mix(input_color, input_color+blur, @Strength);

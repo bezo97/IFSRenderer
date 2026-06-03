@@ -32,10 +32,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Library\PostEffects\Placeholder.ifsfx" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Cavern" Version="2.1.0" />
 		<PackageReference Include="Cavern.Format" Version="2.1.0" />
 		<PackageReference Include="Cavern.QuickEQ" Version="2.1.0" />
@@ -79,6 +75,9 @@
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\PostEffects\*.ifsfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\FfmpegPresets.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -99,6 +98,9 @@
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\PostEffects\*.ifsfx">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\FfmpegPresets.json">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
@@ -112,9 +114,6 @@
     <Resource Include="..\Assets\featured_artwork.jpg" Link="Resources\featured_artwork.jpg" />
 		<Content Include="..\LICENSE" Link="LICENSE">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Library\PostEffects\Placeholder.ifsfx">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Resources\deltap-tooltip.jpg" />
 	</ItemGroup>

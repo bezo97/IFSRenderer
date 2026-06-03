@@ -246,9 +246,7 @@
                                 <LayoutAnchorable
                                     Title="Post Fx" ToolTip="Post effects" ContentId="PostFx"
                                     CanHide="False" CanClose="False" CanFloat="False" CanMove="True" CanShowOnHover="False" >
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                        <local:PostFxPanel />
-                                    </ScrollViewer>
+                                    <local:PostFxPanel DataContext="{Binding PostFxPanelViewModel}"/>
                                 </LayoutAnchorable>
                             </LayoutAnchorablePane>
                             <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">

@@ -21,7 +21,7 @@ public static class IfsNodesSerializer
     private static readonly IfsConverter _ifsConverter = new();
     private static readonly IfsNodeConverter _conv = new();
 
-    public static IFS LoadJsonFile(string path, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
+    public static IFS LoadJsonFile(string path, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs, bool ignorePluginVersions)
     {
         string fileContent = File.ReadAllText(path, Encoding.UTF8);
         return DeserializeJsonString(fileContent, transforms, postfxs, ignorePluginVersions);
@@ -33,7 +33,7 @@ public static class IfsNodesSerializer
         File.WriteAllText(path, fileContent, Encoding.UTF8);
     }
 
-    public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
+    public static async Task<IFS> LoadJsonFileAsync(string path, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs, bool ignorePluginVersions)
     {
         string fileContent = await File.ReadAllTextAsync(path, Encoding.UTF8);
         return DeserializeJsonString(fileContent, transforms, postfxs, ignorePluginVersions);
@@ -45,7 +45,7 @@ public static class IfsNodesSerializer
         await File.WriteAllTextAsync(path, fileContent, Encoding.UTF8);
     }
 
-    public static IFS DeserializeJsonString(string ifsState, IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignorePluginVersions)
+    public static IFS DeserializeJsonString(string ifsState, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs, bool ignorePluginVersions)
     {
         JsonSerializerSettings settings = GetJsonSerializerSettings(transforms, postfxs, ignorePluginVersions);
         try
@@ -65,14 +65,14 @@ public static class IfsNodesSerializer
         return JsonConvert.SerializeObject(new IfsNodes(ifs), settings);
     }
 
-    internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<Transform> transforms, IEnumerable<PostFx> postfxs, bool ignoreVersion)
+    internal static JsonSerializerSettings GetJsonSerializerSettings(IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postfxs, bool ignoreVersion)
     {
         return new JsonSerializerSettings
         {
             Converters =
                 [
                     new TransformConverter(transforms, ignoreVersion),
-                    new PostFxConverter(postfxs, ignoreVersion),
+                    new EffectLayerConverter(postfxs, ignoreVersion),
                     _iteratorConverter,
                     _ifsConverter,
                     _conv

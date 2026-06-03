@@ -27,13 +27,13 @@ public partial class Workspace : ObservableObject
 {
     private readonly IFSHistoryTracker _tracker = new();
     private List<string> _includeSources = [];
-    private List<Transform> _loadedTransforms = [];
-    private List<PostFx> _loadedPostFxs = [];
+    private List<TransformPlugin> _loadedTransforms = [];
+    private List<EffectPlugin> _loadedEffects = [];
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
-    public IReadOnlyCollection<Transform> LoadedTransforms => _loadedTransforms;
-    public IReadOnlyCollection<PostFx> LoadedPostFxs => _loadedPostFxs;
+    public IReadOnlyCollection<TransformPlugin> LoadedTransforms => _loadedTransforms;
+    public IReadOnlyCollection<EffectPlugin> LoadedEffects => _loadedEffects;
     public IReadOnlyCollection<string> IncludeSources => _includeSources;
     public IReadOnlyDictionary<string, int[]> ResolutionPresets { get; private set; } = new Dictionary<string, int[]>();
     public IReadOnlyDictionary<string, string> FfmpegPresets { get; private set; } = new Dictionary<string, string>();
@@ -93,7 +93,7 @@ public partial class Workspace : ObservableObject
     {
         await ApplyUserSettings();
         await LoadLibrary();
-        await Renderer.Initialize(_includeSources, _loadedTransforms, _loadedPostFxs);
+        await Renderer.Initialize(_includeSources, _loadedTransforms, _loadedEffects);
 
         Ifs = new IFS();
         Renderer.LoadParams(Ifs);
@@ -115,28 +115,37 @@ public partial class Workspace : ObservableObject
         var includeFiles = Directory.GetFiles(App.IncludesDirectoryPath);
         var loadIncludeTasks = includeFiles.Select(file => File.ReadAllTextAsync(file));
         _includeSources = (await Task.WhenAll(loadIncludeTasks)).ToList();
-        //load plugins
-        //TODO: modify below so that postfx plugins are also loaded, not only transforms
+        var includeNames = includeFiles.Select(i => Path.GetFileName(i)).ToList();
+
+        //load transform plugins
         var loadTransformTasks = Directory
             .GetFiles(App.TransformsDirectoryPath, "*.ifstf", SearchOption.AllDirectories)
-            .Select(file => Transform.FromFile(file));
+            .Select(file => TransformPlugin.FromFile(file));
         var allTransforms = (await Task.WhenAll(loadTransformTasks)).ToList();
         //skip transforms with missing includes
-        var includeNames = includeFiles.Select(i => Path.GetFileName(i)).ToList();
         var skippedTransforms = allTransforms.Where(t => t.IncludeUses.Any(u => !includeNames.Contains(u)));
-        //TODO: notify user of skipped transforms and missing includes
         _loadedTransforms = allTransforms.Except(skippedTransforms).ToList();
         OnPropertyChanged(nameof(LoadedTransforms));
+
+        //load postfx plugins
+        var loadPostFxTasks = Directory
+            .GetFiles(App.PostEffectsDirectoryPath, "*.ifsfx", SearchOption.AllDirectories)
+            .Select(file => EffectPlugin.FromFile(file));
+        var allPostFxs = (await Task.WhenAll(loadPostFxTasks)).ToList();
+        //skip postfx with missing includes
+        var skippedPostFxs = allPostFxs.Where(t => t.IncludeUses.Any(u => !includeNames.Contains(u)));
+        _loadedEffects = allPostFxs.Except(skippedPostFxs).ToList();
+        OnPropertyChanged(nameof(LoadedEffects));
     }
 
     public async Task ReloadPlugins()
     {
         await LoadSourceLibrary();
-        Ifs.ReloadPlugins(LoadedTransforms, LoadedPostFxs);
-        await Renderer.LoadPlugins(_includeSources, LoadedTransforms, LoadedPostFxs);
+        Ifs.ReloadPlugins(LoadedTransforms, LoadedEffects);
+        await Renderer.LoadPlugins(_includeSources, LoadedTransforms, LoadedEffects);
         Renderer.StartRenderLoop();
         OnPropertyChanged(nameof(LoadedTransforms));
-        OnPropertyChanged(nameof(LoadedPostFxs));
+        OnPropertyChanged(nameof(LoadedEffects));
     }
 
     public void LoadParams(IFS ifs, string? loadedFilePath)
@@ -160,15 +169,15 @@ public partial class Workspace : ObservableObject
         IFS ifs;
         try
         {
-            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedPostFxs, false);
+            ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedEffects, false);
         }
         catch (System.Runtime.Serialization.SerializationException ex)
             when (ex.InnerException is AggregateException exs)
         {
             var unknownPluginNames = exs.InnerExceptions.Select(e => ((UnknownPluginException)e).PluginName);
-            if (unknownPluginNames.All(pluginName => LoadedTransforms.Any(t => t.Name == pluginName) || LoadedPostFxs.Any(t => t.Name == pluginName)))
+            if (unknownPluginNames.All(pluginName => LoadedTransforms.Any(t => t.Name == pluginName) || LoadedEffects.Any(t => t.Name == pluginName)))
             {
-                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedPostFxs, true);
+                ifs = await IfsNodesSerializer.LoadJsonFileAsync(path, LoadedTransforms, LoadedEffects, true);
                 System.Windows.MessageBox.Show($"The loaded file was created using different versions of the following plugins:\r\n{string.Join(", ", unknownPluginNames)}.", "Warning");
             }
             else
@@ -236,14 +245,14 @@ public partial class Workspace : ObservableObject
     public void PasteFromClipboard()
     {
         string jsonData = System.Windows.Clipboard.GetText();
-        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, LoadedPostFxs, true);
+        IFS ifs = IfsNodesSerializer.DeserializeJsonString(jsonData, LoadedTransforms, LoadedEffects, true);
         LoadParams(ifs, null);
     }
 
     public void UndoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = _tracker.Undo(Ifs, LoadedTransforms, LoadedPostFxs);
+        Ifs = _tracker.Undo(Ifs, LoadedTransforms, LoadedEffects);
         _renderer?.LoadParams(Ifs);
         LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
@@ -252,7 +261,7 @@ public partial class Workspace : ObservableObject
     public void RedoHistory()
     {
         //LoadParams without taking snapshot
-        Ifs = _tracker.Redo(Ifs, LoadedTransforms, LoadedPostFxs);
+        Ifs = _tracker.Redo(Ifs, LoadedTransforms, LoadedEffects);
         _renderer?.LoadParams(Ifs);
         LoadedParamsChanged?.Invoke(this, EventArgs.Empty);
         OnPropertyChanged(nameof(Ifs));
