@@ -32,6 +32,7 @@ public partial class Workspace : ObservableObject
 
     public event EventHandler<string>? StatusTextChanged;
     public event EventHandler? LoadedParamsChanged;
+    public event EventHandler<int>? ParamSourceRemoved;
     public IReadOnlyCollection<TransformPlugin> LoadedTransforms => _loadedTransforms;
     public IReadOnlyCollection<EffectPlugin> LoadedEffects => _loadedEffects;
     public IReadOnlyCollection<string> IncludeSources => _includeSources;
@@ -339,5 +340,10 @@ public partial class Workspace : ObservableObject
     }
 
     public void UpdateStatusText(string statusText) => StatusTextChanged?.Invoke(this, statusText);
+
+    /// <summary>
+    /// TODO: temporary solution to remove animation channels.
+    /// </summary>
+    public void OnParamSourceRemoved(int sourceId) => ParamSourceRemoved?.Invoke(this, sourceId);
 
 }

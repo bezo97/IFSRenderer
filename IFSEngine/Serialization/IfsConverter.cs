@@ -34,9 +34,9 @@ public class IfsConverter : JsonConverter<IFS>
         //posteffect layers
         List<EffectLayer> postEffectLayers = [];
         List<Exception> postFxExceptions = [];
-        if (jo.ContainsKey("PostFxLayers"))
+        if (jo.ContainsKey("PostEffects"))
         {
-            foreach (var postFxToken in jo["PostFxLayers"].Children())
+            foreach (var postFxToken in jo["PostEffects"].Children())
             {
                 try
                 {
@@ -44,7 +44,7 @@ public class IfsConverter : JsonConverter<IFS>
                 }
                 catch (UnknownPluginException ex) { postFxExceptions.Add(ex); }
             }
-            jo.Remove("PostFxLayers");
+            jo.Remove("PostEffects");
         }
         if (postFxExceptions.Count > 0)
             throw new AggregateException("Failed to deserialize posteffect layers", postFxExceptions);
@@ -64,7 +64,7 @@ public class IfsConverter : JsonConverter<IFS>
             iters[i].WeightTo = iters.ToDictionary(k => k, v => xaos[i][iters.IndexOf(v)]);
         }
         foreach (var postFxLayer in postEffectLayers)
-            ifs.PostEffects.Add(postFxLayer);
+            ifs.AddPostEffectLayer(postFxLayer);
         return ifs;
     }
 

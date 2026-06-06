@@ -288,16 +288,12 @@ public partial class IFSViewModel : ObservableObject
     private void RemoveIterator(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        //remove channels vm-s that control this iterator's animation
-        var avm = ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//TODO: uff
-        var channelsvms = avm.Channels.Where(c => c.Path.Contains(vm.Iterator.Id.ToString())).ToList();
-        channelsvms.ForEach(cvm => avm.Channels.Remove(cvm));
-        //remove iterator
         _workspace.Ifs.RemoveIterator(vm.Iterator);
         _workspace.Renderer.InvalidateParamsBuffer();
         if (SelectedIterator == vm)
             SelectedIterator = null;
         HandleIteratorsChanged();
+        _workspace.OnParamSourceRemoved(vm.Iterator.Id);
     }
 
     [RelayCommand(CanExecute = nameof(_hasIteratorSelection))]

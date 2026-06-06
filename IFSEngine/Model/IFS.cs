@@ -19,7 +19,7 @@ public class IFS
     /// <summary>
     /// List of post-processing effects applied to the rendered image in order.
     /// </summary>
-    public List<EffectLayer> PostEffects { get; set; } = [];
+    public IReadOnlyList<EffectLayer> PostEffects => postEffects;
 
     /// <summary>
     /// Entropy is the probability to reset on each iteration.
@@ -48,15 +48,13 @@ public class IFS
     public Size ImageResolution { get; set; } = new Size(1920, 1080);
     public FlamePalette Palette { get; set; } = FlamePalette.Default;
     public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
+
     /// <summary>
     /// Defines the number of iterations that has to be performed for the image to be considered "done".
     /// The formula is <code> log2(1+iters/(w*h)) > target </code>
     /// Type is double to allow animation.
     /// </summary>
     public double TargetIterationLevel { get; set; } = 15;
-
-    protected HashSet<Iterator> iterators = [];
-    protected List<Author> authors = [];
 
     [Obsolete("Use Node(int iteratorId) instead. This is kept for backward compatibility.")]
     public Iterator this[int iteratorId] => Iterators.First(i => i.Id == iteratorId);
@@ -72,9 +70,15 @@ public class IFS
     /// </summary>
     public EffectLayer PostFx(int effectLayerId) => PostEffects.First(l => l.Id == effectLayerId);
 
+    protected List<Author> authors = [];
+    protected HashSet<Iterator> iterators = [];
+    protected List<EffectLayer> postEffects = [];
+
     /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
     public void AddIterator(Iterator newIterator, bool connect)
     {
+        if(iterators.Contains(newIterator))
+            throw new InvalidOperationException($"Unable to add Iterator (Id: {newIterator.Id}) to IFS, it already exists.");
         iterators.Add(newIterator);
         double weight = connect ? 1.0 : 0.0;
         foreach (var it in iterators)
@@ -141,18 +145,36 @@ public class IFS
     {
         if (!iterators.Contains(it1))
             throw new InvalidOperationException($"Unable to remove Iterator (Id: {it1.Id}) from IFS.");
-        //remove animation channels related to the iterator
-        var iteratorChannels = Dopesheet.Channels.Where(c => c.Key.Contains(it1.Id.ToString())).ToList();
-        foreach (var channel in iteratorChannels)
-            Dopesheet.Channels.Remove(channel.Key);
+        RemoveAnimationChannels(it1.Id);
         //removing connecting weights
         foreach (var it in iterators)
         {
             it1.WeightTo.Remove(it);
             it.WeightTo.Remove(it1);
         }
-        //remove iterator
         iterators.Remove(it1);
+    }
+
+    public void AddPostEffectLayer(EffectLayer layer)
+    {
+        if (postEffects.Contains(layer))
+            throw new InvalidOperationException($"Unable to add PostEffect layer (Id: {layer.Id}) to IFS, it already exists.");
+        postEffects.Add(layer);
+    }
+
+    public void RemovePostEffectLayer(EffectLayer layer)
+    {
+        if (!postEffects.Contains(layer))
+            throw new InvalidOperationException($"Unable to remove PostEffect layer (Id: {layer.Id}) from IFS.");
+        RemoveAnimationChannels(layer.Id);
+        postEffects.Remove(layer);
+    }
+
+    private void RemoveAnimationChannels(int sourceId)
+    {
+        var channels = Dopesheet.Channels.Where(c => c.Key.Contains(sourceId.ToString())).ToList();
+        foreach (var channel in channels)
+            Dopesheet.Channels.Remove(channel.Key);
     }
 
     public void ReloadPlugins(IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> effects)
@@ -181,11 +203,11 @@ public class IFS
     /// </summary>
     public void MovePostEffectLayer(EffectLayer layer, int newIndex)
     {
-        int oldIndex = PostEffects.IndexOf(layer);
-        if (oldIndex < 0 || newIndex < 0 || newIndex >= PostEffects.Count || oldIndex == newIndex)
+        int oldIndex = postEffects.IndexOf(layer);
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= postEffects.Count || oldIndex == newIndex)
             return;
-        PostEffects.RemoveAt(oldIndex);
-        PostEffects.Insert(newIndex, layer);
+        postEffects.RemoveAt(oldIndex);
+        postEffects.Insert(newIndex, layer);
     }
 
     public void AddAuthor(Author author)

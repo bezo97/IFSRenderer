@@ -46,7 +46,7 @@ public partial class PostFxPanelViewModel : ObservableObject
     {
         if (effectPlugin == null) return;
         _workspace.TakeSnapshot();
-        _workspace.Ifs.PostEffects.Add(new EffectLayer(effectPlugin));
+        _workspace.Ifs.AddPostEffectLayer(new EffectLayer(effectPlugin));
         _workspace.Renderer.InvalidateDisplay();
         RefreshInstances();
     }
@@ -55,9 +55,10 @@ public partial class PostFxPanelViewModel : ObservableObject
     private void RemoveLayer(PostFxLayerViewModel vm)
     {
         _workspace.TakeSnapshot();
-        _workspace.Ifs.PostEffects.Remove(vm.Instance);
+        _workspace.Ifs.RemovePostEffectLayer(vm.Instance);
         _workspace.Renderer.InvalidateDisplay();
         RefreshInstances();
+        _workspace.OnParamSourceRemoved(vm.Instance.Id);
     }
 
     [RelayCommand]
