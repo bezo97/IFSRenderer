@@ -51,6 +51,7 @@ public class EffectLayerConverter : JsonConverter<EffectLayer>
     {
         JObject jo = new()
         {
+            [nameof(EffectLayer.Id)] = JToken.FromObject(value.Id),
             [nameof(EffectPlugin.Name)] = JToken.FromObject(value.Effect.Name),
             [nameof(EffectPlugin.Version)] = JToken.FromObject(value.Effect.Version),
             [nameof(EffectLayer.Enabled)] = JToken.FromObject(value.Enabled),

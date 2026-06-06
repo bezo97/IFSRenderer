@@ -58,7 +58,19 @@ public class IFS
     protected HashSet<Iterator> iterators = [];
     protected List<Author> authors = [];
 
+    [Obsolete("Use Node(int iteratorId) instead. This is kept for backward compatibility.")]
     public Iterator this[int iteratorId] => Iterators.First(i => i.Id == iteratorId);
+
+
+    /// <summary>
+    /// Indexer for iterator by ID. Used by the animation system via reflection.
+    /// </summary>
+    public Iterator Node(int iteratorId) => Iterators.First(i => i.Id == iteratorId);
+
+    /// <summary>
+    /// Indexer for post-fx effect layers by ID. Used by the animation system via reflection.
+    /// </summary>
+    public EffectLayer PostFx(int effectLayerId) => PostEffects.First(l => l.Id == effectLayerId);
 
     /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
     public void AddIterator(Iterator newIterator, bool connect)

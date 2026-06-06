@@ -90,7 +90,7 @@
                                         <ItemsControl.Resources>
                                             <!--real param-->
                                             <DataTemplate DataType="{x:Type vm:RealParamViewModel}">
-                                                <local:ValueSlider Value="{Binding ParamValue}" SliderSettings="{Binding RealParamSlider}"/>
+                                                <local:ValueSlider Value="{Binding RealParamValue}" SliderSettings="{Binding RealParamSlider}"/>
                                             </DataTemplate>
                                             <!--vec3 param-->
                                             <DataTemplate DataType="{x:Type vm:Vec3ParamViewModel}">

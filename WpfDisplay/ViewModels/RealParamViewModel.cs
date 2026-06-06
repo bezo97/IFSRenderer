@@ -8,7 +8,7 @@ public partial class RealParamViewModel : ParamViewModelBase<double>
 {
     public RealParamViewModel(string name, IParamSource source, Workspace workspace) : base(name, source, workspace) { }
 
-    public double ParamValue
+    public double RealParamValue
     {
         get => source.RealParams[Name];
         set => source.RealParams[Name] = value;
@@ -20,7 +20,7 @@ public partial class RealParamViewModel : ParamViewModelBase<double>
         Label = Name,
         DefaultValue = source.RealParamDefaults[Name],
         Increment = 0.001,
-        AnimationPath = $"[{source.Id}].RealParams.[{Name}]",
+        AnimationPath = $"{source.ParamPathPrefix}.RealParams.[{Name}]",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (Value) => workspace.Renderer.InvalidateParamsBuffer()
     };

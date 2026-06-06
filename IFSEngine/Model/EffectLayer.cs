@@ -37,6 +37,8 @@ public class EffectLayer : IParamSource
             kvp => Vec3Params.TryGetValue(kvp.Key, out Vector3 val) ? val : kvp.Value);
     }
 
+    // Support animating custom params
+    string IParamSource.ParamPathPrefix => $"PostFx[{Id}]";
     IReadOnlyDictionary<string, double> IParamSource.RealParamDefaults => Effect.RealParams;
     IReadOnlyDictionary<string, Vector3> IParamSource.Vec3ParamDefaults => Effect.Vec3Params;
 }

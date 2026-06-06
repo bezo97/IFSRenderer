@@ -35,7 +35,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         IsLabelShown = false,
         DefaultValue = source.Vec3ParamDefaults[Name].X,
         Increment = 0.001,
-        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].X",
+        AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].X",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -47,7 +47,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         IsLabelShown = false,
         DefaultValue = source.Vec3ParamDefaults[Name].Y,
         Increment = 0.001,
-        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].Y",
+        AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].Y",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };
@@ -59,7 +59,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         IsLabelShown = false,
         DefaultValue = source.Vec3ParamDefaults[Name].Z,
         Increment = 0.001,
-        AnimationPath = $"[{source.Id}].Vec3Params.[{Name}].Z",
+        AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].Z",
         ValueWillChange = workspace.TakeSnapshot,
         ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
     };

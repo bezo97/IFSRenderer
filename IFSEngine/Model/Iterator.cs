@@ -34,6 +34,8 @@ public class Iterator : IParamSource
         set => WeightTo[WeightTo.Keys.First(i => i.Id == iteratorId)] = value;
     }
 
+    // Support animating custom params
+    string IParamSource.ParamPathPrefix => $"Node[{Id}]";
     IReadOnlyDictionary<string, double> IParamSource.RealParamDefaults => Transform.RealParams;
     IReadOnlyDictionary<string, Vector3> IParamSource.Vec3ParamDefaults => Transform.Vec3Params;
 

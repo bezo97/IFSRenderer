@@ -14,6 +14,12 @@ public interface IParamSource
     int Id { get; }
 
     /// <summary>
+    /// The first segment of the animation path used to locate this source on the IFS root object.
+    /// Iterators return "Node[{Id}]", EffectLayers return "PostFx[{Id}]".
+    /// </summary>
+    string ParamPathPrefix { get; }
+
+    /// <summary>
     /// Parameter map for real-typed parameters.
     /// For example: "Strength" -> 0.5
     /// </summary>
