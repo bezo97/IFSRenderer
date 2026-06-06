@@ -242,8 +242,8 @@ public sealed class RendererGL : IAsyncDisposable
         InitVertexShader();
         InitTonemapPass();
         InitDEPass();
-        InitComputeProgram();
-        InitPostFxPasses(postFxs);
+        InitComputeProgram(_registeredTransforms);
+        InitPostFxPasses(_registeredPostfxs);
         InitPostFxPingPongFramebuffers();
         GL.DeleteShader(_vertexShaderHandle);
 
@@ -267,8 +267,10 @@ public sealed class RendererGL : IAsyncDisposable
             _includesSource = string.Join(Environment.NewLine, includeSources);
             _registeredTransforms = transforms.ToList();
             _registeredPostfxs = postFxs.ToList();
-            InitPostFxPasses(postFxs);
-            InitComputeProgram();
+            InitVertexShader();
+            InitPostFxPasses(_registeredPostfxs);
+            InitComputeProgram(_registeredTransforms);
+            GL.DeleteShader(_vertexShaderHandle);
             InvalidateParamsBuffer();
         });
     }
@@ -1011,13 +1013,13 @@ public sealed class RendererGL : IAsyncDisposable
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
     }
 
-    private void InitComputeProgram()
+    private void InitComputeProgram(IEnumerable<TransformPlugin> transforms)
     {
         //load functions
         string transformsSource = "";
-        for (int tfIndex = 0; tfIndex < _registeredTransforms.Count; tfIndex++)
+        for (int tfIndex = 0; tfIndex < transforms.Count(); tfIndex++)
         {
-            var tf = _registeredTransforms[tfIndex];
+            var tf = transforms.ElementAt(tfIndex);
             transformsSource += $@"
 if (iter.tfId == {tfIndex})
 {{
