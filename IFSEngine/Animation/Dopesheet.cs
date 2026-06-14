@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-using IFSEngine.Model;
-using IFSEngine.Utility;
-
 namespace IFSEngine.Animation;
 
 public class Dopesheet
@@ -40,18 +37,6 @@ public class Dopesheet
                 t = t,
                 Value = value
             });
-        }
-    }
-
-    public void EvaluateAt(IFS targetIfs, TimeOnly t)
-    {
-
-        foreach (var (path, channel) in Channels)
-        {
-            var val = channel.EvaluateAt(t.ToTimeSpan() / TimeSpan.FromSeconds(1));
-
-            NestedReflectionHelper.SetMemberValueByPath(targetIfs, path, val);
-
         }
     }
 

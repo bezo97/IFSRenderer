@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 
 using IFSEngine.Animation;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Model;
 
@@ -170,6 +171,18 @@ public class IFS
         postEffects.Remove(layer);
     }
 
+    /// <summary>
+    /// Moves a post effect to a new index in the layer list.
+    /// </summary>
+    public void MovePostEffectLayer(EffectLayer layer, int newIndex)
+    {
+        int oldIndex = postEffects.IndexOf(layer);
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= postEffects.Count || oldIndex == newIndex)
+            return;
+        postEffects.RemoveAt(oldIndex);
+        postEffects.Insert(newIndex, layer);
+    }
+
     private void RemoveAnimationChannels(int sourceId)
     {
         var channels = Dopesheet.Channels.Where(c => c.Key.Contains(sourceId.ToString())).ToList();
@@ -198,22 +211,22 @@ public class IFS
         }
     }
 
-    /// <summary>
-    /// Moves a post effect to a new index in the layer list.
-    /// </summary>
-    public void MovePostEffectLayer(EffectLayer layer, int newIndex)
-    {
-        int oldIndex = postEffects.IndexOf(layer);
-        if (oldIndex < 0 || newIndex < 0 || newIndex >= postEffects.Count || oldIndex == newIndex)
-            return;
-        postEffects.RemoveAt(oldIndex);
-        postEffects.Insert(newIndex, layer);
-    }
-
     public void AddAuthor(Author author)
     {
         if (!authors.Contains(author))
             authors.Add(author);
+    }
+
+    public void EvaluateAt(TimeOnly t)
+    {
+
+        foreach (var (path, channel) in Dopesheet.Channels)
+        {
+            var val = channel.EvaluateAt(t.ToTimeSpan() / TimeSpan.FromSeconds(1));
+
+            NestedReflectionHelper.SetMemberValueByPath(this, path, val);
+
+        }
     }
 
     public static readonly IFS Default = new();

@@ -1,5 +1,9 @@
 #version 430
 
+#define PI			3.14159265358f
+#define TWOPI		6.28318530718f
+#define DEGTORAD	0.0174532925f
+
 layout(location = 0) out vec4 output_color;
 
 uniform sampler2D input_tex;//previous pass result
@@ -8,6 +12,8 @@ uniform int height = 1080;
 
 uniform float postfx_real_params[64];
 uniform vec3 postfx_vec3_params[64];
+
+@includes
 
 void main(void)
 {

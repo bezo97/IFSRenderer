@@ -28,7 +28,4 @@ public static class ModelExtensions
         string serializedContent = JsonConvert.SerializeObject(ifs, settings);
         return JsonConvert.DeserializeObject<IFS>(serializedContent, settings);
     }
-
-    public static void EvaluateIfs(this IFS ifs, TimeOnly t) => ifs.Dopesheet.EvaluateAt(ifs, t);
-
 }

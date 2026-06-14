@@ -929,8 +929,10 @@ public sealed class RendererGL : IAsyncDisposable
     {
         var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
         string shaderTemplate = new StreamReader(assembly.GetManifestResourceStream(_shadersPath + "postfx.frag.shader")).ReadToEnd();
+        //insert includes
+        string shaderSource = shaderTemplate.Replace("@includes", _includesSource);
         //replace the snippet placeholder with the plugin's source code
-        string shaderSource = shaderTemplate.Replace("@PostFxSnippet", postfx.SourceCode);
+        shaderSource = shaderSource.Replace("@PostFxSnippet", postfx.SourceCode);
 
         int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
         GL.ShaderSource(fragmentShader, shaderSource);

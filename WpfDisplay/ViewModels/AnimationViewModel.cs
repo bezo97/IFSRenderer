@@ -210,7 +210,7 @@ public partial class AnimationViewModel : ObservableObject
     public void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
             _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = CurrentTime.ToTimeSpan());
@@ -284,7 +284,7 @@ public partial class AnimationViewModel : ObservableObject
         {
             kfv._cvm.RemoveKeyframe(kfv);
         }
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.RaiseAnimationFrameChanged();
     }
@@ -498,7 +498,7 @@ public partial class AnimationViewModel : ObservableObject
 
         var successCount = await Workspace.ImportAnimationChannels(csvFilePath);
 
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         ReloadDopesheet();
         Workspace.RaiseAnimationFrameChanged();

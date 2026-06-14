@@ -1,1 +1,1 @@
-//File contents in this directory are included the compute kernel. Add any glsl snippets to be shared among transforms.
+//File contents in this directory are included in the compute kernel and fragment shaders. Add any glsl snippets to be @Use-d by transform and post-effect plugins.
