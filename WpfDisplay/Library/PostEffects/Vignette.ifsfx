@@ -4,7 +4,7 @@
 
 // Custom parameters that appear in the editor
 @Strength: 1.0
-@StartRadius: 0.0
+@StartRadius: 0.5
 @Power: 1.0
 
 // Your GLSL fragment shader code snippet here.
@@ -14,8 +14,9 @@
 // int "width" and "height" uniforms hold the image dimensions in pixels.
 // Modify vec4 'output_color' - its final value is the output pixel.
 
-vec2 center = vec2(0.5, 0.5);
-float distance = -@StartRadius + pow(length(uv - center), @Power);
-float vignette = smoothstep(1.0, 1.0 - @Strength, distance);
+vec2 ar = vec2(float(width) / float(height), 1.0);
+float distance = max(0.0, length(ar*(uv - vec2(0.5, 0.5))) - @StartRadius);
+float vignette = @Strength * pow(distance, @Power);
+float mask = 1.0 - vignette;
 
-output_color = vignette * input_color;
+output_color = mask * input_color;
