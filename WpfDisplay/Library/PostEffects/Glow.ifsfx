@@ -1,25 +1,31 @@
 @Name: Glow
 @Version: 1.0
-@Description: Adds a soft glow by blending a blurred copy
+@Description: Adds a blurred layer of the brightest parts of the image back onto the original, creating a glow effect.
 
-// Custom parameters that appear in the editor
-@Strength: 1.0
-@Size: 4
+@Strength: 0.5
+@Threshold: 0.6
+@Radius: 1.0
+@Quality: 1.0
 
-// Your GLSL fragment shader code snippet here.
-// The sampler "input_tex" provides the input texture holding the output from the previous pass.
-// vec2 "uv" holds normalized coordinates.
-// vec4 "input_color" holds the color from input_tex at uv coordinates.
-// int "width" and "height" uniforms hold the image dimensions in pixels.
-// Modify vec4 'output_color' - its final value is the output pixel.
+vec2 pixel_step = vec2(1.0) / vec2(float(width), float(height));
+float scaled_radius = @Radius * float(width) / 960.0;
 
-int size = int(@Size);
-vec4 blur = vec4(0.0);
-for (int i = -size; i <= size; i++) {
-    for (int j = -size; j <= size; j++) {
-        blur += texture(input_tex, uv + vec2(float(i), float(j)) / vec2(width, height));
+float step = 1.0 / max(@Quality, 1.0);
+vec3 blur = vec3(0.0);
+float wsum = 0.0;
+for (float fy = -1.0; fy <= 1.0; fy+=step) {
+    for (float fx = -1.0; fx <= 1.0; fx+=step) {
+        float d2 = fx * fx + fy * fy;
+        float w = exp(-2.0 * d2);
+        vec2 offset = pixel_step * scaled_radius * vec2(fx, fy);
+        vec3 s = texture(input_tex, uv + offset).rgb;
+        float sl = dot(s, vec3(0.299, 0.587, 0.114));
+        s *= smoothstep(@Threshold - 0.15, @Threshold + 0.15, sl);
+        blur += s * w;
+        wsum += w;
     }
 }
-blur /= float((2 * size + 1) * (2 * size + 1));
+blur /= wsum;
 
-output_color = mix(input_color, input_color+blur, @Strength);
+// Additive blend of blurred highlights back onto the original.
+output_color = vec4(input_color.rgb + blur * @Strength, input_color.a);
