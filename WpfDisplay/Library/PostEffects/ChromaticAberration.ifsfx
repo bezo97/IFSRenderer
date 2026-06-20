@@ -1,0 +1,30 @@
+@Name: Chromatic Aberration
+@Version: 1.0
+@Description: Multi-level chromatic aberration effect.
+
+@Spread: 0.01
+@Levels: 64
+@CircleSize: 0.5
+@CenterOffset: 0.0 0.0 0.0
+@CircleFeather: 0.1
+
+float mask = smoothstep(float(@CircleSize), float(@CircleSize) + float(@CircleFeather), length((uv + @CenterOffset.xy) - vec2(0.5)));
+vec2 offset = ((uv - vec2(0.5)) + @CenterOffset.xy) * mask;
+
+vec3 sum = vec3(0.0);
+vec3 accumulated_rgb = vec3(0.0);
+int loop_levels = int(@Levels);
+for(int i = 0; i < loop_levels; i++){
+    float t = 2.0 * float(i) / float(loop_levels - 1);
+    vec3 slice = vec3(1.0 - t, 1.0 - abs(t - 1.0), t - 1.0);
+    slice = max(slice, 0.0);
+    sum += slice;
+    vec2 slice_offset = (t - 1.0) * float(@Spread) * offset;
+    accumulated_rgb += slice * texture(input_tex, uv + slice_offset).rgb;
+}
+
+if (sum.x > 0.0 && sum.y > 0.0 && sum.z > 0.0) {
+    accumulated_rgb /= sum;
+}
+
+output_color = vec4(accumulated_rgb, input_color.a);
