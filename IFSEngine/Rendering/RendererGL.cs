@@ -996,6 +996,7 @@ public sealed class RendererGL : IAsyncDisposable
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, (i % 2 == 0) ? _postFxTextureA : _postFxTextureB);
             GL.Uniform1(GL.GetUniformLocation(programHandle, "tex"), 0);
+            GL.Uniform1(GL.GetUniformLocation(programHandle, "palette_colors_count"), LoadedParams.Palette.Colors.Count);
 
             //set up param arrays for this postfx
             float[] realParams = layer.RealParams.Values.Select(v => (float)v).ToArray();

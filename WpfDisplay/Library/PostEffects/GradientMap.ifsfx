@@ -1,0 +1,14 @@
+@Name: Gradient Map
+@Version: 1.0
+@Description: Maps brightness to colors from the palette. Change the palette in the Editor window to change the colors. The Offset parameter is useful for periodic animation.
+
+@Power: 1.0
+@Offset: 0.0
+@Speed: 1.0
+
+float brightness = dot(input_color.rgb, vec3(0.2126, 0.7152, 0.0722)); //luminance
+brightness = pow(brightness, @Power);
+float index = fract(brightness * @Speed + @Offset);
+vec3 mapped_color = getPaletteColor(index);
+
+output_color = vec4(mapped_color, input_color.a);
