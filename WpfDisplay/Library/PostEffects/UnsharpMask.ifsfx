@@ -1,0 +1,33 @@
+@Name: Unsharp Mask
+@Version: 1.0
+@Description: Sharpening filter that adaptively enhances edges based on local luminance differences.
+
+@Amount: 1.0
+@Radius: 2.0
+@Threshold: 0.0
+
+vec2 pixel_size = vec2(1.0 / float(width), 1.0 / float(height));
+vec2 off = pixel_size * float(@Radius);
+
+vec3 center = input_color.rgb;
+
+vec3 n1 = texture(input_tex, uv + vec2(-off.x, -off.y)).rgb;
+vec3 n2 = texture(input_tex, uv + vec2(0.0, -off.y)).rgb;
+vec3 n3 = texture(input_tex, uv + vec2(off.x, -off.y)).rgb;
+vec3 n4 = texture(input_tex, uv + vec2(-off.x, 0.0)).rgb;
+vec3 n5 = texture(input_tex, uv + vec2(off.x, 0.0)).rgb;
+vec3 n6 = texture(input_tex, uv + vec2(-off.x, off.y)).rgb;
+vec3 n7 = texture(input_tex, uv + vec2(0.0, off.y)).rgb;
+vec3 n8 = texture(input_tex, uv + vec2(off.x, off.y)).rgb;
+
+vec3 blurred = (n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8 + center) / 9.0;
+
+vec3 lum_weights = vec3(0.2126, 0.7152, 0.0722);
+float lum_center = dot(center, lum_weights);
+float lum_blurred = dot(blurred, lum_weights);
+
+float diff = lum_center - lum_blurred;
+float mask = smoothstep(float(@Threshold), float(@Threshold) * 2.0, abs(diff));
+vec3 sharpened = center + (diff * float(@Amount) * mask);
+
+output_color = vec4(sharpened, input_color.a);
