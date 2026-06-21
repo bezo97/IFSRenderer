@@ -78,6 +78,9 @@
     <Content Include="Library\PostEffects\*.ifsfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\Palettes\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\FfmpegPresets.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -99,6 +102,9 @@
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
     <Content Include="Library\PostEffects\*.ifsfx">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\Palettes\*.*">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
     <Content Include="Library\FfmpegPresets.json">
