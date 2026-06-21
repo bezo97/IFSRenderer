@@ -36,11 +36,13 @@
                     <TextBlock>
                         3D IFS fractal renderer and editor.
                         <LineBreak/>
-                        Copyright © 2021-2024 Dócs Zoltán &amp; contributors
+                        Copyright © 2021-2026 Dócs Zoltán &amp; <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/graphs/contributors?all=1">contributors</Hyperlink>
                         <LineBreak/>
                         License: <Hyperlink NavigateUri="LICENSE">GNU GPLv3</Hyperlink>
                         <LineBreak/>
-                        Project page: <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/">https://github.com/bezo97/IFSRenderer/</Hyperlink>
+                        Source code: <Hyperlink NavigateUri="https://github.com/bezo97/IFSRenderer/">https://github.com/bezo97/IFSRenderer/</Hyperlink>
+                        <LineBreak/>
+                        Project page: <Hyperlink NavigateUri="https://ifsrenderer.z97.io">https://ifsrenderer.z97.io</Hyperlink>
                     </TextBlock>
                     <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
                     <Label>Linked libraries</Label>
@@ -55,16 +57,6 @@
                         <Hyperlink NavigateUri="https://github.com/opentk/opentk">OpenToolkit</Hyperlink>, 
                         <Hyperlink NavigateUri="https://github.com/amerkoleci/Vortice.Windows">Vortice.XInput</Hyperlink>,
                         <Hyperlink NavigateUri="https://github.com/dotnetprojects/WpfExtendedToolkit">WPF Toolkit</Hyperlink>
-                    </TextBlock>
-                    <Separator Style="{DynamicResource MaterialDesignLightSeparator}"/>
-                    <Label>Contributors</Label>
-                    <TextBlock TextWrapping="Wrap">
-                        <Hyperlink NavigateUri="https://github.com/bezo97">@bezo97</Hyperlink> (Maintainer),
-                        <Hyperlink NavigateUri="https://github.com/BenjaminBako">@AliBee42</Hyperlink>,
-                        <Hyperlink NavigateUri="https://github.com/KuraiAndras">@KuraiAndras</Hyperlink>, 
-                        <Hyperlink NavigateUri="https://www.deviantart.com/rychveldir">@Rychveldir</Hyperlink>,
-                        <Hyperlink NavigateUri="https://github.com/TiborDravecz">@Sekkmer</Hyperlink>,
-                        <Hyperlink NavigateUri="https://github.com/Bastitron">@Bastitron</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </ScrollViewer>
