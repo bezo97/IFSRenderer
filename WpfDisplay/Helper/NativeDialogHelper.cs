@@ -9,6 +9,7 @@ public static class DialogHelper
     private static readonly string _paramsFilter = "IFSRenderer params|*.ifsjson;*.json";
     private static readonly string _imageFilter = "PNG Images|*.png";
     private static readonly string _exrFilter = "EXR Images|*.exr";
+    private static readonly string _depthMapFilter = "EXR Depth Map|*.exr";
     private static readonly string _paletteFilter = "Flame Palettes|*.gradient;*.ugr";
     private static readonly string _audioFilter = "Audio files|" + Cavern.Format.AudioReader.filter;//allow any file supported by Cavern
     private static readonly string _ffmpegExeFilter = "FFmpeg executable|ffmpeg.exe";
@@ -17,6 +18,7 @@ public static class DialogHelper
     private static readonly Guid _saveParamsGuid = Guid.Parse("b009dd42-ed44-421b-a49c-1ece1c888cc0");
     private static readonly Guid _exportImageGuid = Guid.Parse("c66d2b65-b5fe-427a-9d4b-940776fc9e8d");
     private static readonly Guid _exportExrGuid = Guid.Parse("4A3B3E3A-B2C9-465B-B95D-B49D7DEB1A0A");
+    private static readonly Guid _exportDepthMapGuid = Guid.Parse("9F2A1B3C-D4E5-4F6A-8B7C-9D0E1F2A3B4C");
     private static readonly Guid _openPaletteGuid = Guid.Parse("56bac078-5845-492b-a4b9-92ab66bb108c");
     private static readonly Guid _openAudioGuid = Guid.Parse("24E3A7D5-A565-4E98-87C4-06D676A9EBD3");
     private static readonly Guid _animationFolderBrowserGuid = Guid.Parse("8E896C73-B414-447C-909E-7D15B2569357");
@@ -53,6 +55,14 @@ public static class DialogHelper
         ClientGuid = _exportExrGuid,
         RestoreDirectory = true,
         Title = "Export hdr image"
+    };
+    private static readonly SaveFileDialog _exportDepthMapDialog = new()
+    {
+        DefaultExt = ".exr",
+        Filter = _depthMapFilter,
+        ClientGuid = _exportDepthMapGuid,
+        RestoreDirectory = true,
+        Title = "Export depth map"
     };
     private static readonly OpenFileDialog _openPaletteDialog = new()
     {
@@ -117,6 +127,13 @@ public static class DialogHelper
         _exportExrDialog.FileName = Path.Combine(_exportExrDialog.InitialDirectory, filenameHint + ".exr");
         bool selected = _exportExrDialog.ShowDialog() is DialogResult.OK;
         FilePath = _exportExrDialog.FileName;
+        return selected;
+    }
+    public static bool ShowExportDepthMapDialog(string filenameHint, out string FilePath)
+    {
+        _exportDepthMapDialog.FileName = Path.Combine(_exportDepthMapDialog.InitialDirectory, filenameHint + "_depth.exr");
+        bool selected = _exportDepthMapDialog.ShowDialog() is DialogResult.OK;
+        FilePath = _exportDepthMapDialog.FileName;
         return selected;
     }
     public static bool ShowOpenPaletteDialog(out string FilePath)

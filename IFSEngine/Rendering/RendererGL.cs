@@ -134,6 +134,7 @@ public sealed class RendererGL : IAsyncDisposable
     //compute shader handles
     private int _computeProgramHandle;
     private int _histogramBufferHandle;
+    private int _depthMapBufferHandle;
     private int _settingsBufferHandle;
     private int _iteratorsBufferHandle;
     private int _aliasBufferHandle;
@@ -336,6 +337,8 @@ public sealed class RendererGL : IAsyncDisposable
     {
         // resize histogram buffer
         GL.NamedBufferData(_histogramBufferHandle, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
+        // resize depth buffer
+        GL.NamedBufferData(_depthMapBufferHandle, HistogramWidth * HistogramHeight * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
 
         // set new resolution uniforms
         GL.UseProgram(_computeProgramHandle);
@@ -403,6 +406,7 @@ public sealed class RendererGL : IAsyncDisposable
 
             //reset accumulation
             GL.ClearNamedBufferData(_histogramBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
+            GL.ClearNamedBufferData(_depthMapBufferHandle, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float, IntPtr.Zero);
             _invalidHistogramBuffer = false;
             _dispatchCnt = 0;
             TotalIterations = 0;
@@ -772,6 +776,39 @@ public sealed class RendererGL : IAsyncDisposable
         return histogram;
     }
 
+    /// <summary>
+    /// Reads the depth map buffer and returns a 2D float array [y][x].
+    /// Depth is the Euclidean distance from the camera position to the point.
+    /// </summary>
+    public async Task<float[][]> ReadDepthMapData()
+    {
+        if (!IsInitialized)
+            throw NewNotInitializedException();
+
+        InvalidateDisplay();
+        float[] rawData = new float[HistogramWidth * HistogramHeight];
+        await WithContext(() =>
+        {
+            GL.GetNamedBufferSubData<float>(_depthMapBufferHandle, IntPtr.Zero, HistogramWidth * HistogramHeight * sizeof(float), rawData);
+            GL.Finish();
+        });
+
+        float[][] depthMap = new float[HistogramHeight][];
+        for (int y = 0; y < HistogramHeight; y++)
+        {
+            depthMap[y] = new float[HistogramWidth];
+            for (int x = 0; x < HistogramWidth; x++)
+            {
+                depthMap[y][x] = rawData[y * HistogramWidth + x];
+            }
+        }
+
+        // Flip vertically
+        Array.Reverse(depthMap);
+
+        return depthMap;
+    }
+
     private void InitDEPass()
     {
 
@@ -1084,6 +1121,7 @@ if (iter.tfId == {tfIndex})
         //create buffers
         _settingsBufferHandle = GL.GenBuffer();
         _histogramBufferHandle = GL.GenBuffer();
+        _depthMapBufferHandle = GL.GenBuffer();
         _pointsBufferHandle = GL.GenBuffer();
         _iteratorsBufferHandle = GL.GenBuffer();
         _aliasBufferHandle = GL.GenBuffer();
@@ -1097,6 +1135,7 @@ if (iter.tfId == {tfIndex})
 
         //bind varying-size buffers to targets, without allocation
         GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _histogramBufferHandle);
+        GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _depthMapBufferHandle);
         GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _pointsBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _iteratorsBufferHandle);
         GL.BindBuffer(BufferTarget.UniformBuffer, _aliasBufferHandle);
@@ -1106,7 +1145,8 @@ if (iter.tfId == {tfIndex})
 
         //bind buffers to layout:
         GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _histogramBufferHandle);
-        GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, _pointsBufferHandle);
+        GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, _depthMapBufferHandle);
+        GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, _pointsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 2, _settingsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 3, _iteratorsBufferHandle);
         GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, _aliasBufferHandle);

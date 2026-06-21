@@ -104,8 +104,10 @@
                 <Menu>
                     <MenuItem Icon="{md:PackIcon Kind=ImageMove}" Header="E_xport">
                         <MenuItem Icon="📋" Header="Export to _clipboard" Command="{Binding ExportToClipboardCommand}" InputGestureText="Ctrl+Shift+C"/>
-                        <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
                         <MenuItem Icon="🖼" Header="Export to _PNG..." Command="{Binding SaveImageCommand}" InputGestureText="Ctrl+E"/>
+                        <Separator/>
+                        <MenuItem Icon="📊" Header="Export to _EXR..." Command="{Binding SaveExrCommand}" InputGestureText="Ctrl+Shift+E"/>
+                        <MenuItem Icon="🔭" Header="Export _depth map..." Command="{Binding SaveDepthMapCommand}"/>
                         <Separator/>
                         <MenuItem Icon="🎥" Header="Export _animation frames..." Command="{Binding AnimationViewModel.StartExportingFramesCommand}" InputGestureText="Ctrl+A"/>
                     </MenuItem>

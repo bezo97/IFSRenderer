@@ -339,6 +339,38 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         GC.Collect();
     }
 
+    [RelayCommand]
+    private async Task SaveDepthMap()
+    {
+        workspace.UpdateStatusText($"Exporting depth map...");
+        Task<float[][]> getDepthDataTask = Task.Run(workspace.Renderer.ReadDepthMapData);
+
+        if (DialogHelper.ShowExportDepthMapDialog(workspace.Ifs.Title, out string path))
+        {
+            var depthMap = await getDepthDataTask;
+            int height = depthMap.Length;
+            int width = depthMap[0].Length;
+            // Convert 2D depth array to 4-channel EXR format (depth in all channels)
+            float[][][] exrData = new float[height][][];
+            for (int y = 0; y < height; y++)
+            {
+                exrData[y] = new float[width][];
+                for (int x = 0; x < width; x++)
+                {
+                    exrData[y][x] = new float[4] { depthMap[y][x], depthMap[y][x], depthMap[y][x], depthMap[y][x] };
+                }
+            }
+            using var fstream = File.Create(path);
+            OpenEXR.WriteStream(fstream, exrData);
+            workspace.UpdateStatusText($"Depth map exported to {path}");
+        }
+        else
+            workspace.UpdateStatusText(string.Empty);
+
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.Collect();
+    }
+
     /// <summary>
     /// Used by InteractiveDisplay
     /// </summary>

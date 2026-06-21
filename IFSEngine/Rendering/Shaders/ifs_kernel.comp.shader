@@ -64,7 +64,13 @@ layout(std140, binding = 0) coherent buffer histogram_buffer
 	vec4 histogram[];
 };
 
-layout(std140, binding = 1) buffer points_buffer
+//tightly packed float array for depth buffer
+layout(std430, binding = 1) coherent buffer depth_buffer
+{
+	float depth_data[];
+};
+
+layout(std140, binding = 2) buffer points_buffer
 {
 	//per invocation
 	p_state state[];
@@ -454,7 +460,7 @@ float Mitchell_Netravali(float x /*,B, C*/)
 		return 0.0;
 }
 
-void accumulate_hit(ivec2 proj, vec4 color)
+void accumulate_hit(ivec2 proj, vec4 color, float depth)
 {
 	int ipx = proj.x + proj.y * width;//pixel index
 #ifdef GL_NV_shader_atomic_float
@@ -466,6 +472,16 @@ void accumulate_hit(ivec2 proj, vec4 color)
 #else
 	histogram[ipx].rgb += color.rgb;
 	histogram[ipx].w += color.w;//db
+#endif
+
+	//estimate depth
+    float prev = max(0.0, depth_data[ipx]);
+    float factor = depth < prev ? 0.3 : 0.1; //weight closer points more
+    float depth_estimate = mix(prev, depth, factor);
+#ifdef GL_NV_shader_atomic_float
+	atomicExchange(depth_data[ipx], depth_estimate);
+#else
+	depth_data[ipx] = depth_estimate;
 #endif
 
 }
@@ -546,6 +562,8 @@ void main() {
 
 		color.xyz *= color.w;
 
+		float point_depth = distance(p.pos.xyz, settings.camera.position.xyz);
+
 		if (settings.max_filter_radius > 0/* && proj.x>width/2*/)
 		{
 			//TODO: determine filter_radius based on settings.filter_method
@@ -565,13 +583,13 @@ void main() {
 					//float aw = max(0.0, Lanczos(pd, 2));
 					float aw = max(0.0, Mitchell_Netravali(pd)) * filter_radius * filter_radius * 2 * 2;
 					if (nb.x >= 0 && nb.x < width && nb.y >= 0 && nb.y < height)
-						accumulate_hit(nb, aw * color);
+								accumulate_hit(nb, aw * color, point_depth);
 				}
 			}
 		}
 		else
 		{
-			accumulate_hit(proj, color);
+				accumulate_hit(proj, color, point_depth);
 		}
 	
 	}
