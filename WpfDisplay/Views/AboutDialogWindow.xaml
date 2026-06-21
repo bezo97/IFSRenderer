@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:WpfDisplay.Views"
         xmlns:app="clr-namespace:WpfDisplay"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="16"
         TextOptions.TextFormattingMode="Ideal"

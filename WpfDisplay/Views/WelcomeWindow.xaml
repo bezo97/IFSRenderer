@@ -10,7 +10,6 @@
         xmlns:app="clr-namespace:WpfDisplay" 
         xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         Style="{StaticResource MaterialDesignWindow}"
-        TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="16"
         TextOptions.TextFormattingMode="Ideal"
@@ -80,12 +79,12 @@
                 </Hyperlink>
             </TextBlock>
         </Grid>
-        <Grid Grid.Row="1" Margin="0,8,0,0">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <md:Card Grid.Column="0" Padding="4" Margin="4">
+            <md:Card Grid.Column="0" Padding="4" Margin="2 4">
                 <StackPanel MinWidth="200">
                     <Label>Choose a workflow</Label>
                     <StackPanel Margin="8,0">
@@ -132,7 +131,7 @@
                     </Grid>
                 </StackPanel>
             </md:Card>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Margin="2 4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>

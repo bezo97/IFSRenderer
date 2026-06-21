@@ -7,7 +7,6 @@
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:local="clr-namespace:WpfDisplay.Views"         
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
