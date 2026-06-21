@@ -60,7 +60,7 @@
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="https://www.deviantart.com/xenofish/art/ifsrenderer-5-1011706848" Foreground="White">
+                <Hyperlink NavigateUri="https://art.z97.io/" Foreground="White">
                     Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
