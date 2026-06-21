@@ -18,7 +18,9 @@ public partial class EffectPlugin
     public string Name { get; private set; }
     public string Version { get; private set; }
     public string Description { get; private set; }
+    public IReadOnlyList<string> Tags { get; private set; }
     public IReadOnlyList<string> IncludeUses { get; private set; }
+    public Uri ReferenceUrl { get; private set; }
     public string SourceCode { get; private set; }
     public IReadOnlyDictionary<string, double> RealParams { get; private set; }//name, default value
     public IReadOnlyDictionary<string, Vector3> Vec3Params { get; private set; }//name, default value
@@ -93,7 +95,15 @@ public partial class EffectPlugin
             Name = fields["Name"],
             Version = fields["Version"],
             Description = fields.TryGetValue("Description", out string descriptionString) ? descriptionString : DefaultDescription,
+            Tags = fields.TryGetValue("Tags", out string tagsString) ?
+                tagsString
+                .Split(',')
+                .Select(t => t
+                    .Trim()
+                    .ToLower(System.Globalization.CultureInfo.InvariantCulture))
+                .ToList() : [],
             IncludeUses = includeUses,
+            ReferenceUrl = fields.TryGetValue("Reference", out string uriString) ? new Uri(uriString) : null,
             SourceCode = sourceCode,
             RealParams = realParams,
             Vec3Params = vec3Params,

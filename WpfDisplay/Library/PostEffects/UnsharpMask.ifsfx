@@ -1,6 +1,7 @@
 @Name: Unsharp Mask
 @Version: 1.0
 @Description: Sharpening filter that adaptively enhances edges based on local luminance differences.
+@Reference: https://en.wikipedia.org/wiki/Unsharp_masking
 
 @Amount: 1.0
 @Radius: 2.0

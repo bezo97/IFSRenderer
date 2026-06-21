@@ -1,6 +1,7 @@
 @Name: Chromatic Aberration
 @Version: 1.0
 @Description: Multi-level chromatic aberration effect.
+@Reference: https://en.wikipedia.org/wiki/Chromatic_aberration
 
 @Spread: 0.01
 @Levels: 64

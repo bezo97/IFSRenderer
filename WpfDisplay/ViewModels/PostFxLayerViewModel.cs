@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 using IFSEngine.Model;
+
 using WpfDisplay.Models;
 
 namespace WpfDisplay.ViewModels;
@@ -48,6 +51,17 @@ public partial class PostFxLayerViewModel : ObservableObject
                 OnPropertyChanged(nameof(Enabled));
             }
         }
+    }
+
+    [RelayCommand]
+    private void EditPluginSource()
+    {
+        //open plugin source file with the preferred text editor
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = Instance.Effect.FilePath,
+            UseShellExecute = true
+        });
     }
 
 }

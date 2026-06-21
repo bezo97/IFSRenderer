@@ -1,6 +1,7 @@
 @Name: Vignette
 @Version: 1.0
 @Description: Applies a vignette effect by darkening the corners of the image based on distance from the center.
+@Reference: https://en.wikipedia.org/wiki/Vignetting
 
 // Custom parameters that appear in the editor
 @Strength: 1.0

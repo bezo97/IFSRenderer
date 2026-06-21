@@ -1,5 +1,6 @@
 <UserControl x:Class="WpfDisplay.Views.PostFxPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
@@ -53,35 +54,111 @@
                 <ItemsControl ItemsSource="{Binding PostEffectLayers}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Expander md:ExpanderAssist.HorizontalHeaderPadding="2" Margin="0 2" md:ExpanderAssist.ExpanderButtonPosition="Start">
+                            <Expander x:Name="layerItem" md:ExpanderAssist.HorizontalHeaderPadding="2" Margin="0 2" md:ExpanderAssist.ExpanderButtonPosition="Start">
                                 <Expander.Header>
-                                    <Grid>
+                                    <Grid MinHeight="32">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <CheckBox Grid.Column="0" 
+                                        <CheckBox Grid.Column="0"
                                             IsChecked="{Binding Enabled}"
                                             VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        <Button Content="↑" Grid.Column="2" 
-                                            Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource MaterialDesignToolButton}"/>
-                                        <Button Content="↓" Grid.Column="3" 
-                                            Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource MaterialDesignToolButton}"/>
-                                        <Button Grid.Column="4"
-                                            Content="✕"
-                                            Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource MaterialDesignToolButton}"
-                                            Foreground="Red"
-                                            ToolTip="Remove layer"/>
+
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                            <StackPanel.Resources>
+                                                <Style TargetType="StackPanel">
+                                                    <Style.Triggers>
+                                                        <!--Show header buttons on hover-->
+                                                        <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=layerItem}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=IsMouseOver, ElementName=layerItem}" Value="False">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Resources>
+                                            <Button x:Name="infoButton" Content="ℹ️"
+                                                Style="{StaticResource MaterialDesignToolButton}">
+                                                <b:Interaction.Triggers>
+                                                    <b:EventTrigger EventName="Click">
+                                                        <b:ChangePropertyAction TargetObject="{Binding ContextMenu, ElementName=infoButton}" PropertyName="PlacementTarget" Value="{Binding ElementName=infoButton, Mode=OneWay}"/>
+                                                        <b:ChangePropertyAction TargetObject="{Binding ContextMenu, ElementName=infoButton}" PropertyName="IsOpen" Value="True"/>
+                                                    </b:EventTrigger>
+                                                </b:Interaction.Triggers>
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Height="auto" IsHitTestVisible="False" DataContext="{Binding Instance.Effect}">
+                                                            <MenuItem.Header>
+                                                                <StackPanel Orientation="Vertical">
+                                                                    <Label FontSize="18" FontWeight="Bold" Content="{Binding Name}"/>
+                                                                    <ItemsControl ItemsSource="{Binding Tags}">
+                                                                        <ItemsControl.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <StackPanel Orientation="Horizontal"/>
+                                                                            </ItemsPanelTemplate>
+                                                                        </ItemsControl.ItemsPanel>
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <md:Chip Content="{Binding}" />
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
+                                                                    <Label FontWeight="Bold">Description</Label>
+                                                                    <TextBlock Text="{Binding Description}" 
+                                                                        Margin="4"
+                                                                        TextWrapping="Wrap" 
+                                                                        MaxWidth="300"
+                                                                        Style="{StaticResource MaterialDesignHelperTextBlock}"/>
+                                                                    <Label FontWeight="Bold">Include uses</Label>
+                                                                    <ItemsControl ItemsSource="{Binding IncludeUses}" Margin="8 0"/>
+                                                                    <TextBlock Margin="8 0">
+                                                                        <TextBlock.Visibility>
+                                                                            <Binding Path="IncludeUses.Count"
+                                                                                Converter="{StaticResource equalityToVisibilityConverter}">
+                                                                                <Binding.ConverterParameter>
+                                                                                    <sys:Int32>0</sys:Int32>
+                                                                                </Binding.ConverterParameter>
+                                                                            </Binding>
+                                                                        </TextBlock.Visibility>
+                                                                        None
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </MenuItem.Header>
+                                                        </MenuItem>
+                                                        <Separator/>
+                                                        <MenuItem DataContext="{Binding Instance.Effect}">
+                                                            <MenuItem.Header>
+                                                                <Hyperlink NavigateUri="{Binding ReferenceUrl}" ToolTip="{Binding ReferenceUrl}">ℹ️ Information...</Hyperlink>
+                                                            </MenuItem.Header>
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            Header="✏️ Edit source"
+                                                            Command="{Binding EditPluginSourceCommand}"
+                                                            CommandParameter="{Binding Instance.Effect.FilePath}"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                            </Button>
+                                            <Button Content="▲" Margin="2 0"
+                                                Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignToolButton}"/>
+                                            <Button Content="▼" Margin="2 0"
+                                                Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignToolButton}"/>
+                                            <Button Margin="4 0"
+                                                Content="✕"
+                                                Command="{Binding DataContext.RemoveLayerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignToolButton}"
+                                                Foreground="Red"
+                                                ToolTip="Remove layer"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Expander.Header>
                                 <!--Parameters-->
