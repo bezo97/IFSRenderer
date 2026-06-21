@@ -38,6 +38,7 @@ public class Iterator : IParamSource
     string IParamSource.ParamPathPrefix => $"Node[{Id}]";
     IReadOnlyDictionary<string, double> IParamSource.RealParamDefaults => Transform.RealParams;
     IReadOnlyDictionary<string, Vector3> IParamSource.Vec3ParamDefaults => Transform.Vec3Params;
+    bool IParamSource.RequiresParamsBufferInvalidation => true;
 
     public Iterator() { }
     public Iterator(TransformPlugin plugin)

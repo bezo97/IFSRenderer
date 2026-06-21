@@ -21,4 +21,12 @@ public abstract partial class ParamViewModelBase<T> : ObservableObject
         this.workspace = workspace;
         this.workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
     }
+
+    protected void InvalidateRenderer()
+    {
+        if (source.RequiresParamsBufferInvalidation)
+            workspace.Renderer.InvalidateParamsBuffer();
+        else
+            workspace.Renderer.InvalidateDisplay();
+    }
 }

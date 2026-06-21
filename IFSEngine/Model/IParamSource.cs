@@ -40,4 +40,10 @@ public interface IParamSource
     /// Default values for vector3-typed parameters. Each vector3 param has a default value.
     /// </summary>
     IReadOnlyDictionary<string, Vector3> Vec3ParamDefaults { get; }
+
+    /// <summary>
+    /// Whether changing a parameter on this source requires a full params buffer invalidation (compute shader restart).
+    /// Transform plugins (Iterators) return true; post-effect plugins (EffectLayers) return false.
+    /// </summary>
+    bool RequiresParamsBufferInvalidation { get; }
 }

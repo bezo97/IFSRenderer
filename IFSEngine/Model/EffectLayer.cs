@@ -41,4 +41,5 @@ public class EffectLayer : IParamSource
     string IParamSource.ParamPathPrefix => $"PostFx[{Id}]";
     IReadOnlyDictionary<string, double> IParamSource.RealParamDefaults => Effect.RealParams;
     IReadOnlyDictionary<string, Vector3> IParamSource.Vec3ParamDefaults => Effect.Vec3Params;
+    bool IParamSource.RequiresParamsBufferInvalidation => false;
 }

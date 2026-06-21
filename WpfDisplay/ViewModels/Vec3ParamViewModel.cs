@@ -37,7 +37,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         Increment = 0.001,
         AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].X",
         ValueWillChange = workspace.TakeSnapshot,
-        ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
+        ValueChanged = (_) => InvalidateRenderer()
     };
 
     private ValueSliderSettings _ySlider;
@@ -49,7 +49,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         Increment = 0.001,
         AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].Y",
         ValueWillChange = workspace.TakeSnapshot,
-        ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
+        ValueChanged = (_) => InvalidateRenderer()
     };
 
     private ValueSliderSettings _zSlider;
@@ -61,7 +61,7 @@ public partial class Vec3ParamViewModel : ParamViewModelBase<Vector3>
         Increment = 0.001,
         AnimationPath = $"{source.ParamPathPrefix}.Vec3Params.[{Name}].Z",
         ValueWillChange = workspace.TakeSnapshot,
-        ValueChanged = (v) => workspace.Renderer.InvalidateParamsBuffer()
+        ValueChanged = (_) => InvalidateRenderer()
     };
 
 }
