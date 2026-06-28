@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-06-28
+### Added
+ - Post-processing effects
+   - Implemented as a plugin system similarly to transforms
+   - Effect parameters can be animated
+   - See the [Wiki](https://github.com/bezo97/IFSRenderer/wiki/Post%E2%80%90processing-Effects) for more info
+ - Default included effects: (some contributed by Xenofish, thanks!)
+   - Chromatic aberration
+   - Compositional Guide (useful for framing)
+   - Glow
+   - Gradient Map (uses the palette selected in the node editor)
+   - Unsharp Mask
+   - VHS effect
+   - Vignette
+ - Camera Orbit: Drag <kbd>MMB</kbd> (middle mouse button) to orbit the camera around the focus point (contributed by GlassBeaver, thanks!)
+ - A sample gradient pack is distributed in the user library to support beginners
+
+### Changed
+ - New theme for the docking panels called "Arc" from AvalonDock
+ - Updated dependencies, dotnet 10, slnx migration
+
+### Fixed
+ - Fixed "white" display background bug for all hardware configurations (previously only worked on Nvidia)
+ - Fixed texture wrap mode to avoid artifacts on the edges
+ - Fixed main window panels can float and dock again
+
 ## [1.4.1] - 2025-04-19
 ### Added
  - Control camera roll and field-of-view by dragging mouse right button.
@@ -170,6 +196,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - First release
 
+[1.5.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.5.0
 [1.4.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.4.1
 [1.4.0]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.4.0
 [1.3.1]: https://github.com/bezo97/IFSRenderer/releases/tag/v1.3.1
