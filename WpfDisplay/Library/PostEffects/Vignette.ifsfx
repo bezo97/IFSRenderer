@@ -20,4 +20,4 @@ float distance = max(0.0, length(ar*(uv - vec2(0.5, 0.5))) - @StartRadius);
 float vignette = @Strength * pow(distance, @Power);
 float mask = 1.0 - vignette;
 
-output_color = mask * input_color;
+output_color = vec4(input_color.rgb * mask, input_color.a);
