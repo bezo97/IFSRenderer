@@ -31,7 +31,7 @@ public partial class PaletteManagerViewModel : ObservableObject
         //TODO: mock
         LibraryPalettes = Enumerable.Repeat(0, 10).Select(n => new ColorPaletteViewModel()
         {
-            Palette = IFSEngine.Generation.Generator.GenerateRandomIqPalette(),
+            Palette = IFSEngine.Generation.Generator.GenerateRandomIqPalette(true),
             IsFavorite = Random.Shared.NextDouble() > 0.5
         }).ToList();
         LibraryPalettes.ForEach(p => p.Palette.ComputeGradientSamples(256));

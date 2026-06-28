@@ -60,7 +60,8 @@ public static class DialogHelper
         Filter = _paletteFilter,
         ClientGuid = _openPaletteGuid,
         RestoreDirectory = true,
-        Title = "Open palette"
+        Title = "Open palette",
+        InitialDirectory = App.PalettesDirectoryPath
     };
     private static readonly OpenFileDialog _openAudioDialog = new()
     {

@@ -62,10 +62,22 @@ public partial class AnimationViewModel : ObservableObject
         Workspace = workspace;
         workspace.LoadedParamsChanged += (s, e) => ReloadDopesheet();
         workspace.Renderer.TargetIterationReached += OnFrameFinishedRendering;
+        workspace.ParamSourceRemoved += OnParamSourceRemoved;
         _realtimePlayer = new Timer(TimeSpan.FromSeconds(1.0 / workspace.Ifs.Dopesheet.Fps).TotalMilliseconds);
         _realtimePlayer.Elapsed += OnPlayerTick;
         _realtimePlayer.AutoReset = true;
 
+    }
+
+    private void OnParamSourceRemoved(object? sender, int sourceId)
+    {
+        var channelsToRemove = Channels.Where(c => c.Path.Contains(sourceId.ToString())).ToList();
+        foreach (var ch in channelsToRemove)
+        {
+            Workspace.Ifs.Dopesheet.Channels.Remove(ch.Path);
+            Channels.Remove(ch);
+        }
+        Workspace.RaiseAnimationFrameChanged();
     }
 
     public float CurrentTimeScrollPosition => (float)CurrentTime.ToTimeSpan().TotalSeconds * ViewScale;
@@ -198,7 +210,7 @@ public partial class AnimationViewModel : ObservableObject
     public void JumpToTime(double t)
     {
         CurrentTime = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(t));
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         if (_audioPlayer is not null && !_realtimePlayer.Enabled)//hack
             _audioPlayer?.Dispatcher.Invoke(() => _audioPlayer.Position = CurrentTime.ToTimeSpan());
@@ -272,7 +284,7 @@ public partial class AnimationViewModel : ObservableObject
         {
             kfv._cvm.RemoveKeyframe(kfv);
         }
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         Workspace.RaiseAnimationFrameChanged();
     }
@@ -486,7 +498,7 @@ public partial class AnimationViewModel : ObservableObject
 
         var successCount = await Workspace.ImportAnimationChannels(csvFilePath);
 
-        Workspace.Ifs.Dopesheet.EvaluateAt(Workspace.Ifs, CurrentTime);
+        Workspace.Ifs.EvaluateAt(CurrentTime);
         Workspace.Renderer.InvalidateParamsBuffer();
         ReloadDopesheet();
         Workspace.RaiseAnimationFrameChanged();

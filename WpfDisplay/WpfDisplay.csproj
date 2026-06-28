@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
+		<TargetFramework>net10.0-windows7.0</TargetFramework>
 		<RootNamespace>WpfDisplay</RootNamespace>
 		<AssemblyName>IFSRenderer</AssemblyName>
 		<UseWPF>true</UseWPF>
@@ -11,7 +11,7 @@
 		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
 		<Win32Resource />
 		<Configurations>Debug;ReleasePortable;ReleaseInstaller</Configurations>
-		<Version>1.4.0</Version>
+		<Version>1.5.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -32,16 +32,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cavern" Version="2.0.2" />
-		<PackageReference Include="Cavern.Format" Version="2.0.2" />
-		<PackageReference Include="Cavern.QuickEQ" Version="2.0.2" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
-		<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.124" />
-		<PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
-		<PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
-		<PackageReference Include="System.Drawing.Common" Version="9.0.1" />
+		<PackageReference Include="Cavern" Version="2.1.0" />
+		<PackageReference Include="Cavern.Format" Version="2.1.0" />
+		<PackageReference Include="Cavern.QuickEQ" Version="2.1.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
+		<PackageReference Include="Dirkster.AvalonDock.Themes.Arc" Version="4.74.1" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
+		<PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -76,6 +75,12 @@
     <Content Include="Library\Templates\*.ifsjson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Library\PostEffects\*.ifsfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\Palettes\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Library\FfmpegPresets.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -94,6 +99,12 @@
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
     <Content Include="Library\Templates\*.ifsjson">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\PostEffects\*.ifsfx">
+      <CopyToOutputDirectory>false</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Library\Palettes\*.*">
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
     <Content Include="Library\FfmpegPresets.json">

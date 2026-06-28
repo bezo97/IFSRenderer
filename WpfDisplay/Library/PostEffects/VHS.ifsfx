@@ -1,0 +1,55 @@
+@Name: VHS Analog Distortion
+@Version: 1.0
+@Description: Simulates analog tape horizontal smearing and YIQ color-space bleed.
+
+@Smear: 1.0
+
+float d = 0.05;
+float s = 0.0001 * -d;
+float e = min(0.30, pow(max(0.0, cos(uv.y * 4.0 + 0.3) - 0.75) * (s + 0.5) * 1.0, 3.0)) * 25.0;
+float c_val = max(0.0001, 0.002 * d) * float(@Smear);
+
+// --- 1. PASS: LUMINANCE (Y) BLUR ---
+float blur_d_y = c_val + c_val * uv.x;
+vec3 blur_y = vec3(0.0);
+for (int k = 0; k < 15; ++k) {
+    float start_val = 0.1333333; // 2.0 / 15.0
+    float rad = 0.41887902 * (float(k) + start_val); // 6.2831853 / 15.0
+    float offsetX = -(0.3 + rad) * 5.28 * blur_d_y;
+    blur_y += texture(input_tex, uv + vec2(offsetX, 0.0)).rgb / 15.0;
+}
+float y_channel = dot(blur_y, vec3(0.2989, 0.5959, 0.2115));
+
+// --- 2. PASS: CHROMINANCE IN-PHASE (I) BLUR ---
+vec2 uv_i = uv + vec2(0.01 * d, 0.0);
+float blur_d_i = c_val * 6.0;
+vec3 blur_i = vec3(0.0);
+for (int k = 0; k < 15; ++k) {
+    float start_val = 0.1333333;
+    float rad = 0.41887902 * (float(k) + start_val);
+    float offsetX = -(0.3 + rad) * 5.28 * blur_d_i;
+    blur_i += texture(input_tex, uv_i + vec2(offsetX, 0.0)).rgb / 15.0;
+}
+float i_channel = dot(blur_i, vec3(0.5870, -0.2744, -0.5229));
+
+// --- 3. PASS: CHROMINANCE QUADRATURE (Q) BLUR ---
+vec2 uv_q = uv_i + vec2(0.005 * d, 0.0);
+float blur_d_q = blur_d_i * 2.50;
+vec3 blur_q = vec3(0.0);
+for (int k = 0; k < 15; ++k) {
+    float start_val = 0.1333333;
+    float rad = 0.41887902 * (float(k) + start_val);
+    float offsetX = -(0.3 + rad) * 5.28 * blur_d_q;
+    blur_q += texture(input_tex, uv_q + vec2(offsetX, 0.0)).rgb / 15.0;
+}
+float q_channel = dot(blur_q, vec3(0.1140, -0.3216, 0.3114));
+
+// --- YIQ TO RGB CONVERSION ---
+vec3 final_rgb = vec3(
+    (1.0 * y_channel + 1.0 * i_channel + 1.0 * q_channel),
+    (0.956 * y_channel - 0.2720 * i_channel - 1.1060 * q_channel),
+    (0.6210 * y_channel - 0.6474 * i_channel + 1.7046 * q_channel)
+);
+
+final_rgb -= vec3(pow(s + e * 2.0, 3.0));
+output_color = vec4(final_rgb, input_color.a);

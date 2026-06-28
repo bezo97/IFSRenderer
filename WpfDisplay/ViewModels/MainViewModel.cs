@@ -36,6 +36,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public QualitySettingsViewModel QualitySettingsViewModel { get; }
     public IFSViewModel IFSViewModel { get; }
     public AnimationViewModel AnimationViewModel { get; }
+    public PostFxPanelViewModel PostFxPanelViewModel { get; }
 
     public bool TransparentBackground
     {
@@ -91,6 +92,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
     public IEnumerable<Author> AuthorList => workspace.Ifs.Authors;
 
     public static IEnumerable<string> RecentFilePaths => Workspace.RecentFilePaths.Reverse();
+    public static bool HasRecentFiles => RecentFilePaths.Any();
     public static IReadOnlyDictionary<string, string> Templates => Workspace.TemplateFilePaths.ToDictionary(path => path, path => Path.GetFileNameWithoutExtension(path));
 
     public MainViewModel(Workspace workspace, WelcomeWorkflow workflow)
@@ -112,6 +114,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         CameraSettingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
         ToneMappingViewModel = new ToneMappingViewModel(workspace);
         ToneMappingViewModel.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+        PostFxPanelViewModel = new PostFxPanelViewModel(workspace);
 
         if (workflow == WelcomeWorkflow.ShowFileDialog)
             ShowLoadParamsDialogCommand?.Execute(this);
@@ -231,7 +234,7 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
                     break;
                 case DroppedFile.Image:
                     var pngImge = BitmapFrame.Create(new Uri(filePath));
-                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, out var ifs))
+                    if (PngMetadataHelper.TryExtractParamsFromImage(pngImge, workspace.LoadedTransforms, workspace.LoadedEffects, out var ifs))
                         workspace.LoadParams(ifs, null);
                     break;
                 case DroppedFile.Palette:
@@ -259,9 +262,9 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         catch (SerializationException ex)
             when (ex.InnerException is AggregateException exs)
         {//missing transforms
-            var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownTransformException)e);
-            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{string.Join("\r\n", unknownTransforms.Select(t => $"{t.TransformName} ({t.TransformVersion})"))}", "Error");
-            workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.TransformName))}");
+            var unknownTransforms = exs.InnerExceptions.Select(e => (UnknownPluginException)e);
+            MessageBox.Show($"Failed to load params due to missing transforms:\r\n{string.Join("\r\n", unknownTransforms.Select(t => $"{t.PluginName} ({t.PluginVersion})"))}", "Error");
+            workspace.UpdateStatusText($"ERROR - Missing transforms: {string.Join(", ", unknownTransforms.Select(t => t.PluginName))}");
         }
         catch (SerializationException ex)
         {

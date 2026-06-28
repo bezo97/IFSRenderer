@@ -8,17 +8,25 @@ namespace WpfDisplay.ViewModels;
 
 public abstract partial class ParamViewModelBase<T> : ObservableObject
 {
-    protected readonly Iterator iterator;
+    protected readonly IParamSource source;
     protected readonly Workspace workspace;
 
     public string Name { get; protected set; }
 
     //TODO: min, max, increment, ..
-    public ParamViewModelBase(string name, Iterator iterator, Workspace workspace)
+    protected ParamViewModelBase(string name, IParamSource source, Workspace workspace)
     {
         Name = name;
-        this.iterator = iterator;
+        this.source = source;
         this.workspace = workspace;
         this.workspace.PropertyChanged += (s, e) => OnPropertyChanged(string.Empty);
+    }
+
+    protected void InvalidateRenderer()
+    {
+        if (source.RequiresParamsBufferInvalidation)
+            workspace.Renderer.InvalidateParamsBuffer();
+        else
+            workspace.Renderer.InvalidateDisplay();
     }
 }

@@ -9,7 +9,11 @@ using System.Threading.Tasks;
 
 namespace IFSEngine.Model;
 
-public partial class Transform
+/// <summary>
+/// Represents a single shader effect plugin.
+/// Loaded from .ifsfx files with a format similar to transform plugins.
+/// </summary>
+public partial class EffectPlugin
 {
     public string Name { get; private set; }
     public string Version { get; private set; }
@@ -22,7 +26,6 @@ public partial class Transform
     public IReadOnlyDictionary<string, Vector3> Vec3Params { get; private set; }//name, default value
     public string FilePath { get; private set; }
 
-
     //These cannot be parameter names:
     private static readonly List<string> _reservedFields = ["Name", "Version", "Description", "Tags", "Reference", "Use"];
     private const string DefaultDescription = "Description not provided by the plugin developer";
@@ -30,15 +33,15 @@ public partial class Transform
     [GeneratedRegex("^(\\s*)@.+:.+$")] //@Param1: 0.0, 0 0 0, min 1
     private static partial Regex fieldMatcher();
 
-    public static async Task<Transform> FromFile(string path)
+    public static async Task<EffectPlugin> FromFile(string path)
     {
         string sourceString = await File.ReadAllTextAsync(path);
-        Transform tf = FromString(sourceString);
-        tf.FilePath = path;
-        return tf;
+        EffectPlugin fx = FromString(sourceString);
+        fx.FilePath = path;
+        return fx;
     }
 
-    public static Transform FromString(string s)
+    public static EffectPlugin FromString(string s)
     {
         var lines = s.Split(["\r\n", "\r", "\n"], StringSplitOptions.RemoveEmptyEntries)
                      .Select(l => l.Trim());
@@ -73,24 +76,21 @@ public partial class Transform
                     .ToList();
                 vec3Params[paramName] = new Vector3(vec3Components[0], vec3Components[1], vec3Components[2]);
             }
-
-            //TODO: Handle parts after comma, such as min, max, increment, param description, ..
-
         }
 
         string sourceCode = string.Join(Environment.NewLine, lines.Where(l => !fieldDefinitionLines.Contains(l)));
-        //replace real params
+        //replace real params - each postfx has its own uniform array, so use direct index
         foreach ((string pname, double pvalue) in realParams.OrderByDescending(n => n.Key.Length))
         {
-            sourceCode = sourceCode.Replace("@" + pname, $"(real_params[iter.real_params_index + {realParams.Keys.ToList().IndexOf(pname)}])");
+            sourceCode = sourceCode.Replace("@" + pname, $"(postfx_real_params[{realParams.Keys.ToList().IndexOf(pname)}])");
         }
         //replace vec3 params
         foreach ((string pname, Vector3 pvalue) in vec3Params.OrderByDescending(n => n.Key.Length))
         {
-            sourceCode = sourceCode.Replace("@" + pname, $"(vec3_params[iter.vec3_params_index + {vec3Params.Keys.ToList().IndexOf(pname)}].xyz)");
+            sourceCode = sourceCode.Replace("@" + pname, $"(postfx_vec3_params[{vec3Params.Keys.ToList().IndexOf(pname)}].xyz)");
         }
 
-        return new Transform
+        return new EffectPlugin
         {
             Name = fields["Name"],
             Version = fields["Version"],
@@ -113,10 +113,10 @@ public partial class Transform
 
     public override bool Equals(object obj)
     {
-        if (obj is not Transform)
+        if (obj is not EffectPlugin)
             return false;
-        Transform tf2 = (Transform)obj;
-        return Name == tf2.Name && Version == tf2.Version;
+        EffectPlugin fx2 = (EffectPlugin)obj;
+        return Name == fx2.Name && Version == fx2.Version;
     }
 
     public override int GetHashCode() => (Name + Version).GetHashCode();

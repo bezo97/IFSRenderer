@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
+		<TargetFramework>net10.0-windows7.0</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Version>1.4.0</Version>
+		<Version>1.5.0</Version>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<Authors>bezo97</Authors>
 		<Company>bezo97</Company>
@@ -13,7 +13,7 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageIcon>icon_128.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/bezo97/IFSRenderer</PackageProjectUrl>
-		<Copyright>Copyright (C) 2021-2024 Dócs Zoltán &amp; Contributors</Copyright>
+		<Copyright>Copyright (C) 2021-2026 Dócs Zoltán &amp; Contributors</Copyright>
 		<RepositoryUrl>https://github.com/bezo97/IFSRenderer</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<IncludeSymbols>true</IncludeSymbols>
@@ -25,8 +25,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
-		<PackageReference Include="Vortice.XInput" Version="3.6.2" />
+		<PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
+		<PackageReference Include="Vortice.XInput" Version="3.8.3" />
 	</ItemGroup>
 
 	<ItemGroup>

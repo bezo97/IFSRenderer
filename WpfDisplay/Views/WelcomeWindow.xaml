@@ -10,7 +10,6 @@
         xmlns:app="clr-namespace:WpfDisplay" 
         xmlns:disp="clr-namespace:IFSEngine.WPF.InteractiveDisplay;assembly=IFSEngine.WPF.InteractiveDisplay"
         Style="{StaticResource MaterialDesignWindow}"
-        TextElement.Foreground="{DynamicResource MaterialDesignDarkForeground}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="16"
         TextOptions.TextFormattingMode="Ideal"
@@ -31,7 +30,6 @@
         <CommandBinding Command="ApplicationCommands.Paste" Executed="Paste_Executed" CanExecute="Paste_CanExecute"/>
     </Window.CommandBindings>
     <Window.Resources>
-        <conv:ParameterEqualityToBoolConverter x:Key="expanderConv"/>
         <DataTemplate x:Key="thumbnailTemplate">
             <Button 
                 Width="100" Height="100" Margin="4"
@@ -62,7 +60,7 @@
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2"/>
                 </TextBlock.Effect>
-                <Hyperlink NavigateUri="https://www.deviantart.com/xenofish/art/ifsrenderer-5-1011706848" Foreground="White">
+                <Hyperlink NavigateUri="https://art.z97.io/" Foreground="White">
                     Artwork <md:PackIcon Kind="ExternalLink"/>
                 </Hyperlink>
             </TextBlock>
@@ -81,12 +79,12 @@
                 </Hyperlink>
             </TextBlock>
         </Grid>
-        <Grid Grid.Row="1" Margin="0,8,0,0">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <md:Card Grid.Column="0" Padding="4" Margin="4">
+            <md:Card Grid.Column="0" Padding="4" Margin="2 4">
                 <StackPanel MinWidth="200">
                     <Label>Choose a workflow</Label>
                     <StackPanel Margin="8,0">
@@ -133,14 +131,14 @@
                     </Grid>
                 </StackPanel>
             </md:Card>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Margin="2 4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Expander Header="Getting Started" Grid.Row="0" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=0}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=0}">
                     <md:Card Padding="2">
                         <StackPanel Margin="8">
                             <TextBlock>
@@ -162,7 +160,7 @@
                     </md:Card>
                 </Expander>
                 <Expander Header="Templates" Grid.Row="1" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=1}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=1}">
                     <md:Card Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Templates}" Padding="0,0,0,4"
@@ -177,7 +175,7 @@
                     </md:Card>
                 </Expander>
                 <Expander Header="Recent Files" Grid.Row="2" md:ExpanderAssist.HorizontalHeaderPadding="4"
-                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource expanderConv}, ConverterParameter=2}">
+                          IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource parameterEqualityToBoolConverter}, ConverterParameter=2}">
                     <md:Card Padding="2">
                         <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding RecentFiles}" Padding="0,0,0,4"

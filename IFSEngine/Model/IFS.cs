@@ -4,18 +4,23 @@ using System.Drawing;
 using System.Linq;
 
 using IFSEngine.Animation;
+using IFSEngine.Utility;
 
 namespace IFSEngine.Model;
 
 /// <summary>
 /// Iterated Function System.
-/// The model is similar to flam3, with additional parameters like DepthOfField and FocusDistance.
+/// The model is similar to flam3, with additional IFSRenderer parameters, like effects.
 /// </summary>
 public class IFS
 {
     public string Title { get; set; } = "Untitled";
     public IReadOnlyList<Author> Authors => authors;
     public IReadOnlySet<Iterator> Iterators => iterators;
+    /// <summary>
+    /// List of post-processing effects applied to the rendered image in order.
+    /// </summary>
+    public IReadOnlyList<EffectLayer> PostEffects => postEffects;
 
     /// <summary>
     /// Entropy is the probability to reset on each iteration.
@@ -44,6 +49,7 @@ public class IFS
     public Size ImageResolution { get; set; } = new Size(1920, 1080);
     public ColorPalette Palette { get; set; } = ColorPalette.Default;
     public Dopesheet Dopesheet { get; set; } = new Dopesheet();//null;
+
     /// <summary>
     /// Defines the number of iterations that has to be performed for the image to be considered "done".
     /// The formula is <code> log2(1+iters/(w*h)) > target </code>
@@ -51,14 +57,29 @@ public class IFS
     /// </summary>
     public double TargetIterationLevel { get; set; } = 15;
 
-    protected HashSet<Iterator> iterators = [];
-    protected List<Author> authors = [];
-
+    [Obsolete("Use Node(int iteratorId) instead. This is kept for backward compatibility.")]
     public Iterator this[int iteratorId] => Iterators.First(i => i.Id == iteratorId);
+
+
+    /// <summary>
+    /// Indexer for iterator by ID. Used by the animation system via reflection.
+    /// </summary>
+    public Iterator Node(int iteratorId) => Iterators.First(i => i.Id == iteratorId);
+
+    /// <summary>
+    /// Indexer for post-fx effect layers by ID. Used by the animation system via reflection.
+    /// </summary>
+    public EffectLayer PostFx(int effectLayerId) => PostEffects.First(l => l.Id == effectLayerId);
+
+    protected List<Author> authors = [];
+    protected HashSet<Iterator> iterators = [];
+    protected List<EffectLayer> postEffects = [];
 
     /// <param name="connect">Whether to connect the new <see cref="Iterator"/> to existing ones.</param>
     public void AddIterator(Iterator newIterator, bool connect)
     {
+        if(iterators.Contains(newIterator))
+            throw new InvalidOperationException($"Unable to add Iterator (Id: {newIterator.Id}) to IFS, it already exists.");
         iterators.Add(newIterator);
         double weight = connect ? 1.0 : 0.0;
         foreach (var it in iterators)
@@ -125,29 +146,68 @@ public class IFS
     {
         if (!iterators.Contains(it1))
             throw new InvalidOperationException($"Unable to remove Iterator (Id: {it1.Id}) from IFS.");
-        //remove animation channels related to the iterator
-        var iteratorChannels = Dopesheet.Channels.Where(c => c.Key.Contains(it1.Id.ToString())).ToList();
-        foreach (var channel in iteratorChannels)
-            Dopesheet.Channels.Remove(channel.Key);
+        RemoveAnimationChannels(it1.Id);
         //removing connecting weights
         foreach (var it in iterators)
         {
             it1.WeightTo.Remove(it);
             it.WeightTo.Remove(it1);
         }
-        //remove iterator
         iterators.Remove(it1);
     }
 
-    public void ReloadTransforms(IEnumerable<Transform> transforms)
+    public void AddPostEffectLayer(EffectLayer layer)
+    {
+        if (postEffects.Contains(layer))
+            throw new InvalidOperationException($"Unable to add PostEffect layer (Id: {layer.Id}) to IFS, it already exists.");
+        postEffects.Add(layer);
+    }
+
+    public void RemovePostEffectLayer(EffectLayer layer)
+    {
+        if (!postEffects.Contains(layer))
+            throw new InvalidOperationException($"Unable to remove PostEffect layer (Id: {layer.Id}) from IFS.");
+        RemoveAnimationChannels(layer.Id);
+        postEffects.Remove(layer);
+    }
+
+    /// <summary>
+    /// Moves a post effect to a new index in the layer list.
+    /// </summary>
+    public void MovePostEffectLayer(EffectLayer layer, int newIndex)
+    {
+        int oldIndex = postEffects.IndexOf(layer);
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= postEffects.Count || oldIndex == newIndex)
+            return;
+        postEffects.RemoveAt(oldIndex);
+        postEffects.Insert(newIndex, layer);
+    }
+
+    private void RemoveAnimationChannels(int sourceId)
+    {
+        var channels = Dopesheet.Channels.Where(c => c.Key.Contains(sourceId.ToString())).ToList();
+        foreach (var channel in channels)
+            Dopesheet.Channels.Remove(channel.Key);
+    }
+
+    public void ReloadPlugins(IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> effects)
     {
         foreach (var iterator in iterators.ToList())
         {
-            //ignore transform version checking here so they are updated.
+            //ignore plugin version checking here so they are updated.
             var newtf = transforms.FirstOrDefault(tf => tf.Name == iterator.Transform.Name);
             if (newtf != null)
                 iterator.SetTransform(newtf);
-            //leave old transform if a newer version is not found
+            //leave old plugin if a newer version is not found
+        }
+
+        foreach (var layer in PostEffects.ToList())
+        {
+            //ignore plugin version checking here so they are updated.
+            var newfx = effects.FirstOrDefault(fx => fx.Name == layer.Effect.Name);
+            if (newfx != null)
+                layer.SetEffect(newfx);
+            //leave old plugin if a newer version is not found
         }
     }
 
@@ -155,6 +215,18 @@ public class IFS
     {
         if (!authors.Contains(author))
             authors.Add(author);
+    }
+
+    public void EvaluateAt(TimeOnly t)
+    {
+
+        foreach (var (path, channel) in Dopesheet.Channels)
+        {
+            var val = channel.EvaluateAt(t.ToTimeSpan() / TimeSpan.FromSeconds(1));
+
+            NestedReflectionHelper.SetMemberValueByPath(this, path, val);
+
+        }
     }
 
     public static readonly IFS Default = new();

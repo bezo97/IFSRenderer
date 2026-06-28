@@ -9,7 +9,6 @@
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
@@ -126,7 +125,7 @@
                                                                 <TextBlock Margin="8 0">
                                                                     <TextBlock.Visibility>
                                                                         <Binding Path="IncludeUses.Count"
-                                                                             Converter="{StaticResource EqualityToVisibilityConverter}">
+                                                                             Converter="{StaticResource equalityToVisibilityConverter}">
                                                                             <Binding.ConverterParameter>
                                                                                 <sys:Int32>0</sys:Int32>
                                                                             </Binding.ConverterParameter>

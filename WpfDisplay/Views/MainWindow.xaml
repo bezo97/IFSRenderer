@@ -17,10 +17,6 @@
         Style="{StaticResource MaterialDesignWindow}"
         x:Name="mainWindow"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
-    <Window.Resources>
-        <conv:NullVisibilityConverter x:Key="nullVisibilityConverter"/>
-        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
-    </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute"/>
         <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute"/>
@@ -67,7 +63,7 @@
                                 </Style>
                             </MenuItem.ItemContainerStyle>
                         </MenuItem>
-                        <MenuItem Header="📜 Recents" ItemsSource="{Binding RecentFilePaths}" IsEnabled="{Binding RecentFilePaths.Count, Converter={StaticResource NotZeroConverter}}">
+                        <MenuItem Header="📜 Recents" ItemsSource="{Binding RecentFilePaths}" IsEnabled="{Binding HasRecentFiles}">
                             <MenuItem.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}"/>
@@ -140,6 +136,9 @@
             DocumentClosing="dockManager_DocumentClosing"
             IsVirtualizingAnchorable="True"
             IsVirtualizingDocument="True">
+            <DockingManager.Theme>
+                <ArcDarkTheme/>
+            </DockingManager.Theme>
             <DockingManager.DocumentHeaderTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding DataContext.IFSTitle, ElementName=mainWindow, Mode=OneWay, StringFormat='\{0\}'}"/>
@@ -204,6 +203,7 @@
                             <LayoutDocumentPaneGroup>
                                 <LayoutDocumentPane>
                                     <LayoutDocument
+                                        CanFloat="True"
                                         CanClose="False"
                                         ContentId="mainDocument"
                                         IconSource="/Resources/icon_128.png">
@@ -247,6 +247,11 @@
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <local:QualitySettingsView DataContext="{Binding QualitySettingsViewModel}"/>
                                     </ScrollViewer>
+                                </LayoutAnchorable>
+                                <LayoutAnchorable
+                                    Title="Post Fx" ToolTip="Post effects" ContentId="PostFx"
+                                    CanHide="False" CanClose="False" CanFloat="True" CanMove="True" CanShowOnHover="False" >
+                                    <local:PostFxPanel DataContext="{Binding PostFxPanelViewModel}"/>
                                 </LayoutAnchorable>
                             </LayoutAnchorablePane>
                             <LayoutAnchorablePane x:Name="performancePane" DockHeight="auto">

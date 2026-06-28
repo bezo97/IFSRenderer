@@ -25,28 +25,46 @@ public class IfsConverter : JsonConverter<IFS>
             {
                 iterators.Add(iteratorToken.ToObject<Iterator>(serializer));
             }
-            catch (UnknownTransformException ex) { exceptions.Add(ex); }
+            catch (UnknownPluginException ex) { exceptions.Add(ex); }
         }
         if (exceptions.Count > 0)
             throw new AggregateException("Failed to deserialize iterators", exceptions);
         jo.Remove("Iterators");
 
+        //posteffect layers
+        List<EffectLayer> postEffectLayers = [];
+        List<Exception> postFxExceptions = [];
+        if (jo.ContainsKey("PostEffects"))
+        {
+            foreach (var postFxToken in jo["PostEffects"].Children())
+            {
+                try
+                {
+                    postEffectLayers.Add(postFxToken.ToObject<EffectLayer>(serializer));
+                }
+                catch (UnknownPluginException ex) { postFxExceptions.Add(ex); }
+            }
+            jo.Remove("PostEffects");
+        }
+        if (postFxExceptions.Count > 0)
+            throw new AggregateException("Failed to deserialize posteffect layers", postFxExceptions);
+
         serializer.Converters.Remove(this);
         var ifs = jo.ToObject<IFS>(serializer);
         serializer.Converters.Add(this);
-        //set authors
         List<Author> authorsList = jo["Authors"].ToObject<List<Author>>();
         foreach (var author in authorsList)
             ifs.AddAuthor(author);
-        //set iterators
         foreach (var i in iterators)
             ifs.AddIterator(i, false);
-        //set xaos weights
+        //set xaos weights separately
         var iters = ifs.Iterators.ToList();
         for (int i = 0; i < xaos.GetLength(0); i++)
         {
             iters[i].WeightTo = iters.ToDictionary(k => k, v => xaos[i][iters.IndexOf(v)]);
         }
+        foreach (var postFxLayer in postEffectLayers)
+            ifs.AddPostEffectLayer(postFxLayer);
         return ifs;
     }
 

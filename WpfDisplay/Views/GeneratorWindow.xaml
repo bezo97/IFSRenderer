@@ -8,7 +8,6 @@
         xmlns:vm="clr-namespace:WpfDisplay.ViewModels" 
         xmlns:conv="clr-namespace:WpfDisplay.Converters"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
@@ -22,8 +21,6 @@
         <Style TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignCheckBox}">
             <Setter Property="Margin" Value="4"/>
         </Style>
-        <conv:BetterBooleanToVisibilityConverter x:Key="BoolToVisConv"/>
-        <conv:BetterBooleanToVisibilityConverter x:Key="InverseBoolToVisConv" True="Collapsed" False="Visible"/>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="CTRL+M" Command="{Binding PinCommand}"/>
@@ -114,6 +111,10 @@
                                     <CheckBox IsChecked="{Binding Options.MutatePalette}">Palette</CheckBox>
                                     <CheckBox IsChecked="{Binding Options.MutateColoring}">Coloring</CheckBox>
                                     <md:ColorZone>Dominant Color</md:ColorZone>
+                                    <CheckBox IsChecked="{Binding Options.UseMixboxMixing}" 
+                                              ToolTip="Use Mixbox algorithm to mix colors similar to mixing paint.">
+                                        Pigment-based mixing
+                                    </CheckBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Margin="8">
                                     <CheckBox IsEnabled="False">Transforms</CheckBox>
@@ -133,10 +134,10 @@
                                 <local:ValueSlider Grid.Column="0" Margin="8 0" Width="110" Value="{Binding Options.BatchSize}" SliderSettings="{Binding BatchSizeSlider}"/>
                                 <Button VerticalAlignment="Bottom" Margin="8 0" Padding="30 0" Grid.Column="1" Command="{Binding GenerateRandomBatchCommand}">
                                     <Grid>
-                                        <TextBlock HorizontalAlignment="Center" Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock HorizontalAlignment="Center" Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource betterBooleanToVisibilityConverter}}">
                                             ⏳
                                         </TextBlock>
-                                        <TextBlock Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource InverseBoolToVisConv}}">
+                                        <TextBlock Visibility="{Binding GenerateRandomBatchCommand.IsRunning, Converter={StaticResource invertBooleanToVisibilityConverter}}">
                                             🎲 New batch
                                         </TextBlock>
                                     </Grid>

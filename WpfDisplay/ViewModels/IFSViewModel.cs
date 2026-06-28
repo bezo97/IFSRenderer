@@ -20,7 +20,7 @@ using WpfDisplay.Models;
 
 using static WpfDisplay.Helper.ForceDirectedGraphLayout;
 
-using Transform = IFSEngine.Model.Transform;
+using TransformPlugin = IFSEngine.Model.TransformPlugin;
 
 namespace WpfDisplay.ViewModels;
 
@@ -29,7 +29,7 @@ public partial class IFSViewModel : ObservableObject
     private readonly Workspace _workspace;
 
     public CompositeCollection NodeMapElements { get; private set; }
-    public IEnumerable<Transform> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
+    public IEnumerable<TransformPlugin> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
     public IReadOnlyCollection<ConnectionViewModel> ConnectionViewModels => _connectionViewModels;
 
     [ObservableProperty] private IteratorViewModel? _connectingIterator;
@@ -240,7 +240,7 @@ public partial class IFSViewModel : ObservableObject
         }
     }
 
-    private IEnumerable<Transform> FilterTransforms(IReadOnlyCollection<Transform> transforms)
+    private IEnumerable<TransformPlugin> FilterTransforms(IReadOnlyCollection<TransformPlugin> transforms)
     {
         if (string.IsNullOrEmpty(TransformSearchFilter))
             return transforms;
@@ -252,7 +252,7 @@ public partial class IFSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddIterator(Transform tf)
+    private void AddIterator(TransformPlugin tf)
     {
         _workspace.TakeSnapshot();
         Iterator newIterator = new(tf);
@@ -288,16 +288,12 @@ public partial class IFSViewModel : ObservableObject
     private void RemoveIterator(IteratorViewModel vm)
     {
         _workspace.TakeSnapshot();
-        //remove channels vm-s that control this iterator's animation
-        var avm = ((MainViewModel)Application.Current.MainWindow.DataContext).AnimationViewModel;//TODO: uff
-        var channelsvms = avm.Channels.Where(c => c.Path.Contains(vm.Iterator.Id.ToString())).ToList();
-        channelsvms.ForEach(cvm => avm.Channels.Remove(cvm));
-        //remove iterator
         _workspace.Ifs.RemoveIterator(vm.Iterator);
         _workspace.Renderer.InvalidateParamsBuffer();
         if (SelectedIterator == vm)
             SelectedIterator = null;
         HandleIteratorsChanged();
+        _workspace.OnParamSourceRemoved(vm.Iterator.Id);
     }
 
     [RelayCommand(CanExecute = nameof(_hasIteratorSelection))]
@@ -368,7 +364,7 @@ public partial class IFSViewModel : ObservableObject
     {
         try
         {
-            await _workspace.ReloadTransforms();
+            await _workspace.ReloadPlugins();
             _workspace.UpdateStatusText("Transforms reloaded.");
         }
         catch (Exception ex)

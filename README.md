@@ -19,9 +19,9 @@
 
 [![release](https://img.shields.io/github/v/release/bezo97/IFSRenderer?include_prereleases&sort=semver)](https://github.com/bezo97/IFSRenderer/releases/latest)
 [![library](https://img.shields.io/nuget/vpre/IFSEngine?label=library)](https://www.nuget.org/packages/IFSEngine/)
-[![dotnet](https://img.shields.io/badge/.NET%208-WPF-blueviolet)]()  
+[![dotnet](https://img.shields.io/badge/.NET%2010-WPF-blueviolet)]()  
 
-[![help](https://img.shields.io/github/issues/bezo97/IFSRenderer/help-wanted)](https://github.com/bezo97/IFSRenderer/issues)
+[![downloads](https://img.shields.io/github/downloads/bezo97/IFSRenderer/total)](https://github.com/bezo97/IFSRenderer/releases/latest)
 [![license](https://img.shields.io/github/license/bezo97/IFSRenderer)](/LICENSE)
 
 </div>
@@ -37,6 +37,7 @@ I'm releasing it as an open-source project in the hope that it will be useful to
 - [x] Mutation-style generator 
 - [x] Extendable with Plug-Ins
 - [x] Animations
+- [x] Post-processing effects
 - [x] Fisheye projection, ideal for planetarium dome masters
 
 Planned:
@@ -56,7 +57,7 @@ Get the latest installer or portable version **[HERE](https://github.com/bezo97/
 Previous versions can be found on the [Releases](https://github.com/bezo97/IFSRenderer/releases) tab.
 
 ### Build instructions
-You may build the project yourself using Visual Studio 2022 (with .NET Desktop Development workload).
+You may build the project yourself using Visual Studio 2026 (with .NET Desktop Development workload).
 Since the default transforms are hosted in a separate repo, use the `--recurse-submodules` switch when cloning:  
 ```
 git clone --recurse-submodules https://github.com/bezo97/IFSRenderer.git
@@ -84,7 +85,13 @@ dotnet dotnet-format
 Beginners should start with the *[Getting Started Guide](https://github.com/bezo97/IFSRenderer/wiki/Getting-Started-Guide)*. See the [Wiki](https://github.com/bezo97/IFSRenderer/wiki) for more.
 
 ### Using the library
-Add the [latest NuGet package](https://www.nuget.org/packages/IFSEngine/) to your project. Here are some getting-started snippets.
+
+Add the [latest NuGet package](https://www.nuget.org/packages/IFSEngine/) to your project.  
+
+> Note: library packages are no longer published to NuGet - open an issue if you need a new version.  
+
+Here are some getting-started snippets.
+
 <details>
 <summary><b>Show snippets</b></summary>
 
@@ -155,5 +162,5 @@ I'd like to also mention people who indirectly helped the project succeed throug
 ---
 
 ## ⚖️ License
-Copyright (C) 2021-2024 Dócs Zoltán & contributors  
+Copyright (C) 2021-2026 Dócs Zoltán & contributors  
 IFSRenderer is licensed under [**GPLv3**](/LICENSE).

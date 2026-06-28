@@ -39,17 +39,29 @@ internal static class NestedReflectionHelper
                     propInfo.SetValue(obj, newValue, index);
             }
             else
-            {//member is a field
-                var fieldInfo = obj.GetType().GetField(memberName)!;
-                if (pathSegments.Count > 0)
+            {
+                var methodInfo = obj.GetType().GetMethod(memberName, index != null
+                    ? [index[0]!.GetType()] : Type.EmptyTypes);
+                if (methodInfo is not null && pathSegments.Count > 0)
                 {
-                    var fieldValue = fieldInfo.GetValue(obj)!;
-                    fieldValue = SetRecursive(fieldValue, pathSegments, newValue);
-                    if (fieldValue.GetType().IsValueType)
-                        fieldInfo.SetValue(obj, fieldValue);
+                    var methodValue = methodInfo.Invoke(obj, index)!;
+                    methodValue = SetRecursive(methodValue, pathSegments, newValue);
+                    if (methodValue.GetType().IsValueType)
+                        methodInfo.Invoke(obj, [methodValue]);
                 }
                 else
-                    fieldInfo.SetValue(obj, Convert.ToSingle(newValue));//hack: cast double to float
+                {//member is a field
+                    var fieldInfo = obj.GetType().GetField(memberName)!;
+                    if (pathSegments.Count > 0)
+                    {
+                        var fieldValue = fieldInfo.GetValue(obj)!;
+                        fieldValue = SetRecursive(fieldValue, pathSegments, newValue);
+                        if (fieldValue.GetType().IsValueType)
+                            fieldInfo.SetValue(obj, fieldValue);
+                    }
+                    else
+                        fieldInfo.SetValue(obj, Convert.ToSingle(newValue));//hack: cast double to float
+                }
             }
         }
         return obj;
@@ -57,11 +69,14 @@ internal static class NestedReflectionHelper
 
     private static void ParseMemberPathSegment(string segment, out string memberName, out object?[]? index)
     {
-        if (segment.StartsWith('['))
-        {//property indexer segment
-            memberName = "Item";
-            var indexString = segment.TrimStart('[').TrimEnd(']');
-            index = new object?[] { int.TryParse(indexString, out int numIndex) ? numIndex : indexString };
+        if (segment.Contains('['))
+        {//indexer segment
+            memberName = segment.Split('[')[0];
+            if(string.IsNullOrEmpty(memberName))
+                memberName = "Item";//support earlier params that use deprecated indexer
+            var indexString = segment[(segment.IndexOf('[') + 1)..^1];
+
+            index = [int.TryParse(indexString, out int numIndex) ? numIndex : indexString];
         }
         else
         {//member name segment

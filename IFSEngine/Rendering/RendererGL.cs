@@ -61,7 +61,8 @@ public sealed class RendererGL : IAsyncDisposable
     public int DisplayHeight { get; private set; } = 720;
 
     private string _includesSource;
-    private List<Transform> _registeredTransforms;
+    private List<TransformPlugin> _registeredTransforms;
+    private List<EffectPlugin> _registeredPostfxs;
 
     public IFS LoadedParams { get; private set; } = new IFS();
     private bool _invalidHistogramResolution = false;
@@ -154,6 +155,12 @@ public sealed class RendererGL : IAsyncDisposable
     private int _deProgramHandle;
     private int _offscreenFBOHandle;
     private int _renderTextureHandle;
+    //ping-pong FBOs for post-fx chaining
+    private int _postFxFboA;
+    private int _postFxTextureA;
+    private int _postFxFboB;
+    private int _postFxTextureB;
+    private readonly List<int> _postFxProgramHandles = [];
 
     private readonly AsyncAutoResetEvent _stopRender = new(false);
 
@@ -213,7 +220,7 @@ public sealed class RendererGL : IAsyncDisposable
         _ctx = ctx;
     }
 
-    public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
+    public async Task Initialize(IEnumerable<string> includeSources, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postFxs)
     {
         if (IsInitialized)
             throw new InvalidOperationException("Renderer is already initialized.");
@@ -228,6 +235,7 @@ public sealed class RendererGL : IAsyncDisposable
 
         _includesSource = string.Join(Environment.NewLine, includeSources);
         _registeredTransforms = transforms.ToList();
+        _registeredPostfxs = postFxs.ToList();
 
         //attributeless rendering
         _vao = GL.GenVertexArray();
@@ -235,9 +243,12 @@ public sealed class RendererGL : IAsyncDisposable
         //empty vao
 
         InitBuffers();
+        InitVertexShader();
         InitTonemapPass();
         InitDEPass();
-        InitComputeProgram();
+        InitComputeProgram(_registeredTransforms);
+        InitPostFxPasses(_registeredPostfxs);
+        InitPostFxPingPongFramebuffers();
         GL.DeleteShader(_vertexShaderHandle);
 
         _timerQueryHandle = GL.GenQuery();
@@ -250,7 +261,7 @@ public sealed class RendererGL : IAsyncDisposable
         InvalidateParamsBuffer();
     }
 
-    public async Task LoadTransforms(IEnumerable<string> includeSources, IEnumerable<Transform> transforms)
+    public async Task LoadPlugins(IEnumerable<string> includeSources, IEnumerable<TransformPlugin> transforms, IEnumerable<EffectPlugin> postFxs)
     {
         if (!IsInitialized)
             throw NewNotInitializedException();
@@ -259,7 +270,11 @@ public sealed class RendererGL : IAsyncDisposable
         {
             _includesSource = string.Join(Environment.NewLine, includeSources);
             _registeredTransforms = transforms.ToList();
-            InitComputeProgram();
+            _registeredPostfxs = postFxs.ToList();
+            InitVertexShader();
+            InitPostFxPasses(_registeredPostfxs);
+            InitComputeProgram(_registeredTransforms);
+            GL.DeleteShader(_vertexShaderHandle);
             InvalidateParamsBuffer();
         });
     }
@@ -323,8 +338,10 @@ public sealed class RendererGL : IAsyncDisposable
 
     private void UpdateHistogramResolution()
     {
+        // resize histogram buffer
         GL.NamedBufferData(_histogramBufferHandle, HistogramWidth * HistogramHeight * 4 * sizeof(float), IntPtr.Zero, BufferUsageHint.StaticCopy);
-        //resize display texture. TODO: separate & use display resolution
+
+        // set new resolution uniforms
         GL.UseProgram(_computeProgramHandle);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "width"), HistogramWidth);
         GL.Uniform1(GL.GetUniformLocation(_computeProgramHandle, "height"), HistogramHeight);
@@ -334,7 +351,20 @@ public sealed class RendererGL : IAsyncDisposable
         GL.UseProgram(_deProgramHandle);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "width"), HistogramWidth);
         GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "height"), HistogramHeight);
+        foreach (var handle in _postFxProgramHandles)
+        {
+            GL.UseProgram(handle);
+            GL.Uniform1(GL.GetUniformLocation(handle, "width"), HistogramWidth);
+            GL.Uniform1(GL.GetUniformLocation(handle, "height"), HistogramHeight);
+        }
 
+        //resize post-fx pingpong textures
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, _postFxTextureA);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+        GL.BindTexture(TextureTarget.Texture2D, _postFxTextureB);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+        //resize display texture
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _renderTextureHandle);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
@@ -546,6 +576,9 @@ public sealed class RendererGL : IAsyncDisposable
             GL.Uniform1(GL.GetUniformLocation(_deProgramHandle, "max_density"), 1 + (uint)(TotalIterations / (uint)(HistogramWidth * HistogramHeight)));//apo:*0.001
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
         }
+
+        ApplyPostFxPasses();
+
     }
 
     /// <summary>
@@ -563,6 +596,13 @@ public sealed class RendererGL : IAsyncDisposable
             (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
             (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
             ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+        // Workaround: On AMD the AlphaBits=0 is ignored for some reason,
+        // so we need to clear the alpha channel before diplaying to avoid "white" background problem.
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        GL.ColorMask(false, false, false, true);
+        GL.ClearBuffer(ClearBuffer.Color, 0, _bufferClearColor);
+        GL.ColorMask(true, true, true, true);
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, _offscreenFBOHandle);
     }
 
     private void AdjustWorkloadSize()
@@ -776,7 +816,7 @@ public sealed class RendererGL : IAsyncDisposable
 
     }
 
-    private void InitTonemapPass()
+    private void InitVertexShader()
     {
         var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
@@ -789,11 +829,16 @@ public sealed class RendererGL : IAsyncDisposable
             throw new Exception(
                 string.Format("Error compiling {0} shader: {1}", ShaderType.VertexShader.ToString(), GL.GetShaderInfoLog(_vertexShaderHandle)));
         }
+    }
+
+    private void InitTonemapPass()
+    {
+        var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
 
         var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
         GL.ShaderSource(fragmentShader, new StreamReader(assembly.GetManifestResourceStream(_shadersPath + "tonemap.frag.shader")).ReadToEnd());
         GL.CompileShader(fragmentShader);
-        GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
+        GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out int status);
         if (status == 0)
         {
             throw new Exception(
@@ -806,9 +851,9 @@ public sealed class RendererGL : IAsyncDisposable
         GL.BindTexture(TextureTarget.Texture2D, _renderTextureHandle);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
-        //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, _bufferClearColor);
         //TODO: display resolution?
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
 
@@ -835,13 +880,163 @@ public sealed class RendererGL : IAsyncDisposable
 
     }
 
-    private void InitComputeProgram()
+    /// <summary>
+    /// Creates ping-pong framebuffers and textures for post-fx chaining.
+    /// </summary>
+    private void InitPostFxPingPongFramebuffers()
+    {
+        _postFxFboA = GL.GenFramebuffer();
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _postFxFboA);
+        _postFxTextureA = GL.GenTexture();
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, _postFxTextureA);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, _bufferClearColor);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _postFxTextureA, 0);
+
+        _postFxFboB = GL.GenFramebuffer();
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _postFxFboB);
+        _postFxTextureB = GL.GenTexture();
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, _postFxTextureB);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, _bufferClearColor);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, HistogramWidth, HistogramHeight, 0, PixelFormat.Rgba, PixelType.Float, new IntPtr(0));
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _postFxTextureB, 0);
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
+    }
+
+    /// <summary>
+    /// Creates/recreates opengl programs for all registered postfx plugins.
+    /// </summary>
+    private void InitPostFxPasses(IEnumerable<EffectPlugin> postFxs)
+    {
+        //delete old programs
+        foreach (var handle in _postFxProgramHandles)
+            if (handle != 0)
+                GL.DeleteProgram(handle);
+        _postFxProgramHandles.Clear();
+
+        foreach (var postfx in postFxs)
+            _postFxProgramHandles.Add(InitPostFxPass(postfx));
+    }
+
+    /// <summary>
+    /// Creates the opengl program for the specified post-processing effect.
+    /// </summary>
+    /// <returns>The handle of the created program.</returns>
+    private int InitPostFxPass(EffectPlugin postfx)
+    {
+        var assembly = typeof(RendererGL).GetTypeInfo().Assembly;
+        string shaderTemplate = new StreamReader(assembly.GetManifestResourceStream(_shadersPath + "postfx.frag.shader")).ReadToEnd();
+        //insert includes
+        string shaderSource = shaderTemplate.Replace("@includes", _includesSource);
+        //replace the snippet placeholder with the plugin's source code
+        shaderSource = shaderSource.Replace("@PostFxSnippet", postfx.SourceCode);
+
+        int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+        GL.ShaderSource(fragmentShader, shaderSource);
+        GL.CompileShader(fragmentShader);
+        GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out int status);
+        if (status == 0)
+        {
+            throw new Exception(
+                string.Format("Error compiling postfx '{0}' shader: {1}", postfx.Name, GL.GetShaderInfoLog(fragmentShader)));
+        }
+
+        int programHandle = GL.CreateProgram();
+        GL.AttachShader(programHandle, _vertexShaderHandle);
+        GL.AttachShader(programHandle, fragmentShader);
+        GL.LinkProgram(programHandle);
+        GL.GetProgram(programHandle, GetProgramParameterName.LinkStatus, out status);
+        if (status == 0)
+        {
+            throw new Exception(
+                string.Format("Error linking postfx '{0}' program: {1}", postfx.Name, GL.GetProgramInfoLog(programHandle)));
+        }
+
+        GL.DetachShader(programHandle, _vertexShaderHandle);
+        GL.DetachShader(programHandle, fragmentShader);
+        GL.DeleteShader(fragmentShader);
+
+        GL.UseProgram(programHandle);
+        GL.Uniform1(GL.GetUniformLocation(programHandle, "width"), HistogramWidth);
+        GL.Uniform1(GL.GetUniformLocation(programHandle, "height"), HistogramHeight);
+
+        return programHandle;
+    }
+
+    /// <summary>
+    /// Applies each enabled post-processing effect, chaining them via ping-pong textures.
+    /// </summary>
+    private void ApplyPostFxPasses()
+    {
+        var enabledLayers = LoadedParams.PostEffects.Where(i => i.Enabled).ToList();
+        if (enabledLayers.Count == 0)
+            return;
+
+        //blit the tonemap/DE result into the first ping-pong texture
+        GL.BlitNamedFramebuffer(_offscreenFBOHandle, _postFxFboA,
+            0, 0, HistogramWidth, HistogramHeight,
+            0, 0, HistogramWidth, HistogramHeight,
+            ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+
+        //apply each layer in order
+        for (int i = 0; i < enabledLayers.Count; i++)
+        {
+            var layer = enabledLayers[i];
+            int programIndex = _registeredPostfxs.IndexOf(layer.Effect);
+            if (programIndex < 0 || programIndex >= _postFxProgramHandles.Count)
+                throw new Exception($"Postfx program not found for effect '{layer.Effect.Name}'.");
+
+            int programHandle = _postFxProgramHandles[programIndex];
+            GL.UseProgram(programHandle);
+
+            //bind the source texture
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, (i % 2 == 0) ? _postFxTextureA : _postFxTextureB);
+            GL.Uniform1(GL.GetUniformLocation(programHandle, "tex"), 0);
+            GL.Uniform1(GL.GetUniformLocation(programHandle, "palette_colors_count"), LoadedParams.Palette.KeyColors.Count);
+
+            //set up param arrays for this postfx
+            float[] realParams = layer.RealParams.Values.Select(v => (float)v).ToArray();
+            if (realParams.Length > 0)
+                GL.Uniform1(GL.GetUniformLocation(programHandle, "postfx_real_params"), realParams.Length, ref realParams[0]);
+            float[] vec3Data = layer.Vec3Params.Values.SelectMany(v => new float[] { v.X, v.Y, v.Z }).ToArray();
+            if (vec3Data.Length > 0)
+                GL.Uniform3(GL.GetUniformLocation(programHandle, "postfx_vec3_params"), vec3Data.Length / 3, ref vec3Data[0]);
+
+            //render to the other FBO
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, (i % 2 == 0) ? _postFxFboB : _postFxFboA);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+        }
+
+        //copy final result back to the offscreen FBO
+        int finalFbo = (enabledLayers.Count % 2 == 0) ? _postFxFboA : _postFxFboB;
+        GL.BlitNamedFramebuffer(finalFbo, _offscreenFBOHandle,
+            0, 0, HistogramWidth, HistogramHeight,
+            0, 0, HistogramWidth, HistogramHeight,
+            ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+
+        //restore offscreen FBO as active
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _offscreenFBOHandle);
+    }
+
+    private void InitComputeProgram(IEnumerable<TransformPlugin> transforms)
     {
         //load functions
         string transformsSource = "";
-        for (int tfIndex = 0; tfIndex < _registeredTransforms.Count; tfIndex++)
+        for (int tfIndex = 0; tfIndex < transforms.Count(); tfIndex++)
         {
-            var tf = _registeredTransforms[tfIndex];
+            var tf = transforms.ElementAt(tfIndex);
             transformsSource += $@"
 if (iter.tfId == {tfIndex})
 {{
