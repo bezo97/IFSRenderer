@@ -595,6 +595,13 @@ public sealed class RendererGL : IAsyncDisposable
             (int)(DisplayWidth / 2 + HistogramWidth / 2 * rr),
             (int)(DisplayHeight / 2 + HistogramHeight / 2 * rr),
             ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+        // Workaround: On AMD the AlphaBits=0 is ignored for some reason,
+        // so we need to clear the alpha channel before diplaying to avoid "white" background problem.
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        GL.ColorMask(false, false, false, true);
+        GL.ClearBuffer(ClearBuffer.Color, 0, _bufferClearColor);
+        GL.ColorMask(true, true, true, true);
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, _offscreenFBOHandle);
     }
 
     private void AdjustWorkloadSize()

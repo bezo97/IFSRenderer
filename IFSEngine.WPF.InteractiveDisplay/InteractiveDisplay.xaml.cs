@@ -85,7 +85,7 @@ public partial class InteractiveDisplay : WindowsFormsHost
 
         //Setup GLControl in the WinFormsHost. This could be done in XAML, but we need to configure it with a constructor parameter.
         var glControlSettings = GLControlSettings.Default.Clone();
-        glControlSettings.AlphaBits = 0; //Disable alpha channel of the display, so the background remains black after .net9 bringing in the w11 system theme
+        glControlSettings.AlphaBits = 0; //Disable alpha channel of the display, so the background remains black after .net9 bringing in the w11 system theme. This only works on Nvidia. For AMD we have an additional workaround after blitting.
         _glControl1 = new GLControl(glControlSettings);
         _glControl1.MouseDown += GLControl1_MouseDown;
         _glControl1.MouseMove += GLControl1_MouseMove;
