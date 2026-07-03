@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -13,6 +14,8 @@ namespace WpfDisplay.Views;
 /// </summary>
 public partial class PaletteSlider : UserControl
 {
+    private const int GradientSampleCount = 256;
+
     public PaletteSlider()
     {
         InitializeComponent();
@@ -42,27 +45,22 @@ public partial class PaletteSlider : UserControl
 
     private void SetGradient(ColorPalette palette)
     {
-        Dispatcher.Invoke(()=>{
-
-        gradientBrush.GradientStops = new(palette.GradientSampleBuffer.ToList().Select((c, i) => new GradientStop(
-            Color.FromRgb(
-                (byte)(c.X * 255),
-                (byte)(c.Y * 255),
-                (byte)(c.Z * 255)),
-            i / (double)palette.GradientSampleBuffer.Count)));
-
-        //TODO: dispatch?
-        //gradientStops.Clear();
-        //for (int i = 0; i < colors.Count; i++)
-        //{
-        //    gradientStops.Add(new GradientStop(
-        //        Color.FromRgb(
-        //            (byte)(colors[i].X * 255),
-        //            (byte)(colors[i].Y * 255),
-        //            (byte)(colors[i].Z * 255)),
-        //        i / (double)colors.Count));
-        //}
-        UpdateThumbColor();
+        Dispatcher.Invoke(() =>
+        {
+            var stops = new List<GradientStop>();
+            for (int i = 0; i < GradientSampleCount; i++)
+            {
+                double position = (double)i / (GradientSampleCount - 1);
+                var color = palette.SampleGradient(position);
+                stops.Add(new GradientStop(
+                    Color.FromRgb(
+                        (byte)(color.X * 255),
+                        (byte)(color.Y * 255),
+                        (byte)(color.Z * 255)),
+                    position));
+            }
+            gradientBrush.GradientStops = new GradientStopCollection(stops);
+            UpdateThumbColor();
         });
     }
 

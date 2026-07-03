@@ -68,6 +68,7 @@ public sealed class RendererGL : IAsyncDisposable
     private bool _invalidHistogramResolution = false;
     private bool _invalidHistogramBuffer = false;
     private bool _invalidParamsBuffer = false;
+    private bool _invalidPaletteBuffer = false;
     private bool _invalidPointsStateBuffer = false;
 
     /// <summary>
@@ -284,6 +285,7 @@ public sealed class RendererGL : IAsyncDisposable
         LoadedParams = p;
         InvocationIters = 500;
         InvalidateParamsBuffer();
+        InvalidatePaletteBuffer();
         SetHistogramScaleToDisplay();
     }
 
@@ -312,7 +314,25 @@ public sealed class RendererGL : IAsyncDisposable
 
     public void InvalidateDisplay() => _updateDisplayNow = true;
 
+    /// <summary>
+    /// Invalidates the palette gradient buffer, which causes the render thread to recompute it.
+    /// Usually called whenever the loaded palette's keys or interpolation mode change.
+    /// </summary>
+    public void InvalidatePaletteBuffer() => _invalidPaletteBuffer = true;
+
     private void InvalidatePointsStateBuffer() => _invalidPointsStateBuffer = true;
+
+    private void UpdatePaletteGradientBuffer()
+    {
+        var palette = LoadedParams.Palette;
+        var colorArray = new Vector4[GradientResolution];
+        for (int i = 0; i < GradientResolution; i++)
+        {
+            double position = (double)i / (GradientResolution - 1);
+            colorArray[i] = palette.SampleGradient(position);
+        }
+        GL.NamedBufferSubData(_colorGradientBufferHandle, 0, GradientResolution * sizeof(float) * 4, colorArray);
+    }
 
     public void SetHistogramScale(double scale)
     {
@@ -528,12 +548,14 @@ public sealed class RendererGL : IAsyncDisposable
                 GL.NamedBufferData(_aliasBufferHandle, _aliasBufferSize * _aliasBufferSize * sizeof(float) * 4, xaosAliasBufferData, BufferUsageHint.DynamicDraw);
             }
 
-            //Load gradient colors
-            LoadedParams.Palette.ComputeGradientSamples(GradientResolution);
-            var colorArray = LoadedParams.Palette.GradientSampleBuffer.ToArray();
-            GL.NamedBufferSubData(_colorGradientBufferHandle, 0, GradientResolution * sizeof(float) * 4, colorArray);
 
             _invalidParamsBuffer = false;
+        }
+
+        if (_invalidPaletteBuffer)
+        {
+            UpdatePaletteGradientBuffer();
+            _invalidPaletteBuffer = false;
         }
 
         //these values can change every dispatch

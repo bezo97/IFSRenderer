@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -14,6 +14,12 @@ public class Generator
 
     private static readonly HashSet<string> _preferredTransformNames = ["Affine", "Möbius", "Rotate Euler", "Spherical", "Translate"];
     private static readonly HashSet<string> _angleParams = ["angle", "rot", "rotate", "rotation", "orientation", "inclination", "azimuth"];
+
+    // IQ palette generator parameter ranges
+    private const float IqBiasMin = 0.4f, IqBiasMax = 0.8f;
+    private const float IqMultMin = 0.2f, IqMultMax = 1.2f;
+    private const float IqFreqMin = 0.1f, IqFreqMax = 1.0f;
+    private const float IqPhaseMin = 0.0f, IqPhaseMax = 1.0f;
 
     public Generator(IEnumerable<TransformPlugin> transforms)
     {
@@ -82,8 +88,7 @@ public class Generator
         }
         if (options.MutatePalette)
         {
-            gen.Palette = GenerateRandomIqPalette(options.UseMixboxMixing);
-            gen.Palette.ComputeGradientSamples(256);
+            gen.Palette = GenerateRandomIqPalette(options.PaletteInterpolationMode);
         }
         if (options.MutateColoring)
         {
@@ -94,6 +99,28 @@ public class Generator
             }
         }
         return gen;
+    }
+
+    /// <summary>
+    /// Generate a random IQ palette with randomized parameters within the default ranges.
+    /// </summary>
+    private static ColorPalette GenerateRandomIqPalette(InterpolationMode interpolationMode)
+    {
+        var bias = RandomVector(IqBiasMin, IqBiasMax);
+        var mult = RandomVector(IqMultMin, IqMultMax);
+        var freq = RandomVector(IqFreqMin, IqFreqMax);
+        var phase = RandomVector(IqPhaseMin, IqPhaseMax);
+        return IqPaletteGenerator.Generate(bias, mult, freq, phase, interpolationMode, 10);
+    }
+
+    private static Vector4 RandomVector(float min, float max)
+    {
+        float range = max - min;
+        return new Vector4(
+            min + range * (float)Random.Shared.NextDouble(),
+            min + range * (float)Random.Shared.NextDouble(),
+            min + range * (float)Random.Shared.NextDouble(),
+            1.0f);
     }
 
     private Iterator CreateRandomOrPreferredIterator(GeneratorOptions options)
@@ -168,124 +195,9 @@ public class Generator
         }
     }
 
-    public static ColorPalette GenerateRandomIqPalette(bool useMixboxMixing)
-    {
-        var bias = RandomVector(0.4f, 0.8f);
-        var mult = RandomVector(0.2f, 1.2f);
-        var freq = RandomVector(0.1f, 1.0f);
-        var phase = RandomVector(0.0f, 1.0f);
-        if(useMixboxMixing)
-            return PaletteWithMixboxMixing(bias, mult, freq, phase);
-        else
-            return PaletteFromIqParams(bias, mult, freq, phase);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <remarks>
-    /// Based on this article from Inigo Quilez: <a href="https://iquilezles.org/www/articles/palettes/palettes.htm">iquilezles.org</a>
-    /// </remarks>
-    /// <returns></returns>
-    private static ColorPalette PaletteFromIqParams(Vector4 bias, Vector4 mult, Vector4 freq, Vector4 phase)
-    {
-        SortedList<double, Vector4> gradientKeys = [];
-
-        for (float t = 0; t < 1.0; t += 0.1f)
-        {//could be based on freq
-            Vector4 c = bias + mult * new Vector4(
-                (float)Math.Cos(2 * Math.PI * (t * freq.X + phase.X)),
-                (float)Math.Cos(2 * Math.PI * (t * freq.Y + phase.Y)),
-                (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
-                1.0f);
-            c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
-            gradientKeys[t] = HsvToRgb(c);
-        }
-
-        return new ColorPalette
-        {
-            Name = "Generated Palette",
-            KeyColors = gradientKeys,
-            BackgroundColor = Vector3.Zero
-        };
-    }
-
-    private static ColorPalette PaletteWithMixboxMixing(Vector4 bias, Vector4 mult, Vector4 freq, Vector4 phase)
-    {
-        Vector4[] colors = new Vector4[512];
-
-        List<Vector4> controlColors = [];
-        List<int> controlIndices = [];
-
-        for (float t = 0; t < 4.0; t += 1.0f)
-        {
-            Vector4 c = bias + mult * new Vector4(
-                (float)Math.Cos(2 * Math.PI * (t * freq.X + phase.X)),
-                (float)Math.Cos(2 * Math.PI * (t * freq.Y + phase.Y)),
-                (float)Math.Cos(2 * Math.PI * (t * freq.Z + phase.Z)),
-                1.0f);
-            c = Vector4.Clamp(c, Vector4.Zero, Vector4.One);
-            controlColors.Add(HsvToRgb(c));
-            controlIndices.Add(Random.Shared.Next(512));
-        }
-
-        controlIndices[0] = 0;
-        controlIndices[^1] = 511;
-        controlIndices.Sort();
-
-        for (int i = 0; i < controlColors.Count - 1; i++)
-        {
-            int jStart = controlIndices[i];
-            int jEnd = controlIndices[i + 1];
-            for (int j = jStart; j < jEnd; j++)
-            {
-                float t = (j - jStart) / (float)(jEnd - jStart);
-                colors[j] = MixboxLerp(controlColors[i], controlColors[i + 1], t);
-            }
-        }
-
-        return new ColorPalette
-        {
-            Name = "Generated Palette",
-            KeyColors = new SortedList<double, Vector4>(Enumerable.Range(0, colors.Length).ToDictionary(i => (double)i / (colors.Length - 1), i => colors[i])),
-        };
-    }
-
-    private static Vector4 HueToRgb(float hue)
-    {
-        double R = Math.Abs(hue * 6 - 3) - 1;
-        double G = 2 - Math.Abs(hue * 6 - 2);
-        double B = 2 - Math.Abs(hue * 6 - 4);
-        R = Math.Clamp(R, 0.0, 1.0);
-        G = Math.Clamp(G, 0.0, 1.0);
-        B = Math.Clamp(B, 0.0, 1.0);
-        return new Vector4((float)R, (float)G, (float)B, 1.0f);
-    }
-    private static Vector4 HsvToRgb(Vector4 hsv)
-    {
-        Vector4 rgb = HueToRgb(hsv.X);
-        return ((rgb - Vector4.One) * hsv.Y + Vector4.One) * hsv.Z;
-    }
-
-    private static Vector4 RandomVector(float min, float max)
-    {
-        float range = max - min;
-        return new Vector4(
-            min + range * (float)Random.Shared.NextDouble(),
-            min + range * (float)Random.Shared.NextDouble(),
-            min + range * (float)Random.Shared.NextDouble(),
-            1.0f);
-    }
-
     private static bool IsAngleParameter(string paramName)
     {
         var lc = paramName.ToLowerInvariant();
         return lc == "r" || _angleParams.Any(lc.Contains);
     }
-
-    private static Vector4 MixboxLerp(Vector4 c1, Vector4 c2, float t)
-    {
-        return new Vector4(Scrtwpns.Mixbox.Mixbox.LerpFloat([c1.X, c1.Y, c1.Z, c1.W], [c2.X, c2.Y, c2.Z, c2.W], t));
-    }
-
 }

@@ -1,8 +1,6 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 using System.Windows.Media;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,17 +11,41 @@ namespace WpfDisplay.ViewModels;
 
 public partial class ColorPaletteViewModel : ObservableObject
 {
-    public Color BackgroundColor => Color.FromRgb(
-        (byte)(Palette.BackgroundColor.X * 255),
-        (byte)(Palette.BackgroundColor.Y * 255),
-        (byte)(Palette.BackgroundColor.Z * 255));
+    private const int PreviewSampleCount = 256;
 
-    public GradientStopCollection GradientStops => new(Palette.GradientSampleBuffer.Select((c, i) => new GradientStop(
-        Color.FromRgb(
-            (byte)(c.X * 255),
-            (byte)(c.Y * 255),
-            (byte)(c.Z * 255)),
-        i / (double)Palette.GradientSampleBuffer.Count)));
+    public Color? BackgroundColor
+    {
+        get
+        {
+            if (!Palette.BackgroundColor.HasValue)
+                return null;
+            var bg = Palette.BackgroundColor.Value;
+            return Color.FromRgb(
+                (byte)(bg.X * 255),
+                (byte)(bg.Y * 255),
+                (byte)(bg.Z * 255));
+        }
+    }
+
+    public GradientStopCollection GradientStops
+    {
+        get
+        {
+            var stops = new List<GradientStop>();
+            for (int i = 0; i < PreviewSampleCount; i++)
+            {
+                double position = i / (double)(PreviewSampleCount - 1);
+                Vector4 color = Palette.SampleGradient(position);
+                stops.Add(new GradientStop(
+                    Color.FromRgb(
+                        (byte)(color.X * 255),
+                        (byte)(color.Y * 255),
+                        (byte)(color.Z * 255)),
+                    position));
+            }
+            return new GradientStopCollection(stops);
+        }
+    }
 
     [ObservableProperty]
     private ColorPalette _palette;

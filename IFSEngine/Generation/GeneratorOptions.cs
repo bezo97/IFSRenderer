@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 using IFSEngine.Model;
 
@@ -16,7 +16,7 @@ public class GeneratorOptions
     public bool MutatePalette { get; set; } = true;
     public bool MutateColoring { get; set; } = true;
     public IFS BaseParams { get; set; } = DefaultStartingIfs;
-    public bool UseMixboxMixing { get; set; } = true;
+    public InterpolationMode PaletteInterpolationMode { get; set; } = InterpolationMode.Mixbox;
     //TODO: select transforms
 
     public static readonly IFS DefaultStartingIfs = new()

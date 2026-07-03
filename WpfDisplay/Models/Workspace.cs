@@ -193,7 +193,13 @@ public partial class Workspace : ObservableObject
     {
         var blankParams = new IFS();
         if (!UseWhiteForBlankParams)
-            blankParams.Palette = Generator.GenerateRandomIqPalette(true);
+            blankParams.Palette = IFSEngine.Generation.IqPaletteGenerator.Generate(
+                new System.Numerics.Vector4(0.6f, 0.6f, 0.6f, 1f),
+                new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1f),
+                new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1f),
+                new System.Numerics.Vector4((float)Random.Shared.NextDouble(), (float)Random.Shared.NextDouble(), (float)Random.Shared.NextDouble(), 1f),
+                IFSEngine.Model.InterpolationMode.Mixbox,
+                10);
         LoadParams(blankParams, null);
     }
 
