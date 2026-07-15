@@ -1,0 +1,328 @@
+<UserControl x:Class="WpfDisplay.Views.PaletteBrowserPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             x:Name="browserPage">
+
+    <UserControl.Resources>
+        <!-- Swatch sizing based on zoom -->
+        <Style x:Key="SwatchStyle" TargetType="local:PaletteSwatch">
+            <Setter Property="Width" Value="{Binding ElementName=zoomSlider, Path=Value}"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="320"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left column: Browser area -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Toolbar -->
+            <ToolBarTray Grid.Row="0" IsLocked="True">
+                <ToolBar>
+                    <!-- Primary actions -->
+                    <Button Content="New" Command="{Binding CreateCollectionCommand}"
+                            ToolTip="Create new collection"
+                            Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                    <Separator/>
+                    <!-- Secondary actions -->
+                    <Button Content="Import" Command="{Binding ImportFlameFileCommand}"
+                            ToolTip="Import flame palette file"
+                            Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                    <Button Content="Reload" Command="{Binding ReloadAsyncCommand}"
+                            ToolTip="Reload collections from disk"
+                            Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                    <Separator/>
+                    <!-- Search -->
+                    <TextBox x:Name="SearchBox" Width="180"
+                             md:HintAssist.Hint="Search palettes..."
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    <!-- Sort -->
+                    <ComboBox Width="120"
+                              ItemsSource="{Binding Source={x:Static vm:PaletteBrowserViewModel.AllSortModes}}"
+                              SelectedItem="{Binding SortMode}"/>
+                    <!-- Grouping toggle -->
+                    <ToggleButton IsChecked="{Binding GroupByCollection}"
+                                  ToolTip="Group by collection">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="☰" Margin="0,0,4,0"/>
+                            <TextBlock Text="Group"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <!-- Zoom -->
+                    <Slider x:Name="zoomSlider" Width="100" Minimum="100" Maximum="400" Value="{Binding Zoom}"
+                            ToolTip="Swatch zoom"/>
+                </ToolBar>
+            </ToolBarTray>
+
+            <!-- Browser content: Grid with sticky favorites on top, scrollable content below -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 0: Favorites (sticky, always visible) -->
+                <Expander x:Name="FavoritesExpander" Grid.Row="0" Header="⭐ Favorites"
+                          Margin="0,0,0,4"
+                          Style="{StaticResource MaterialDesignExpander}">
+                    <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Empty state hint -->
+                            <TextBlock Text="Select a palette and click the star to add it here."
+                                       Foreground="Gray" FontSize="12"
+                                       HorizontalAlignment="Center" Margin="8,12"
+                                       Visibility="{Binding HasFilteredFavorites, Converter={StaticResource invertBooleanToVisibilityConverter}}"/>
+                            <WrapPanel>
+                                <ItemsControl ItemsSource="{Binding FilteredFavorites}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <local:PaletteSwatch PaletteVm="{Binding}"
+                                                                 Style="{StaticResource SwatchStyle}"
+                                                                 MouseLeftButtonUp="Swatch_Click"
+                                                                 MouseDoubleClick="Swatch_DoubleClick"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </WrapPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Expander>
+
+                <!-- Row 1: Scrollable content (empty state + collections) -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="True">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Empty state -->
+                        <ContentPresenter Grid.Row="0" Visibility="{Binding HasCollections, Converter={StaticResource invertBooleanToVisibilityConverter}}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ContentPresenter.Content>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="No palettes yet"
+                                               FontSize="24" Foreground="Gray"
+                                               HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                                    <Button Content="Create Collection"
+                                            Command="{Binding CreateCollectionCommand}"
+                                            Style="{StaticResource MaterialDesignRaisedButton}"
+                                            HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </ContentPresenter.Content>
+                        </ContentPresenter>
+
+                        <!-- Grouped by collection -->
+                        <ItemsControl x:Name="GroupedView" Grid.Row="1" ItemsSource="{Binding FilteredCollections}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Expander Header="{Binding}"
+                                          IsExpanded="{Binding IsExpanded}"
+                                          Style="{StaticResource MaterialDesignExpander}">
+                                    <!-- Collection header with "..." button -->
+                                    <Expander.HeaderTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Collection.Name}"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding PaletteCount, StringFormat='({0})'}"
+                                                           Foreground="Gray"
+                                                           Margin="8,0,0,0"
+                                                           VerticalAlignment="Center"/>
+                                                <Button Grid.Column="2"
+                                                        Content="…"
+                                                        Style="{StaticResource MaterialDesignToolButton}"
+                                                        Margin="8,0,0,0"
+                                                        Padding="4,0,4,0"
+                                                        ToolTip="Collection options"
+                                                        Click="CollectionOptionsButton_Click">
+                                                    <Button.ContextMenu>
+                                                        <ContextMenu x:Name="CollectionContextMenu" StaysOpen="True">
+                                                            <MenuItem Header="Rename" Click="RenameCollection_Click"/>
+                                                            <MenuItem Header="Edit Description" Click="EditDescription_Click"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="Export…" Click="ExportCollection_Click"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="Delete" Click="DeleteCollection_Click"/>
+                                                        </ContextMenu>
+                                                    </Button.ContextMenu>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </Expander.HeaderTemplate>
+                                    <ItemsControl ItemsSource="{Binding Palettes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel IsItemsHost="True"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <local:PaletteSwatch PaletteVm="{Binding}"
+                                                                     Style="{StaticResource SwatchStyle}"
+                                                                     MouseLeftButtonUp="Swatch_Click"
+                                                                     MouseDoubleClick="Swatch_DoubleClick"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Flat view (no grouping) -->
+                    <ItemsControl x:Name="FlatView" Grid.Row="2" ItemsSource="{Binding FilteredAllPalettes}" Visibility="Collapsed">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:PaletteSwatch PaletteVm="{Binding}"
+                                                     Style="{StaticResource SwatchStyle}"
+                                                     MouseLeftButtonUp="Swatch_Click"
+                                                     MouseDoubleClick="Swatch_DoubleClick"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+
+        <!-- Right column: Preview area -->
+        <Grid Grid.Column="1" Visibility="{Binding SelectedPalette, Converter={StaticResource nullVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="8">
+                    <!-- Large gradient preview -->
+                    <Border Height="48" CornerRadius="4" Margin="0,0,0,12"
+                            SnapsToDevicePixels="True">
+                        <Border.Background>
+                            <LinearGradientBrush x:Name="PreviewGradient"/>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="0" Opacity="0.3"/>
+                        </Border.Effect>
+                    </Border>
+
+                    <!-- Palette name -->
+                    <TextBox Text="{Binding SelectedPalette.Palette.Name, UpdateSourceTrigger=PropertyChanged}"
+                             md:HintAssist.Hint="Name"
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             Margin="0,0,0,8"/>
+
+                    <!-- Tags -->
+                    <TextBox Text="{Binding SelectedPalette.Palette.Tags, StringFormat={}{0}}"
+                             md:HintAssist.Hint="Tags (comma-separated)"
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             Margin="0,0,0,12"/>
+
+                    <!-- Background color indicator -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Background:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Border Grid.Column="1" Width="32" Height="24" CornerRadius="2"
+                                BorderBrush="Gray" BorderThickness="1">
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding SelectedPalette.BackgroundColor}"/>
+                            </Border.Background>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interpolation mode -->
+                    <TextBlock Text="{Binding SelectedPalette.Palette.InterpolationMode}"
+                               Foreground="Gray" Margin="0,0,0,16"/>
+
+                    <!-- Action buttons -->
+                    <WrapPanel Margin="0,0,0,8">
+                        <Button Command="{Binding ToggleFavoriteCommand}"
+                                CommandParameter="{Binding SelectedPalette}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Setter Property="Content" Value="✩"/>
+                                    <Setter Property="Margin" Value="0,0,4,0"/>
+                                    <Setter Property="Padding" Value="8,4,8,4"/>
+                                    <Setter Property="ToolTip" Value="Toggle favorite"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPalette.IsFavorite}" Value="True">
+                                            <Setter Property="Content" Value="✮"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="🗑️"
+                                Command="{Binding DeletePaletteCommand}"
+                                CommandParameter="{Binding SelectedPalette}"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="0,0,4,0" Padding="8,4,8,4"
+                                ToolTip="Delete"/>
+                        <Button Content="⧉"
+                                Command="{Binding DuplicatePaletteCommand}"
+                                CommandParameter="{Binding SelectedPalette}"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="0,0,4,0" Padding="8,4,8,4"
+                                ToolTip="Duplicate"/>
+                    </WrapPanel>
+
+                    <!-- Copy to sub-menu -->
+                    <Button Content="📋 Copy to…"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            Margin="0,0,0,16"
+                            ToolTip="Copy to another collection"
+                            Click="CopyToButton_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="CopyToContextMenu" StaysOpen="True">
+                                <ItemsControl ItemsSource="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <MenuItem Header="{Binding Collection.Name}" Click="CopyTo_Click"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+
+                    <Separator Margin="0,0,0,12"/>
+
+                    <!-- Apply button -->
+                    <Button Content="✅ Apply to Fractal"
+                            Command="{Binding ApplyToFractalCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

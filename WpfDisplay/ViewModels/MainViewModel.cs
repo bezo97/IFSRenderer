@@ -52,9 +52,14 @@ public sealed partial class MainViewModel : ObservableObject, IAsyncDisposable
         }
     }
 
-    [ObservableProperty] private string _statusBarText = string.Empty;
-    [ObservableProperty] private bool _isHintsPanelVisible = true;
-    [ObservableProperty] private bool _isGamepadConnected = false;
+    [ObservableProperty]
+    public partial string StatusBarText { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool IsHintsPanelVisible { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsGamepadConnected { get; set; } = false;
 
     public string IsRenderingIcon => workspace.Renderer.IsRendering ? "||" : "▶️";
     public string IterationLevel => BitOperations.Log2(1 + workspace.Renderer.TotalIterations / (ulong)(workspace.Renderer.HistogramWidth * workspace.Renderer.HistogramHeight)).ToString("00.");

@@ -179,19 +179,21 @@ public partial class MainWindow : Window
         //create window
         if (_paletteManagerWindow == null || !_paletteManagerWindow.IsLoaded)
         {
+            var library = new IFSEngine.Services.PaletteLibraryService(App.PalettesDirectoryPath);
             _paletteManagerWindow = new PaletteManagerWindow
             {
                 Owner = this
             };
-            var generatorViewModel = new PaletteManagerViewModel(vm);
-            _paletteManagerWindow.DataContext = generatorViewModel;
+            var paletteVm = new WpfDisplay.ViewModels.PaletteManagerViewModel(library, vm);
+            _paletteManagerWindow.DataContext = paletteVm;
+            _ = paletteVm.InitializeAsync();
         }
 
 
         if (isSelector)
         {
             if (_paletteManagerWindow.ShowDialog() == true)
-                return ((PaletteManagerViewModel)_paletteManagerWindow.DataContext).SelectedPalette?.Palette;
+                return ((PaletteManagerViewModel)_paletteManagerWindow.DataContext).BrowserViewModel.SelectedPalette?.Palette;
         }
         else
         {

@@ -1,27 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace WpfDisplay.Views;
 
 /// <summary>
-/// Serves as both a selector dialog and a manager for the user's color palette library.
+/// Palette Manager window. Single instance, managed by MainWindow.
 /// </summary>
 public partial class PaletteManagerWindow : Window
 {
     public PaletteManagerWindow()
     {
         InitializeComponent();
-        MaterialDesignThemes.Wpf.ShadowAssist.SetCacheMode(this, null);//disable gpu cache
     }
 }

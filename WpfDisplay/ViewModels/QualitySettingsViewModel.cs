@@ -18,7 +18,9 @@ public partial class QualitySettingsViewModel : ObservableObject
     public IFS Ifs => _workspace.Ifs;
     public IReadOnlyDictionary<string, int[]> ResolutionPresets => _workspace.ResolutionPresets;
 
-    [ObservableProperty] private bool _isResolutionLinked;
+    [ObservableProperty]
+    public partial bool IsResolutionLinked { get; set; }
+
     public string MaxFilterRadiusLabel => "Filter Radius" + (_workspace.Renderer.MaxFilterRadius > 0 ? "" : " (Off)");
     public bool IsFinalRenderingMode
     {

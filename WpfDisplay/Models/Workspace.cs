@@ -60,7 +60,8 @@ public partial class Workspace : ObservableObject
             return paths;
         }
     }
-    [ObservableProperty] private bool _hasUnsavedChanges;
+    [ObservableProperty]
+    public partial bool HasUnsavedChanges { get; set; }
 
     private RendererGL _renderer = null!;
     public RendererGL Renderer

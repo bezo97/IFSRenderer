@@ -32,16 +32,25 @@ public partial class AnimationViewModel : ObservableObject
 
     private MediaPlayer? _audioPlayer;
     public CavernAudio? Audio { get; private set; } = null;
-    [ObservableProperty] private ReferenceChannel[] _loadedAudioChannels = [];
-    [ObservableProperty] private string? _audioClipTitle = null;
-    [ObservableProperty] private double? _keyframeInsertPosition = null;//location of the context menu over the channel
-    [ObservableProperty] private bool _isExportingFrames = false;
+    [ObservableProperty]
+    public partial ReferenceChannel[] LoadedAudioChannels { get; set; } = [];
+
+    [ObservableProperty]
+    public partial string? AudioClipTitle { get; set; } = null;
+
+    [ObservableProperty]
+    public partial double? KeyframeInsertPosition { get; set; } = null;
+
+    [ObservableProperty]
+    public partial bool IsExportingFrames { get; set; } = false;
+
     private string? _saveFramesPath = null;
 
     public TimeOnly CurrentTime { get; private set; } = TimeOnly.MinValue;
 
     public ObservableCollection<ChannelViewModel> Channels { get; } = [];
-    [ObservableProperty] private ChannelViewModel? _editedChannel = null;
+    [ObservableProperty]
+    public partial ChannelViewModel? EditedChannel { get; set; } = null;
 
     /// <summary>
     /// pixels per second
@@ -49,13 +58,14 @@ public partial class AnimationViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SheetWidth))]
     [NotifyPropertyChangedFor(nameof(CurrentTimeScrollPosition))]
-    private float _viewScale = 120.0f;
+    public partial float ViewScale { get; set; } = 120.0f;
 
     public float SheetWidth => (float)Workspace.Ifs.Dopesheet.Length.TotalSeconds * ViewScale;
 
     public double KeyframeRepositionOffset { get; internal set; }
 
-    [ObservableProperty] private double _currentTimeIncrement = 1.0 / IFS.Default.Dopesheet.Fps;
+    [ObservableProperty]
+    public partial double CurrentTimeIncrement { get; set; } = 1.0 / IFS.Default.Dopesheet.Fps;
 
     public AnimationViewModel(Workspace workspace)
     {

@@ -32,10 +32,12 @@ public partial class IFSViewModel : ObservableObject
     public IEnumerable<TransformPlugin> FilteredTransforms => FilterTransforms(_workspace.LoadedTransforms);
     public IReadOnlyCollection<ConnectionViewModel> ConnectionViewModels => _connectionViewModels;
 
-    [ObservableProperty] private IteratorViewModel? _connectingIterator;
+    [ObservableProperty]
+    public partial IteratorViewModel? ConnectingIterator { get; set; }
 
     [NotifyPropertyChangedFor(nameof(FilteredTransforms))]
-    [ObservableProperty] private string _transformSearchFilter = "";
+    [ObservableProperty]
+    public partial string TransformSearchFilter { get; set; } = "";
 
     private readonly ObservableCollection<IteratorViewModel> _iteratorViewModels = [];
     private readonly ObservableCollection<ConnectionViewModel> _connectionViewModels = [];

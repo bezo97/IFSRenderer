@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -195,8 +195,6 @@ public class PaletteLibraryService
 
         await FlameFormatExporter.ExportCollectionAsync(collection, filePath);
     }
-
-    // --- Internal helpers ---
 
     private void EnsureDirectoryExists()
     {

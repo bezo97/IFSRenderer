@@ -20,7 +20,8 @@ public partial class KeyframeViewModel : ObservableObject
 
     public double KeyframeTime => _k.t;
     public float TimelinePositon => (float)(_k.t * _avm.ViewScale + _avm.KeyframeRepositionOffset);
-    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
 
     public EasingDirection SelectedEasingDirection
     {
@@ -49,7 +50,7 @@ public partial class KeyframeViewModel : ObservableObject
         _avm = avm;
         _cvm = cvm;
         _k = k;
-        _isSelected = isSelected;
+        IsSelected = isSelected;
         avm.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName is nameof(avm.ViewScale))

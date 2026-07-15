@@ -31,10 +31,14 @@ public partial class ChannelViewModel : ObservableObject
     public AnimationViewModel AnimationVM { get; }
 
     public readonly Channel channel;
-    [ObservableProperty] private ObservableCollection<KeyframeViewModel> _keyframes = [];
-    [ObservableProperty] private bool _hasAudioDriver = false;
+    [ObservableProperty]
+    public partial ObservableCollection<KeyframeViewModel> Keyframes { get; set; } = [];
 
-    [ObservableProperty] private ReferenceChannel _selectedAudioChannelOption = default!;
+    [ObservableProperty]
+    public partial bool HasAudioDriver { get; set; } = false;
+
+    [ObservableProperty]
+    public partial ReferenceChannel SelectedAudioChannelOption { get; set; } = default!;
 
     private float Sampler(AudioChannelDriver d, double t)
     {

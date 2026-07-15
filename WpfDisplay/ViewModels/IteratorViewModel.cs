@@ -54,7 +54,7 @@ public partial class IteratorViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ForegroundZIndex))]
-    private bool _isSelected;
+    public partial bool IsSelected { get; set; }
 
     public int ForegroundZIndex => IsSelected ? 3 : 2;
     private ValueSliderSettings _startWeight;
