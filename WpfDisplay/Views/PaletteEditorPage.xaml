@@ -1,0 +1,202 @@
+<Page x:Class="WpfDisplay.Views.PaletteEditorPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:WpfDisplay.Views"
+             xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:PaletteEditorViewModel, IsDesignTimeCreatable=True}">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVis"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left column: Collection context -->
+        <Grid Grid.Column="0" Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Collection name -->
+            <TextBox Grid.Row="0"
+                     Text="{Binding CollectionName, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     md:HintAssist.Hint="Collection name"
+                     Margin="0,0,0,4"/>
+
+            <!-- Collection description -->
+            <TextBox Grid.Row="1"
+                     Text="{Binding CollectionDescription, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     md:HintAssist.Hint="Description"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     Height="60"
+                     Margin="0,0,0,8"/>
+
+            <!-- Palette list from collection -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding CollectionPalettes}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:PaletteSwatch PaletteVm="{Binding}"
+                                                 Style="{StaticResource SwatchStyle}"
+                                                 Margin="2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Center column: Gradient editor -->
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16">
+                <!-- Palette name -->
+                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         md:HintAssist.Hint="Palette name"
+                         Margin="0,0,0,8"/>
+
+                <!-- Gradient bar -->
+                <local:GradientBarControl EditorViewModel="{Binding}"
+                                          Margin="0,0,0,12"/>
+
+                <!-- Key management buttons -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Content="+ Add Key"
+                            Command="{Binding AddKeyCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Margin="0,0,4,0"/>
+                    <Button Content="⧉ Duplicate"
+                            Command="{Binding SelectedKey.DuplicateCommand}"
+                            IsEnabled="{Binding SelectedKey}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Margin="0,0,4,0"/>
+                    <Button Content="🗑 Remove"
+                            Command="{Binding SelectedKey.RemoveCommand}"
+                            IsEnabled="{Binding SelectedKey}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                </StackPanel>
+
+                <!-- Key properties panel -->
+                <md:Card Visibility="{Binding SelectedKey, Converter={StaticResource boolToVis}}"
+                         Padding="12"
+                         Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Key Properties" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                        <!-- Position slider -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Position:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Slider Grid.Column="1"
+                                    Minimum="0" Maximum="1"
+                                    TickFrequency="0.01"
+                                    IsSnapToTickEnabled="True"
+                                    Value="{Binding SelectedKey.Position, Mode=TwoWay}"
+                                    PreviewMouseUp="KeyPositionSlider_MouseUp"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding SelectedKey.Position, StringFormat={}{0:F2}}"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0"
+                                       Width="40"
+                                       TextAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Color picker -->
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Color:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <xctk:ColorPicker Grid.Column="1"
+                                              SelectedColor="{Binding SelectedKey.Color, Mode=TwoWay}"/>
+                        </Grid>
+                    </StackPanel>
+                </md:Card>
+
+                <!-- Palette-level settings -->
+                <md:Card Padding="12"
+                         Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Palette Settings" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                        <!-- Interpolation mode -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Interpolation:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding AllInterpolationModes}"
+                                      SelectedItem="{Binding InterpolationMode}"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                        </Grid>
+
+                        <!-- Tags -->
+                        <TextBox Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 md:HintAssist.Hint="Tags (comma-separated)"
+                                 Margin="0,0,0,8"/>
+
+                        <!-- Background color -->
+                        <StackPanel>
+                            <CheckBox Content="Has background color"
+                                      IsChecked="{Binding HasBackgroundColor}"
+                                      IsThreeState="False"
+                                      Margin="0,0,4,0"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Background:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <xctk:ColorPicker Grid.Column="1"
+                                                  SelectedColor="{Binding BackgroundColor, Mode=TwoWay}"
+                                                  IsEnabled="{Binding HasBackgroundColor}"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </md:Card>
+
+                <!-- Save / Cancel buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                    <Button Content="← Back"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource MaterialDesignFlatMidBgButton}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="Save &amp; Back"
+                            Command="{Binding SaveCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            IsEnabled="{Binding HasUnsavedChanges}"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Right column: Generator (hidden by default, Phase 4) -->
+        <!-- Reserved for Phase 4 -->
+    </Grid>
+</Page>

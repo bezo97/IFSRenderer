@@ -1,4 +1,4 @@
-<UserControl x:Class="WpfDisplay.Views.PaletteBrowserPage"
+<Page x:Class="WpfDisplay.Views.PaletteBrowserPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -6,14 +6,8 @@
              xmlns:vm="clr-namespace:WpfDisplay.ViewModels"
              x:Name="browserPage">
 
-    <UserControl.Resources>
-        <!-- Swatch sizing based on zoom -->
-        <Style x:Key="SwatchStyle" TargetType="local:PaletteSwatch">
-            <Setter Property="Width" Value="{Binding ElementName=zoomSlider, Path=Value}"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="3"/>
-        </Style>
-    </UserControl.Resources>
+    <Page.Resources>
+    </Page.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -32,8 +26,11 @@
             <ToolBarTray Grid.Row="0" IsLocked="True">
                 <ToolBar>
                     <!-- Primary actions -->
-                    <Button Content="New" Command="{Binding CreateCollectionCommand}"
+                    <Button Content="New Collection" Command="{Binding CreateCollectionCommand}"
                             ToolTip="Create new collection"
+                            Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                    <Button Content="New Palette" Command="{Binding CreatePaletteCommand}"
+                            ToolTip="Create new palette in a collection"
                             Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
                     <Separator/>
                     <!-- Secondary actions -->
@@ -265,6 +262,11 @@
 
                     <!-- Action buttons -->
                     <WrapPanel Margin="0,0,0,8">
+                        <Button Content="✏️"
+                                Command="{Binding OpenEditorCommand}"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="0,0,4,0" Padding="8,4,8,4"
+                                ToolTip="Edit palette"/>
                         <Button Command="{Binding ToggleFavoriteCommand}"
                                 CommandParameter="{Binding SelectedPalette}">
                             <Button.Style>
@@ -325,4 +327,4 @@
             </ScrollViewer>
         </Grid>
     </Grid>
-</UserControl>
+</Page>

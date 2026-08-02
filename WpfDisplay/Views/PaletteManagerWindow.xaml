@@ -18,9 +18,5 @@
         Height="720" Width="1280" WindowState="Maximized"
         x:Name="paletteManagerWindow"
         d:DataContext="{d:DesignInstance Type=vm:PaletteManagerViewModel, IsDesignTimeCreatable=True}">
-    <Grid>
-        <ContentControl>
-            <local:PaletteBrowserPage DataContext="{Binding BrowserViewModel}"/>
-        </ContentControl>
-    </Grid>
+    <Frame x:Name="NavigationFrame" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal"/>
 </Window>

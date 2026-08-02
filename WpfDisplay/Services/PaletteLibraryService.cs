@@ -10,7 +10,7 @@ using IFSEngine.Serialization;
 
 using Newtonsoft.Json;
 
-namespace IFSEngine.Services;
+namespace WpfDisplay.Services;
 
 /// <summary>
 /// Manages the palette library using per-collection JSON files.

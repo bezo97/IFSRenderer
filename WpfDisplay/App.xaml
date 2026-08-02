@@ -1,7 +1,8 @@
 ﻿<Application x:Class="WpfDisplay.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:WpfDisplay" 
+             xmlns:local="clr-namespace:WpfDisplay"
+             xmlns:views="clr-namespace:WpfDisplay.Views" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:conv="clr-namespace:WpfDisplay.Converters"
@@ -37,6 +38,11 @@
                     <conv:BetterBooleanToVisibilityConverter x:Key="invertBooleanToVisibilityConverter" True="Collapsed" False="Visible"/>
                     <conv:ParameterEqualityToBoolConverter x:Key="parameterEqualityToBoolConverter"/>
                     <conv:BooleanConverter x:Key="invertBooleanConverter" True="False" False="True"/>
+                    <Style x:Key="SwatchStyle" TargetType="views:PaletteSwatch">
+                        <Setter Property="Width" Value="{Binding ElementName=zoomSlider, Path=Value}"/>
+                        <Setter Property="Height" Value="40"/>
+                        <Setter Property="Margin" Value="3"/>
+                    </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

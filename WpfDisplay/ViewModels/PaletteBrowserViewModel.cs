@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,7 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using IFSEngine.Model;
-using IFSEngine.Services;
+using WpfDisplay.Services;
 
 using WpfDisplay.Helper;
 using WpfDisplay.Models;
@@ -27,6 +28,9 @@ public partial class PaletteBrowserViewModel : ObservableObject
     private readonly PaletteLibraryService _library;
     private readonly MainViewModel _mainVm;
     private readonly Workspace _workspace;
+
+    public PaletteLibraryService Library => _library;
+    public MainViewModel MainVm => _mainVm;
     private HashSet<Guid> _favorites = [];
 
     [ObservableProperty]
@@ -262,6 +266,31 @@ public partial class PaletteBrowserViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task CreatePalette()
+    {
+        if (Collections.Count == 0)
+        {
+            MessageBox.Show("Create a collection first.", "No Collections", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        // Create a default palette in the first collection
+        var targetCollection = Collections[0].Collection;
+        var palette = new ColorPalette
+        {
+            Name = "New Palette",
+            BackgroundColor = null,
+            InterpolationMode = InterpolationMode.LinearRGB,
+            Author = Author.Unknown,
+        };
+        palette.KeyColors[0.0] = new System.Numerics.Vector4(1, 1, 1, 1);
+        palette.KeyColors[1.0] = new System.Numerics.Vector4(1, 1, 1, 1);
+
+        await _library.AddPaletteAsync(targetCollection.Id, palette);
+        await ReloadAsync();
+    }
+
+    [RelayCommand]
     private async Task DeleteCollection(PaletteCollectionViewModel collectionVm)
     {
         var result = MessageBox.Show(
@@ -427,6 +456,33 @@ public partial class PaletteBrowserViewModel : ObservableObject
         _workspace.Ifs.Palette = SelectedPalette.Palette;
         _workspace.Renderer.InvalidatePaletteBuffer();
     }
+
+    /// <summary>
+    /// Open the palette editor for the selected palette.
+    /// </summary>
+    [RelayCommand]
+    public void OpenEditor(ColorPaletteViewModel? paletteVm = null)
+    {
+        var target = paletteVm ?? SelectedPalette;
+        if (target == null) return;
+
+        // Find the collection this palette belongs to
+        PaletteCollection? collection = null;
+        foreach (var cvm in Collections)
+        {
+            if (cvm.Palettes.Any(p => p.Palette.Id == target.Palette.Id))
+            {
+                collection = cvm.Collection;
+                break;
+            }
+        }
+
+        // Notify the manager to switch to editor page
+        // This is handled by the window's code-behind via a callback
+        OnOpenEditor?.Invoke(target.Palette, collection);
+    }
+
+    public event Action<ColorPalette, PaletteCollection?>? OnOpenEditor;
 
     [RelayCommand]
     private async Task UpdatePaletteName(string newName)

@@ -179,7 +179,7 @@ public partial class MainWindow : Window
         //create window
         if (_paletteManagerWindow == null || !_paletteManagerWindow.IsLoaded)
         {
-            var library = new IFSEngine.Services.PaletteLibraryService(App.PalettesDirectoryPath);
+            var library = new WpfDisplay.Services.PaletteLibraryService(App.PalettesDirectoryPath);
             _paletteManagerWindow = new PaletteManagerWindow
             {
                 Owner = this

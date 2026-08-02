@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿#nullable enable
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,7 +11,7 @@ namespace WpfDisplay.Views;
 /// <summary>
 /// Palette browser page with two columns: browser area and preview panel.
 /// </summary>
-public partial class PaletteBrowserPage : UserControl
+public partial class PaletteBrowserPage : Page
 {
     public PaletteBrowserViewModel ViewModel => (PaletteBrowserViewModel)DataContext!;
 
